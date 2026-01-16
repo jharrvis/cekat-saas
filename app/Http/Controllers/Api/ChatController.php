@@ -242,7 +242,11 @@ class ChatController extends Controller
                 $prompt .= "## Dokumen & Informasi Tambahan\n";
                 foreach ($documents as $doc) {
                     $prompt .= "Sumber: {$doc->name}\n";
-                    $chunks = is_array($doc->chunks) ? $doc->chunks : json_decode($doc->chunks, true);
+                    // Handle chunks - could be array or JSON string
+                    $chunks = $doc->chunks;
+                    if (is_string($chunks)) {
+                        $chunks = json_decode($chunks, true);
+                    }
                     if ($chunks && is_array($chunks)) {
                         // Use first 2 chunks to avoid token limits
                         $selectedChunks = array_slice($chunks, 0, 2);
@@ -362,6 +366,11 @@ class ChatController extends Controller
         $user = $widget->user;
         $plan = $user->plan;
 
+        // If user has no plan, return default model
+        if (!$plan) {
+            return $defaultModel;
+        }
+
         // Get AI tier from user's plan (basic, standard, advanced, premium)
         $aiTier = $plan->ai_tier ?? 'basic';
 
@@ -376,7 +385,7 @@ class ChatController extends Controller
             if (is_array($mapping) && isset($mapping[$aiTier])) {
                 \Log::info('AI Tier Model Selection', [
                     'user_id' => $user->id,
-                    'plan' => $plan->name,
+                    'plan' => $plan->name ?? 'unknown',
                     'ai_tier' => $aiTier,
                     'model' => $mapping[$aiTier],
                 ]);
@@ -394,7 +403,7 @@ class ChatController extends Controller
 
         \Log::info('AI Tier Model Selection (fallback)', [
             'user_id' => $user->id,
-            'plan' => $plan->name,
+            'plan' => $plan->name ?? 'unknown',
             'ai_tier' => $aiTier,
             'model' => $defaultMapping[$aiTier] ?? $defaultModel,
         ]);
