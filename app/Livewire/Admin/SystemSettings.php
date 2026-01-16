@@ -42,11 +42,27 @@ class SystemSettings extends Component
             default => [],
         };
 
+        // Define types for each setting key
+        $settingTypes = [
+            // General
+            'site_name' => 'string',
+            'site_url' => 'string',
+            'support_email' => 'string',
+            'allow_registration' => 'boolean',
+            'maintenance_mode' => 'boolean',
+            // API
+            'openrouter_api_key' => 'string',
+            'default_ai_model' => 'string',
+            'api_timeout' => 'number',
+            // Limits
+            'max_upload_size_mb' => 'number',
+            'session_timeout_minutes' => 'number',
+            'chat_retention_days' => 'number',
+        ];
+
         foreach ($settingsToSave as $key => $value) {
-            $setting = Setting::where('key', $key)->first();
-            if ($setting) {
-                Setting::set($key, $value, $setting->type, $setting->group);
-            }
+            $type = $settingTypes[$key] ?? 'string';
+            Setting::set($key, $value, $type, $group);
         }
 
         session()->flash('message', ucfirst($group) . ' settings saved successfully!');
