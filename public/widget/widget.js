@@ -35,7 +35,8 @@
   // Default configuration
   const defaultConfig = {
     widgetId: 'default',
-    apiUrl: scriptOrigin + '/api/chat', // Use absolute URL from script origin
+    apiUrl: scriptOrigin + '/api/chat',
+    configUrl: scriptOrigin + '/api/widget/',
     position: 'bottom-right',
     primaryColor: '#6366f1',
     textColor: '#ffffff',
@@ -47,22 +48,39 @@
     storageKey: 'csai_chat_history',
     maxHistoryLength: 50,
     // Avatar settings
-    avatarType: 'icon', // 'icon' or 'url'
-    avatarIcon: 'robot', // 'robot', 'support', 'user'
+    avatarType: 'icon',
+    avatarIcon: 'robot',
     avatarUrl: '',
     // Branding settings
-    showBranding: true,
-    brandingText: 'Powered by cekat.biz.id'
+    showBranding: true
   };
 
-  // Merge with user config
-  const config = { ...defaultConfig, ...(window.CSAIConfig || {}) };
+  // Merge with user config (initial)
+  let config = { ...defaultConfig, ...(window.CSAIConfig || {}) };
 
   // State
   let isOpen = false;
   let isLoading = false;
   let chatHistory = [];
   let sessionId = null;
+  let configLoaded = false;
+
+  // Fetch config from API
+  async function fetchConfig(widgetId) {
+    try {
+      const response = await fetch(scriptOrigin + '/api/widget/' + widgetId + '/config');
+      if (response.ok) {
+        const serverConfig = await response.json();
+        // Merge server config with existing config (server takes priority)
+        config = { ...config, ...serverConfig };
+        config.apiUrl = scriptOrigin + '/api/chat';
+        return true;
+      }
+    } catch (e) {
+      console.warn('CSAI: Failed to fetch widget config');
+    }
+    return false;
+  }
 
   // Generate unique session ID
   function generateSessionId() {
@@ -803,8 +821,16 @@
   }
 
   // Initialize widget
-  function init() {
+  async function init() {
     if (document.getElementById('csai-widget')) return;
+
+    // If only widgetId is provided, fetch full config from server
+    const userConfig = window.CSAIConfig || {};
+    const hasMinimalConfig = userConfig.widgetId && !userConfig.title;
+
+    if (hasMinimalConfig && userConfig.widgetId !== 'default') {
+      await fetchConfig(userConfig.widgetId);
+    }
 
     loadHistory();
     injectStyles();
@@ -814,14 +840,12 @@
 
     console.log('CSAI Widget initialized');
 
-    // Auto-open after 3 seconds if not previously closed by user or interacted with
-    // For simplicity, we just check if it's closed and we want to auto-open
-    // A more refreshing UX is to auto-open after a delay
+    // Auto-open after 3 seconds
     setTimeout(() => {
       if (!isOpen) {
         toggleChat();
       }
-    }, 3000); // 3 seconds delay
+    }, 3000);
   }
 
   // Run when DOM is ready

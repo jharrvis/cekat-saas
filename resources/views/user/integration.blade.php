@@ -115,7 +115,7 @@
     @push('scripts')
         <script>
             let currentCode = '';
-            
+
             function selectWidget(slug, name) {
                 // Update UI
                 document.querySelectorAll('.widget-btn').forEach(btn => {
@@ -127,15 +127,15 @@
                 document.getElementById('embed-section').style.display = 'block';
                 document.getElementById('widget-name').textContent = name;
 
-                // Generate embed code - FIXED: correct path to /widget/widget.js
+                // Generate embed code - using minified widget
                 const baseUrl = '{{ config("app.url") }}';
                 currentCode = `<!-- Cekat.biz.id Chatbot Widget -->
-<script>
-    window.CSAIConfig = {
-        widgetId: '${slug}'
-    };
-<\/script>
-<script src="${baseUrl}/widget/widget.js" async><\/script>`;
+        <script>
+            window.CSAIConfig = {
+                widgetId: '${slug}'
+            };
+        <\/script>
+        <script src="${baseUrl}/widget/widget.min.js" async><\/script>`;
 
                 document.getElementById('embed-code').textContent = currentCode;
             }
@@ -145,7 +145,7 @@
                     alert('Pilih chatbot terlebih dahulu');
                     return;
                 }
-                
+
                 // Use fallback for older browsers
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(currentCode).then(() => {
@@ -157,7 +157,7 @@
                     fallbackCopy();
                 }
             }
-            
+
             function fallbackCopy() {
                 const textarea = document.createElement('textarea');
                 textarea.value = currentCode;
@@ -173,7 +173,7 @@
                 }
                 document.body.removeChild(textarea);
             }
-            
+
             function showCopySuccess() {
                 const btn = document.querySelector('button[onclick="copyCode()"]');
                 const originalHtml = btn.innerHTML;

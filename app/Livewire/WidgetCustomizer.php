@@ -84,19 +84,13 @@ class WidgetCustomizer extends Component
         $widgetSlug = $this->widget->slug;
 
         $this->embedCode = <<<HTML
-<!-- Cekat.biz.id Widget -->
+<!-- Cekat.biz.id Chatbot Widget -->
 <script>
   window.CSAIConfig = {
-    widgetId: '{$widgetSlug}',
-    apiUrl: '{$url}/api/chat',
-    position: '{$this->position}',
-    primaryColor: '{$this->primaryColor}',
-    title: '{$this->name}',
-    greeting: '{$this->greeting}',
-    showBranding: true
+    widgetId: '{$widgetSlug}'
   };
 </script>
-<script src="{$url}/widget/widget.min.js"></script>
+<script src="{$url}/widget/widget.min.js" async></script>
 HTML;
     }
 
