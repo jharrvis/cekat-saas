@@ -22,20 +22,19 @@ Route::prefix('api')->group(function () {
         }
 
         $settings = $widget->settings ?? [];
-        $user = $widget->user;
 
         return response()->json([
             'widgetId' => $widget->slug,
             'title' => $widget->name,
             'subtitle' => $settings['subtitle'] ?? 'Online • Reply cepat',
             'greeting' => $settings['greeting'] ?? 'Halo! 👋 Ada yang bisa saya bantu?',
-            'primaryColor' => $settings['primary_color'] ?? '#6366f1',
+            'primaryColor' => $settings['color'] ?? '#6366f1',
             'position' => $settings['position'] ?? 'bottom-right',
             'placeholder' => $settings['placeholder'] ?? 'Ketik pesan...',
             'avatarType' => $settings['avatar_type'] ?? 'icon',
             'avatarIcon' => $settings['avatar_icon'] ?? 'robot',
             'avatarUrl' => $settings['avatar_url'] ?? '',
-            'showBranding' => true, // Always show for now
+            'showBranding' => true,
         ]);
     });
 
