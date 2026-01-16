@@ -46,16 +46,24 @@ class ChatController extends Controller
             if (!$isLandingPage) {
                 $user = $widget->user;
 
+                // Skip quota check if user not found (shouldn't happen but safety check)
+                if (!$user) {
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Widget owner not found'
+                    ], 404);
+                }
+
                 // Check if user is suspended or banned
-                if ($user && in_array($user->status, ['suspended', 'banned'])) {
+                if (in_array($user->status, ['suspended', 'banned'])) {
                     return response()->json([
                         'success' => false,
                         'error' => 'Widget temporarily unavailable'
                     ], 403);
                 }
 
+                // Check quota if user has a plan
                 $plan = $user->plan;
-
                 if ($plan && $user->monthly_message_used >= $plan->max_messages_per_month) {
                     return response()->json([
                         'success' => false,
