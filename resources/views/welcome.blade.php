@@ -620,9 +620,15 @@
     @php
         $landingWidget = \App\Models\Widget::where('slug', 'landing-page-default')->first();
         $settings = $landingWidget->settings ?? [];
+        $widgetName = $landingWidget->name ?? 'Customer Support';
         $color = $settings['primary_color'] ?? '#0f172a';
-        $greeting = $settings['greeting'] ?? 'Halo! 👋 Selamat datang di Cekat.biz.id! Saya AI Assistant yang siap membantu. Ada yang ingin ditanyakan tentang layanan kami?';
+        $greeting = $settings['greeting'] ?? 'Halo! 👋 Ada yang bisa saya bantu?';
         $position = $settings['position'] ?? 'bottom-right';
+        $subtitle = $settings['subtitle'] ?? 'Online • Reply cepat';
+        $placeholder = $settings['placeholder'] ?? 'Ketik pesan...';
+        $avatarType = $settings['avatar_type'] ?? 'icon';
+        $avatarIcon = $settings['avatar_icon'] ?? 'robot';
+        $avatarUrl = $settings['avatar_url'] ?? '';
     @endphp
     <script>
         window.CSAIConfig = {
@@ -630,13 +636,17 @@
             apiUrl: '/api/chat',
             position: '{{ $position }}',
             primaryColor: '{{ $color }}',
-            title: 'Cekat Support',
-            subtitle: 'Online • Reply cepat',
+            title: '{{ addslashes($widgetName) }}',
+            subtitle: '{{ addslashes($subtitle) }}',
             greeting: `{!! addslashes($greeting) !!}`,
-            placeholder: 'Tanya tentang Cekat...'
+            placeholder: '{{ addslashes($placeholder) }}',
+            avatarType: '{{ $avatarType }}',
+            avatarIcon: '{{ $avatarIcon }}',
+            avatarUrl: '{{ $avatarUrl }}',
+            showBranding: true
         };
     </script>
-    <script src="/widget/widget.js"></script>
+    <script src="/widget/widget.js?v={{ time() }}"></script>
 </body>
 
 </html>

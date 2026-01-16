@@ -6,10 +6,14 @@ use App\Models\LlmModel;
 use App\Models\Widget;
 use App\Models\Setting;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class LandingChatbotManager extends Component
 {
+    use WithFileUploads;
+
     public $widget;
     public $selectedModel = '';
     public $testResult = null;
@@ -20,6 +24,14 @@ class LandingChatbotManager extends Component
     public $greeting = '';
     public $primaryColor = '#0f172a';
     public $position = 'bottom-right';
+    public $subtitle = '';
+    public $placeholder = '';
+
+    // Avatar Settings
+    public $avatarType = 'icon';
+    public $avatarIcon = 'robot';
+    public $avatarUrl = '';
+    public $avatarUpload = null;
 
     public function mount(Widget $widget)
     {
@@ -31,6 +43,11 @@ class LandingChatbotManager extends Component
         $this->greeting = $settings['greeting'] ?? 'Halo! 👋 Ada yang bisa saya bantu?';
         $this->primaryColor = $settings['primary_color'] ?? '#0f172a';
         $this->position = $settings['position'] ?? 'bottom-right';
+        $this->subtitle = $settings['subtitle'] ?? 'Online • Reply cepat';
+        $this->placeholder = $settings['placeholder'] ?? 'Ketik pesan...';
+        $this->avatarType = $settings['avatar_type'] ?? 'icon';
+        $this->avatarIcon = $settings['avatar_icon'] ?? 'robot';
+        $this->avatarUrl = $settings['avatar_url'] ?? '';
     }
 
     public function selectModel($modelId)
@@ -48,12 +65,45 @@ class LandingChatbotManager extends Component
         session()->flash('message', 'Model saved successfully!');
     }
 
+    public function uploadAvatar()
+    {
+        $this->validate([
+            'avatarUpload' => 'image|max:2048', // 2MB max
+        ]);
+
+        if ($this->avatarUpload) {
+            // Delete old avatar if exists
+            if ($this->avatarUrl && Storage::disk('public')->exists(str_replace('/storage/', '', $this->avatarUrl))) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $this->avatarUrl));
+            }
+
+            $path = $this->avatarUpload->store('avatars', 'public');
+            $this->avatarUrl = '/storage/' . $path;
+            $this->avatarType = 'url';
+            $this->avatarUpload = null;
+
+            $this->saveSettings();
+            session()->flash('message', 'Avatar uploaded successfully!');
+        }
+    }
+
+    public function selectAvatarIcon($icon)
+    {
+        $this->avatarIcon = $icon;
+        $this->avatarType = 'icon';
+    }
+
     public function saveSettings()
     {
         $settings = $this->widget->settings ?? [];
         $settings['greeting'] = $this->greeting;
         $settings['primary_color'] = $this->primaryColor;
         $settings['position'] = $this->position;
+        $settings['subtitle'] = $this->subtitle;
+        $settings['placeholder'] = $this->placeholder;
+        $settings['avatar_type'] = $this->avatarType;
+        $settings['avatar_icon'] = $this->avatarIcon;
+        $settings['avatar_url'] = $this->avatarUrl;
 
         $this->widget->update([
             'name' => $this->widgetName,

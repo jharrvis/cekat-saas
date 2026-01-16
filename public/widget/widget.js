@@ -45,7 +45,14 @@
     subtitle: 'Biasanya membalas dalam beberapa detik',
     offlineMessage: 'Maaf, layanan sedang tidak tersedia. Silakan coba lagi nanti.',
     storageKey: 'csai_chat_history',
-    maxHistoryLength: 50
+    maxHistoryLength: 50,
+    // Avatar settings
+    avatarType: 'icon', // 'icon' or 'url'
+    avatarIcon: 'robot', // 'robot', 'support', 'user'
+    avatarUrl: '',
+    // Branding settings
+    showBranding: true,
+    brandingText: 'Powered by cekat.biz.id'
   };
 
   // Merge with user config
@@ -486,6 +493,29 @@
     return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
   }
 
+  // Get avatar HTML based on config
+  function getAvatarHtml() {
+    // If custom avatar URL is provided
+    if (config.avatarType === 'url' && config.avatarUrl) {
+      return `<img src="${config.avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    }
+
+    // Icon-based avatars
+    const icons = {
+      robot: `<svg viewBox="0 0 24 24" fill="currentColor" style="width:24px;height:24px;">
+        <path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2M7.5 13A1.5 1.5 0 006 14.5 1.5 1.5 0 007.5 16 1.5 1.5 0 009 14.5 1.5 1.5 0 007.5 13m9 0a1.5 1.5 0 00-1.5 1.5 1.5 1.5 0 001.5 1.5 1.5 1.5 0 001.5-1.5 1.5 1.5 0 00-1.5-1.5M12 9a5 5 0 00-5 5v1h10v-1a5 5 0 00-5-5z"/>
+      </svg>`,
+      support: `<svg viewBox="0 0 24 24" fill="currentColor" style="width:24px;height:24px;">
+        <path d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z"/>
+      </svg>`,
+      user: `<svg viewBox="0 0 24 24" fill="currentColor" style="width:24px;height:24px;">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+      </svg>`
+    };
+
+    return icons[config.avatarIcon] || icons.robot;
+  }
+
   // Create widget HTML
   function createWidget() {
     const widget = document.createElement('div');
@@ -509,7 +539,7 @@
       <div class="csai-window" id="csai-window">
         <!-- Header -->
         <div class="csai-header">
-          <div class="csai-header-avatar">🤖</div>
+          <div class="csai-header-avatar">${getAvatarHtml()}</div>
           <div class="csai-header-info">
             <p class="csai-header-title">${config.title}</p>
             <p class="csai-header-subtitle">${config.subtitle}</p>
@@ -540,9 +570,9 @@
         </div>
 
         <!-- Powered By -->
-        <div class="csai-powered">
-          Powered by <a href="#">CS AI</a>
-        </div>
+        ${config.showBranding ? `<div class="csai-powered">
+          ${config.brandingText} <a href="https://cekat.biz.id" target="_blank">cekat.biz.id</a>
+        </div>` : ''}
       </div>
     `;
 

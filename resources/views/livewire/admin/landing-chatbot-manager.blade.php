@@ -77,12 +77,27 @@
                         <label class="block text-sm font-medium mb-2">Widget Name</label>
                         <input type="text" wire:model="widgetName"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        <p class="text-xs text-muted-foreground mt-1">This appears in the chat header</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Subtitle</label>
+                        <input type="text" wire:model="subtitle"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            placeholder="Online • Reply cepat">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">Greeting Message</label>
                         <textarea wire:model="greeting" rows="2"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Placeholder Text</label>
+                        <input type="text" wire:model="placeholder"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            placeholder="Ketik pesan...">
                     </div>
 
                     <div>
@@ -102,6 +117,88 @@
                             <option value="bottom-right">Bottom Right</option>
                             <option value="bottom-left">Bottom Left</option>
                         </select>
+                    </div>
+
+                    {{-- Avatar Settings --}}
+                    <div class="border-t pt-4 mt-4">
+                        <label class="block text-sm font-medium mb-3">Avatar</label>
+
+                        {{-- Current Avatar Preview --}}
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center text-white"
+                                style="background: linear-gradient(135deg, {{ $primaryColor }}, {{ $primaryColor }}dd)">
+                                @if($avatarType === 'url' && $avatarUrl)
+                                    <img src="{{ $avatarUrl }}" class="w-16 h-16 rounded-full object-cover">
+                                @else
+                                    @if($avatarIcon === 'robot')
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2M7.5 13A1.5 1.5 0 006 14.5 1.5 1.5 0 007.5 16 1.5 1.5 0 009 14.5 1.5 1.5 0 007.5 13m9 0a1.5 1.5 0 00-1.5 1.5 1.5 1.5 0 001.5 1.5 1.5 1.5 0 001.5-1.5 1.5 1.5 0 00-1.5-1.5M12 9a5 5 0 00-5 5v1h10v-1a5 5 0 00-5-5z" />
+                                        </svg>
+                                    @elseif($avatarIcon === 'support')
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z" />
+                                        </svg>
+                                    @else
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                            <div class="text-sm text-muted-foreground">
+                                Current: {{ $avatarType === 'url' ? 'Custom Image' : ucfirst($avatarIcon) . ' Icon' }}
+                            </div>
+                        </div>
+
+                        {{-- Icon Selector --}}
+                        <div class="mb-4">
+                            <p class="text-sm text-muted-foreground mb-2">Choose Icon:</p>
+                            <div class="flex gap-2">
+                                @foreach(['robot', 'support', 'user'] as $icon)
+                                    <button type="button" wire:click="selectAvatarIcon('{{ $icon }}')"
+                                        class="w-12 h-12 rounded-full flex items-center justify-center border-2 transition {{ $avatarIcon === $icon && $avatarType === 'icon' ? 'border-primary bg-primary/10' : 'border-gray-200 hover:border-gray-300' }}">
+                                        @if($icon === 'robot')
+                                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2M7.5 13A1.5 1.5 0 006 14.5 1.5 1.5 0 007.5 16 1.5 1.5 0 009 14.5 1.5 1.5 0 007.5 13m9 0a1.5 1.5 0 00-1.5 1.5 1.5 1.5 0 001.5 1.5 1.5 1.5 0 001.5-1.5 1.5 1.5 0 00-1.5-1.5M12 9a5 5 0 00-5 5v1h10v-1a5 5 0 00-5-5z" />
+                                            </svg>
+                                        @elseif($icon === 'support')
+                                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 1c-4.97 0-9 4.03-9 9v7c0 1.66 1.34 3 3 3h3v-8H5v-2c0-3.87 3.13-7 7-7s7 3.13 7 7v2h-4v8h3c1.66 0 3-1.34 3-3v-7c0-4.97-4.03-9-9-9z" />
+                                            </svg>
+                                        @else
+                                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                                            </svg>
+                                        @endif
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Upload Custom Avatar --}}
+                        <div>
+                            <p class="text-sm text-muted-foreground mb-2">Or upload custom image:</p>
+                            <div class="flex items-center gap-2">
+                                <input type="file" wire:model="avatarUpload" accept="image/*"
+                                    class="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                                @if($avatarUpload)
+                                    <button type="button" wire:click="uploadAvatar"
+                                        class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
+                                        <i class="fa-solid fa-upload mr-1"></i> Upload
+                                    </button>
+                                @endif
+                            </div>
+                            @error('avatarUpload') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            <div wire:loading wire:target="avatarUpload" class="text-sm text-muted-foreground mt-1">
+                                Uploading...
+                            </div>
+                        </div>
                     </div>
 
                     <button type="submit"
