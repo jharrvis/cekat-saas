@@ -91,10 +91,12 @@ class WidgetCustomizer extends Component
     apiUrl: '{$url}/api/chat',
     position: '{$this->position}',
     primaryColor: '{$this->primaryColor}',
+    title: '{$this->name}',
     greeting: '{$this->greeting}',
+    showBranding: true
   };
 </script>
-<script src="{$url}/widget/widget.js"></script>
+<script src="{$url}/widget/widget.min.js"></script>
 HTML;
     }
 
