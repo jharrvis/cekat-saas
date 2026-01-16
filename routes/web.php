@@ -120,8 +120,8 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     Route::get('/payment/finish', [App\Http\Controllers\PaymentController::class, 'finish'])->name('payment.finish');
 });
 
-// Admin Routes
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+// Admin Routes - PROTECTED: Only admin users can access
+Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');

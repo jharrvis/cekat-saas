@@ -14,11 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             '/api/chat',
             '/api/payment/notification', // Midtrans webhook
+            '/api/widget/*', // Widget config API
         ]);
 
         // Middleware aliases
         $middleware->alias([
             'user.status' => \App\Http\Middleware\CheckUserStatus::class,
+            'is.admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
