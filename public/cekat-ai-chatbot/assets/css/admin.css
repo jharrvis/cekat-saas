@@ -1,0 +1,200 @@
+/**
+ * Cekat AI Chatbot - Admin Styles
+ */
+
+/* Header */
+.cekat-admin-wrap {
+    max-width: 1200px;
+}
+
+.cekat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-radius: 12px;
+    color: white;
+}
+
+.cekat-header h1 {
+    margin: 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cekat-header .dashicons {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+}
+
+.cekat-version {
+    margin-left: auto;
+    opacity: 0.8;
+}
+
+/* Content Layout */
+.cekat-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .cekat-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cards */
+.cekat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cekat-card h2,
+.cekat-card h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Toggle Switch */
+.cekat-toggle {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.cekat-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cekat-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+}
+
+.cekat-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+.cekat-toggle input:checked + .cekat-toggle-slider {
+    background-color: #6366f1;
+}
+
+.cekat-toggle input:checked + .cekat-toggle-slider:before {
+    transform: translateX(24px);
+}
+
+/* Test Connection */
+#cekat-test-connection {
+    margin-left: 10px;
+}
+
+#cekat-connection-status {
+    margin-left: 10px;
+    font-weight: 500;
+}
+
+#cekat-connection-status.success {
+    color: #10b981;
+}
+
+#cekat-connection-status.error {
+    color: #ef4444;
+}
+
+#cekat-connection-status.loading {
+    color: #6b7280;
+}
+
+/* Status Badges */
+.cekat-status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.cekat-status-item:last-child {
+    border-bottom: none;
+}
+
+.cekat-status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.cekat-status-active {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.cekat-status-inactive {
+    background-color: #fef2f2;
+    color: #991b1b;
+}
+
+/* Info Card */
+.cekat-info-card ol {
+    padding-left: 20px;
+    margin: 15px 0;
+}
+
+.cekat-info-card li {
+    margin-bottom: 8px;
+    color: #4b5563;
+}
+
+/* Support Card */
+.cekat-support-card p {
+    color: #6b7280;
+}
+
+.cekat-support-card .button {
+    margin-top: 10px;
+}
+
+/* Submit Button */
+.cekat-admin-wrap .submit .button-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    padding: 8px 24px;
+    height: auto;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.cekat-admin-wrap .submit .button-primary:hover {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
