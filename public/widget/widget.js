@@ -20,10 +20,15 @@
     const scripts = document.getElementsByTagName('script');
     for (let i = 0; i < scripts.length; i++) {
       const src = scripts[i].src;
-      if (src && src.includes('widget.js')) {
+      // Check for both widget.js and widget.min.js
+      if (src && (src.includes('widget.min.js') || src.includes('widget.js'))) {
         // Extract origin from script URL
-        const url = new URL(src);
-        return url.origin;
+        try {
+          const url = new URL(src);
+          return url.origin;
+        } catch (e) {
+          console.warn('CSAI: Failed to parse script URL');
+        }
       }
     }
     // Fallback to current origin
