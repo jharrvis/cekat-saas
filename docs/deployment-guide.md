@@ -20,7 +20,8 @@
 10. [Setup Cron Jobs](#10-setup-cron-jobs)
 11. [Konfigurasi Email (Gmail SMTP)](#11-konfigurasi-email-gmail-smtp)
 12. [Konfigurasi Midtrans](#12-konfigurasi-midtrans)
-13. [Troubleshooting](#13-troubleshooting)
+13. [Konfigurasi Google SSO](#13-konfigurasi-google-sso-login-dengan-google)
+14. [Troubleshooting](#14-troubleshooting)
 
 ---
 
@@ -329,7 +330,84 @@ php artisan tinker
 
 ---
 
-## 13. Troubleshooting
+## 13. Konfigurasi Google SSO (Login dengan Google)
+
+### Langkah 1: Buat Project di Google Cloud Console
+
+1. Buka https://console.cloud.google.com
+2. Klik **Select a project** → **New Project**
+3. Nama project: `Cekat.ai`
+4. Klik **Create**
+
+### Langkah 2: Aktifkan Google+ API
+
+1. Di sidebar, pilih **APIs & Services** → **Library**
+2. Cari **Google+ API** atau **Google People API**
+3. Klik **Enable**
+
+### Langkah 3: Buat OAuth Credentials
+
+1. **APIs & Services** → **Credentials** → **Create Credentials** → **OAuth client ID**
+2. Jika diminta, konfigurasi **OAuth consent screen** terlebih dahulu:
+   - **User Type**: External
+   - **App name**: Cekat.ai
+   - **User support email**: your-email@gmail.com
+   - **Developer contact**: your-email@gmail.com
+   - Klik **Save and Continue** sampai selesai
+3. Kembali ke **Credentials** → **Create Credentials** → **OAuth client ID**
+4. **Application type**: Web application
+5. **Name**: Cekat.ai Web Client
+6. **Authorized JavaScript origins**:
+   ```
+   https://cekat.biz.id
+   ```
+7. **Authorized redirect URIs**:
+   ```
+   https://cekat.biz.id/auth/google/callback
+   ```
+8. Klik **Create**
+9. **Simpan Client ID dan Client Secret**
+
+### Langkah 4: Konfigurasi .env
+
+```bash
+nano .env
+```
+
+Tambahkan:
+```env
+# Google SSO
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+GOOGLE_REDIRECT_URI=https://cekat.biz.id/auth/google/callback
+```
+
+### Langkah 5: Clear Config Cache
+
+```bash
+php artisan config:cache
+```
+
+### Test Login Google:
+
+1. Buka https://cekat.biz.id/login
+2. Klik tombol **Login dengan Google**
+3. Login dengan akun Google
+4. User akan ter-redirect ke dashboard
+
+### Troubleshooting Google SSO:
+
+**Error: redirect_uri_mismatch**
+- Pastikan redirect URI di Google Console **sama persis** dengan `.env`
+- Termasuk trailing slash - jika ada/tidak ada harus konsisten
+
+**Error: Access blocked**
+- Pastikan OAuth consent screen sudah di-publish (bukan Test mode)
+- Atau tambahkan email tester di OAuth consent screen → Test users
+
+---
+
+## 14. Troubleshooting
 
 ### 500 Internal Server Error:
 ```bash
