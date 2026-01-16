@@ -130,7 +130,7 @@
                                 <i class="fa-solid fa-robot"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold">{{ $widget->name ?? 'Widget' }}</p>
+                                <p class="font-semibold">{{ $name }}</p>
                                 <p class="text-xs opacity-90">Online</p>
                             </div>
                         </div>
@@ -153,6 +153,12 @@
                                 </button>
                             </div>
                         </div>
+
+                        {{-- Powered By --}}
+                        <div class="text-center py-2 text-xs text-gray-400">
+                            Powered by <a href="https://cekat.biz.id" target="_blank"
+                                class="text-primary hover:underline">cekat.biz.id</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,12 +178,15 @@
                     apiUrl: '{{ config("app.url") }}/api/chat',
                     position: '{{ $position }}',
                     primaryColor: '{{ $primaryColor }}',
-                    greeting: '{{ $greeting }}',
+                    title: '{{ addslashes($name) }}',
+                    subtitle: 'Online • Reply cepat',
+                    greeting: `{!! addslashes($greeting) !!}`,
+                    showBranding: true
                 };
 
                 // Load widget script
                 const script = document.createElement('script');
-                script.src = '{{ asset("widget/widget.js") }}';
+                script.src = '{{ asset("widget/widget.js") }}?v={{ time() }}';
                 document.body.appendChild(script);
 
                 widgetLoaded = true;

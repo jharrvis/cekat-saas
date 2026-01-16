@@ -571,7 +571,7 @@
 
         <!-- Powered By -->
         ${config.showBranding ? `<div class="csai-powered">
-          ${config.brandingText} <a href="https://cekat.biz.id" target="_blank">cekat.biz.id</a>
+          Powered by <a href="https://cekat.biz.id" target="_blank">cekat.biz.id</a>
         </div>` : ''}
       </div>
     `;
