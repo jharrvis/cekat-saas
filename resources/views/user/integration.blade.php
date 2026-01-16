@@ -60,17 +60,43 @@
 
             {{-- WordPress Plugin --}}
             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-[#21759b] rounded-lg flex items-center justify-center text-white">
-                        <i class="fa-brands fa-wordpress text-2xl"></i>
+                <div class="flex items-start gap-4">
+                    <div class="w-14 h-14 bg-[#21759b] rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                        <i class="fa-brands fa-wordpress text-3xl"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-semibold text-lg">WordPress Plugin</h3>
-                        <p class="text-sm text-muted-foreground">Pasang chatbot dengan plugin WordPress resmi</p>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-semibold text-lg">Cekat AI Chatbot for WordPress</h3>
+                            <span
+                                class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">v1.0.0</span>
+                        </div>
+                        <p class="text-sm text-muted-foreground mt-1">Plugin WordPress resmi untuk integrasi chatbot dengan
+                            mudah</p>
+
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <a href="{{ asset('downloads/cekat-ai-chatbot.zip') }}"
+                                class="inline-flex items-center px-4 py-2 bg-[#21759b] text-white rounded-lg hover:bg-[#1a5f7a] transition text-sm font-medium"
+                                download>
+                                <i class="fa-solid fa-download mr-2"></i>Download Plugin (.zip)
+                            </a>
+                            <a href="https://github.com/jharrvis/cekat-saas/tree/master/public/cekat-ai-chatbot" target="_blank"
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-sm">
+                                <i class="fa-brands fa-github mr-2"></i>View Source
+                            </a>
+                        </div>
                     </div>
-                    <a href="#" class="px-4 py-2 bg-[#21759b] text-white rounded-lg hover:bg-[#1a5f7a] transition">
-                        <i class="fa-solid fa-download mr-2"></i>Download Plugin
-                    </a>
+                </div>
+
+                {{-- Installation Steps --}}
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <p class="text-sm font-medium mb-2">Cara Install:</p>
+                    <ol class="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                        <li>Download dan extract file ZIP</li>
+                        <li>Upload folder <code class="bg-muted px-1 rounded">cekat-ai-chatbot</code> ke <code
+                                class="bg-muted px-1 rounded">/wp-content/plugins/</code></li>
+                        <li>Aktivasi plugin di WordPress Admin → Plugins</li>
+                        <li>Buka menu <strong>Cekat AI</strong> dan masukkan Widget ID Anda</li>
+                    </ol>
                 </div>
             </div>
 
@@ -130,12 +156,12 @@
                 // Generate embed code - using minified widget
                 const baseUrl = '{{ config("app.url") }}';
                 currentCode = `<!-- Cekat.biz.id Chatbot Widget -->
-        <script>
-            window.CSAIConfig = {
-                widgetId: '${slug}'
-            };
-        <\/script>
-        <script src="${baseUrl}/widget/widget.min.js" async><\/script>`;
+                <script>
+                    window.CSAIConfig = {
+                        widgetId: '${slug}'
+                    };
+                <\/script>
+                <script src="${baseUrl}/widget/widget.min.js" async><\/script>`;
 
                 document.getElementById('embed-code').textContent = currentCode;
             }
