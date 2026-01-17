@@ -354,8 +354,26 @@ class WhatsAppManager
         } catch (\Exception $e) {
             Log::error('Failed to process AI response', [
                 'device_id' => $device->id,
+                'from' => $from,
                 'error' => $e->getMessage(),
             ]);
+
+            // Check if we already sent a response to this sender recently
+            // to prevent sending multiple error messages
+            $recentOutbound = WhatsAppMessage::where('whatsapp_device_id', $device->id)
+                ->where('sender_phone', $from)
+                ->where('direction', 'outbound')
+                ->where('created_at', '>=', now()->subMinutes(2))
+                ->first();
+
+            if ($recentOutbound) {
+                Log::info('Skipping fallback message - already responded recently', [
+                    'device_id' => $device->id,
+                    'from' => $from,
+                ]);
+                // Return the inbound message instead of sending another response
+                return $inboundMessage;
+            }
 
             // Send fallback message
             $fallbackMessage = Setting::get(
