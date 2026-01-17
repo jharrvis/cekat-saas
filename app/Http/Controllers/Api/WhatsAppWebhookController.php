@@ -170,7 +170,13 @@ class WhatsAppWebhookController extends Controller
             }
 
             // Process text message with AI
-            $responseMessage = $manager->processIncomingMessage($device, $sender, $message, $senderName);
+            $responseMessage = $manager->processIncomingMessage(
+                $device,
+                $sender,
+                $message,
+                $senderName,
+                $fonnteMessageId
+            );
 
             return response()->json([
                 'status' => 'processed',

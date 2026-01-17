@@ -281,11 +281,17 @@ class WhatsAppManager
      * @param string $from Sender phone number
      * @param string $message Message content
      * @param string|null $senderName Sender's push name
+     * @param string|null $fonnteMessageId Fonnte's message ID for deduplication
      * @return WhatsAppMessage The AI response message
      */
-    public function processIncomingMessage(WhatsAppDevice $device, string $from, string $message, ?string $senderName = null): WhatsAppMessage
-    {
-        // Save incoming message
+    public function processIncomingMessage(
+        WhatsAppDevice $device,
+        string $from,
+        string $message,
+        ?string $senderName = null,
+        ?string $fonnteMessageId = null
+    ): WhatsAppMessage {
+        // Save incoming message with Fonnte ID for deduplication
         $inboundMessage = WhatsAppMessage::create([
             'whatsapp_device_id' => $device->id,
             'widget_id' => $device->widget_id,
@@ -295,6 +301,7 @@ class WhatsAppManager
             'message' => $message,
             'message_type' => 'text',
             'status' => 'delivered',
+            'fonnte_message_id' => $fonnteMessageId,
         ]);
 
         $device->increment('messages_received');
