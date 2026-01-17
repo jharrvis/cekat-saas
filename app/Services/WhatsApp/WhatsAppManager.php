@@ -170,7 +170,12 @@ class WhatsAppManager
 
         $statusData = $this->fonnte->getDeviceStatus($device->fonnte_device_token);
 
-        $isConnected = ($statusData['status'] ?? false) === true;
+        Log::info('Fonnte device status check', ['device_id' => $device->id, 'data' => $statusData]);
+
+        // Fonnte returns device_status = "connect" or "disconnect"
+        // status = true just means API call was successful
+        $deviceStatus = $statusData['device_status'] ?? null;
+        $isConnected = ($deviceStatus === 'connect');
         $phoneNumber = $statusData['device'] ?? null;
 
         if ($isConnected && $device->status !== 'connected') {
@@ -188,6 +193,7 @@ class WhatsAppManager
 
         return [
             'connected' => $isConnected,
+            'device_status' => $deviceStatus,
             'phone_number' => $phoneNumber,
             'status' => $device->fresh()->status,
         ];
