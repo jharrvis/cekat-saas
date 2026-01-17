@@ -34,6 +34,61 @@
                         @error('primaryColor') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
+                    {{-- Avatar Settings --}}
+                    <div>
+                        <label class="block text-sm font-medium mb-3">Avatar</label>
+                        <div class="flex gap-4 mb-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model.live="avatarType" value="icon"
+                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="text-sm">Default Icon</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model.live="avatarType" value="image"
+                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="text-sm">Custom Image</span>
+                            </label>
+                        </div>
+
+                        @if ($avatarType === 'icon')
+                            <div class="grid grid-cols-5 gap-3">
+                                @foreach (['robot', 'comments', 'headset', 'user', 'bell', 'comment-dots', 'message', 'circle-question'] as $icon)
+                                    <button type="button" wire:click="$set('avatarIcon', '{{ $icon }}')"
+                                        class="h-12 border rounded-lg flex items-center justify-center transition {{ $avatarIcon === $icon ? 'ring-2 ring-primary border-primary bg-primary/5' : 'hover:bg-gray-50' }}">
+                                        <i class="fa-solid fa-{{ $icon }} text-xl text-gray-700"></i>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="space-y-3">
+                                @if ($avatarUrl || $avatarUpload)
+                                    <div class="flex items-center gap-4">
+                                        @if ($avatarUpload)
+                                            <img src="{{ $avatarUpload->temporaryUrl() }}"
+                                                class="w-16 h-16 rounded-full object-cover border">
+                                        @elseif($avatarUrl)
+                                            <img src="{{ $avatarUrl }}" class="w-16 h-16 rounded-full object-cover border">
+                                        @endif
+                                        <div class="text-xs text-muted-foreground">
+                                            <p class="font-medium text-foreground">Current Preview</p>
+                                            <p>This image will be used as launcher & header avatar.</p>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <input type="file" wire:model="avatarUpload" accept="image/*" class="block w-full text-sm text-slate-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:text-xs file:font-semibold
+                                        file:bg-primary/10 file:text-primary
+                                        hover:file:bg-primary/20
+                                      " />
+                                <p class="text-xs text-muted-foreground">Max 1MB. Recommended 100x100px (JPG/PNG).</p>
+                                @error('avatarUpload') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                        @endif
+                    </div>
+
                     <div>
                         <label class="block text-sm font-medium mb-2">Greeting Message *</label>
                         <textarea wire:model.live="greeting" rows="3"
@@ -76,22 +131,7 @@
                 </button>
             </div>
 
-            {{-- Embed Code --}}
-            <div class="bg-card rounded-xl shadow-sm border p-6">
-                <h3 class="text-lg font-semibold mb-4">Embed Code</h3>
-                <p class="text-sm text-muted-foreground mb-4">
-                    Copy this code and paste it before the closing &lt;/body&gt; tag on your website.
-                </p>
 
-                <div class="relative">
-                    <pre
-                        class="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto text-xs"><code>{{ $embedCode }}</code></pre>
-                    <button onclick="navigator.clipboard.writeText(`{{ addslashes($embedCode) }}`); alert('Copied!')"
-                        class="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded text-xs">
-                        <i class="fa-solid fa-copy mr-1"></i> Copy
-                    </button>
-                </div>
-            </div>
         </div>
 
         {{-- Preview Panel --}}
@@ -181,6 +221,9 @@
                     title: '{{ addslashes($name) }}',
                     subtitle: 'Online • Reply cepat',
                     greeting: `{!! addslashes($greeting) !!}`,
+                    avatar_type: '{{ $avatarType }}',
+                    avatar_icon: '{{ $avatarIcon }}',
+                    avatar_url: '{{ $avatarUrl }}',
                     showBranding: true
                 };
 

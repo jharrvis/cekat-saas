@@ -71,7 +71,7 @@ class ChatbotController extends Controller
     public function edit($chatbotId, $tab = 'general')
     {
         $chatbot = auth()->user()->widgets()->with('knowledgeBase')->findOrFail($chatbotId);
-        $validTabs = ['general', 'knowledge', 'model', 'widget', 'lead', 'analytics'];
+        $validTabs = ['general', 'knowledge', 'model', 'widget', 'lead', 'analytics', 'embed'];
 
         if (!in_array($tab, $validTabs)) {
             $tab = 'general';
@@ -128,12 +128,17 @@ class ChatbotController extends Controller
         $request->validate([
             'display_name' => 'required|max:255',
             'description' => 'nullable|max:500',
+            'allowed_domains' => 'nullable|string',
         ]);
+
+        $settings = $chatbot->settings ?? [];
+        $settings['allowed_domains'] = $request->input('allowed_domains');
 
         $chatbot->update([
             'display_name' => $request->display_name,
             'description' => $request->description,
             'status' => $request->status ?? $chatbot->status,
+            'settings' => $settings,
         ]);
 
         return redirect()->back()->with('success', 'Chatbot updated successfully!');

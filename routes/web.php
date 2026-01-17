@@ -21,6 +21,20 @@ Route::prefix('api')->group(function () {
             return response()->json(['error' => 'Widget not found'], 404);
         }
 
+        // Domain Validation (Security) - Consistent with ChatController
+        $allowedDomains = $widget->settings['allowed_domains'] ?? null;
+        if (!empty($allowedDomains)) {
+            $origin = request()->header('Origin') ?? request()->header('Referer');
+            if ($origin) {
+                $originDomain = parse_url($origin, PHP_URL_HOST);
+                $allowedList = array_map('trim', explode(',', $allowedDomains));
+
+                if (!in_array($originDomain, $allowedList) && !Illuminate\Support\Str::contains($origin, 'localhost') && !Illuminate\Support\Str::contains($origin, '127.0.0.1')) {
+                    return response()->json(['error' => 'Domain not allowed'], 403);
+                }
+            }
+        }
+
         $settings = $widget->settings ?? [];
 
         return response()->json([
@@ -35,6 +49,7 @@ Route::prefix('api')->group(function () {
             'avatarIcon' => $settings['avatar_icon'] ?? 'robot',
             'avatarUrl' => $settings['avatar_url'] ?? '',
             'showBranding' => true,
+            'allowedDomain' => $settings['allowed_domains'] ?? '',
         ]);
     });
 

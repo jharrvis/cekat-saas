@@ -48,4 +48,12 @@ class Widget extends Model
     {
         return $this->hasMany(ChatSession::class);
     }
+
+    /**
+     * Get all messages across all sessions for this widget.
+     */
+    public function messages()
+    {
+        return $this->hasManyThrough(ChatMessage::class, ChatSession::class, 'widget_id', 'session_id');
+    }
 }

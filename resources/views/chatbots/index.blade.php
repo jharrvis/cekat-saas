@@ -95,8 +95,21 @@
                                         </div>
                                         <div>
                                             <p class="font-medium">{{ $chatbot->display_name ?? $chatbot->name }}</p>
-                                            <p class="text-sm text-muted-foreground">
-                                                {{ Str::limit($chatbot->description, 40) ?? 'No description' }}</p>
+
+                                            <div class="flex items-center gap-1.5 mt-0.5">
+                                                <i class="fa-solid fa-hashtag text-[10px] text-muted-foreground"></i>
+                                                <code
+                                                    class="text-xs bg-muted px-1.5 py-0.5 rounded font-mono text-muted-foreground">{{ $chatbot->slug }}</code>
+                                                <button onclick="copyWidgetId('{{ $chatbot->slug }}')"
+                                                    class="text-xs text-muted-foreground hover:text-primary transition p-1"
+                                                    title="Copy Widget ID">
+                                                    <i class="fa-regular fa-copy"></i>
+                                                </button>
+                                            </div>
+
+                                            <p class="text-sm text-muted-foreground mt-1">
+                                                {{ Str::limit($chatbot->description, 40) ?? 'No description' }}
+                                            </p>
                                         </div>
                                     </div>
                                 </td>
@@ -148,4 +161,17 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            function copyWidgetId(id) {
+                navigator.clipboard.writeText(id).then(() => {
+                    // You can replace this with a nice toast notification
+                    alert('Widget ID copied to clipboard: ' + id);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            }
+        </script>
+    @endpush
 @endsection

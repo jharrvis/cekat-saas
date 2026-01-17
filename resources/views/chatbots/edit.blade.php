@@ -40,13 +40,10 @@
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'knowledge' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
                     <i class="fa-solid fa-brain mr-2"></i> Knowledge Base
                 </a>
-                <a href="{{ route('chatbots.edit.tab', [$chatbot->id, 'model']) }}"
-                    class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'model' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-robot mr-2"></i> Model LLM
-                </a>
+
                 <a href="{{ route('chatbots.edit.tab', [$chatbot->id, 'widget']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'widget' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-paintbrush mr-2"></i> Widget Customizer
+                    <i class="fa-solid fa-paintbrush mr-2"></i> Appearance
                 </a>
                 <a href="{{ route('chatbots.edit.tab', [$chatbot->id, 'lead']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'lead' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
@@ -56,6 +53,10 @@
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'analytics' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
                     <i class="fa-solid fa-chart-line mr-2"></i> Analytics
                 </a>
+                <a href="{{ route('chatbots.edit.tab', [$chatbot->id, 'embed']) }}"
+                    class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'embed' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
+                    <i class="fa-solid fa-code mr-2"></i> Embed
+                </a>
             </div>
 
             <div class="p-6">
@@ -63,14 +64,15 @@
                     @include('chatbots.tabs.general', ['chatbot' => $chatbot])
                 @elseif($tab === 'knowledge')
                     @include('chatbots.tabs.knowledge', ['chatbot' => $chatbot])
-                @elseif($tab === 'model')
-                    @include('chatbots.tabs.model', ['chatbot' => $chatbot])
+
                 @elseif($tab === 'widget')
                     @include('chatbots.tabs.widget', ['chatbot' => $chatbot])
                 @elseif($tab === 'lead')
                     @include('chatbots.tabs.lead', ['chatbot' => $chatbot])
                 @elseif($tab === 'analytics')
                     @include('chatbots.tabs.analytics', ['chatbot' => $chatbot])
+                @elseif($tab === 'embed')
+                    @include('chatbots.tabs.embed', ['chatbot' => $chatbot])
                 @endif
             </div>
         </div>

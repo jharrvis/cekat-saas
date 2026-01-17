@@ -87,6 +87,57 @@
     return false;
   }
 
+  // Domain validation - check if widget is allowed on current domain
+  function isDomainAllowed() {
+    const allowedDomain = config.allowedDomain || '';
+
+    // If no domain restriction, allow all (backwards compatible)
+    if (!allowedDomain || allowedDomain.trim() === '') {
+      return true;
+    }
+
+    const currentHost = window.location.hostname.toLowerCase();
+    const allowed = allowedDomain.toLowerCase().trim();
+
+    // Allow localhost for development
+    if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
+      return true;
+    }
+
+    // Exact match
+    if (currentHost === allowed) {
+      return true;
+    }
+
+    // Subdomain match: check if current host ends with .allowed
+    // e.g., allowed = "mysite.com" matches "www.mysite.com", "blog.mysite.com"
+    if (currentHost.endsWith('.' + allowed)) {
+      return true;
+    }
+
+    // www prefix handling: "mysite.com" should match "www.mysite.com" and vice versa
+    if (allowed.startsWith('www.')) {
+      const withoutWww = allowed.substring(4);
+      if (currentHost === withoutWww || currentHost.endsWith('.' + withoutWww)) {
+        return true;
+      }
+    } else {
+      if (currentHost === 'www.' + allowed) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // Show domain error message
+  function showDomainError() {
+    console.error('CSAI Widget Error: This widget is not authorized for this domain.');
+    console.error('Current domain: ' + window.location.hostname);
+    console.error('Allowed domain: ' + (config.allowedDomain || 'Not configured'));
+    console.error('Please configure the allowed domain in your Cekat dashboard.');
+  }
+
   // Generate unique session ID
   function generateSessionId() {
     return 'sess_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
@@ -835,6 +886,12 @@
 
     if (hasMinimalConfig && userConfig.widgetId !== 'default') {
       await fetchConfig(userConfig.widgetId);
+    }
+
+    // Check domain authorization
+    if (!isDomainAllowed()) {
+      showDomainError();
+      return; // Don't initialize widget if domain not allowed
     }
 
     loadHistory();

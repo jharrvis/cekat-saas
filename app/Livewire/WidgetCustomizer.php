@@ -4,9 +4,11 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Widget;
+use Livewire\WithFileUploads;
 
 class WidgetCustomizer extends Component
 {
+    use WithFileUploads;
     public $widget;
 
     // Widget Settings
@@ -14,6 +16,12 @@ class WidgetCustomizer extends Component
     public $primaryColor = '#0f172a';
     public $greeting = '';
     public $position = 'bottom-right';
+
+    // Avatar Settings
+    public $avatarType = 'icon'; // 'icon' or 'image'
+    public $avatarIcon = 'robot';
+    public $avatarUrl = '';
+    public $avatarUpload;
 
     // Embed Code
     public $embedCode = '';
@@ -52,6 +60,10 @@ class WidgetCustomizer extends Component
         $this->primaryColor = $settings['color'] ?? '#0f172a';
         $this->greeting = $settings['greeting'] ?? 'Halo! 👋 Ada yang bisa saya bantu?';
         $this->position = $settings['position'] ?? 'bottom-right';
+
+        $this->avatarType = $settings['avatar_type'] ?? 'icon';
+        $this->avatarIcon = $settings['avatar_icon'] ?? 'robot';
+        $this->avatarUrl = $settings['avatar_url'] ?? '';
     }
 
     public function saveSettings()
@@ -61,7 +73,15 @@ class WidgetCustomizer extends Component
             'primaryColor' => 'required',
             'greeting' => 'required|max:500',
             'position' => 'required|in:bottom-right,bottom-left,top-right,top-left',
+            'avatarUpload' => 'nullable|image|max:1024', // 1MB Max
         ]);
+
+        // Handle Avatar Upload
+        if ($this->avatarUpload) {
+            $path = $this->avatarUpload->store('avatars', 'public');
+            $this->avatarUrl = '/storage/' . $path;
+            $this->avatarType = 'image';
+        }
 
         $this->widget->update([
             'name' => $this->name,
@@ -69,6 +89,11 @@ class WidgetCustomizer extends Component
                 'color' => $this->primaryColor,
                 'greeting' => $this->greeting,
                 'position' => $this->position,
+                'greeting' => $this->greeting,
+                'position' => $this->position,
+                'avatar_type' => $this->avatarType,
+                'avatar_icon' => $this->avatarIcon,
+                'avatar_url' => $this->avatarUrl,
                 // Model is handled separately in Model Selection tab
                 'model' => $this->widget->settings['model'] ?? 'nvidia/llama-3.1-nemotron-70b-instruct:free',
             ],

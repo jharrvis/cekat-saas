@@ -24,6 +24,7 @@ class KnowledgeBaseEditor extends Component
     public $company_description = '';
     public $persona_name = '';
     public $persona_tone = 'friendly';
+    public $customer_greeting = 'Kak';
     public $custom_instructions = '';
 
     // FAQs
@@ -82,6 +83,7 @@ class KnowledgeBaseEditor extends Component
         $this->company_description = $this->knowledgeBase->company_description ?? '';
         $this->persona_name = $this->knowledgeBase->persona_name ?? '';
         $this->persona_tone = $this->knowledgeBase->persona_tone ?? 'friendly';
+        $this->customer_greeting = $this->knowledgeBase->customer_greeting ?? 'Kak';
         $this->custom_instructions = $this->knowledgeBase->custom_instructions ?? '';
 
         $this->faqs = $this->knowledgeBase->faqs()->orderBy('sort_order')->get()->toArray();
@@ -95,6 +97,7 @@ class KnowledgeBaseEditor extends Component
             'company_description' => 'nullable|max:1000',
             'persona_name' => 'required|max:100',
             'persona_tone' => 'required',
+            'customer_greeting' => 'nullable|max:50',
             'custom_instructions' => 'nullable|max:2000',
         ]);
 
@@ -103,6 +106,7 @@ class KnowledgeBaseEditor extends Component
             'company_description' => $this->company_description,
             'persona_name' => $this->persona_name,
             'persona_tone' => $this->persona_tone,
+            'customer_greeting' => $this->customer_greeting,
             'custom_instructions' => $this->custom_instructions,
         ]);
 

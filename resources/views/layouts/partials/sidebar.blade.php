@@ -166,17 +166,69 @@
             $quota = $plan->max_messages_per_month ?? 100;
             $used = $user->monthly_message_used ?? 0;
             $percentage = $quota > 0 ? min(($used / $quota) * 100, 100) : 0;
+
+            // Determine warning level
+            $sidebarWarning = 'normal';
+            $quotaColors = [
+                'bg' => 'bg-primary/10',
+                'border' => 'border-primary/20',
+                'bar' => 'bg-primary',
+                'text' => 'text-primary',
+            ];
+
+            if ($percentage >= 100) {
+                $sidebarWarning = 'exceeded';
+                $quotaColors = [
+                    'bg' => 'bg-red-50 dark:bg-red-900/30',
+                    'border' => 'border-red-400',
+                    'bar' => 'bg-red-500',
+                    'text' => 'text-red-600',
+                ];
+            } elseif ($percentage >= 90) {
+                $sidebarWarning = 'critical';
+                $quotaColors = [
+                    'bg' => 'bg-amber-50 dark:bg-amber-900/30',
+                    'border' => 'border-amber-400',
+                    'bar' => 'bg-amber-500',
+                    'text' => 'text-amber-600',
+                ];
+            } elseif ($percentage >= 75) {
+                $sidebarWarning = 'warning';
+                $quotaColors = [
+                    'bg' => 'bg-yellow-50 dark:bg-yellow-900/30',
+                    'border' => 'border-yellow-400',
+                    'bar' => 'bg-yellow-500',
+                    'text' => 'text-yellow-600',
+                ];
+            }
         @endphp
-        <div x-show="!sidebarCollapsed" class="bg-primary/10 p-3 rounded-lg border border-primary/20">
+        <div x-show="!sidebarCollapsed"
+            class="{{ $quotaColors['bg'] }} p-3 rounded-lg border {{ $quotaColors['border'] }}">
             <div class="flex justify-between items-center mb-1">
-                <p class="text-xs font-semibold text-primary">Plan: {{ $plan->name ?? 'Starter' }}</p>
+                <p class="text-xs font-semibold {{ $quotaColors['text'] }}">
+                    @if($sidebarWarning === 'exceeded')
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i>Kuota Habis!
+                    @elseif($sidebarWarning === 'critical')
+                        <i class="fa-solid fa-exclamation-circle mr-1"></i>Kuota Hampir Habis
+                    @else
+                        Plan: {{ $plan->name ?? 'Starter' }}
+                    @endif
+                </p>
             </div>
-            <div class="w-full bg-primary/20 rounded-full h-1.5 mb-2">
-                <div class="bg-primary h-1.5 rounded-full" style="width: {{ $percentage }}%"></div>
+            <div
+                class="w-full {{ $sidebarWarning === 'normal' ? 'bg-primary/20' : 'bg-gray-200 dark:bg-gray-700' }} rounded-full h-1.5 mb-2">
+                <div class="{{ $quotaColors['bar'] }} h-1.5 rounded-full transition-all"
+                    style="width: {{ $percentage }}%"></div>
             </div>
             <p class="text-[10px] text-muted-foreground">
                 {{ number_format($used, 0, ',', '.') }} / {{ number_format($quota, 0, ',', '.') }} Messages
             </p>
+            @if($sidebarWarning !== 'normal')
+                <a href="{{ route('billing') }}"
+                    class="block mt-2 text-center px-2 py-1 {{ $sidebarWarning === 'exceeded' ? 'bg-red-500 hover:bg-red-600' : 'bg-amber-500 hover:bg-amber-600' }} text-white text-xs rounded font-medium transition">
+                    <i class="fa-solid fa-arrow-up mr-1"></i>Upgrade
+                </a>
+            @endif
         </div>
     </div>
 </aside>

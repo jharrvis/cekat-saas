@@ -4,6 +4,63 @@
 
 @section('content')
     <div class="space-y-6">
+        {{-- QUOTA ALERTS --}}
+        @if($quotaWarningLevel === 'exceeded')
+            <div class="bg-red-50 dark:bg-red-900/30 border-2 border-red-500 rounded-xl p-4 animate-pulse">
+                <div class="flex items-start gap-4">
+                    <div class="p-3 bg-red-100 dark:bg-red-900 rounded-full">
+                        <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-red-800 dark:text-red-200 text-lg">⚠️ Kuota Pesan Habis!</h3>
+                        <p class="text-red-700 dark:text-red-300 mt-1">
+                            Chatbot Anda tidak akan merespon sampai kuota di-reset bulan depan atau Anda upgrade plan.
+                        </p>
+                        <div class="mt-3 flex gap-3">
+                            <a href="{{ route('billing') }}"
+                                class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
+                                <i class="fa-solid fa-arrow-up mr-2"></i> Upgrade Sekarang
+                            </a>
+                            <span class="text-sm text-red-600 dark:text-red-400 flex items-center">
+                                Reset otomatis: {{ now()->endOfMonth()->diffForHumans() }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif($quotaWarningLevel === 'critical')
+            <div class="bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-500 rounded-xl p-4">
+                <div class="flex items-start gap-4">
+                    <div class="p-3 bg-amber-100 dark:bg-amber-900 rounded-full">
+                        <i class="fa-solid fa-exclamation-circle text-amber-600 text-2xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-amber-800 dark:text-amber-200">🔥 Kuota Hampir Habis! ({{ $usagePercent }}%)
+                        </h3>
+                        <p class="text-amber-700 dark:text-amber-300 mt-1">
+                            Tersisa <strong>{{ number_format($quotaRemaining) }} pesan</strong>. Jika habis, chatbot tidak akan
+                            merespon.
+                        </p>
+                        <a href="{{ route('billing') }}"
+                            class="inline-flex items-center mt-2 text-amber-700 dark:text-amber-300 font-medium hover:underline">
+                            <i class="fa-solid fa-arrow-up mr-1"></i> Upgrade untuk kuota lebih besar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @elseif($quotaWarningLevel === 'warning')
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-400 rounded-xl p-3">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-info-circle text-yellow-600"></i>
+                    <p class="text-yellow-800 dark:text-yellow-200 text-sm">
+                        <strong>Kuota {{ $usagePercent }}% terpakai</strong> - Tersisa {{ number_format($quotaRemaining) }}
+                        pesan.
+                        <a href="{{ route('billing') }}" class="underline font-medium">Upgrade?</a>
+                    </p>
+                </div>
+            </div>
+        @endif
+
         {{-- Welcome Header --}}
         <div>
             <h2 class="text-3xl font-bold tracking-tight">Halo, {{ $user->name }}! 👋</h2>
@@ -63,59 +120,220 @@
             </div>
 
             {{-- Card 4: Usage --}}
-            <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
+            @php
+                $quotaColor = match ($quotaWarningLevel) {
+                    'exceeded' => 'bg-red-500',
+                    'critical' => 'bg-amber-500',
+                    'warning' => 'bg-yellow-500',
+                    default => 'bg-primary'
+                };
+                $quotaBgColor = match ($quotaWarningLevel) {
+                    'exceeded' => 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800',
+                    'critical' => 'bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-800',
+                    default => null
+                };
+            @endphp
+            <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm {{ $quotaBgColor }}">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-sm font-medium text-muted-foreground">Kuota Pesan</p>
-                        <h3 class="text-2xl font-bold mt-2">{{ number_format($user->monthly_message_used) }}</h3>
+                        <h3 class="text-2xl font-bold mt-2">{{ number_format($usedMessages) }}</h3>
                     </div>
-                    <div class="p-2 bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400 rounded-lg">
-                        <i class="fa-solid fa-gauge-high"></i>
+                    <div
+                        class="p-2 {{ $quotaWarningLevel === 'exceeded' ? 'bg-red-100 text-red-600 dark:bg-red-900' : ($quotaWarningLevel === 'critical' ? 'bg-amber-100 text-amber-600 dark:bg-amber-900' : 'bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400') }} rounded-lg">
+                        <i
+                            class="fa-solid {{ $quotaWarningLevel === 'exceeded' ? 'fa-triangle-exclamation' : 'fa-gauge-high' }}"></i>
                     </div>
                 </div>
                 <div class="mt-4">
-                    <div class="w-full bg-secondary rounded-full h-1.5">
-                        <div class="bg-primary h-1.5 rounded-full" style="width: {{ min($usagePercent, 100) }}%"></div>
+                    <div class="w-full bg-secondary rounded-full h-2">
+                        <div class="{{ $quotaColor }} h-2 rounded-full transition-all"
+                            style="width: {{ min($usagePercent, 100) }}%"></div>
                     </div>
-                    <p class="text-[10px] text-muted-foreground mt-1">{{ $usagePercent }}% dari
-                        {{ number_format($user->monthly_message_quota) }} pesan</p>
+                    <p
+                        class="text-xs {{ $quotaWarningLevel === 'exceeded' ? 'text-red-600 font-semibold' : 'text-muted-foreground' }} mt-1">
+                        {{ $usagePercent }}% terpakai ({{ number_format($usedMessages) }} / {{ number_format($quotaLimit) }}
+                        pesan)
+                    </p>
                 </div>
             </div>
         </div>
 
-        {{-- Charts Section --}}
-        <div class="grid grid-cols-1 md:grid-cols-7 gap-6">
+        {{-- Row 2: Chart + Topics + Response Time --}}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {{-- Chart Area --}}
-            <div class="md:col-span-4 bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
+            <div class="lg:col-span-5 bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
                 <h4 class="font-semibold mb-4">Aktivitas Chat 7 Hari Terakhir</h4>
-                <div class="h-[300px] w-full">
+                <div class="h-[250px] w-full">
                     <canvas id="chatChart"></canvas>
                 </div>
             </div>
 
-            {{-- Topics Area --}}
-            <div class="md:col-span-3 bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-                <h4 class="font-semibold mb-6">Topik Terpopuler</h4>
-                <div class="space-y-6">
-                    @forelse($topics as $index => $topic)
-                        @php
-                            $colors = ['bg-primary', 'bg-indigo-500', 'bg-orange-500', 'bg-emerald-500'];
-                        @endphp
-                        <div>
-                            <div class="flex justify-between text-sm mb-2">
-                                <span class="text-muted-foreground">{{ $topic['name'] }}</span>
-                                <span class="font-bold">{{ $topic['percent'] }}%</span>
-                            </div>
-                            <div class="w-full bg-secondary rounded-full h-2">
-                                <div class="{{ $colors[$index % count($colors)] }} h-2 rounded-full"
-                                    style="width: {{ $topic['percent'] }}%"></div>
-                            </div>
+            {{-- Topics Area - Livewire Component --}}
+            <div class="lg:col-span-4">
+                @livewire('topic-analyzer')
+            </div>
+
+            {{-- Peak Hours + Hot Sessions --}}
+            <div class="lg:col-span-3 space-y-6">
+                {{-- Peak Hours Card --}}
+                <div class="bg-card text-card-foreground p-5 rounded-xl border shadow-sm">
+                    <h4 class="font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-blue-500"></i> Jam Tersibuk
+                    </h4>
+                    @if(!empty($peakHours['hours']))
+                        <div class="text-center mb-4">
+                            <div class="text-3xl font-bold text-primary">{{ $peakHours['peak_formatted'] }}</div>
+                            <p class="text-xs text-muted-foreground">{{ $peakHours['peak_count'] }} chat</p>
                         </div>
-                    @empty
-                        <p class="text-muted-foreground text-sm">Belum ada data topik</p>
-                    @endforelse
+                        <div class="space-y-2">
+                            @foreach($peakHours['hours'] as $idx => $hour)
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="flex items-center gap-2">
+                                        @if($idx === 0)
+                                            <i class="fa-solid fa-trophy text-yellow-500 text-xs"></i>
+                                        @else
+                                            <span class="w-4 text-center text-muted-foreground">{{ $idx + 1 }}</span>
+                                        @endif
+                                        {{ $hour['formatted'] }}
+                                    </span>
+                                    <span class="text-muted-foreground">{{ $hour['count'] }} chat</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-4 text-muted-foreground">
+                            <i class="fa-solid fa-clock text-2xl mb-2 opacity-50"></i>
+                            <p class="text-sm">Belum ada data</p>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Hot Sessions Card --}}
+                <div class="bg-card text-card-foreground p-5 rounded-xl border shadow-sm">
+                    <h4 class="font-semibold mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-orange-500"></i> Chat Terpanjang
+                    </h4>
+                    <div class="space-y-2">
+                        @forelse($hotSessions as $session)
+                            <div class="flex items-center justify-between text-sm py-1 border-b border-border/50 last:border-0">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    @if($session['is_lead'])
+                                        <i class="fa-solid fa-star text-yellow-500 text-xs"></i>
+                                    @endif
+                                    <span class="truncate">{{ $session['visitor_name'] }}</span>
+                                </div>
+                                <span class="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium shrink-0">
+                                    {{ $session['message_count'] }} msg
+                                </span>
+                            </div>
+                        @empty
+                            <p class="text-center text-muted-foreground text-sm py-4">Belum ada data</p>
+                        @endforelse
+                    </div>
                 </div>
             </div>
+        </div>
+
+        {{-- Row 3: Recent Conversations --}}
+        <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Percakapan Terbaru
+                </h4>
+                <a href="{{ route('chats.index') }}" class="text-sm text-primary hover:underline">
+                    Lihat Semua <i class="fa-solid fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+
+            @if(count($recentConversations) > 0)
+                <div class="space-y-4">
+                    @foreach($recentConversations as $conv)
+                        <div class="p-4 border rounded-lg hover:bg-muted/30 transition">
+                            {{-- Header Row --}}
+                            <div class="flex items-start justify-between gap-2 mb-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                        @if($conv['is_lead'])
+                                            <i class="fa-solid fa-star text-yellow-500"></i>
+                                        @else
+                                            <i class="fa-solid fa-user text-primary"></i>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-medium">{{ $conv['visitor_name'] }}</span>
+                                            @if($conv['visitor_email'])
+                                                <span class="text-xs text-muted-foreground">{{ $conv['visitor_email'] }}</span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <span><i class="fa-solid fa-robot mr-1"></i>{{ $conv['widget_name'] }}</span>
+                                            <span>•</span>
+                                            <span>{{ $conv['time_ago'] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    {{-- Status Badge --}}
+                                    @php
+                                        $statusStyles = [
+                                            'active' => 'bg-green-100 text-green-700',
+                                            'converted' => 'bg-blue-100 text-blue-700',
+                                            'ended' => 'bg-gray-100 text-gray-600',
+                                            'inactive' => 'bg-yellow-100 text-yellow-700',
+                                        ];
+                                        $statusLabels = [
+                                            'active' => 'Aktif',
+                                            'converted' => 'Lead',
+                                            'ended' => 'Selesai',
+                                            'inactive' => 'Tidak Aktif',
+                                        ];
+                                    @endphp
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium {{ $statusStyles[$conv['status']] }}">
+                                        {{ $statusLabels[$conv['status']] }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {{-- First Message Preview --}}
+                            @if($conv['first_message'])
+                                <div class="mb-2 pl-13">
+                                    <p class="text-sm text-foreground bg-muted/50 px-3 py-2 rounded-lg inline-block max-w-full">
+                                        "{{ $conv['first_message'] }}"
+                                    </p>
+                                </div>
+                            @endif
+
+                            {{-- Topics & Stats Row --}}
+                            <div class="flex items-center justify-between mt-2 pl-13">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    {{-- Topic Tags --}}
+                                    @if(!empty($conv['topics']))
+                                        @foreach($conv['topics'] as $topic)
+                                            <span class="px-2 py-0.5 bg-primary/10 text-primary rounded text-xs">
+                                                {{ $topic }}
+                                            </span>
+                                        @endforeach
+                                    @endif
+                                </div>
+                                <div class="flex items-center gap-3 text-xs text-muted-foreground">
+                                    <span><i class="fa-solid fa-message mr-1"></i>{{ $conv['message_count'] }} pesan</span>
+                                    @if($conv['duration'])
+                                        <span><i class="fa-solid fa-clock mr-1"></i>{{ $conv['duration'] }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-8 text-muted-foreground">
+                    <i class="fa-solid fa-comments text-4xl mb-3 opacity-50"></i>
+                    <p>Belum ada percakapan</p>
+                    <p class="text-sm">Percakapan akan muncul setelah widget digunakan</p>
+                </div>
+            @endif
         </div>
 
         {{-- Widgets Section --}}

@@ -23,6 +23,10 @@ class DefaultPlansSeeder extends Seeder
                 'max_documents' => 3,
                 'max_file_size_mb' => 5,
                 'max_faqs' => 10,
+                'chat_history_days' => 7,
+                'can_export_leads' => false,
+                'can_use_whatsapp' => false,
+                'ai_tier' => 'basic',
                 'allowed_models' => ['nvidia/nemotron-3-nano-30b-a3b:free'],
                 'features' => [
                     'custom_branding' => false,
@@ -44,6 +48,10 @@ class DefaultPlansSeeder extends Seeder
                 'max_documents' => 20,
                 'max_file_size_mb' => 10,
                 'max_faqs' => 50,
+                'chat_history_days' => 30,
+                'can_export_leads' => true,
+                'can_use_whatsapp' => false,
+                'ai_tier' => 'advanced',
                 'allowed_models' => [
                     'nvidia/nemotron-3-nano-30b-a3b:free',
                     'openai/gpt-4o-mini',
@@ -68,6 +76,10 @@ class DefaultPlansSeeder extends Seeder
                 'max_documents' => 100,
                 'max_file_size_mb' => 20,
                 'max_faqs' => 999,
+                'chat_history_days' => 90,
+                'can_export_leads' => true,
+                'can_use_whatsapp' => true,
+                'ai_tier' => 'premium',
                 'allowed_models' => [
                     'nvidia/nemotron-3-nano-30b-a3b:free',
                     'openai/gpt-4o-mini',

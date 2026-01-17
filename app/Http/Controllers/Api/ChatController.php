@@ -40,6 +40,30 @@ class ChatController extends Controller
             }
             $kb = json_decode(file_get_contents($kbPath), true);
         } else {
+            // Domain Validation (Security)
+            $allowedDomains = $widget->settings['allowed_domains'] ?? null;
+            if (!empty($allowedDomains)) {
+                $origin = $request->header('Origin') ?? $request->header('Referer');
+
+                // Allow empty origin/referer only for testing/local (or strict it based on parsing)
+                // For production, Origin/Referer usually strictly enforced by browser for CORS AJAX
+
+                if ($origin) {
+                    $originDomain = parse_url($origin, PHP_URL_HOST);
+                    $allowedList = array_map('trim', explode(',', $allowedDomains));
+
+                    // Simple logic: if originDomain is not in allowedList, block
+                    // Advanced: could support wildcards *.domain.com
+
+                    if (!in_array($originDomain, $allowedList) && !Str::contains($origin, 'localhost') && !Str::contains($origin, '127.0.0.1')) {
+                        return response()->json([
+                            'success' => false,
+                            'error' => 'Domain not allowed'
+                        ], 403);
+                    }
+                }
+            }
+
             // Check quota before processing (skip for landing page widget)
             $isLandingPage = $widget->slug === 'landing-page-default';
 
@@ -220,7 +244,10 @@ class ChatController extends Controller
         $prompt .= "Deskripsi perusahaan: {$companyDesc}\n\n";
         $prompt .= "## Kepribadian & Gaya Bicara\n";
         $prompt .= "- Kamu WAJIB menggunakan bahasa Indonesia yang santai, natural, dan akrab.\n";
-        $prompt .= "- WAJIB menyapa user dengan sebutan 'Kak' atau 'Kakak'.\n";
+        $greeting = $kb['customer_greeting'] ?? 'Kak';
+        if (!empty($greeting)) {
+            $prompt .= "- WAJIB menyapa user dengan sebutan '{$greeting}'.\n";
+        }
         $prompt .= "- Gunakan emoji sesekali yang relevan 😊.\n";
         $prompt .= "- Nada bicara: {$personaTone}\n\n";
 
