@@ -259,6 +259,7 @@ class WhatsAppSettings extends Component
     public function render()
     {
         return view('livewire.admin.whatsapp-settings')
-            ->layout('layouts.dashboard');
+            ->extends('layouts.dashboard')
+            ->section('content');
     }
 }
