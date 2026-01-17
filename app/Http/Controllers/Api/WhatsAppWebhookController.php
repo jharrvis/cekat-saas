@@ -92,6 +92,7 @@ class WhatsAppWebhookController extends Controller
             'message_type' => $messageType,
             'has_url' => $request->has('url'),
             'url_value' => $request->input('url'),
+            'fonnte_id' => $request->input('id'),
         ]);
 
         // Skip if it's a group message (optional - can be configured)
@@ -102,9 +103,41 @@ class WhatsAppWebhookController extends Controller
             return response()->json(['status' => 'group_ignored']);
         }
 
-        // Skip if it's from the device itself (echo)
-        if ($sender === $device->phone_number) {
+        // Skip if it's from the device itself (echo) - check multiple formats
+        $devicePhone = $device->phone_number;
+        $senderNormalized = preg_replace('/[^0-9]/', '', $sender);
+        $deviceNormalized = preg_replace('/[^0-9]/', '', $devicePhone ?? '');
+
+        if ($senderNormalized === $deviceNormalized || $sender === $devicePhone) {
+            Log::info('Skipping self message', ['device_id' => $device->id, 'sender' => $sender]);
             return response()->json(['status' => 'self_message_ignored']);
+        }
+
+        // Deduplication: Check if we already processed this message
+        // Using Fonnte message ID or hash of sender+message+timestamp
+        $fonnteMessageId = $request->input('id');
+        $messageHash = md5($sender . $message . floor(time() / 60)); // 1 minute window
+
+        if ($fonnteMessageId) {
+            // Check if we already processed this Fonnte message ID
+            $existingMessage = WhatsAppMessage::where('fonnte_message_id', $fonnteMessageId)->first();
+            if ($existingMessage) {
+                Log::info('Duplicate message ignored (by fonnte_id)', ['fonnte_id' => $fonnteMessageId]);
+                return response()->json(['status' => 'duplicate_ignored']);
+            }
+        } else {
+            // Fallback: Check by hash within last minute
+            $recentDuplicate = WhatsAppMessage::where('whatsapp_device_id', $device->id)
+                ->where('sender_phone', $sender)
+                ->where('message', $message)
+                ->where('direction', 'inbound')
+                ->where('created_at', '>=', now()->subMinutes(2))
+                ->first();
+
+            if ($recentDuplicate) {
+                Log::info('Duplicate message ignored (by content hash)', ['sender' => $sender]);
+                return response()->json(['status' => 'duplicate_ignored']);
+            }
         }
 
         // Process the message
