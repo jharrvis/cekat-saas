@@ -88,7 +88,10 @@ class WhatsAppWebhookController extends Controller
         Log::info('WhatsApp incoming message', [
             'device_id' => $device->id,
             'sender' => $sender,
+            'message' => substr($message ?? '', 0, 100),
             'message_type' => $messageType,
+            'has_url' => $request->has('url'),
+            'url_value' => $request->input('url'),
         ]);
 
         // Skip if it's a group message (optional - can be configured)
@@ -216,8 +219,9 @@ class WhatsAppWebhookController extends Controller
      */
     private function determineMessageType(Request $request): string
     {
-        if ($request->has('url')) {
-            $url = $request->input('url');
+        // Check for media URL - must be non-empty
+        $url = $request->input('url');
+        if (!empty($url) && is_string($url) && strlen($url) > 5) {
             if (preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $url)) {
                 return 'image';
             }
@@ -230,13 +234,15 @@ class WhatsAppWebhookController extends Controller
             if (preg_match('/\.(pdf|doc|docx|xls|xlsx)$/i', $url)) {
                 return 'document';
             }
+            // Has URL but unknown type - treat as document
+            return 'document';
         }
 
-        if ($request->has('location')) {
+        if ($request->has('location') && !empty($request->input('location'))) {
             return 'location';
         }
 
-        if ($request->has('vcard')) {
+        if ($request->has('vcard') && !empty($request->input('vcard'))) {
             return 'contact';
         }
 
