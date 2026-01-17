@@ -56,4 +56,12 @@ class Widget extends Model
     {
         return $this->hasManyThrough(ChatMessage::class, ChatSession::class, 'widget_id', 'session_id');
     }
+
+    /**
+     * Get the WhatsApp device for this widget.
+     */
+    public function whatsappDevice()
+    {
+        return $this->hasOne(WhatsAppDevice::class);
+    }
 }

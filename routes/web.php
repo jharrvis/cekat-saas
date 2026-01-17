@@ -55,6 +55,9 @@ Route::prefix('api')->group(function () {
 
     // Midtrans Webhook (no CSRF, no auth)
     Route::post('/payment/notification', [App\Http\Controllers\PaymentController::class, 'webhook']);
+
+    // WhatsApp Webhook from Fonnte (no CSRF, no auth)
+    Route::post('/whatsapp/webhook/{device_id}', [App\Http\Controllers\Api\WhatsAppWebhookController::class, 'handle']);
 });
 
 // Suspended/Banned Account Info Page
@@ -227,6 +230,24 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
     Route::get('/settings', \App\Livewire\Admin\SystemSettings::class)->name('admin.settings');
     Route::get('/billing', \App\Livewire\Admin\BillingMonitoring::class)->name('admin.billing');
     Route::get('/chat-inbox', \App\Livewire\Admin\ChatInbox::class)->name('admin.chat-inbox');
+});
+
+// WhatsApp Routes (User)
+Route::middleware(['auth', 'user.status'])->prefix('whatsapp')->group(function () {
+    Route::get('/', [App\Http\Controllers\WhatsAppController::class, 'index'])->name('whatsapp.index');
+    Route::post('/create', [App\Http\Controllers\WhatsAppController::class, 'create'])->name('whatsapp.create');
+    Route::get('/{device}/connect', [App\Http\Controllers\WhatsAppController::class, 'connect'])->name('whatsapp.connect');
+    Route::get('/{device}/qr', [App\Http\Controllers\WhatsAppController::class, 'getQR'])->name('whatsapp.qr');
+    Route::get('/{device}/status', [App\Http\Controllers\WhatsAppController::class, 'refreshStatus'])->name('whatsapp.status');
+    Route::put('/{device}', [App\Http\Controllers\WhatsAppController::class, 'update'])->name('whatsapp.update');
+    Route::post('/{device}/disconnect', [App\Http\Controllers\WhatsAppController::class, 'disconnect'])->name('whatsapp.disconnect');
+    Route::delete('/{device}', [App\Http\Controllers\WhatsAppController::class, 'destroy'])->name('whatsapp.destroy');
+    Route::get('/{device}/messages', [App\Http\Controllers\WhatsAppController::class, 'messages'])->name('whatsapp.messages');
+});
+
+// WhatsApp Admin Settings
+Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
+    Route::get('/whatsapp', App\Livewire\Admin\WhatsAppSettings::class)->name('admin.whatsapp');
 });
 
 // Auth Routes

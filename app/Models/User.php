@@ -96,4 +96,12 @@ class User extends Authenticatable
     {
         return $this->role === 'user';
     }
+
+    /**
+     * Get the user's WhatsApp devices.
+     */
+    public function whatsappDevices()
+    {
+        return $this->hasMany(WhatsAppDevice::class);
+    }
 }
