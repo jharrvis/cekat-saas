@@ -162,6 +162,73 @@ class FonnteService
     }
 
     /**
+     * Update device settings including webhooks, autoread, etc.
+     * 
+     * @param string $deviceToken The device's token
+     * @param array $settings Settings to update
+     * @return array Response from Fonnte
+     */
+    public function updateDevice(string $deviceToken, array $settings): array
+    {
+        // Build the request data with provided settings
+        $data = [];
+
+        // Webhook URLs
+        if (isset($settings['webhook'])) {
+            $data['webhook'] = $settings['webhook'];
+        }
+        if (isset($settings['webhookconnect'])) {
+            $data['webhookconnect'] = $settings['webhookconnect'];
+        }
+        if (isset($settings['webhookstatus'])) {
+            $data['webhookstatus'] = $settings['webhookstatus'];
+        }
+        if (isset($settings['webhookchaining'])) {
+            $data['webhookchaining'] = $settings['webhookchaining'];
+        }
+
+        // Autoread settings (chatbot mode)
+        if (isset($settings['autoread'])) {
+            $data['autoread'] = $settings['autoread'] ? 'true' : 'false';
+        }
+        if (isset($settings['personal'])) {
+            $data['personal'] = $settings['personal'] ? 'true' : 'false';
+        }
+        if (isset($settings['group'])) {
+            $data['group'] = $settings['group'] ? 'true' : 'false';
+        }
+        if (isset($settings['quick'])) {
+            $data['quick'] = $settings['quick'] ? 'true' : 'false';
+        }
+
+        // Other settings
+        if (isset($settings['name'])) {
+            $data['name'] = $settings['name'];
+        }
+        if (isset($settings['device'])) {
+            $data['device'] = $settings['device'];
+        }
+
+        Log::info('Fonnte updateDevice request', ['data' => $data]);
+
+        $response = Http::asForm()
+            ->withHeaders([
+                'Authorization' => $deviceToken,
+            ])
+            ->post(self::API_BASE_URL . '/update-device', $data);
+
+        $result = $response->json() ?? [];
+
+        Log::info('Fonnte updateDevice response', ['data' => $result]);
+
+        if (isset($result['status']) && $result['status'] === false) {
+            throw new \Exception($result['reason'] ?? 'Failed to update device');
+        }
+
+        return $result;
+    }
+
+    /**
      * Get QR code for device connection.
      * 
      * @param string $deviceToken The device's token

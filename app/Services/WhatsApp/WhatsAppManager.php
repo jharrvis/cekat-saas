@@ -107,15 +107,40 @@ class WhatsAppManager
             'is_active' => true,
         ]);
 
-        // Set webhook URL for this device
+        // Configure device settings via Fonnte API (webhooks, autoread, etc.)
         $webhookUrl = url('/api/whatsapp/webhook/' . $device->id);
         try {
-            $this->fonnte->setWebhook($fonnteResult['token'], $webhookUrl);
+            $this->fonnte->updateDevice($fonnteResult['token'], [
+                // All webhook URLs point to our unified endpoint
+                'webhook' => $webhookUrl,           // Incoming messages
+                'webhookconnect' => $webhookUrl,    // Connection status
+                'webhookstatus' => $webhookUrl,     // Message delivery status
+                // Autoread settings for chatbot mode
+                'autoread' => true,                 // Enable autoread (chatbot mode)
+                'personal' => true,                 // Reply to personal chats
+                'group' => false,                   // Don't reply to groups by default
+                'quick' => false,                   // Don't reply to self messages
+            ]);
+
+            Log::info('Fonnte device configured via API', [
+                'device_id' => $device->id,
+                'webhook_url' => $webhookUrl,
+            ]);
         } catch (\Exception $e) {
-            Log::warning('Failed to set webhook for device', [
+            Log::warning('Failed to configure device settings via Fonnte API', [
                 'device_id' => $device->id,
                 'error' => $e->getMessage(),
             ]);
+
+            // Fallback: try the old setWebhook method
+            try {
+                $this->fonnte->setWebhook($fonnteResult['token'], $webhookUrl);
+            } catch (\Exception $e2) {
+                Log::warning('Fallback setWebhook also failed', [
+                    'device_id' => $device->id,
+                    'error' => $e2->getMessage(),
+                ]);
+            }
         }
 
         Log::info('WhatsApp device created', [
