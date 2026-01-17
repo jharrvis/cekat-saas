@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             '/api/chat',
             '/api/payment/notification', // Midtrans webhook
             '/api/widget/*', // Widget config API
+            '/api/whatsapp/webhook/*', // Fonnte WhatsApp webhook
         ]);
 
         // Middleware aliases
