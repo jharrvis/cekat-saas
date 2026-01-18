@@ -82,6 +82,15 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     Route::put('/chatbots/{chatbot}', [ChatbotController::class, 'update'])->name('chatbots.update');
     Route::delete('/chatbots/{chatbot}', [ChatbotController::class, 'destroy'])->name('chatbots.destroy');
 
+    // AI Agents
+    Route::get('/agents', [App\Http\Controllers\AiAgentController::class, 'index'])->name('agents.index');
+    Route::get('/agents/create', [App\Http\Controllers\AiAgentController::class, 'create'])->name('agents.create');
+    Route::post('/agents', [App\Http\Controllers\AiAgentController::class, 'store'])->name('agents.store');
+    Route::get('/agents/{agent}/edit', [App\Http\Controllers\AiAgentController::class, 'edit'])->name('agents.edit');
+    Route::put('/agents/{agent}', [App\Http\Controllers\AiAgentController::class, 'update'])->name('agents.update');
+    Route::delete('/agents/{agent}', [App\Http\Controllers\AiAgentController::class, 'destroy'])->name('agents.destroy');
+    Route::post('/agents/{agent}/toggle-status', [App\Http\Controllers\AiAgentController::class, 'toggleStatus'])->name('agents.toggle-status');
+
     // User Account Settings
     Route::get('/settings', function () {
         return view('user.settings');

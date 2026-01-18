@@ -114,6 +114,15 @@
                     class="font-medium whitespace-nowrap transition-opacity duration-200">Dashboard</span>
             </a>
 
+            <a href="{{ route('agents.index') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('agents.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
+                <i class="fa-solid fa-brain w-5 text-center text-base shrink-0"></i>
+                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">AI
+                    Agents</span>
+                <span x-show="!sidebarCollapsed"
+                    class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">NEW</span>
+            </a>
+
             <a href="{{ route('chatbots.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('chatbots.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-robot w-5 text-center text-base shrink-0"></i>
@@ -136,12 +145,12 @@
             </a>
 
             @if(\App\Services\WhatsApp\WhatsAppManager::isEnabled())
-            <a href="{{ route('whatsapp.index') }}"
-                class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('whatsapp.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
-                <i class="fa-brands fa-whatsapp w-5 text-center text-base shrink-0"></i>
-                <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">WhatsApp</span>
-            </a>
+                <a href="{{ route('whatsapp.index') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('whatsapp.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
+                    <i class="fa-brands fa-whatsapp w-5 text-center text-base shrink-0"></i>
+                    <span x-show="!sidebarCollapsed"
+                        class="font-medium whitespace-nowrap transition-opacity duration-200">WhatsApp</span>
+                </a>
             @endif
 
             <div class="my-4 border-t border-border mx-2"></div>
