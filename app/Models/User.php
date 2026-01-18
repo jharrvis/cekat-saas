@@ -104,4 +104,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(WhatsAppDevice::class);
     }
+
+    /**
+     * Get the user's AI agents.
+     */
+    public function aiAgents()
+    {
+        return $this->hasMany(AiAgent::class);
+    }
+
+    /**
+     * Get active AI agents for the user.
+     */
+    public function activeAiAgents()
+    {
+        return $this->aiAgents()->where('is_active', true);
+    }
 }
