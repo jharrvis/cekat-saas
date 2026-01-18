@@ -61,6 +61,113 @@
             </div>
         @endif
 
+        {{-- Quick Start Guide for New Users --}}
+        @if($widgets->count() === 0 || ($totalConversations === 0 && $user->created_at->diffInDays(now()) < 7))
+            <div
+                class="bg-gradient-to-r from-primary/10 via-indigo-500/10 to-purple-500/10 border border-primary/20 rounded-xl p-6">
+                <div class="flex items-start gap-4">
+                    <div class="p-3 bg-primary rounded-xl text-white shrink-0">
+                        <i class="fa-solid fa-rocket text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg">🚀 Quick Start Guide</h3>
+                        <p class="text-muted-foreground mt-1 mb-4">
+                            Ikuti langkah-langkah berikut untuk mengaktifkan AI chatbot Anda:
+                        </p>
+
+                        <div class="grid md:grid-cols-4 gap-4">
+                            {{-- Step 1 --}}
+                            <div
+                                class="flex flex-col items-center text-center p-4 bg-card rounded-lg border {{ $widgets->count() > 0 ? 'border-green-500 bg-green-50 dark:bg-green-950/30' : '' }}">
+                                <div
+                                    class="w-8 h-8 rounded-full {{ $widgets->count() > 0 ? 'bg-green-500' : 'bg-muted' }} text-white flex items-center justify-center text-sm font-bold mb-2">
+                                    @if($widgets->count() > 0)
+                                        <i class="fa-solid fa-check"></i>
+                                    @else
+                                        1
+                                    @endif
+                                </div>
+                                <h4 class="font-semibold text-sm">Buat Chatbot</h4>
+                                <p class="text-xs text-muted-foreground mt-1">Buat chatbot pertama Anda</p>
+                                @if($widgets->count() === 0)
+                                    <a href="{{ route('chatbots.create') }}" class="mt-2 text-xs text-primary hover:underline">
+                                        Mulai →
+                                    </a>
+                                @endif
+                            </div>
+
+                            {{-- Step 2 --}}
+                            @php
+                                $hasKnowledgeBase = $widgets->first()?->knowledgeBase?->faqs?->count() > 0;
+                            @endphp
+                            <div
+                                class="flex flex-col items-center text-center p-4 bg-card rounded-lg border {{ $hasKnowledgeBase ? 'border-green-500 bg-green-50 dark:bg-green-950/30' : '' }}">
+                                <div
+                                    class="w-8 h-8 rounded-full {{ $hasKnowledgeBase ? 'bg-green-500' : 'bg-muted' }} text-white flex items-center justify-center text-sm font-bold mb-2">
+                                    @if($hasKnowledgeBase)
+                                        <i class="fa-solid fa-check"></i>
+                                    @else
+                                        2
+                                    @endif
+                                </div>
+                                <h4 class="font-semibold text-sm">Training AI</h4>
+                                <p class="text-xs text-muted-foreground mt-1">Tambahkan FAQ & pengetahuan</p>
+                                @if($widgets->count() > 0 && !$hasKnowledgeBase)
+                                    <a href="{{ route('chatbots.edit', $widgets->first()) }}#knowledge"
+                                        class="mt-2 text-xs text-primary hover:underline">
+                                        Mulai →
+                                    </a>
+                                @endif
+                            </div>
+
+                            {{-- Step 3 --}}
+                            <div class="flex flex-col items-center text-center p-4 bg-card rounded-lg border">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-muted text-white flex items-center justify-center text-sm font-bold mb-2">
+                                    3
+                                </div>
+                                <h4 class="font-semibold text-sm">Pasang Widget</h4>
+                                <p class="text-xs text-muted-foreground mt-1">Copy kode ke website Anda</p>
+                                @if($widgets->count() > 0)
+                                    <a href="{{ route('chatbots.edit', $widgets->first()) }}#embed"
+                                        class="mt-2 text-xs text-primary hover:underline">
+                                        Lihat Kode →
+                                    </a>
+                                @endif
+                            </div>
+
+                            {{-- Step 4 --}}
+                            <div
+                                class="flex flex-col items-center text-center p-4 bg-card rounded-lg border {{ $totalConversations > 0 ? 'border-green-500 bg-green-50 dark:bg-green-950/30' : '' }}">
+                                <div
+                                    class="w-8 h-8 rounded-full {{ $totalConversations > 0 ? 'bg-green-500' : 'bg-muted' }} text-white flex items-center justify-center text-sm font-bold mb-2">
+                                    @if($totalConversations > 0)
+                                        <i class="fa-solid fa-check"></i>
+                                    @else
+                                        4
+                                    @endif
+                                </div>
+                                <h4 class="font-semibold text-sm">Siap Digunakan!</h4>
+                                <p class="text-xs text-muted-foreground mt-1">Chatbot menjawab otomatis</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-primary/20 flex items-center justify-between">
+                            <p class="text-sm text-muted-foreground">
+                                <i class="fa-solid fa-lightbulb text-yellow-500 mr-1"></i>
+                                Butuh bantuan? <a href="#" class="text-primary hover:underline">Lihat tutorial video</a> atau <a
+                                    href="#" class="text-primary hover:underline">baca dokumentasi</a>
+                            </p>
+                            <button onclick="this.closest('.bg-gradient-to-r').style.display='none'"
+                                class="text-sm text-muted-foreground hover:text-foreground">
+                                <i class="fa-solid fa-times"></i> Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- Welcome Header --}}
         <div>
             <h2 class="text-3xl font-bold tracking-tight">Halo, {{ $user->name }}! 👋</h2>
