@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\AiAgent;
-use App\Models\LlmModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -28,12 +27,7 @@ class AiAgentController extends Controller
      */
     public function create()
     {
-        $llmModels = LlmModel::where('is_active', true)
-            ->orderBy('tier')
-            ->orderBy('name')
-            ->get();
-
-        return view('agents.create', compact('llmModels'));
+        return view('agents.create');
     }
 
     /**
@@ -44,7 +38,6 @@ class AiAgentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'ai_model' => 'required|string|max:100',
             'personality' => 'required|in:professional,friendly,casual,formal',
             'ai_temperature' => 'required|numeric|min:0|max:2',
             'greeting_message' => 'nullable|string|max:500',
@@ -73,14 +66,22 @@ class AiAgentController extends Controller
             abort(403);
         }
 
-        $llmModels = LlmModel::where('is_active', true)
-            ->orderBy('tier')
-            ->orderBy('name')
-            ->get();
-
         $agent->load(['widgets', 'knowledgeBase.faqs']);
 
-        return view('agents.edit', compact('agent', 'llmModels'));
+        return view('agents.edit', compact('agent'));
+    }
+
+    /**
+     * Show the knowledge base editor for the agent.
+     */
+    public function knowledge(AiAgent $agent)
+    {
+        // Ensure user owns this agent
+        if ($agent->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('agents.knowledge', compact('agent'));
     }
 
     /**
@@ -96,7 +97,6 @@ class AiAgentController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'ai_model' => 'required|string|max:100',
             'personality' => 'required|in:professional,friendly,casual,formal',
             'ai_temperature' => 'required|numeric|min:0|max:2',
             'greeting_message' => 'nullable|string|max:500',
@@ -104,6 +104,7 @@ class AiAgentController extends Controller
             'fallback_message' => 'nullable|string|max:500',
             'is_active' => 'boolean',
         ]);
+
 
         $agent->update($validated);
 

@@ -28,7 +28,10 @@ class ChatbotController extends Controller
                 ->with('error', 'You have reached your plan limit. Upgrade to create more chatbots.');
         }
 
-        return view('chatbots.create');
+        // Get user's AI Agents
+        $aiAgents = $user->aiAgents()->where('is_active', true)->get();
+
+        return view('chatbots.create', compact('aiAgents'));
     }
 
     public function store(Request $request)
@@ -36,6 +39,7 @@ class ChatbotController extends Controller
         $request->validate([
             'display_name' => 'required|max:255',
             'description' => 'nullable|max:500',
+            'ai_agent_id' => 'nullable|exists:ai_agents,id',
         ]);
 
         $user = auth()->user();
@@ -47,8 +51,18 @@ class ChatbotController extends Controller
                 ->with('error', 'You have reached your plan limit.');
         }
 
+        // Verify AI Agent belongs to user
+        $aiAgentId = $request->ai_agent_id;
+        if ($aiAgentId) {
+            $agent = $user->aiAgents()->find($aiAgentId);
+            if (!$agent) {
+                $aiAgentId = null;
+            }
+        }
+
         // Create widget
         $widget = $user->widgets()->create([
+            'ai_agent_id' => $aiAgentId,
             'name' => Str::slug($request->display_name),
             'display_name' => $request->display_name,
             'description' => $request->description,
@@ -57,12 +71,15 @@ class ChatbotController extends Controller
             'status' => 'draft',
         ]);
 
-        // Create knowledge base
-        $widget->knowledgeBase()->create([
-            'company_name' => $request->display_name,
-            'persona_name' => 'AI Assistant',
-            'persona_tone' => 'friendly',
-        ]);
+        // Create knowledge base (only if no AI Agent)
+        // If linked to AI Agent, the agent's knowledge base will be used
+        if (!$aiAgentId) {
+            $widget->knowledgeBase()->create([
+                'company_name' => $request->display_name,
+                'persona_name' => 'AI Assistant',
+                'persona_tone' => 'friendly',
+            ]);
+        }
 
         return redirect()->route('chatbots.edit', $widget->id)
             ->with('success', 'Chatbot created successfully! Now configure your chatbot.');
@@ -129,7 +146,29 @@ class ChatbotController extends Controller
             'display_name' => 'required|max:255',
             'description' => 'nullable|max:500',
             'allowed_domains' => 'nullable|string',
+            'ai_agent_id' => 'nullable|exists:ai_agents,id',
         ]);
+
+        // Handle AI Agent change
+        $newAgentId = $request->input('ai_agent_id') ?: null;
+        $oldAgentId = $chatbot->ai_agent_id;
+
+        // If linking to new agent, verify ownership
+        if ($newAgentId) {
+            $agent = auth()->user()->aiAgents()->find($newAgentId);
+            if (!$agent) {
+                return redirect()->back()->with('error', 'AI Agent tidak ditemukan.');
+            }
+        }
+
+        // If unlinking agent (was linked, now null), create widget's own KB
+        if ($oldAgentId && !$newAgentId && !$chatbot->knowledgeBase) {
+            $chatbot->knowledgeBase()->create([
+                'company_name' => $chatbot->display_name,
+                'persona_name' => 'AI Assistant',
+                'persona_tone' => 'friendly',
+            ]);
+        }
 
         $settings = $chatbot->settings ?? [];
         $settings['allowed_domains'] = $request->input('allowed_domains');
@@ -138,11 +177,23 @@ class ChatbotController extends Controller
             'display_name' => $request->display_name,
             'description' => $request->description,
             'status' => $request->status ?? $chatbot->status,
+            'ai_agent_id' => $newAgentId,
             'settings' => $settings,
         ]);
 
+        // Different success messages
+        if ($oldAgentId !== $newAgentId) {
+            if ($newAgentId) {
+                $agentName = auth()->user()->aiAgents()->find($newAgentId)->name ?? 'Unknown';
+                return redirect()->back()->with('success', "Widget berhasil dihubungkan ke AI Agent \"{$agentName}\"!");
+            } else {
+                return redirect()->back()->with('success', 'Widget sekarang menggunakan Knowledge Base sendiri.');
+            }
+        }
+
         return redirect()->back()->with('success', 'Chatbot updated successfully!');
     }
+
 
     public function destroy($chatbotId)
     {
@@ -152,4 +203,32 @@ class ChatbotController extends Controller
         return redirect()->route('chatbots.index')
             ->with('success', 'Chatbot deleted successfully!');
     }
+
+    /**
+     * Unlink AI Agent from widget and create its own knowledge base
+     */
+    public function unlinkAgent($chatbotId)
+    {
+        $chatbot = auth()->user()->widgets()->findOrFail($chatbotId);
+
+        if (!$chatbot->ai_agent_id) {
+            return redirect()->back()->with('error', 'Widget tidak terhubung ke AI Agent.');
+        }
+
+        // Unlink AI Agent
+        $chatbot->update(['ai_agent_id' => null]);
+
+        // Create widget's own knowledge base
+        if (!$chatbot->knowledgeBase) {
+            $chatbot->knowledgeBase()->create([
+                'company_name' => $chatbot->display_name,
+                'persona_name' => 'AI Assistant',
+                'persona_tone' => 'friendly',
+            ]);
+        }
+
+        return redirect()->route('chatbots.edit.tab', [$chatbot->id, 'knowledge'])
+            ->with('success', 'Koneksi AI Agent berhasil diputus. Widget sekarang memiliki Knowledge Base sendiri.');
+    }
 }
+

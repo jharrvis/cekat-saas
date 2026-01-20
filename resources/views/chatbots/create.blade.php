@@ -41,10 +41,60 @@
                     @error('description') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p class="text-sm text-blue-800">
-                        <i class="fa-solid fa-info-circle mr-2"></i>
-                        After creating the chatbot, you can configure the Knowledge Base, Model, and Widget appearance.
+                {{-- AI Agent Selector --}}
+                <div class="border-t pt-6">
+                    <label class="block text-sm font-medium mb-2">
+                        <i class="fa-solid fa-brain text-primary mr-1"></i> Hubungkan ke AI Agent
+                    </label>
+                    
+                    @if($aiAgents->count() > 0)
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/30 transition">
+                                <input type="radio" name="ai_agent_id" value="" {{ !old('ai_agent_id') ? 'checked' : '' }}
+                                    class="w-4 h-4 text-primary focus:ring-primary">
+                                <div>
+                                    <span class="font-medium">Tanpa AI Agent</span>
+                                    <p class="text-xs text-muted-foreground">Widget akan memiliki knowledge base sendiri</p>
+                                </div>
+                            </label>
+                            
+                            @foreach($aiAgents as $agent)
+                                <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/30 transition">
+                                    <input type="radio" name="ai_agent_id" value="{{ $agent->id }}" 
+                                        {{ old('ai_agent_id') == $agent->id ? 'checked' : '' }}
+                                        class="w-4 h-4 text-primary focus:ring-primary">
+                                    <div class="flex-1">
+                                        <span class="font-medium">{{ $agent->name }}</span>
+                                        <p class="text-xs text-muted-foreground">
+                                            {{ ucfirst($agent->personality) }} • 
+                                            {{ $agent->widgets()->count() }} widget terhubung
+                                        </p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs bg-primary/10 text-primary rounded">
+                                        {{ Str::afterLast($agent->ai_model, '/') }}
+                                    </span>
+                                </label>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                            <p class="text-sm text-amber-800 dark:text-amber-200">
+                                <i class="fa-solid fa-info-circle mr-1"></i>
+                                Belum ada AI Agent. 
+                                <a href="{{ route('agents.create') }}" class="text-primary font-medium hover:underline">
+                                    Buat AI Agent dulu
+                                </a> untuk menggunakan satu brain di banyak widget.
+                            </p>
+                        </div>
+                        <input type="hidden" name="ai_agent_id" value="">
+                    @endif
+                </div>
+
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <p class="text-sm text-blue-800 dark:text-blue-300">
+                        <i class="fa-solid fa-lightbulb mr-2"></i>
+                        <strong>Tip:</strong> Dengan AI Agent, satu "otak" bisa dipakai banyak widget. 
+                        Training 1x, pakai di mana saja!
                     </p>
                 </div>
 

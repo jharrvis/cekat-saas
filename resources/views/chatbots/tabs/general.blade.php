@@ -3,7 +3,30 @@
     <h3 class="text-lg font-bold mb-4">General Information</h3>
     <p class="text-muted-foreground mb-6">Basic settings for your chatbot widget</p>
 
+    {{-- AI Agent Linked Banner --}}
+    @if($chatbot->ai_agent_id)
+        @php $agent = $chatbot->aiAgent; @endphp
+        <div class="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                        <i class="fa-solid fa-robot text-primary"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-sm">Terhubung ke AI Agent</p>
+                        <p class="text-muted-foreground text-xs">{{ $agent->name }} - Knowledge Base dan persona dikelola
+                            oleh AI Agent</p>
+                    </div>
+                </div>
+                <a href="{{ route('agents.edit', $agent) }}" class="text-primary hover:underline text-sm">
+                    <i class="fa-solid fa-external-link-alt mr-1"></i>Kelola Agent
+                </a>
+            </div>
+        </div>
+    @endif
+
     <div class="grid lg:grid-cols-2 gap-8">
+
         {{-- Left Column: Form --}}
         <div>
             <form action="{{ route('chatbots.update', $chatbot->id) }}" method="POST" class="space-y-5">
@@ -46,6 +69,42 @@
                         <option value="inactive" {{ $chatbot->status === 'inactive' ? 'selected' : '' }}>⏸️ Inactive
                         </option>
                     </select>
+                </div>
+
+                {{-- AI Agent Selection --}}
+                @php
+                    $userAgents = auth()->user()->aiAgents()->where('is_active', true)->get();
+                @endphp
+                <div class="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-4">
+                    <label class="block text-sm font-medium mb-2 flex items-center">
+                        <i class="fa-solid fa-robot text-primary mr-2"></i>
+                        AI Agent
+                        <x-help-tooltip
+                            text="Pilih AI Agent untuk menggunakan knowledge base dan persona yang sudah ditraining. Satu AI Agent bisa dipakai di banyak widget." />
+                    </label>
+                    <select name="ai_agent_id"
+                        class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-slate-800">
+                        <option value="">🚫 Tanpa AI Agent (Knowledge Base Sendiri)</option>
+                        @foreach($userAgents as $agent)
+                            <option value="{{ $agent->id }}" {{ $chatbot->ai_agent_id == $agent->id ? 'selected' : '' }}>
+                                🤖 {{ $agent->name }}
+                                @if($agent->knowledgeBase)
+                                    ({{ $agent->knowledgeBase->faqs()->count() }} FAQ,
+                                    {{ $agent->knowledgeBase->documents()->count() }} Doc)
+                                @endif
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="mt-2 text-xs text-muted-foreground space-y-1">
+                        <p><i class="fa-solid fa-info-circle mr-1"></i> AI Agent menentukan personality, knowledge base,
+                            dan cara AI menjawab.</p>
+                        @if($userAgents->isEmpty())
+                            <p class="text-amber-600"><i class="fa-solid fa-plus mr-1"></i>
+                                <a href="{{ route('agents.create') }}" class="underline">Buat AI Agent baru</a> untuk
+                                berbagi knowledge base antar widget.
+                            </p>
+                        @endif
+                    </div>
                 </div>
 
                 {{-- Allowed Domain (1 per widget) --}}
@@ -173,11 +232,12 @@
                                         Current
                                     </div>
                                 @endif
-                                <div class="w-8 h-8 mx-auto rounded-lg flex items-center justify-center mb-2
-                                                {{ $tier['color'] === 'gray' ? 'bg-gray-100 text-gray-600' : '' }}
-                                                {{ $tier['color'] === 'blue' ? 'bg-blue-100 text-blue-600' : '' }}
-                                                {{ $tier['color'] === 'purple' ? 'bg-purple-100 text-purple-600' : '' }}
-                                                {{ $tier['color'] === 'amber' ? 'bg-amber-100 text-amber-600' : '' }}">
+                                <div
+                                    class="w-8 h-8 mx-auto rounded-lg flex items-center justify-center mb-2
+                                                        {{ $tier['color'] === 'gray' ? 'bg-gray-100 text-gray-600' : '' }}
+                                                        {{ $tier['color'] === 'blue' ? 'bg-blue-100 text-blue-600' : '' }}
+                                                        {{ $tier['color'] === 'purple' ? 'bg-purple-100 text-purple-600' : '' }}
+                                                        {{ $tier['color'] === 'amber' ? 'bg-amber-100 text-amber-600' : '' }}">
                                     <i class="fa-solid {{ $tier['icon'] }} text-sm"></i>
                                 </div>
                                 <h4 class="font-semibold text-sm">{{ $tier['name'] }}</h4>

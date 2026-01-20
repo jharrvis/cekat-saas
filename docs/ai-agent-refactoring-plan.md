@@ -523,17 +523,40 @@ class HandoffService
 
 ## ✅ Implementation Checklist
 
-### Week 1: Core Refactoring
-- [ ] Phase 1: Database migrations
-- [ ] Phase 2: Models & relationships
-- [ ] Phase 3: Agent management UI
-- [ ] Phase 4: Widget-Agent linking
-- [ ] Phase 5: Chat integration
+### Week 1: Core Refactoring ✅ COMPLETED
+- [x] Phase 1: Database migrations
+  - [x] Create `ai_agents` table migration
+  - [x] Add `ai_agent_id` to `widgets`, `knowledge_bases`, `chat_sessions`, `chat_messages`
+  - [x] Make `widget_id` nullable in `knowledge_bases`
+  - [x] Create data migration script (widgets → ai_agents)
+- [x] Phase 2: Models & relationships
+  - [x] Create AiAgent model with relationships
+  - [x] Update Widget model (ai_agent_id, aiAgent relationship)
+  - [x] Update KnowledgeBase model (ai_agent_id, aiAgent relationship)
+  - [x] Update ChatSession model (current_agent_id)
+  - [x] Update ChatMessage model (ai_agent_id)
+  - [x] Update User model (aiAgents relationship)
+- [x] Phase 3: Agent management UI
+  - [x] Create agent list page (`agents/index.blade.php`)
+  - [x] Create agent create form (`agents/create.blade.php`)
+  - [x] Create agent edit form (`agents/edit.blade.php`)
+  - [x] Add AI settings (model, temperature, prompt)
+  - [x] Add personality selector
+  - [x] Update sidebar navigation (with NEW badge)
+- [x] Phase 4: Widget-Agent linking
+  - [x] Update widget creation to select agent
+  - [x] Create agent selector component in widget form
+  - [x] Handle widgets without agents (backward compat)
+- [x] Phase 5: Chat integration
+  - [x] Update ChatController to use agents
+  - [x] Modify prompt building for agent context
+  - [x] Use AI Agent's model and temperature
+  - [x] Support custom system prompts from agents
 
-### Week 2: Advanced Features
+### Week 2: Advanced Features (PENDING)
 - [ ] Phase 6: Handoff system
-- [ ] Phase 7: Testing & data migration
-- [ ] Phase 8: Knowledge base update
+- [ ] Phase 7: Testing & data migration (production)
+- [ ] Phase 8: Knowledge base update (PDF integration)
 
 ---
 
@@ -572,5 +595,6 @@ public function up()
 
 **Created:** January 18, 2026  
 **Priority:** HIGH  
-**Status:** Planning  
+**Status:** ✅ Phase A Complete (In Progress - Phase B pending)  
 **Dependencies:** None (foundation change)
+

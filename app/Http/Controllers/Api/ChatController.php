@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Models\Widget;
 use App\Models\ChatSession;
 use App\Models\ChatMessage;
+use App\Models\AiAgent;
 
 class ChatController extends Controller
 {
@@ -26,8 +27,10 @@ class ChatController extends Controller
         $history = $request->input('history', []);
         $sessionId = $request->input('sessionId', 'sess_' . Str::random(16));
 
-        // Load widget and knowledge base
-        $widget = Widget::where('slug', $widgetId)->with(['knowledgeBase.faqs', 'user.plan'])->first();
+        // Load widget with AI Agent if linked
+        $widget = Widget::where('slug', $widgetId)
+            ->with(['knowledgeBase.faqs', 'user.plan', 'aiAgent.knowledgeBase.faqs'])
+            ->first();
 
         if (!$widget) {
             // Fallback to demo knowledge base from JSON
@@ -113,7 +116,13 @@ class ChatController extends Controller
         $formattedHistory[] = ['role' => 'user', 'content' => $message];
 
         // Get model based on user's plan AI tier (LLM Abstraction)
+        // AI Agent does NOT determine the model - that's controlled by plan's AI Tier
         $model = $this->getModelForUser($widget);
+
+        // Get temperature from AI Agent if linked, otherwise use default
+        $aiAgent = $widget->aiAgent;
+        $temperature = $aiAgent ? $aiAgent->ai_temperature : 0.7;
+
 
         // Strategy 2: Trigger System - Insert lead collection prompt based on conditions
         $settings = $kb['settings'] ?? [];
@@ -149,7 +158,7 @@ class ChatController extends Controller
 
         // Call OpenRouter
         try {
-            $response = $this->callOpenRouter($systemPrompt, $formattedHistory, $model);
+            $response = $this->callOpenRouter($systemPrompt, $formattedHistory, $model, $temperature);
 
             // Log full response for debugging
             \Log::info('OpenRouter Response', ['model' => $model, 'response' => $response]);
@@ -201,7 +210,53 @@ class ChatController extends Controller
 
     private function buildKnowledgeBaseArray($widget)
     {
+        // Check if widget is linked to an AI Agent
+        $aiAgent = $widget->aiAgent;
+
+        if ($aiAgent && $aiAgent->knowledgeBase) {
+            // Use AI Agent's knowledge base
+            $kb = $aiAgent->knowledgeBase;
+
+            return [
+                'knowledge_base_id' => $kb->id,
+                'ai_agent' => [
+                    'name' => $aiAgent->name,
+                    'personality' => $aiAgent->personality,
+                    'system_prompt' => $aiAgent->system_prompt,
+                    'greeting_message' => $aiAgent->greeting_message,
+                    'fallback_message' => $aiAgent->fallback_message,
+                ],
+                'company' => [
+                    'name' => $kb->company_name ?? 'Perusahaan',
+                    'description' => $kb->company_description ?? '',
+                ],
+                'persona' => [
+                    'name' => $kb->persona_name ?? $aiAgent->name,
+                    'tone' => $aiAgent->personality ?? 'friendly',
+                    'language' => 'id',
+                ],
+                'faqs' => $kb->faqs->map(fn($faq) => [
+                    'question' => $faq->question,
+                    'answer' => $faq->answer,
+                ])->toArray(),
+                'custom_instructions' => $kb->custom_instructions ?? $aiAgent->system_prompt,
+                'settings' => $widget->settings ?? [],
+            ];
+        }
+
+        // Use widget's own knowledge base (backward compatibility)
         $kb = $widget->knowledgeBase;
+
+        if (!$kb) {
+            return [
+                'knowledge_base_id' => null,
+                'company' => ['name' => 'Perusahaan', 'description' => ''],
+                'persona' => ['name' => 'AI Assistant', 'tone' => 'friendly', 'language' => 'id'],
+                'faqs' => [],
+                'custom_instructions' => '',
+                'settings' => $widget->settings ?? [],
+            ];
+        }
 
         return [
             'knowledge_base_id' => $kb->id,
@@ -225,6 +280,50 @@ class ChatController extends Controller
 
     private function buildSystemPrompt($kb, $sessionId)
     {
+        // Check if using AI Agent with custom system prompt
+        $aiAgent = $kb['ai_agent'] ?? null;
+        if ($aiAgent && !empty($aiAgent['system_prompt'])) {
+            // Use AI Agent's custom system prompt as base
+            $prompt = $aiAgent['system_prompt'] . "\n\n";
+
+            // Add FAQ if available
+            $faqs = $kb['faqs'] ?? [];
+            if (!empty($faqs)) {
+                $prompt .= "## FAQ\n";
+                foreach ($faqs as $faq) {
+                    $prompt .= "Q: {$faq['question']}\n";
+                    $prompt .= "A: {$faq['answer']}\n\n";
+                }
+            }
+
+            // Load documents
+            if (isset($kb['knowledge_base_id'])) {
+                $documents = \App\Models\KnowledgeDocument::where('knowledge_base_id', $kb['knowledge_base_id'])
+                    ->where('status', 'completed')
+                    ->get();
+
+                if ($documents->isNotEmpty()) {
+                    $prompt .= "## Dokumen & Informasi Tambahan\n";
+                    foreach ($documents as $doc) {
+                        $prompt .= "Sumber: {$doc->name}\n";
+                        $chunks = $doc->chunks;
+                        if (is_string($chunks)) {
+                            $chunks = json_decode($chunks, true);
+                        }
+                        if ($chunks && is_array($chunks)) {
+                            $selectedChunks = array_slice($chunks, 0, 2);
+                            foreach ($selectedChunks as $chunk) {
+                                $prompt .= $chunk . "\n\n";
+                            }
+                        }
+                    }
+                }
+            }
+
+            return $prompt;
+        }
+
+        // Default prompt building (backward compatibility)
         $company = $kb['company'] ?? [];
         $persona = $kb['persona'] ?? [];
         $faqs = $kb['faqs'] ?? [];
@@ -250,6 +349,7 @@ class ChatController extends Controller
         }
         $prompt .= "- Gunakan emoji sesekali yang relevan 😊.\n";
         $prompt .= "- Nada bicara: {$personaTone}\n\n";
+
 
         if (!empty($faqs)) {
             $prompt .= "## FAQ\n";
@@ -316,7 +416,7 @@ class ChatController extends Controller
         return $prompt;
     }
 
-    private function callOpenRouter($systemPrompt, $messages, $model)
+    private function callOpenRouter($systemPrompt, $messages, $model, $temperature = 0.7)
     {
         $allMessages = [
             ['role' => 'system', 'content' => $systemPrompt],
@@ -330,7 +430,7 @@ class ChatController extends Controller
         ])->timeout(60)->post('https://openrouter.ai/api/v1/chat/completions', [
                     'model' => $model,
                     'messages' => $allMessages,
-                    'temperature' => 0.7,
+                    'temperature' => $temperature,
                     'max_tokens' => 1500,
                 ]);
 

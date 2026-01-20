@@ -4,7 +4,8 @@
 @section('page-title', 'Edit AI Agent')
 
 @section('content')
-    <div class="max-w-4xl mx-auto">
+    <div class="space-y-6">
+
         {{-- Back Button --}}
         <div class="mb-6">
             <a href="{{ route('agents.index') }}" class="text-muted-foreground hover:text-foreground transition">
@@ -73,18 +74,6 @@
                         {{-- AI Configuration --}}
                         <div class="space-y-4">
                             <h3 class="font-semibold text-lg border-b pb-2">🤖 Konfigurasi AI</h3>
-                            
-                            <div>
-                                <label class="block text-sm font-medium mb-2">Model AI *</label>
-                                <select name="ai_model"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                                    @foreach($llmModels as $model)
-                                        <option value="{{ $model->model_id }}" {{ old('ai_model', $agent->ai_model) === $model->model_id ? 'selected' : '' }}>
-                                            {{ $model->name }} - {{ $model->tier }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
 
                             <div>
                                 <label class="block text-sm font-medium mb-2">Personality *</label>
@@ -159,24 +148,60 @@
 
             {{-- Sidebar --}}
             <div class="space-y-6">
-                {{-- Stats Card --}}
-                <div class="bg-card border rounded-xl p-5">
-                    <h3 class="font-semibold mb-4">📊 Statistik</h3>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-muted-foreground">Total Pesan</span>
-                            <span class="font-bold">{{ number_format($agent->messages_used) }}</span>
+                {{-- Knowledge Base - HERO CARD (Most Important) --}}
+                <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-5 text-white relative overflow-hidden">
+                    {{-- Background Pattern --}}
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                <i class="fa-solid fa-brain text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Knowledge Base</h3>
+                                <p class="text-white/80 text-sm">Latih AI dengan pengetahuan bisnis Anda</p>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-muted-foreground">Total Percakapan</span>
-                            <span class="font-bold">{{ number_format($agent->conversations_count) }}</span>
+
+                        @php
+                            $kb = $agent->knowledgeBase;
+                            $faqCount = $kb ? $kb->faqs->count() : 0;
+                            $docCount = $kb && method_exists($kb, 'documents') ? $kb->documents()->count() : 0;
+                        @endphp
+
+                        {{-- Quick Stats Grid --}}
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-white/20 rounded-lg p-3 text-center">
+                                <div class="text-2xl font-bold">{{ $faqCount }}</div>
+                                <div class="text-xs text-white/80">FAQs</div>
+                            </div>
+                            <div class="bg-white/20 rounded-lg p-3 text-center">
+                                <div class="text-2xl font-bold">{{ $docCount }}</div>
+                                <div class="text-xs text-white/80">Dokumen</div>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-muted-foreground">Dibuat</span>
-                            <span class="font-bold">{{ $agent->created_at->format('d M Y') }}</span>
-                        </div>
+
+                        {{-- Tips --}}
+                        @if($faqCount === 0 && $docCount === 0)
+                            <div class="bg-white/20 rounded-lg p-3 mb-4">
+                                <p class="text-sm flex items-start gap-2">
+                                    <i class="fa-solid fa-lightbulb mt-0.5"></i>
+                                    <span>Tambahkan FAQ untuk melatih AI menjawab pertanyaan pelanggan!</span>
+                                </p>
+                            </div>
+                        @endif
+
+                        <a href="{{ route('agents.knowledge', $agent) }}"
+                            class="block w-full text-center px-4 py-3 bg-white text-amber-600 rounded-lg hover:bg-amber-50 transition font-bold text-sm shadow-lg">
+                            <i class="fa-solid fa-edit mr-2"></i> Kelola Knowledge Base
+                        </a>
                     </div>
                 </div>
+
+                {{-- AI Tier Card --}}
+                @include('agents.partials.ai-tier-card')
 
                 {{-- Linked Widgets --}}
                 <div class="bg-card border rounded-xl p-5">
@@ -203,23 +228,27 @@
                     @endif
                 </div>
 
-                {{-- Knowledge Base --}}
+                {{-- Stats Card --}}
                 <div class="bg-card border rounded-xl p-5">
-                    <h3 class="font-semibold mb-4">🧠 Knowledge Base</h3>
-                    @if($agent->knowledgeBase)
-                        <div class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-muted-foreground">FAQ</span>
-                                <span class="font-bold">{{ $agent->knowledgeBase->faqs->count() }}</span>
-                            </div>
+                    <h3 class="font-semibold mb-4">📊 Statistik</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-muted-foreground">Total Pesan</span>
+                            <span class="font-bold">{{ number_format($agent->messages_used) }}</span>
                         </div>
-                        {{-- We'll add knowledge base edit here later --}}
-                    @else
-                        <p class="text-sm text-muted-foreground">Knowledge base belum disetup.</p>
-                    @endif
+                        <div class="flex justify-between">
+                            <span class="text-muted-foreground">Total Percakapan</span>
+                            <span class="font-bold">{{ number_format($agent->conversations_count) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-muted-foreground">Dibuat</span>
+                            <span class="font-bold">{{ $agent->created_at->format('d M Y') }}</span>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Danger Zone --}}
+
                 <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-5">
                     <h3 class="font-semibold text-red-700 dark:text-red-400 mb-4">⚠️ Danger Zone</h3>
                     
