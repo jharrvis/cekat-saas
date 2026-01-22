@@ -219,11 +219,15 @@
                         <input type="file" wire:model="uploadedFile"
                             class="w-full px-4 py-2 border rounded-lg text-sm file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-primary file:text-white file:cursor-pointer"
                             accept=".pdf,.docx,.txt">
+                        {{-- File upload progress indicator --}}
+                        <div wire:loading wire:target="uploadedFile" class="text-xs text-blue-600 mt-1">
+                            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengupload file...
+                        </div>
                         @error('uploadedFile') <span class="text-red-500 text-xs block mt-1">{{ $message }}</span> @enderror
                     </div>
                     <button type="submit" 
                         class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition text-sm disabled:opacity-50"
-                        wire:loading.attr="disabled" wire:target="uploadFile">
+                        wire:loading.attr="disabled" wire:target="uploadedFile,uploadFile">
                         <span wire:loading.remove wire:target="uploadFile">
                             <i class="fa-solid fa-upload mr-1"></i> Upload
                         </span>
@@ -234,6 +238,7 @@
                 </form>
                 <p class="text-xs text-muted-foreground mt-2">Format: PDF, DOCX, TXT (max 10MB)</p>
             </div>
+
 
             {{-- Web Scrape Form --}}
             <div class="bg-card border rounded-lg p-4">
