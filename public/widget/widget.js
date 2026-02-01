@@ -185,6 +185,15 @@
         ${config.position.includes('bottom') ? 'bottom: 20px;' : 'top: 20px;'}
         z-index: 999999;
         font-size: 14px;
+        line-height: normal;
+        text-align: left;
+        color: #1e293b;
+        font-weight: normal;
+        font-style: normal;
+        letter-spacing: normal;
+        word-spacing: normal;
+        text-transform: none;
+        visibility: visible;
       }
 
       /* Floating Button */
@@ -458,15 +467,21 @@
         resize: none;
         max-height: 100px;
         min-height: 44px;
+        color: #1e293b !important;
+        background-color: #ffffff !important;
+        line-height: 1.5 !important;
+        box-shadow: none;
       }
 
       .csai-input:focus {
         border-color: ${config.primaryColor};
         box-shadow: 0 0 0 3px ${config.primaryColor}20;
+        outline: none !important;
       }
 
       .csai-input::placeholder {
-        color: #94a3b8;
+        color: #94a3b8 !important;
+        opacity: 1;
       }
 
       .csai-send {
