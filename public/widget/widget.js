@@ -224,14 +224,14 @@
     closeOfferSent = true;
 
     const offerHtml = `
-      Apakah Anda masih membutuhkan bantuan? 
+      Apakah Anda masih membutuhkan bantuan?
       <div class="csai-quick-actions">
         <button class="csai-quick-btn" onclick="window.CSAI_continueChat()">Ya, lanjutkan</button>
         <button class="csai-quick-btn danger" onclick="window.CSAI_endChat()">Tutup percakapan</button>
       </div>
     `;
 
-    addMessage('assistant', offerHtml, true); // Skip adding to permanent history
+    addMessage('assistant', offerHtml, true, true); // Skip adding to permanent history
 
     // Set auto-close timer if no response
     closeOfferTimer = setTimeout(() => {
@@ -999,14 +999,18 @@
   }
 
   // Add message to UI
-  function addMessage(role, content, skipHistory = false) {
+  function addMessage(role, content, skipHistory = false, isHtml = false) {
     const messagesEl = document.getElementById('csai-messages');
     const messageEl = document.createElement('div');
     messageEl.className = `csai-message ${role}`;
 
     // Parse Markdown for assistant
     if (role === 'assistant') {
-      messageEl.innerHTML = parseMarkdown(content);
+      if (isHtml) {
+        messageEl.innerHTML = content;
+      } else {
+        messageEl.innerHTML = parseMarkdown(content);
+      }
     } else {
       messageEl.textContent = content; // Keep user input as plain text for safety
     }
