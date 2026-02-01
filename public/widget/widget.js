@@ -473,15 +473,28 @@
         box-shadow: none;
       }
 
+      /* Extra specificity to override any parent styles */
+      .csai-widget .csai-input,
+      .csai-window .csai-input,
+      textarea.csai-input,
+      #csai-input {
+        color: #1e293b !important;
+        background-color: #ffffff !important;
+        -webkit-text-fill-color: #1e293b !important;
+      }
+
       .csai-input:focus {
         border-color: ${config.primaryColor};
         box-shadow: 0 0 0 3px ${config.primaryColor}20;
         outline: none !important;
+        color: #1e293b !important;
+        background-color: #ffffff !important;
       }
 
       .csai-input::placeholder {
         color: #94a3b8 !important;
         opacity: 1;
+        -webkit-text-fill-color: #94a3b8 !important;
       }
 
       .csai-send {
