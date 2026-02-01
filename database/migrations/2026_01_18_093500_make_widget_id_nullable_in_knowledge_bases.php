@@ -10,9 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        // Directly modify column to be nullable (already ran via tinker)
-        // DB::statement('ALTER TABLE knowledge_bases MODIFY widget_id BIGINT UNSIGNED NULL');
-        // The column was already made nullable via tinker command
+        // Make widget_id nullable to support AI Agent-based knowledge bases (without widget)
+        DB::statement('ALTER TABLE knowledge_bases MODIFY widget_id BIGINT UNSIGNED NULL');
     }
 
     /**
