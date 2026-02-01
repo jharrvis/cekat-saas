@@ -156,12 +156,12 @@
                 // Generate embed code - using minified widget
                 const baseUrl = '{{ config("app.url") }}';
                 currentCode = `<!-- Cekat.biz.id Chatbot Widget -->
-                        <script>
-                            window.CSAIConfig = {
-                                widgetId: '${slug}'
-                            };
-                        <\/script>
-                        <script src="${baseUrl}/widget/widget.min.js?v=2026.02.01" async><\/script>`;
+                                <script>
+                                    window.CSAIConfig = {
+                                        widgetId: '${slug}'
+                                    };
+                                <\/script>
+                                <script src="${baseUrl}/widget/widget.js?v=20260201-v2" async><\/script>`;
 
                 document.getElementById('embed-code').textContent = currentCode;
             }

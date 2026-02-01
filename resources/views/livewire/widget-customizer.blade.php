@@ -77,12 +77,12 @@
                                 @endif
 
                                 <input type="file" wire:model="avatarUpload" accept="image/*" class="block w-full text-sm text-slate-500
-                                            file:mr-4 file:py-2 file:px-4
-                                            file:rounded-full file:border-0
-                                            file:text-xs file:font-semibold
-                                            file:bg-primary/10 file:text-primary
-                                            hover:file:bg-primary/20
-                                          " />
+                                                file:mr-4 file:py-2 file:px-4
+                                                file:rounded-full file:border-0
+                                                file:text-xs file:font-semibold
+                                                file:bg-primary/10 file:text-primary
+                                                hover:file:bg-primary/20
+                                              " />
                                 <p class="text-xs text-muted-foreground">Max 1MB. Recommended 100x100px (JPG/PNG).</p>
                                 @error('avatarUpload') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
@@ -229,7 +229,7 @@
 
                 // Load widget script
                 const script = document.createElement('script');
-                script.src = '{{ asset("widget/widget.js") }}?v=2026.02.01';
+                script.src = '{{ asset("widget/widget.js") }}?v=20260201-v2';
                 document.body.appendChild(script);
 
                 widgetLoaded = true;
