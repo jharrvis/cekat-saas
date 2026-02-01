@@ -57,7 +57,12 @@
     avatarIcon: 'robot',
     avatarUrl: '',
     // Branding settings
-    showBranding: true
+    showBranding: true,
+    // Auto-close settings
+    inactivityTimeout: 90000, // 90 seconds
+    closeOfferTimeout: 60000, // 60 seconds after offer
+    enableEmoji: true,
+    autoCloseEnabled: true
   };
 
   // Merge with user config (initial)
@@ -69,6 +74,20 @@
   let chatHistory = [];
   let sessionId = null;
   let configLoaded = false;
+
+  // New State for Enhancement
+  let inactivityTimer = null;
+  let closeOfferSent = false;
+  let closeOfferTimer = null;
+  let emojiPickerOpen = false;
+
+  // Emoji Dictionary
+  const EMOJI_SET = {
+    'Sering': ['😊', '👍', '❤️', '🙏', '😂', '🤔', '👋', '✅'],
+    'Wajah': ['😀', '😃', '😄', '😁', '😅', '🤣', '😇', '🥰', '😍', '🤗'],
+    'Gesture': ['👍', '👎', '👌', '✌️', '🤝', '👏', '🙌', '💪'],
+    'Simbol': ['✅', '❌', '⭐', '💯', '🔥', '💡', '📌', '🎉']
+  };
 
   // Fetch config from API
   async function fetchConfig(widgetId) {
@@ -171,6 +190,70 @@
     }
   }
 
+  // Clear chat history
+  function clearHistory() {
+    try {
+      localStorage.removeItem(config.storageKey + '_' + config.widgetId);
+      chatHistory = [];
+      sessionId = generateSessionId();
+      const messagesEl = document.getElementById('csai-messages');
+      if (messagesEl) messagesEl.innerHTML = '';
+    } catch (e) {
+      console.error('CSAI: Failed to clear history');
+    }
+  }
+
+  // Reset Inactivity Timer
+  function resetInactivityTimer() {
+    if (!isOpen || !config.autoCloseEnabled) return;
+
+    // Clear existing timers
+    if (inactivityTimer) clearTimeout(inactivityTimer);
+    if (closeOfferTimer) clearTimeout(closeOfferTimer);
+
+    closeOfferSent = false;
+
+    // Set new timer
+    inactivityTimer = setTimeout(showCloseOffer, config.inactivityTimeout);
+  }
+
+  // Show Close Offer (Bot Message)
+  function showCloseOffer() {
+    if (!isOpen || closeOfferSent) return;
+
+    closeOfferSent = true;
+
+    const offerHtml = `
+      Apakah Anda masih membutuhkan bantuan? 
+      <div class="csai-quick-actions">
+        <button class="csai-quick-btn" onclick="window.CSAI_continueChat()">Ya, lanjutkan</button>
+        <button class="csai-quick-btn danger" onclick="window.CSAI_endChat()">Tutup percakapan</button>
+      </div>
+    `;
+
+    addMessage('assistant', offerHtml, true); // Skip adding to permanent history
+
+    // Set auto-close timer if no response
+    closeOfferTimer = setTimeout(() => {
+      if (isOpen) {
+        toggleChat(); // Minimize
+      }
+    }, config.closeOfferTimeout);
+  }
+
+  // Global functions for inline onclick handlers
+  window.CSAI_continueChat = function () {
+    resetInactivityTimer();
+    // Remove the offer message or just add a system note?
+    // For simplicity, we just insert a user action note
+    // addMessage('user', 'Dilanjutkan...', true);
+  };
+
+  window.CSAI_endChat = function () {
+    clearHistory();
+    toggleChat();
+  };
+
   // Inject CSS styles
   function injectStyles() {
     const styles = `
@@ -181,23 +264,18 @@
 
       .csai-widget {
         position: fixed;
-        ${config.position.includes('right') ? 'right: 20px;' : 'left: 20px;'}
-        ${config.position.includes('bottom') ? 'bottom: 20px;' : 'top: 20px;'}
         z-index: 999999;
         font-size: 14px;
         line-height: normal;
         text-align: left;
         color: #1e293b;
-        font-weight: normal;
-        font-style: normal;
-        letter-spacing: normal;
-        word-spacing: normal;
-        text-transform: none;
-        visibility: visible;
       }
 
       /* Floating Button */
       .csai-button {
+        position: fixed;
+        ${config.position.includes('right') ? 'right: 20px;' : 'left: 20px;'}
+        ${config.position.includes('bottom') ? 'bottom: 20px;' : 'top: 20px;'}
         width: 60px;
         height: 60px;
         border-radius: 50%;
@@ -209,7 +287,7 @@
         align-items: center;
         justify-content: center;
         transition: all 0.3s ease;
-        position: relative;
+        z-index: 1000000;
       }
 
       .csai-button:hover {
@@ -224,16 +302,12 @@
         transition: all 0.3s ease;
       }
 
-      .csai-button.open svg.chat-icon {
-        display: none;
-      }
+      .csai-button.open svg.chat-icon { display: none; }
+      .csai-button.open svg.close-icon { display: block; }
+      .csai-button svg.close-icon { display: none; }
 
-      .csai-button.open svg.close-icon {
-        display: block;
-      }
-
-      .csai-button svg.close-icon {
-        display: none;
+      .csai-button.hidden {
+        display: none !important;
       }
 
       /* Notification Badge */
@@ -254,21 +328,34 @@
         border: 2px solid white;
       }
 
-      /* Chat Window */
+      /* Chat Window - Mobile First (Full Screen default for small screens) */
       .csai-window {
-        position: absolute;
-        ${config.position.includes('right') ? 'right: 0;' : 'left: 0;'}
-        bottom: 75px;
-        width: 380px;
-        height: 550px;
-        max-height: calc(100vh - 120px);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100dvh;
         background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
         display: none;
         flex-direction: column;
         overflow: hidden;
         animation: csai-slide-up 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        z-index: 1000001; /* Above button */
+      }
+
+      @media (min-width: 481px) {
+        .csai-window {
+          position: fixed;
+          top: auto;
+          left: auto;
+          ${config.position.includes('right') ? 'right: 20px;' : 'left: 20px;'}
+          bottom: 100px;
+          width: 380px;
+          height: 600px;
+          max-height: calc(100vh - 120px);
+          border-radius: 16px;
+        }
       }
 
       .csai-window.open {
@@ -276,45 +363,46 @@
       }
 
       @keyframes csai-slide-up {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
       /* Header */
       .csai-header {
         background: linear-gradient(135deg, ${config.primaryColor}, ${adjustColor(config.primaryColor, -20)});
         color: ${config.textColor};
-        padding: 20px;
+        padding: 16px 20px;
+        padding-top: max(16px, env(safe-area-inset-top)); /* Handle notch */
         display: flex;
         align-items: center;
         gap: 12px;
+        flex-shrink: 0;
       }
 
       .csai-header-avatar {
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
         background: rgba(255, 255, 255, 0.2);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 20px;
+        flex-shrink: 0;
       }
 
       .csai-header-info {
         flex: 1;
+        min-width: 0; /* Prevent flex overflow */
       }
 
       .csai-header-title {
         font-size: 16px;
         font-weight: 600;
-        margin: 0 0 4px 0;
+        margin: 0 0 2px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .csai-header-subtitle {
@@ -335,17 +423,19 @@
         display: inline-block;
       }
 
+      /* Close Button in Header */
       .csai-header-close {
         background: rgba(255, 255, 255, 0.2);
         border: none;
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: background 0.2s;
+        flex-shrink: 0;
       }
 
       .csai-header-close:hover {
@@ -353,8 +443,8 @@
       }
 
       .csai-header-close svg {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         fill: ${config.textColor};
       }
 
@@ -367,19 +457,7 @@
         flex-direction: column;
         gap: 12px;
         background: #f8fafc;
-      }
-
-      .csai-messages::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      .csai-messages::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      .csai-messages::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 3px;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
       }
 
       /* Message Bubbles */
@@ -388,18 +466,14 @@
         padding: 12px 16px;
         border-radius: 16px;
         line-height: 1.5;
+        font-size: 14px;
+        word-wrap: break-word;
         animation: csai-fade-in 0.3s ease;
       }
 
       @keyframes csai-fade-in {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
       .csai-message.user {
@@ -448,33 +522,36 @@
 
       /* Input Area */
       .csai-input-area {
-        padding: 16px;
+        padding: 12px 16px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom)); /* Handle notch */
         background: #ffffff;
         border-top: 1px solid #e2e8f0;
         display: flex;
-        gap: 12px;
-        align-items: center;
+        gap: 8px;
+        align-items: flex-end;
+        position: relative;
+        flex-shrink: 0;
       }
 
       .csai-input {
         flex: 1;
         border: 1px solid #e2e8f0;
         border-radius: 24px;
-        padding: 12px 20px;
-        font-size: 14px;
+        padding: 12px 16px;
+        font-size: 16px; /* 16px prevents zoom on iOS */
         outline: none;
-        transition: border-color 0.2s, box-shadow 0.2s;
         resize: none;
         max-height: 100px;
-        min-height: 44px;
+        min-height: 48px; /* Touch friendly */
         color: #1e293b !important;
         background-color: #ffffff !important;
         line-height: 1.5 !important;
         box-shadow: none;
+        -webkit-appearance: none;
       }
 
-      /* Extra specificity to override any parent styles */
-      .csai-widget .csai-input,
+      /* Specificity Fixes */
+      .csai-widget .csai-input, 
       .csai-window .csai-input,
       textarea.csai-input,
       #csai-input {
@@ -482,24 +559,42 @@
         background-color: #ffffff !important;
         -webkit-text-fill-color: #1e293b !important;
       }
-
-      .csai-input:focus {
-        border-color: ${config.primaryColor};
-        box-shadow: 0 0 0 3px ${config.primaryColor}20;
-        outline: none !important;
-        color: #1e293b !important;
-        background-color: #ffffff !important;
-      }
-
+      
       .csai-input::placeholder {
         color: #94a3b8 !important;
         opacity: 1;
         -webkit-text-fill-color: #94a3b8 !important;
       }
 
-      .csai-send {
-        width: 44px;
-        height: 44px;
+      .csai-input:focus {
+        border-color: ${config.primaryColor};
+        box-shadow: 0 0 0 3px ${config.primaryColor}20;
+      }
+
+      /* Action Buttons */
+      .csai-action-btn {
+        width: 48px; /* Touch friendly */
+        height: 48px;
+        border-radius: 50%;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+        flex-shrink: 0;
+        color: #64748b;
+      }
+
+      .csai-action-btn:hover {
+        background: #f1f5f9;
+        color: ${config.primaryColor};
+      }
+      
+      .csai-send-btn {
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         background: ${config.primaryColor};
         border: none;
@@ -509,31 +604,131 @@
         justify-content: center;
         transition: all 0.2s;
         flex-shrink: 0;
+        color: ${config.textColor};
       }
-
-      .csai-send:hover:not(:disabled) {
+      
+      .csai-send-btn:hover:not(:disabled) {
         background: ${adjustColor(config.primaryColor, -15)};
         transform: scale(1.05);
       }
-
-      .csai-send:disabled {
+      
+      .csai-send-btn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
       }
 
-      .csai-send svg {
-        width: 20px;
-        height: 20px;
-        fill: ${config.textColor};
+      .csai-send-btn svg, .csai-action-btn svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
+      }
+
+      /* Emoji Picker */
+      .csai-emoji-picker {
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        width: 100%;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+        display: none;
+        flex-direction: column;
+        max-height: 250px;
+        overflow: hidden;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      .csai-emoji-picker.open {
+        display: flex;
+      }
+
+      .csai-emoji-header {
+        display: flex;
+        overflow-x: auto;
+        padding: 8px;
+        border-bottom: 1px solid #f1f5f9;
+        gap: 8px;
+      }
+      
+      .csai-emoji-category {
+        padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 12px;
+        background: #f1f5f9;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      
+      .csai-emoji-category.active {
+        background: ${config.primaryColor};
+        color: white;
+      }
+
+      .csai-emoji-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        padding: 12px;
+        gap: 8px;
+        overflow-y: auto;
+      }
+
+      .csai-emoji-item {
+        font-size: 24px;
+        cursor: pointer;
+        text-align: center;
+        padding: 4px;
+        border-radius: 4px;
+        transition: background 0.2s;
+      }
+
+      .csai-emoji-item:hover {
+        background: #f1f5f9;
+      }
+
+      /* Auto-Close Offer Actions */
+      .csai-quick-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+
+      .csai-quick-btn {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        cursor: pointer;
+        border: 1px solid ${config.primaryColor};
+        background: white;
+        color: ${config.primaryColor};
+        transition: all 0.2s;
+      }
+
+      .csai-quick-btn:hover {
+        background: ${config.primaryColor};
+        color: white;
+      }
+      
+      .csai-quick-btn.danger {
+        border-color: #ef4444;
+        color: #ef4444;
+      }
+      
+      .csai-quick-btn.danger:hover {
+        background: #ef4444;
+        color: white;
       }
 
       /* Powered By */
       .csai-powered {
         text-align: center;
         padding: 8px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
         font-size: 11px;
         color: #94a3b8;
-        background: #ffffff;
+        background: #f8fafc;
       }
 
       .csai-powered a {
@@ -551,21 +746,6 @@
       pre { background: #1e293b; color: #fff; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; }
       pre code { background: transparent; color: inherit; padding: 0; }
       .csai-link { color: #2563eb; text-decoration: underline; }
-      
-      @media (max-width: 480px) {
-        .csai-window {
-          width: calc(100vw - 20px);
-          height: calc(100vh - 100px);
-          ${config.position.includes('right') ? 'right: 10px;' : 'left: 10px;'}
-          bottom: 80px;
-          border-radius: 12px;
-        }
-
-        .csai-button {
-          width: 55px;
-          height: 55px;
-        }
-      }
     `;
 
     // Hide scrollbar for input but keep functionality
@@ -576,6 +756,14 @@
       .csai-input {
         -ms-overflow-style: none;
         scrollbar-width: none;
+      }
+      /* Hide scrollbar for emoji grid but keep functionality */
+      .csai-emoji-grid::-webkit-scrollbar {
+        width: 4px;
+      }
+      .csai-emoji-grid::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
       }
     `;
 
@@ -618,6 +806,39 @@
     return icons[config.avatarIcon] || icons.robot;
   }
 
+  // Generate Emoji Picker HTML
+  function createEmojiPickerHtml() {
+    let categoriesHtml = '';
+    let gridsHtml = '';
+
+    // First category is active by default
+    let isFirst = true;
+
+    for (const [category, emojis] of Object.entries(EMOJI_SET)) {
+      categoriesHtml += `<div class="csai-emoji-category ${isFirst ? 'active' : ''}" data-category="${category}">${category}</div>`;
+
+      // We'll show all emojis in one grid for simplicity, or we could separate them
+      // For now, let's put them all in one grid but use the categories for filtering if we wanted (not implemented here)
+      // Actually, simple list is better for MVP
+      emojis.forEach(emoji => {
+        gridsHtml += `<div class="csai-emoji-item" onclick="window.CSAI_insertEmoji('${emoji}')">${emoji}</div>`;
+      });
+
+      isFirst = false;
+    }
+
+    return `
+      <div class="csai-emoji-picker" id="csai-emoji-picker">
+        <div class="csai-emoji-header" id="csai-emoji-header">
+          ${categoriesHtml}
+        </div>
+        <div class="csai-emoji-grid">
+          ${gridsHtml}
+        </div>
+      </div>
+    `;
+  }
+
   // Create widget HTML
   function createWidget() {
     const widget = document.createElement('div');
@@ -646,6 +867,7 @@
             <p class="csai-header-title">${config.title}</p>
             <p class="csai-header-subtitle">${config.subtitle}</p>
           </div>
+          <!-- Close Button Integrated in Header -->
           <button class="csai-header-close" id="csai-close">
             <svg viewBox="0 0 24 24">
               <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -658,13 +880,24 @@
 
         <!-- Input Area -->
         <div class="csai-input-area">
+          ${config.enableEmoji ? createEmojiPickerHtml() : ''}
+          
+          ${config.enableEmoji ? `
+            <button class="csai-action-btn" id="csai-emoji-btn">
+              <svg viewBox="0 0 24 24">
+                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+              </svg>
+            </button>
+          ` : ''}
+
           <textarea 
             class="csai-input" 
             id="csai-input" 
             placeholder="${config.placeholder}"
             rows="1"
           ></textarea>
-          <button class="csai-send" id="csai-send">
+          
+          <button class="csai-send-btn" id="csai-send">
             <svg viewBox="0 0 24 24">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
@@ -679,6 +912,90 @@
     `;
 
     document.body.appendChild(widget);
+  }
+
+  // Insert Emoji
+  window.CSAI_insertEmoji = function (emoji) {
+    const inputEl = document.getElementById('csai-input');
+    const start = inputEl.selectionStart;
+    const end = inputEl.selectionEnd;
+    const text = inputEl.value;
+    const before = text.substring(0, start);
+    const after = text.substring(end, text.length);
+
+    inputEl.value = before + emoji + after;
+    inputEl.selectionStart = inputEl.selectionEnd = start + emoji.length;
+    inputEl.focus();
+
+    resetInactivityTimer();
+
+    // Trigger input event to resize
+    inputEl.dispatchEvent(new Event('input'));
+  };
+
+  // Toggle Chat with Auto-Close Logic
+  function toggleChat() {
+    const widget = document.getElementById('csai-widget');
+    const windowEl = document.getElementById('csai-window');
+    const buttonEl = document.getElementById('csai-toggle');
+    const badgeEl = document.getElementById('csai-badge');
+    const inputEl = document.getElementById('csai-input');
+
+    isOpen = !isOpen;
+
+    if (isOpen) {
+      windowEl.classList.add('open');
+      buttonEl.classList.add('open');
+      // Hide badge
+      badgeEl.style.display = 'none';
+      badgeEl.textContent = '0';
+
+      // Also hide main button if on mobile (to avoid overlap or distraction?) 
+      // Actually usually we want to keep it to close, but in full screen we used header close
+      // Let's hide the floating button when open on mobile to make room
+      if (window.innerWidth <= 480) {
+        buttonEl.classList.add('hidden');
+      }
+
+      // Focus input (with slight delay for animation)
+      setTimeout(() => {
+        if (inputEl) inputEl.focus();
+      }, 300);
+
+      // Scroll to bottom
+      setTimeout(() => {
+        const messagesEl = document.getElementById('csai-messages');
+        if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+      }, 100);
+
+      // Start inactivity timer
+      resetInactivityTimer();
+
+    } else {
+      windowEl.classList.remove('open');
+      buttonEl.classList.remove('open');
+      buttonEl.classList.remove('hidden'); // Show button again
+
+      // Clear timers
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      if (closeOfferTimer) clearTimeout(closeOfferTimer);
+      closeOfferSent = false;
+    }
+  }
+
+  // Toggle Emoji Picker
+  function toggleEmojiPicker() {
+    const picker = document.getElementById('csai-emoji-picker');
+    if (!picker) return;
+
+    emojiPickerOpen = !emojiPickerOpen;
+    if (emojiPickerOpen) {
+      picker.classList.add('open');
+    } else {
+      picker.classList.remove('open');
+    }
+
+    resetInactivityTimer();
   }
 
   // Add message to UI
@@ -701,6 +1018,8 @@
       chatHistory.push({ role, content });
       saveHistory();
     }
+
+    resetInactivityTimer();
   }
 
   // Simple Markdown Parser
@@ -878,17 +1197,44 @@
     const closeBtn = document.getElementById('csai-close');
     const sendBtn = document.getElementById('csai-send');
     const inputEl = document.getElementById('csai-input');
+    const emojiBtn = document.getElementById('csai-emoji-btn');
+    const messagesEl = document.getElementById('csai-messages');
 
     toggleBtn.addEventListener('click', toggleChat);
     closeBtn.addEventListener('click', toggleChat);
+
+    // Emoji button
+    if (emojiBtn) {
+      emojiBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleEmojiPicker();
+      });
+    }
+
+    // Emoji categories
+    const categories = document.querySelectorAll('.csai-emoji-category');
+    categories.forEach(cat => {
+      cat.addEventListener('click', (e) => {
+        // Toggle active class
+        document.querySelectorAll('.csai-emoji-category').forEach(c => c.classList.remove('active'));
+        e.target.classList.add('active');
+
+        // Filter emojis (placeholder for now as we show all)
+        // In full implementation, we would hide/show emoji items based on category
+        const category = e.target.dataset.category;
+        console.log('Selected category:', category);
+      });
+    });
 
     sendBtn.addEventListener('click', () => {
       sendMessage(inputEl.value);
       inputEl.value = '';
       inputEl.style.height = 'auto';
+      resetInactivityTimer();
     });
 
     inputEl.addEventListener('keydown', (e) => {
+      resetInactivityTimer();
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendMessage(inputEl.value);
@@ -901,6 +1247,22 @@
     inputEl.addEventListener('input', () => {
       inputEl.style.height = 'auto';
       inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+      resetInactivityTimer();
+    });
+
+    // Reset timer on scroll
+    messagesEl.addEventListener('scroll', () => {
+      resetInactivityTimer();
+    });
+
+    // Close emoji picker on click outside
+    document.addEventListener('click', (e) => {
+      const picker = document.getElementById('csai-emoji-picker');
+      const emojiBtn = document.getElementById('csai-emoji-btn');
+
+      if (emojiPickerOpen && picker && !picker.contains(e.target) && emojiBtn && !emojiBtn.contains(e.target)) {
+        toggleEmojiPicker();
+      }
     });
   }
 
@@ -932,7 +1294,9 @@
 
     // Auto-open after 3 seconds
     setTimeout(() => {
-      if (!isOpen) {
+      if (!isOpen && !localStorage.getItem('csai_closed_once')) {
+        // Only auto-open if never explicitly closed (optional improvement)
+        // For now keep existing behavior
         toggleChat();
       }
     }, 3000);
