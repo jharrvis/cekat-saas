@@ -15,7 +15,10 @@
 (function () {
   'use strict';
 
-  // Detect script origin to build absolute API URL
+  // Detect script origin  // Cekat AI Widget v2026.02.01 - Mobile First & Auto Close
+  console.log('CSAI Widget v2026.02.01 loaded');
+
+  // Helper function to get script origin
   function getScriptOrigin() {
     const scripts = document.getElementsByTagName('script');
     for (let i = 0; i < scripts.length; i++) {
