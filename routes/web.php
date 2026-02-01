@@ -9,6 +9,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Documentation
+Route::get('/docs/webhooks', function () {
+    return view('docs.webhooks');
+})->name('docs.webhooks');
+
 // API Routes
 Route::prefix('api')->group(function () {
     Route::post('/chat', [App\Http\Controllers\Api\ChatController::class, 'chat']);

@@ -41,6 +41,13 @@ class Cekat_AI_Chatbot
     private function __construct()
     {
         $this->init_hooks();
+        $this->load_classes();
+    }
+
+    private function load_classes()
+    {
+        require_once CEKAT_PLUGIN_DIR . 'includes/class-cekat-webhook.php';
+        Cekat_Webhook::get_instance();
     }
 
     private function init_hooks()
@@ -121,6 +128,9 @@ class Cekat_AI_Chatbot
         ));
         register_setting('cekat_settings', 'cekat_exclude_pages', array(
             'sanitize_callback' => 'sanitize_textarea_field'
+        ));
+        register_setting('cekat_settings', 'cekat_webhook_secret', array(
+            'sanitize_callback' => 'sanitize_text_field'
         ));
     }
 

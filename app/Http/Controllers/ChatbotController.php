@@ -88,7 +88,7 @@ class ChatbotController extends Controller
     public function edit($chatbotId, $tab = 'general')
     {
         $chatbot = auth()->user()->widgets()->with('knowledgeBase')->findOrFail($chatbotId);
-        $validTabs = ['general', 'knowledge', 'model', 'widget', 'lead', 'analytics', 'embed'];
+        $validTabs = ['general', 'knowledge', 'model', 'widget', 'lead', 'webhook', 'analytics', 'embed'];
 
         if (!in_array($tab, $validTabs)) {
             $tab = 'general';
@@ -139,6 +139,17 @@ class ChatbotController extends Controller
             $chatbot->update(['settings' => $settings]);
 
             return redirect()->back()->with('success', 'Lead collection settings saved!');
+        }
+
+        // Handle Webhook settings
+        if ($tab === 'webhook') {
+            $settings = $chatbot->settings ?? [];
+            $settings['webhook_url'] = $request->input('webhook_url');
+            $settings['webhook_secret'] = $request->input('webhook_secret');
+
+            $chatbot->update(['settings' => $settings]);
+
+            return redirect()->back()->with('success', 'Webhook settings saved!');
         }
 
         // Default: General tab

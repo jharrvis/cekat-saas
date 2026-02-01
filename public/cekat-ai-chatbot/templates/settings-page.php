@@ -11,7 +11,9 @@ $widget_id = get_option('cekat_widget_id', '');
 $enabled = get_option('cekat_enabled', '1');
 $position = get_option('cekat_position', 'bottom-right');
 $primary_color = get_option('cekat_primary_color', '#6366f1');
+$primary_color = get_option('cekat_primary_color', '#6366f1');
 $exclude_pages = get_option('cekat_exclude_pages', '');
+$webhook_secret = get_option('cekat_webhook_secret', '');
 ?>
 
 <div class="wrap cekat-admin-wrap">
@@ -108,6 +110,46 @@ $exclude_pages = get_option('cekat_exclude_pages', '');
                                           class="large-text"
                                           placeholder="/checkout&#10;/cart&#10;/my-account"><?php echo esc_textarea($exclude_pages); ?></textarea>
                                 <p class="description"><?php _e('Enter one URL path per line. Widget will not appear on these pages.', 'cekat-ai-chatbot'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Webhook Card -->
+                <div class="cekat-card">
+                    <h2><?php _e('Webhook Integration', 'cekat-ai-chatbot'); ?></h2>
+                    <p class="description">
+                        <?php _e('Allow Cekat Chatbot to perform actions on your WordPress site (e.g., Save Leads).', 'cekat-ai-chatbot'); ?>
+                    </p>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label><?php _e('Webhook URL', 'cekat-ai-chatbot'); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" 
+                                       value="<?php echo esc_url(rest_url('cekat/v1/webhook')); ?>" 
+                                       class="regular-text" 
+                                       readonly
+                                       onclick="this.select()">
+                                <p class="description"><?php _e('Copy this URL and paste it into your Cekat Widget Settings.', 'cekat-ai-chatbot'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="cekat_webhook_secret"><?php _e('Secret Key', 'cekat-ai-chatbot'); ?></label>
+                            </th>
+                            <td>
+                                <input type="password" 
+                                       id="cekat_webhook_secret" 
+                                       name="cekat_webhook_secret" 
+                                       value="<?php echo esc_attr($webhook_secret); ?>" 
+                                       class="regular-text">
+                                <button type="button" class="button button-secondary" onclick="document.getElementById('cekat_webhook_secret').type = 'text'">
+                                    <span class="dashicons dashicons-visibility"></span>
+                                </button>
+                                <p class="description"><?php _e('Create a random secret key and save it here AND in Cekat Widget Settings.', 'cekat-ai-chatbot'); ?></p>
                             </td>
                         </tr>
                     </table>

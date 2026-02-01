@@ -49,6 +49,10 @@
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'lead' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
                     <i class="fa-solid fa-user-plus mr-2"></i> Lead Collection
                 </a>
+                <a href="{{ route('chatbots.edit.tab', [$chatbot->id, 'webhook']) }}"
+                    class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'webhook' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
+                    <i class="fa-solid fa-plug mr-2"></i> Webhook
+                </a>
                 <a href="{{ route('chatbots.edit.tab', [$chatbot->id, 'analytics']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'analytics' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
                     <i class="fa-solid fa-chart-line mr-2"></i> Analytics
@@ -69,6 +73,8 @@
                     @include('chatbots.tabs.widget', ['chatbot' => $chatbot])
                 @elseif($tab === 'lead')
                     @include('chatbots.tabs.lead', ['chatbot' => $chatbot])
+                @elseif($tab === 'webhook')
+                    @include('chatbots.tabs.webhook', ['chatbot' => $chatbot])
                 @elseif($tab === 'analytics')
                     @include('chatbots.tabs.analytics', ['chatbot' => $chatbot])
                 @elseif($tab === 'embed')

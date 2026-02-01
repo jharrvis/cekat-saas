@@ -10,9 +10,16 @@ use App\Models\Widget;
 use App\Models\ChatSession;
 use App\Models\ChatMessage;
 use App\Models\AiAgent;
+use App\Services\WebhookService;
 
 class ChatController extends Controller
 {
+    protected $webhookService;
+
+    public function __construct(WebhookService $webhookService)
+    {
+        $this->webhookService = $webhookService;
+    }
     public function chat(Request $request)
     {
         $request->validate([
@@ -174,8 +181,28 @@ class ChatController extends Controller
                 throw new \Exception('No response from AI');
             }
 
-            // Save to database if widget exists
+            // Handle Webhook Trigger (Function Calling)
             if ($widget) {
+                // If response contains JSON action, allow webhook service to process it
+                // We don't change the response text sent to user immediately, unless we want to hide JSON
+                // Better approach: AI should output JSON *AND* a polite message. 
+                // OR: We catch JSON, execute, and replace response.
+
+                // Detection strategy: If strict JSON, process and return standard msg.
+                // If mixed, process JSON and return text part.
+
+                $webhookResult = $this->handleWebhookTrigger($widget, $responseText);
+
+                // If strictly JSON, replace with friendly message
+                if (trim($responseText)[0] === '{' && $webhookResult) {
+                    $responseText = $webhookResult;
+                }
+
+                // Clean JSON from response if mixed (simple regex remove)
+                if ($webhookResult && trim($responseText)[0] !== '{') {
+                    $responseText = preg_replace('/\{[\s\S]*\}/', '', $responseText);
+                }
+
                 $this->saveChatMessage($widget->id, $sessionId, $message, $responseText, $model, $response['usage'] ?? []);
 
                 // Increment user's monthly message quota (skip for landing page widget - unlimited)
@@ -206,6 +233,39 @@ class ChatController extends Controller
                 'debug' => config('app.debug') ? $e->getMessage() : null
             ]);
         }
+    }
+
+    private function handleWebhookTrigger($widget, $responseText)
+    {
+        // Try to parse JSON from response
+        // Regex to find JSON block if mixed with text
+        if (preg_match('/\{[\s\S]*\}/', $responseText, $matches)) {
+            $jsonStr = $matches[0];
+            $data = json_decode($jsonStr, true);
+
+            if ($data && isset($data['action'])) {
+                // Check if webhook is configured
+                $webhookUrl = $widget->settings['webhook_url'] ?? null;
+                $webhookSecret = $widget->settings['webhook_secret'] ?? '';
+
+                if ($webhookUrl) {
+                    // Send Webhook asynchronously (or sync for now to keep it simple)
+                    // In production, this should be queued
+
+                    // Add widget info to payload
+                    $data['widget_id'] = $widget->slug;
+                    $data['customer_id'] = $widget->user_id;
+
+                    $this->webhookService->send($webhookUrl, $data, $webhookSecret);
+
+                    // OPTIONAL: Modify response to user to hide the JSON and strictly say something nice
+                    // For now, we assume the AI handles the polite response OUTSIDE the JSON block or we append it.
+                    // But if AI outputs ONLY JSON, we should reply with a confirmation.
+                    return "Data berhasil diproses.";
+                }
+            }
+        }
+        return null;
     }
 
     private function buildKnowledgeBaseArray($widget)
@@ -412,6 +472,19 @@ class ChatController extends Controller
         $prompt .= "## Aturan Penting\n";
         $prompt .= "- JANGAN membuat informasi yang tidak ada di knowledge base\n";
         $prompt .= "- Jika ditanya di luar konteks, arahkan kembali ke topik {$companyName}\n";
+
+        // Webhook / Function Calling Instructions
+        $prompt .= "\n## INTEGRASI SISTEM (Function Calling)\n";
+        $prompt .= "Jika user memberikan data lengkap untuk tindakan berikut, kamu WAJIB mengeluarkan output JSON (dan hanya JSON) pada blok terpisah atau di akhir pesan:\n";
+        $prompt .= "1. **Simpan Data Lead** (Nama, Email, HP).\n";
+        $prompt .= "   Format: {\"action\": \"save_lead\", \"name\": \"...\", \"email\": \"...\", \"phone\": \"...\"}\n";
+        $prompt .= "2. **Cek Status Pesanan** (Nomor Invoice/Ref).\n";
+        $prompt .= "   Format: {\"action\": \"check_status\", \"reference_id\": \"...\"}\n";
+        $prompt .= "3. **Buat Pesanan** (Nama Produk, Jumlah, Catatan).\n";
+        $prompt .= "   Format: {\"action\": \"create_order\", \"items\": [{\"product\": \"...\", \"qty\": 1}], \"notes\": \"...\"}\n";
+        $prompt .= "\nContoh respons jika data lengkap:\n";
+        $prompt .= "\"Terima kasih Kak Budi, data sudah saya catat.\"\n";
+        $prompt .= "{\"action\": \"save_lead\", \"name\": \"Budi\", \"email\": \"budi@gmail.com\", \"phone\": \"08123456789\"}\n";
 
         return $prompt;
     }
