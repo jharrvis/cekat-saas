@@ -1051,7 +1051,10 @@
     text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-    // 4. Links (Simple URL detection)
+    // 4. Links - Parse Markdown links FIRST [text](url)
+    text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" class="csai-link">$1</a>');
+
+    // 5. Plain URLs (only those not already in markdown format)
     text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="csai-link">$1</a>');
 
     // 5. Lists (Regex)
