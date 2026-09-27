@@ -68,7 +68,7 @@
                         <div class="flex items-center gap-2">
                             <h3 class="font-semibold text-lg">Cekat AI Chatbot for WordPress</h3>
                             <span
-                                class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">v1.0.0</span>
+                                class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">v1.0.1</span>
                         </div>
                         <p class="text-sm text-muted-foreground mt-1">Plugin WordPress resmi untuk integrasi chatbot dengan
                             mudah</p>
