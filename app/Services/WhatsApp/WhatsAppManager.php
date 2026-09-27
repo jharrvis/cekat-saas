@@ -497,7 +497,7 @@ class WhatsAppManager
      */
     private function getModelForWidget(Widget $widget): string
     {
-        $defaultModel = 'nvidia/nemotron-3-nano-30b-a3b:free';
+        $defaultModel = 'openrouter/free';
 
         if (!$widget->user) {
             return $defaultModel;
@@ -519,7 +519,7 @@ class WhatsAppManager
         }
 
         $defaultMapping = [
-            'basic' => 'nvidia/nemotron-3-nano-30b-a3b:free',
+            'basic' => 'openrouter/free',
             'standard' => 'openai/gpt-4o-mini',
             'advanced' => 'openai/gpt-4o-mini',
             'premium' => 'openai/gpt-4o-mini',

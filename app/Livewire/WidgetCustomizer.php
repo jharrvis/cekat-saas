@@ -95,7 +95,7 @@ class WidgetCustomizer extends Component
                 'avatar_icon' => $this->avatarIcon,
                 'avatar_url' => $this->avatarUrl,
                 // Model is handled separately in Model Selection tab
-                'model' => $this->widget->settings['model'] ?? 'nvidia/llama-3.1-nemotron-70b-instruct:free',
+                'model' => $this->widget->settings['model'] ?? 'openrouter/free',
             ],
         ]);
 

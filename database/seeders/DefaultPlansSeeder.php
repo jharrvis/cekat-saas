@@ -27,7 +27,7 @@ class DefaultPlansSeeder extends Seeder
                 'can_export_leads' => false,
                 'can_use_whatsapp' => false,
                 'ai_tier' => 'basic',
-                'allowed_models' => ['nvidia/nemotron-3-nano-30b-a3b:free'],
+                'allowed_models' => ['openrouter/free'],
                 'features' => [
                     'custom_branding' => false,
                     'analytics' => 'basic',
@@ -53,7 +53,7 @@ class DefaultPlansSeeder extends Seeder
                 'can_use_whatsapp' => false,
                 'ai_tier' => 'advanced',
                 'allowed_models' => [
-                    'nvidia/nemotron-3-nano-30b-a3b:free',
+                    'openrouter/free',
                     'openai/gpt-4o-mini',
                 ],
                 'features' => [
@@ -81,7 +81,7 @@ class DefaultPlansSeeder extends Seeder
                 'can_use_whatsapp' => true,
                 'ai_tier' => 'premium',
                 'allowed_models' => [
-                    'nvidia/nemotron-3-nano-30b-a3b:free',
+                    'openrouter/free',
                     'openai/gpt-4o-mini',
                     'openai/gpt-4o',
                     'anthropic/claude-3.5-sonnet',
@@ -104,9 +104,8 @@ class DefaultPlansSeeder extends Seeder
 
         // Create default settings
         $settings = [
-            // API Settings
-            ['key' => 'openrouter_api_key', 'value' => config('services.openrouter.api_key', ''), 'type' => 'string', 'group' => 'api', 'description' => 'OpenRouter API Key'],
-            ['key' => 'default_ai_model', 'value' => 'nvidia/nemotron-3-nano-30b-a3b:free', 'type' => 'string', 'group' => 'api', 'description' => 'Default AI Model'],
+            // API Settings (OpenRouter API key lives in .env only, never in DB)
+            ['key' => 'default_ai_model', 'value' => 'openrouter/free', 'type' => 'string', 'group' => 'api', 'description' => 'Default AI Model'],
             ['key' => 'api_timeout', 'value' => '30', 'type' => 'number', 'group' => 'api', 'description' => 'API Timeout (seconds)'],
 
             // General Settings

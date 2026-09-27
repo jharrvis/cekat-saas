@@ -103,7 +103,9 @@ class ChatOrchestrator
 
         // Call OpenRouter
         try {
-            $response = $this->callOpenRouter($systemPrompt, $formattedHistory, $model, $temperature);
+            $result = $this->callOpenRouter($systemPrompt, $formattedHistory, $model, $temperature);
+            $model = $result['model'];
+            $response = $result['body'];
 
             // Log full response for debugging
             Log::info('OpenRouter Response', ['model' => $model, 'response' => $response]);
@@ -193,25 +195,57 @@ class ChatOrchestrator
         }
     }
 
-    protected function callOpenRouter(string $systemPrompt, array $messages, string $model, float $temperature = 0.7): ?array
+    /**
+     * @return array{model:string,body:?array}
+     */
+    protected function callOpenRouter(string $systemPrompt, array $messages, string $model, float $temperature = 0.7): array
     {
         $allMessages = [
             ['role' => 'system', 'content' => $systemPrompt],
             ...$messages,
         ];
 
-        $response = Http::withHeaders([
+        $response = $this->postOpenRouter($allMessages, $model, $temperature);
+
+        // Self-healing: model ids retired by OpenRouter answer 400/404.
+        // Retry once with the Free Models Router so chat keeps working.
+        if (in_array($response->status(), [400, 404], true) && $model !== ModelResolver::FALLBACK_MODEL) {
+            Log::warning('OpenRouter model unavailable, retrying with fallback', [
+                'model' => $model,
+                'status' => $response->status(),
+            ]);
+
+            $model = ModelResolver::FALLBACK_MODEL;
+            $response = $this->postOpenRouter($allMessages, $model, $temperature);
+        }
+
+        $body = $response->json();
+        $content = is_array($body) ? ($body['choices'][0]['message']['content'] ?? null) : 'invalid';
+
+        // Reasoning-heavy free models can spend max_tokens on thinking and
+        // return no content - retry once before giving up.
+        if (is_array($body) && ! isset($body['error']) && ($content === '' || $content === null)) {
+            Log::warning('OpenRouter returned empty content, retrying', ['model' => $model]);
+
+            $response = $this->postOpenRouter($allMessages, $model, $temperature);
+            $body = $response->json();
+        }
+
+        return ['model' => $model, 'body' => $body];
+    }
+
+    protected function postOpenRouter(array $messages, string $model, float $temperature): \Illuminate\Http\Client\Response
+    {
+        return Http::withHeaders([
             'Authorization' => 'Bearer '.config('services.openrouter.api_key'),
             'HTTP-Referer' => config('app.url'),
             'X-Title' => 'Cekat SaaS',
         ])->timeout(60)->post('https://openrouter.ai/api/v1/chat/completions', [
             'model' => $model,
-            'messages' => $allMessages,
+            'messages' => $messages,
             'temperature' => $temperature,
             'max_tokens' => 1500,
         ]);
-
-        return $response->json();
     }
 
     protected function persistConversation(Widget $widget, string $sessionId, string $userMessage, string $aiResponse, string $model, array $usage): void

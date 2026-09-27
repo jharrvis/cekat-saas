@@ -60,7 +60,11 @@ User ─┬─ AiAgent ─┬─ KnowledgeBase ─┬─ KnowledgeFaq
    function-calling instructions.
 5. `LeadCaptureService`: count/keyword trigger appends the ask-contact instruction.
 6. `ModelResolver`: plan `ai_tier` → `ai_tier_mapping` → model; agent supplies
-   only `temperature`.
+   only `temperature`. Default/fallback model is `openrouter/free`
+   (Free Models Router: auto-picks an available `:free` model, $0, 200k ctx).
+   Model ids retired by OpenRouter answer 400/404, in which case the call is
+   automatically retried once with `openrouter/free`; an empty content reply
+   (reasoning model burnt its token budget) is retried once as well.
 7. OpenRouter call (60s timeout) → `responseText`; provider error/empty →
    `provider_error` fallback body (HTTP 200, legacy shape).
 8. `WebhookActionService`: strict-JSON action → dispatch + friendly replacement;

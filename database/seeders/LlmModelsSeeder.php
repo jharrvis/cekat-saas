@@ -5,6 +5,11 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\LlmModel;
 
+/**
+ * Model catalogue for admin AI Models & Tiers.
+ * Every model_id below was verified live against
+ * https://openrouter.ai/api/v1/models on 2026-09-27.
+ */
 class LlmModelsSeeder extends Seeder
 {
     public function run(): void
@@ -12,40 +17,52 @@ class LlmModelsSeeder extends Seeder
         $models = [
             // Free Models
             [
-                'model_id' => 'nvidia/llama-3.1-nemotron-70b-instruct:free',
-                'name' => 'Llama 3.1 Nemotron 70B',
-                'provider' => 'NVIDIA',
-                'description' => 'Fast and free model optimized for instruction following',
+                'model_id' => 'openrouter/free',
+                'name' => 'Free Models Router',
+                'provider' => 'OpenRouter',
+                'description' => 'Router that picks an available free model automatically',
                 'input_price' => 0,
                 'output_price' => 0,
-                'context_length' => 131072,
-                'allowed_tiers' => ['starter', 'pro', 'business'],
-                'is_active' => true,
-                'popularity' => 90,
-            ],
-            [
-                'model_id' => 'deepseek/deepseek-r1:free',
-                'name' => 'DeepSeek R1',
-                'provider' => 'DeepSeek',
-                'description' => 'Free reasoning model with strong capabilities',
-                'input_price' => 0,
-                'output_price' => 0,
-                'context_length' => 64000,
+                'context_length' => 200000,
                 'allowed_tiers' => ['starter', 'pro', 'business'],
                 'is_active' => true,
                 'popularity' => 95,
             ],
             [
-                'model_id' => 'google/gemini-2.0-flash-exp:free',
-                'name' => 'Gemini 2.0 Flash',
-                'provider' => 'Google',
-                'description' => 'Fast and efficient model from Google',
+                'model_id' => 'nvidia/nemotron-3.5-lightning:free',
+                'name' => 'Nemotron 3.5 Lightning (free)',
+                'provider' => 'NVIDIA',
+                'description' => 'Fast free model with 1M context',
                 'input_price' => 0,
                 'output_price' => 0,
-                'context_length' => 1048576,
+                'context_length' => 1000000,
+                'allowed_tiers' => ['starter', 'pro', 'business'],
+                'is_active' => true,
+                'popularity' => 90,
+            ],
+            [
+                'model_id' => 'nvidia/nemotron-3-super-120b-a12b:free',
+                'name' => 'Nemotron 3 Super 120B (free)',
+                'provider' => 'NVIDIA',
+                'description' => 'Free 120B MoE model for strong general answers',
+                'input_price' => 0,
+                'output_price' => 0,
+                'context_length' => 262144,
                 'allowed_tiers' => ['starter', 'pro', 'business'],
                 'is_active' => true,
                 'popularity' => 85,
+            ],
+            [
+                'model_id' => 'qwen/qwen3.8-27b:free',
+                'name' => 'Qwen 3.8 27B (free)',
+                'provider' => 'Qwen',
+                'description' => 'Free multilingual model with 256K context',
+                'input_price' => 0,
+                'output_price' => 0,
+                'context_length' => 262144,
+                'allowed_tiers' => ['starter', 'pro', 'business'],
+                'is_active' => true,
+                'popularity' => 80,
             ],
 
             // Pro Models
@@ -62,28 +79,28 @@ class LlmModelsSeeder extends Seeder
                 'popularity' => 92,
             ],
             [
-                'model_id' => 'anthropic/claude-3.5-haiku',
-                'name' => 'Claude 3.5 Haiku',
+                'model_id' => 'anthropic/claude-haiku-4.5',
+                'name' => 'Claude Haiku 4.5',
                 'provider' => 'Anthropic',
                 'description' => 'Fast and efficient Claude model',
-                'input_price' => 0.80,
-                'output_price' => 4.00,
+                'input_price' => 1.00,
+                'output_price' => 5.00,
                 'context_length' => 200000,
                 'allowed_tiers' => ['pro', 'business'],
                 'is_active' => true,
                 'popularity' => 88,
             ],
             [
-                'model_id' => 'google/gemini-pro-1.5',
-                'name' => 'Gemini Pro 1.5',
+                'model_id' => 'google/gemini-3.7-flash',
+                'name' => 'Gemini 3.7 Flash',
                 'provider' => 'Google',
-                'description' => 'Advanced Google model with 1M context',
-                'input_price' => 1.25,
-                'output_price' => 5.00,
-                'context_length' => 1000000,
+                'description' => 'Fast Google model with 1M context',
+                'input_price' => 0.75,
+                'output_price' => 3.75,
+                'context_length' => 1048576,
                 'allowed_tiers' => ['pro', 'business'],
                 'is_active' => true,
-                'popularity' => 80,
+                'popularity' => 84,
             ],
 
             // Business Models
@@ -100,28 +117,16 @@ class LlmModelsSeeder extends Seeder
                 'popularity' => 98,
             ],
             [
-                'model_id' => 'anthropic/claude-3.5-sonnet',
-                'name' => 'Claude 3.5 Sonnet',
+                'model_id' => 'anthropic/claude-sonnet-4.5',
+                'name' => 'Claude Sonnet 4.5',
                 'provider' => 'Anthropic',
                 'description' => 'Best for complex reasoning and coding',
                 'input_price' => 3.00,
                 'output_price' => 15.00,
-                'context_length' => 200000,
+                'context_length' => 1000000,
                 'allowed_tiers' => ['business'],
                 'is_active' => true,
                 'popularity' => 97,
-            ],
-            [
-                'model_id' => 'anthropic/claude-3-opus',
-                'name' => 'Claude 3 Opus',
-                'provider' => 'Anthropic',
-                'description' => 'Most powerful Claude model',
-                'input_price' => 15.00,
-                'output_price' => 75.00,
-                'context_length' => 200000,
-                'allowed_tiers' => ['business'],
-                'is_active' => true,
-                'popularity' => 85,
             ],
         ];
 
@@ -131,6 +136,17 @@ class LlmModelsSeeder extends Seeder
                 $model
             );
         }
+
+        // Retire catalogue rows whose model id OpenRouter no longer serves
+        LlmModel::whereIn('model_id', [
+            'nvidia/llama-3.1-nemotron-70b-instruct:free',
+            'deepseek/deepseek-r1:free',
+            'google/gemini-2.0-flash-exp:free',
+            'anthropic/claude-3.5-haiku',
+            'anthropic/claude-3.5-sonnet',
+            'anthropic/claude-3-opus',
+            'google/gemini-pro-1.5',
+        ])->update(['is_active' => false]);
 
         $this->command->info('✅ Seeded ' . count($models) . ' LLM models');
     }

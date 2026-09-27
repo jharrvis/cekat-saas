@@ -22,7 +22,7 @@ class LandingPageChatbotSeeder extends Seeder
                 'is_active' => true,
                 'status' => 'active',
                 'settings' => [
-                    'model' => 'nvidia/llama-3.1-nemotron-70b-instruct:free',
+                    'model' => 'openrouter/free',
                     'theme' => 'dark',
                     'position' => 'bottom-right',
                 ],

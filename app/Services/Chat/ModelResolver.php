@@ -14,9 +14,16 @@ use Illuminate\Support\Facades\Log;
  */
 class ModelResolver
 {
+    /**
+     * Free Models Router: picks an available :free model automatically.
+     * Used as the default and as the last-resort fallback whenever a
+     * configured model id has been retired by OpenRouter.
+     */
+    public const FALLBACK_MODEL = 'openrouter/free';
+
     public function forWidget(?Widget $widget): string
     {
-        $defaultModel = config('services.openrouter.default_model', 'nvidia/nemotron-3-nano-30b-a3b:free');
+        $defaultModel = config('services.openrouter.default_model', self::FALLBACK_MODEL);
 
         if (! $widget) {
             return $defaultModel;
@@ -64,7 +71,7 @@ class ModelResolver
 
         // Fallback mapping if settings not configured
         $defaultMapping = [
-            'basic' => 'nvidia/nemotron-3-nano-30b-a3b:free',
+            'basic' => self::FALLBACK_MODEL,
             'standard' => 'openai/gpt-4o-mini',
             'advanced' => 'openai/gpt-4o-mini',
             'premium' => 'openai/gpt-4o-mini',

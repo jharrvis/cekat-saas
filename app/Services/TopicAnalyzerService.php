@@ -335,7 +335,7 @@ PROMPT;
 
         if (!$plan) {
             // Free tier - use cheap/free model
-            return 'nvidia/nemotron-3-nano-30b-a3b:free';
+            return 'openrouter/free';
         }
 
         $aiTier = $plan->ai_tier ?? 'basic';
@@ -343,13 +343,13 @@ PROMPT;
         // Use appropriate model based on tier
         // For topic analysis, we don't need the most powerful model
         $modelMapping = [
-            'basic' => 'nvidia/nemotron-3-nano-30b-a3b:free',
+            'basic' => 'openrouter/free',
             'standard' => 'openai/gpt-4o-mini',
             'advanced' => 'openai/gpt-4o-mini',
             'premium' => 'openai/gpt-4o-mini',
         ];
 
-        return $modelMapping[$aiTier] ?? 'nvidia/nemotron-3-nano-30b-a3b:free';
+        return $modelMapping[$aiTier] ?? 'openrouter/free';
     }
 
     /**

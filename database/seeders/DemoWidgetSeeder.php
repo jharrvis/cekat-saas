@@ -31,7 +31,7 @@ class DemoWidgetSeeder extends Seeder
                 'user_id' => $user->id,
                 'name' => 'Cekat Demo Widget',
                 'settings' => [
-                    'model' => 'nvidia/nemotron-3-nano-30b-a3b:free',
+                    'model' => 'openrouter/free',
                     'color' => '#0f172a',
                     'greeting' => 'Halo! 👋 Selamat datang. Kami lagi ada promo **Early Access Diskon 50%**. Mau info lengkapnya?',
                     'position' => 'bottom-right',

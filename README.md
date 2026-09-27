@@ -12,7 +12,12 @@ Workflow: **Agent → Knowledge → Channel → Monitor**. See `agent.md` (agent
 ## Requirements
 
 - PHP ^8.2 (composer), Node 18+ (npm), a database (MySQL in production, SQLite for tests)
-- OpenRouter API key (LLM), Midtrans keys (billing), Google OAuth (optional login), Fonnte token (WhatsApp, stored via Settings)
+- OpenRouter API key (LLM) — **required in `.env` as `OPENROUTER_API_KEY`** (no key is
+  bundled; admin dashboard only shows its status, it cannot edit the key),
+  Midtrans keys (billing), Google OAuth (optional login), Fonnte token (WhatsApp, stored via Settings)
+- Default model `OPENROUTER_DEFAULT_MODEL=openrouter/free` (Free Models Router).
+  Retired model ids in the DB are self-healing: the chat call retries with
+  `openrouter/free` when OpenRouter answers 400/404.
 
 ## Local setup
 
