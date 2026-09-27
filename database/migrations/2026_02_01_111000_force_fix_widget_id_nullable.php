@@ -14,6 +14,12 @@ return new class extends Migration {
         // Force make widget_id nullable again
         // This is needed because the previous migration might have been marked as run 
         // while it was commented out in the codebase.
+        // Non-MySQL drivers (sqlite/pgsql) were already handled by the earlier
+        // migration's portable rebuild, so this force-fix only applies to MySQL.
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         if (Schema::hasColumn('knowledge_bases', 'widget_id')) {
             DB::statement('ALTER TABLE knowledge_bases MODIFY widget_id BIGINT UNSIGNED NULL');
         }
