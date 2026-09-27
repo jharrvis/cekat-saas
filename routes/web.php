@@ -159,7 +159,7 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
                 'name' => 'Landing Page Widget',
                 'is_active' => true,
                 'settings' => [
-                    'model' => 'openai/gpt-4o-mini',
+                    'model' => config('services.openrouter.default_model'),
                 ],
             ]
         );

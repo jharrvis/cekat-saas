@@ -44,30 +44,26 @@ class GenerateChatSummary implements ShouldQueue
         })->join("\n");
 
         // Get model from settings
-        $model = Setting::get('default_ai_model', 'openai/gpt-4o-mini');
+        $model = Setting::get('default_ai_model', config('services.openrouter.default_model'));
 
         // Generate summary using OpenRouter
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.openrouter.api_key'),
-                'HTTP-Referer' => config('app.url'),
-            ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                        'model' => $model,
-                        'messages' => [
-                            [
-                                'role' => 'system',
-                                'content' => 'Kamu adalah asisten yang membuat ringkasan percakapan customer service. Buatkan ringkasan singkat (maksimal 3 kalimat) dalam Bahasa Indonesia yang mencakup: topik utama, kebutuhan customer, dan hasil percakapan.'
-                            ],
-                            [
-                                'role' => 'user',
-                                'content' => "Buatkan ringkasan dari percakapan berikut:\n\n{$conversationText}"
-                            ]
-                        ],
-                        'max_tokens' => 200,
-                    ]);
+            $data = \App\Services\OpenRouterClient::chatCompletion([
+                'model' => $model,
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => 'Kamu adalah asisten yang membuat ringkasan percakapan customer service. Buatkan ringkasan singkat (maksimal 3 kalimat) dalam Bahasa Indonesia yang mencakup: topik utama, kebutuhan customer, dan hasil percakapan.'
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => "Buatkan ringkasan dari percakapan berikut:\n\n{$conversationText}"
+                    ]
+                ],
+                'max_tokens' => 200,
+            ], 60, 'Cekat SaaS Summary');
 
-            if ($response->successful()) {
-                $data = $response->json();
+            if (empty($data['error'])) {
                 $summary = $data['choices'][0]['message']['content'] ?? null;
 
                 if ($summary) {
@@ -76,6 +72,11 @@ class GenerateChatSummary implements ShouldQueue
                         'summary_generated_at' => now(),
                     ]);
                 }
+            } else {
+                Log::error('Failed to generate chat summary', [
+                    'session_id' => $this->session->id,
+                    'error' => $data['error'],
+                ]);
             }
         } catch (\Exception $e) {
             Log::error('Failed to generate chat summary', [

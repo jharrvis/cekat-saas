@@ -34,8 +34,9 @@ return new class extends Migration {
         DB::table('settings')->where('key', 'openrouter_api_key')->delete();
         Cache::forget('setting.openrouter_api_key');
 
-        // 2) Default model setting
-        if (DB::table('settings')->where('key', 'default_ai_model')->exists()) {
+        // 2) Default model setting: only rewrite dead ids, keep working ones
+        $defaultRow = DB::table('settings')->where('key', 'default_ai_model')->first();
+        if ($defaultRow && in_array($defaultRow->value, self::RETIRED_MODELS, true)) {
             DB::table('settings')->where('key', 'default_ai_model')->update(['value' => self::FREE_REPLACEMENT]);
             Cache::forget('setting.default_ai_model');
         }

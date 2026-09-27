@@ -39,6 +39,7 @@ return [
         // Secret comes only from .env (OPENROUTER_API_KEY); never commit a key here.
         'api_key' => env('OPENROUTER_API_KEY'),
         'default_model' => env('OPENROUTER_DEFAULT_MODEL', 'openrouter/free'),
+        'fallback_model' => env('OPENROUTER_FALLBACK_MODEL', 'openrouter/free'),
     ],
 
     'google' => [

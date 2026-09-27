@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\ChatMessage;
 use App\Models\User;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -135,24 +134,20 @@ FORMAT OUTPUT (JSON array):
 Jawab HANYA dengan JSON array, tanpa penjelasan tambahan.
 PROMPT;
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $apiKey,
-            'HTTP-Referer' => config('app.url'),
-            'X-Title' => 'Cekat SaaS Topic Analyzer',
-        ])->timeout(30)->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => $model,
-                    'messages' => [
-                        ['role' => 'user', 'content' => $prompt]
-                    ],
-                    'temperature' => 0.3,
-                    'max_tokens' => 500,
-                ]);
+        $response = OpenRouterClient::chatCompletion([
+            'model' => $model,
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt]
+            ],
+            'temperature' => 0.3,
+            'max_tokens' => 500,
+        ], 30, 'Cekat SaaS Topic Analyzer');
 
-        if (!$response->successful()) {
-            throw new \Exception('OpenRouter API error: ' . $response->status());
+        if (!empty($response['error'])) {
+            throw new \Exception('OpenRouter API error: ' . ($response['error']['message'] ?? 'unknown'));
         }
 
-        $data = $response->json();
+        $data = $response;
         $content = $data['choices'][0]['message']['content'] ?? '';
 
         // Parse JSON from response
@@ -332,10 +327,11 @@ PROMPT;
     private function getModelForUser(User $user)
     {
         $plan = $user->plan;
+        $defaultModel = config('services.openrouter.default_model');
 
         if (!$plan) {
             // Free tier - use cheap/free model
-            return 'openrouter/free';
+            return $defaultModel;
         }
 
         $aiTier = $plan->ai_tier ?? 'basic';
@@ -343,13 +339,13 @@ PROMPT;
         // Use appropriate model based on tier
         // For topic analysis, we don't need the most powerful model
         $modelMapping = [
-            'basic' => 'openrouter/free',
-            'standard' => 'openai/gpt-4o-mini',
-            'advanced' => 'openai/gpt-4o-mini',
-            'premium' => 'openai/gpt-4o-mini',
+            'basic' => $defaultModel,
+            'standard' => $defaultModel,
+            'advanced' => $defaultModel,
+            'premium' => $defaultModel,
         ];
 
-        return $modelMapping[$aiTier] ?? 'openrouter/free';
+        return $modelMapping[$aiTier] ?? $defaultModel;
     }
 
     /**

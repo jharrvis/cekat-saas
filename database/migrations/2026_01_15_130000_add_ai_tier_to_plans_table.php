@@ -30,10 +30,10 @@ return new class extends Migration {
             ['key' => 'ai_tier_mapping'],
             [
                 'value' => json_encode([
-                    'basic' => 'nvidia/nemotron-3-nano-30b-a3b:free',
-                    'standard' => 'openai/gpt-4o-mini',
-                    'advanced' => 'openai/gpt-4o',
-                    'premium' => 'anthropic/claude-3.5-sonnet',
+                    'basic' => 'nvidia/nemotron-3-super-120b-a12b:free',
+                    'standard' => 'nvidia/nemotron-3-super-120b-a12b:free',
+                    'advanced' => 'nvidia/nemotron-3-super-120b-a12b:free',
+                    'premium' => 'nvidia/nemotron-3-super-120b-a12b:free',
                 ])
             ]
         );

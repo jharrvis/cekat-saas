@@ -207,9 +207,11 @@ class ChatOrchestrator
 
         $response = $this->postOpenRouter($allMessages, $model, $temperature);
 
-        // Self-healing: model ids retired by OpenRouter answer 400/404.
-        // Retry once with the Free Models Router so chat keeps working.
-        if (in_array($response->status(), [400, 404], true) && $model !== ModelResolver::FALLBACK_MODEL) {
+        // Self-healing: retired model ids (400/404), exhausted free credits
+        // (402), rate limits (429) and provider hiccups (5xx) fall back to the
+        // Free Models Router once. Auth errors (401/403) do not - a different
+        // model would fail the same way.
+        if (in_array($response->status(), [400, 402, 404, 429, 500, 502, 503, 504], true) && $model !== ModelResolver::FALLBACK_MODEL) {
             Log::warning('OpenRouter model unavailable, retrying with fallback', [
                 'model' => $model,
                 'status' => $response->status(),

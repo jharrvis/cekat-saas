@@ -95,7 +95,7 @@ class WidgetCustomizer extends Component
                 'avatar_icon' => $this->avatarIcon,
                 'avatar_url' => $this->avatarUrl,
                 // Model is handled separately in Model Selection tab
-                'model' => $this->widget->settings['model'] ?? 'openrouter/free',
+                'model' => $this->widget->settings['model'] ?? config('services.openrouter.default_model'),
             ],
         ]);
 

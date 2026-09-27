@@ -69,12 +69,14 @@ class ModelResolver
             }
         }
 
-        // Fallback mapping if settings not configured
+        // Fallback mapping if settings not configured.
+        // Semua tier memakai model gratis yang sama; ChatOrchestrator akan
+        // otomatis fallback ke openrouter/free jika model ini gagal.
         $defaultMapping = [
-            'basic' => self::FALLBACK_MODEL,
-            'standard' => 'openai/gpt-4o-mini',
-            'advanced' => 'openai/gpt-4o-mini',
-            'premium' => 'openai/gpt-4o-mini',
+            'basic' => $defaultModel,
+            'standard' => $defaultModel,
+            'advanced' => $defaultModel,
+            'premium' => $defaultModel,
         ];
 
         Log::info('AI Tier Model Selection (fallback)', [

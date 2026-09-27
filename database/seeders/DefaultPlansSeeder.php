@@ -54,7 +54,7 @@ class DefaultPlansSeeder extends Seeder
                 'ai_tier' => 'advanced',
                 'allowed_models' => [
                     'openrouter/free',
-                    'openai/gpt-4o-mini',
+                    'nvidia/nemotron-3-super-120b-a12b:free',
                 ],
                 'features' => [
                     'custom_branding' => true,
@@ -82,9 +82,8 @@ class DefaultPlansSeeder extends Seeder
                 'ai_tier' => 'premium',
                 'allowed_models' => [
                     'openrouter/free',
-                    'openai/gpt-4o-mini',
-                    'openai/gpt-4o',
-                    'anthropic/claude-3.5-sonnet',
+                    'nvidia/nemotron-3-super-120b-a12b:free',
+                    'nvidia/nemotron-3-ultra-550b-a55b:free',
                 ],
                 'features' => [
                     'custom_branding' => true,
