@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreWidgetRequest;
+use App\Http\Requests\UpdateWidgetRequest;
 use App\Models\Widget;
 use App\Models\Plan;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class ChatbotController extends Controller
@@ -34,13 +36,9 @@ class ChatbotController extends Controller
         return view('chatbots.create', compact('aiAgents'));
     }
 
-    public function store(Request $request)
+    public function store(StoreWidgetRequest $request)
     {
-        $request->validate([
-            'display_name' => 'required|max:255',
-            'description' => 'nullable|max:500',
-            'ai_agent_id' => 'nullable|exists:ai_agents,id',
-        ]);
+        $validated = $request->validated();
 
         $user = auth()->user();
         $plan = $user->plan;
@@ -51,21 +49,15 @@ class ChatbotController extends Controller
                 ->with('error', 'You have reached your plan limit.');
         }
 
-        // Verify AI Agent belongs to user
-        $aiAgentId = $request->ai_agent_id;
-        if ($aiAgentId) {
-            $agent = $user->aiAgents()->find($aiAgentId);
-            if (!$agent) {
-                $aiAgentId = null;
-            }
-        }
+        // The linked agent's ownership is enforced by StoreWidgetRequest.
+        $aiAgentId = $validated['ai_agent_id'] ?? null;
 
         // Create widget
         $widget = $user->widgets()->create([
             'ai_agent_id' => $aiAgentId,
-            'name' => Str::slug($request->display_name),
-            'display_name' => $request->display_name,
-            'description' => $request->description,
+            'name' => Str::slug($validated['display_name']),
+            'display_name' => $validated['display_name'],
+            'description' => $validated['description'] ?? null,
             'slug' => 'widget-' . $user->id . '-' . Str::random(8),
             'is_active' => true,
             'status' => 'draft',
@@ -75,7 +67,7 @@ class ChatbotController extends Controller
         // If linked to AI Agent, the agent's knowledge base will be used
         if (!$aiAgentId) {
             $widget->knowledgeBase()->create([
-                'company_name' => $request->display_name,
+                'company_name' => $validated['display_name'],
                 'persona_name' => 'AI Assistant',
                 'persona_tone' => 'friendly',
             ]);
@@ -88,6 +80,7 @@ class ChatbotController extends Controller
     public function edit($chatbotId, $tab = 'general')
     {
         $chatbot = auth()->user()->widgets()->with('knowledgeBase')->findOrFail($chatbotId);
+        Gate::authorize('view', $chatbot);
         $validTabs = ['general', 'knowledge', 'model', 'widget', 'lead', 'webhook', 'analytics', 'embed'];
 
         if (!in_array($tab, $validTabs)) {
@@ -97,9 +90,10 @@ class ChatbotController extends Controller
         return view('chatbots.edit', compact('chatbot', 'tab'));
     }
 
-    public function update(Request $request, $chatbotId)
+    public function update(UpdateWidgetRequest $request, $chatbotId)
     {
         $chatbot = auth()->user()->widgets()->findOrFail($chatbotId);
+        Gate::authorize('update', $chatbot);
         $tab = $request->input('tab', 'general');
 
         // Handle Model Selection from model tab (settings[model])
@@ -152,25 +146,13 @@ class ChatbotController extends Controller
             return redirect()->back()->with('success', 'Webhook settings saved!');
         }
 
-        // Default: General tab
-        $request->validate([
-            'display_name' => 'required|max:255',
-            'description' => 'nullable|max:500',
-            'allowed_domains' => 'nullable|string',
-            'ai_agent_id' => 'nullable|exists:ai_agents,id',
-        ]);
+        // Default: General tab (input validated by UpdateWidgetRequest,
+        // including ownership of the linked agent)
+        $validated = $request->validated();
 
         // Handle AI Agent change
-        $newAgentId = $request->input('ai_agent_id') ?: null;
+        $newAgentId = $validated['ai_agent_id'] ?? null;
         $oldAgentId = $chatbot->ai_agent_id;
-
-        // If linking to new agent, verify ownership
-        if ($newAgentId) {
-            $agent = auth()->user()->aiAgents()->find($newAgentId);
-            if (!$agent) {
-                return redirect()->back()->with('error', 'AI Agent tidak ditemukan.');
-            }
-        }
 
         // If unlinking agent (was linked, now null), create widget's own KB
         if ($oldAgentId && !$newAgentId && !$chatbot->knowledgeBase) {
@@ -182,12 +164,12 @@ class ChatbotController extends Controller
         }
 
         $settings = $chatbot->settings ?? [];
-        $settings['allowed_domains'] = $request->input('allowed_domains');
+        $settings['allowed_domains'] = $validated['allowed_domains'] ?? $settings['allowed_domains'] ?? null;
 
         $chatbot->update([
-            'display_name' => $request->display_name,
-            'description' => $request->description,
-            'status' => $request->status ?? $chatbot->status,
+            'display_name' => $validated['display_name'] ?? $chatbot->display_name,
+            'description' => $validated['description'] ?? $chatbot->description,
+            'status' => $validated['status'] ?? $chatbot->status,
             'ai_agent_id' => $newAgentId,
             'settings' => $settings,
         ]);
@@ -209,6 +191,7 @@ class ChatbotController extends Controller
     public function destroy($chatbotId)
     {
         $chatbot = auth()->user()->widgets()->findOrFail($chatbotId);
+        Gate::authorize('delete', $chatbot);
         $chatbot->delete();
 
         return redirect()->route('chatbots.index')
@@ -221,6 +204,7 @@ class ChatbotController extends Controller
     public function unlinkAgent($chatbotId)
     {
         $chatbot = auth()->user()->widgets()->findOrFail($chatbotId);
+        Gate::authorize('update', $chatbot);
 
         if (!$chatbot->ai_agent_id) {
             return redirect()->back()->with('error', 'Widget tidak terhubung ke AI Agent.');

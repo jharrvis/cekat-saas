@@ -83,7 +83,9 @@ class ChatApiTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('sessionId', 'sess_test_1')
-            ->assertJsonPath('response', 'Silakan order di https://toko.test/order kak');
+            ->assertJsonPath('response', 'Silakan order di https://toko.test/order kak')
+            ->assertJsonPath('meta.tokens_used', 42)
+            ->assertJsonStructure(['meta' => ['model', 'tokens_used']]);
 
         $this->assertSame(1, $user->fresh()->monthly_message_used);
 
@@ -101,6 +103,8 @@ class ChatApiTest extends TestCase
 
     public function test_chat_quota_exceeded_returns_429(): void
     {
+        \Illuminate\Support\Facades\Event::fake([\App\Events\QuotaExceeded::class]);
+
         $this->makeStack(['used' => 100]);
 
         $response = $this->postJson('/api/chat', [
@@ -109,8 +113,15 @@ class ChatApiTest extends TestCase
             'sessionId' => 'sess_q',
         ]);
 
-        $response->assertStatus(429)->assertJsonPath('error', 'quota_exceeded');
+        $response->assertStatus(429)
+            ->assertJsonPath('error', 'quota_exceeded')
+            ->assertJsonPath('error_code', 'quota_exceeded');
         $this->assertSame(0, ChatSession::count());
+
+        \Illuminate\Support\Facades\Event::assertDispatched(
+            \App\Events\QuotaExceeded::class,
+            fn ($e) => $e->used === 100 && $e->limit === 100
+        );
     }
 
     public function test_chat_domain_blocked_returns_403(): void
@@ -123,7 +134,9 @@ class ChatApiTest extends TestCase
             'sessionId' => 'sess_d',
         ], ['Origin' => 'https://toko-palsu.test']);
 
-        $response->assertForbidden()->assertJsonPath('error', 'Domain not allowed');
+        $response->assertForbidden()
+            ->assertJsonPath('error', 'Domain not allowed')
+            ->assertJsonPath('error_code', 'domain_blocked');
         $this->assertSame(0, ChatSession::count());
     }
 

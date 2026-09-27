@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChatSession;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Response;
 
 class ChatHistoryController extends Controller
@@ -77,6 +78,8 @@ class ChatHistoryController extends Controller
                 ])
             ->findOrFail($id);
 
+        Gate::authorize('view', $session);
+
         return view('user.chats.show', compact('session'));
     }
 
@@ -91,6 +94,8 @@ class ChatHistoryController extends Controller
         $session = ChatSession::whereIn('widget_id', $widgetIds)
             ->with('messages')
             ->findOrFail($id);
+
+        Gate::authorize('view', $session);
 
         // Dispatch job to generate summary
         \App\Jobs\GenerateChatSummary::dispatch($session);

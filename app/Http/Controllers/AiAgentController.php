@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAiAgentRequest;
+use App\Http\Requests\UpdateAiAgentRequest;
 use App\Models\AiAgent;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Gate;
 
 class AiAgentController extends Controller
 {
@@ -33,19 +34,9 @@ class AiAgentController extends Controller
     /**
      * Store a newly created agent in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAiAgentRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'personality' => 'required|in:professional,friendly,casual,formal',
-            'ai_temperature' => 'required|numeric|min:0|max:2',
-            'greeting_message' => 'nullable|string|max:500',
-            'system_prompt' => 'nullable|string|max:2000',
-            'fallback_message' => 'nullable|string|max:500',
-        ]);
-
-        $agent = Auth::user()->aiAgents()->create($validated);
+        $agent = Auth::user()->aiAgents()->create($request->validated());
 
         // Create knowledge base for the agent
         $agent->knowledgeBase()->create([
@@ -61,10 +52,7 @@ class AiAgentController extends Controller
      */
     public function edit(AiAgent $agent)
     {
-        // Ensure user owns this agent
-        if ($agent->user_id !== Auth::id()) {
-            abort(403);
-        }
+        Gate::authorize('view', $agent);
 
         $agent->load(['widgets', 'knowledgeBase.faqs']);
 
@@ -76,10 +64,7 @@ class AiAgentController extends Controller
      */
     public function knowledge(AiAgent $agent)
     {
-        // Ensure user owns this agent
-        if ($agent->user_id !== Auth::id()) {
-            abort(403);
-        }
+        Gate::authorize('view', $agent);
 
         return view('agents.knowledge', compact('agent'));
     }
@@ -87,26 +72,9 @@ class AiAgentController extends Controller
     /**
      * Update the specified agent in storage.
      */
-    public function update(Request $request, AiAgent $agent)
+    public function update(UpdateAiAgentRequest $request, AiAgent $agent)
     {
-        // Ensure user owns this agent
-        if ($agent->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'personality' => 'required|in:professional,friendly,casual,formal',
-            'ai_temperature' => 'required|numeric|min:0|max:2',
-            'greeting_message' => 'nullable|string|max:500',
-            'system_prompt' => 'nullable|string|max:2000',
-            'fallback_message' => 'nullable|string|max:500',
-            'is_active' => 'boolean',
-        ]);
-
-
-        $agent->update($validated);
+        $agent->update($request->validated());
 
         return back()->with('message', 'AI Agent berhasil diupdate!');
     }
@@ -116,10 +84,7 @@ class AiAgentController extends Controller
      */
     public function destroy(AiAgent $agent)
     {
-        // Ensure user owns this agent
-        if ($agent->user_id !== Auth::id()) {
-            abort(403);
-        }
+        Gate::authorize('delete', $agent);
 
         // Check if agent has widgets
         if ($agent->widgets()->count() > 0) {
@@ -137,10 +102,7 @@ class AiAgentController extends Controller
      */
     public function toggleStatus(AiAgent $agent)
     {
-        // Ensure user owns this agent
-        if ($agent->user_id !== Auth::id()) {
-            abort(403);
-        }
+        Gate::authorize('update', $agent);
 
         $agent->update(['is_active' => !$agent->is_active]);
 

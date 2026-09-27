@@ -65,6 +65,8 @@ class SystemSettings extends Component
             Setting::set($key, $value, $type, $group);
         }
 
+        \App\Events\AdminSettingsChanged::dispatch($group, auth()->id());
+
         session()->flash('message', ucfirst($group) . ' settings saved successfully!');
         $this->loadSettings();
     }

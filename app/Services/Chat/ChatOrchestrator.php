@@ -2,6 +2,11 @@
 
 namespace App\Services\Chat;
 
+use App\Events\ChatRequestProcessed;
+use App\Events\DomainBlocked;
+use App\Events\LeadCaptured;
+use App\Events\QuotaExceeded;
+use App\Events\WebhookActionTriggered;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\Widget;
@@ -42,7 +47,7 @@ class ChatOrchestrator
             if (! file_exists($kbPath)) {
                 return [
                     'status' => 404,
-                    'body' => ['success' => false, 'error' => 'Widget not found'],
+                    'body' => ['success' => false, 'error' => 'Widget not found', 'error_code' => 'widget_not_found'],
                 ];
             }
             $kb = json_decode(file_get_contents($kbPath), true);
@@ -50,14 +55,25 @@ class ChatOrchestrator
             // Domain Validation (Security)
             $origin = request()->header('Origin') ?? request()->header('Referer');
             if (! $this->domains->isAllowed($widget->settings['allowed_domains'] ?? null, $origin)) {
+                DomainBlocked::dispatch($widget->slug, $origin);
+
                 return [
                     'status' => 403,
-                    'body' => ['success' => false, 'error' => 'Domain not allowed'],
+                    'body' => ['success' => false, 'error' => 'Domain not allowed', 'error_code' => 'domain_blocked'],
                 ];
             }
 
             // Check quota before processing (skip for landing page widget)
             if ($denied = $this->quota->check($widget->user, $widget->slug)) {
+                if (($denied['body']['error_code'] ?? null) === 'quota_exceeded' && $widget->user) {
+                    QuotaExceeded::dispatch(
+                        $widget->user->id,
+                        $widget->slug,
+                        $widget->user->monthly_message_used,
+                        $widget->user->plan->max_messages_per_month,
+                    );
+                }
+
                 return $denied;
             }
 
@@ -105,7 +121,19 @@ class ChatOrchestrator
 
             // Handle Webhook Trigger (Function Calling)
             if ($widget) {
+                $action = $this->webhooks->extractAction($responseText);
                 $webhookResult = $this->webhooks->dispatchIfAction($widget, $responseText);
+
+                if ($webhookResult && $action) {
+                    WebhookActionTriggered::dispatch($widget->slug, $action['action']);
+
+                    if ($action['action'] === 'save_lead') {
+                        LeadCaptured::dispatch(
+                            $widget->slug,
+                            array_values(array_intersect(['name', 'email', 'phone'], array_keys($action))),
+                        );
+                    }
+                }
 
                 // If strictly JSON, replace with friendly message
                 if ($this->webhooks->isStrictJson($responseText) && $webhookResult) {
@@ -121,6 +149,14 @@ class ChatOrchestrator
 
                 // Increment user's monthly message quota (skip for landing page widget - unlimited)
                 $this->quota->consume($widget->user, $widget->slug);
+
+                ChatRequestProcessed::dispatch(
+                    $widget->slug,
+                    $widget->user_id,
+                    $sessionId,
+                    $model,
+                    $response['usage']['total_tokens'] ?? 0,
+                );
             }
 
             return [
@@ -130,6 +166,10 @@ class ChatOrchestrator
                     'response' => $responseText,
                     'sessionId' => $sessionId,
                     'usage' => $response['usage'] ?? null,
+                    'meta' => [
+                        'model' => $model,
+                        'tokens_used' => $response['usage']['total_tokens'] ?? 0,
+                    ],
                 ],
             ];
         } catch (\Exception $e) {
@@ -146,6 +186,7 @@ class ChatOrchestrator
                     'response' => 'Maaf, saya sedang mengalami gangguan teknis. Silakan coba lagi dalam beberapa saat.',
                     'sessionId' => $sessionId,
                     'fallback' => true,
+                    'error_code' => 'provider_error',
                     'debug' => config('app.debug') ? $e->getMessage() : null,
                 ],
             ];

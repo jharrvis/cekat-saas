@@ -97,23 +97,13 @@ Route::middleware(['auth', 'user.status'])->group(function () {
         return view('user.settings');
     })->name('settings');
 
-    Route::put('/settings/profile', function () {
-        request()->validate(['name' => 'required|string|max:255']);
-        auth()->user()->update(['name' => request('name')]);
+    Route::put('/settings/profile', function (App\Http\Requests\UpdateProfileRequest $request) {
+        auth()->user()->update($request->validated());
         return back()->with('success', 'Profil berhasil diperbarui!');
     })->name('settings.update-profile');
 
-    Route::put('/settings/password', function () {
-        request()->validate([
-            'current_password' => 'required',
-            'password' => 'required|confirmed|min:8',
-        ]);
-
-        if (!Hash::check(request('current_password'), auth()->user()->password)) {
-            return back()->withErrors(['current_password' => 'Password saat ini salah']);
-        }
-
-        auth()->user()->update(['password' => Hash::make(request('password'))]);
+    Route::put('/settings/password', function (App\Http\Requests\UpdatePasswordRequest $request) {
+        auth()->user()->update(['password' => Hash::make($request->validated()['password'])]);
         return back()->with('success', 'Password berhasil diubah!');
     })->name('settings.update-password');
 

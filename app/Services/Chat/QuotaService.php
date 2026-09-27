@@ -28,14 +28,14 @@ class QuotaService
         if (! $user) {
             return [
                 'status' => 404,
-                'body' => ['success' => false, 'error' => 'Widget owner not found'],
+                'body' => ['success' => false, 'error' => 'Widget owner not found', 'error_code' => 'owner_missing'],
             ];
         }
 
         if (in_array($user->status, ['suspended', 'banned'], true)) {
             return [
                 'status' => 403,
-                'body' => ['success' => false, 'error' => 'Widget temporarily unavailable'],
+                'body' => ['success' => false, 'error' => 'Widget temporarily unavailable', 'error_code' => 'account_suspended'],
             ];
         }
 
@@ -46,6 +46,7 @@ class QuotaService
                 'body' => [
                     'success' => false,
                     'error' => 'quota_exceeded',
+                    'error_code' => 'quota_exceeded',
                     'message' => 'Maaf, kuota pesan bulanan telah habis. Silakan hubungi pemilik website.',
                     'quota' => [
                         'used' => $user->monthly_message_used,
