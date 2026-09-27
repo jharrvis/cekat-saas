@@ -26,18 +26,10 @@ Route::prefix('api')->group(function () {
             return response()->json(['error' => 'Widget not found'], 404);
         }
 
-        // Domain Validation (Security) - Consistent with ChatController
-        $allowedDomains = $widget->settings['allowed_domains'] ?? null;
-        if (!empty($allowedDomains)) {
-            $origin = request()->header('Origin') ?? request()->header('Referer');
-            if ($origin) {
-                $originDomain = parse_url($origin, PHP_URL_HOST);
-                $allowedList = array_map('trim', explode(',', $allowedDomains));
-
-                if (!in_array($originDomain, $allowedList) && !Illuminate\Support\Str::contains($origin, 'localhost') && !Illuminate\Support\Str::contains($origin, '127.0.0.1')) {
-                    return response()->json(['error' => 'Domain not allowed'], 403);
-                }
-            }
+        // Domain Validation (Security) - shared with ChatOrchestrator
+        $origin = request()->header('Origin') ?? request()->header('Referer');
+        if (!app(App\Services\Chat\DomainAccessService::class)->isAllowed($widget->settings['allowed_domains'] ?? null, $origin)) {
+            return response()->json(['error' => 'Domain not allowed'], 403);
         }
 
         $settings = $widget->settings ?? [];

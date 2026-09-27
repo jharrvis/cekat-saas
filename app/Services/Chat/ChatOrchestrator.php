@@ -1,0 +1,204 @@
+<?php
+
+namespace App\Services\Chat;
+
+use App\Models\ChatMessage;
+use App\Models\ChatSession;
+use App\Models\Widget;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+
+/**
+ * Orchestrates a single chat turn: widget resolution, domain + quota
+ * gates, prompt building, LLM call, webhook actions, persistence.
+ *
+ * Flow extracted from Api\ChatController::chat. Response shapes are
+ * preserved exactly; the controller only maps the result to JSON.
+ *
+ * @return array{status:int,body:array}
+ */
+class ChatOrchestrator
+{
+    public function __construct(
+        protected DomainAccessService $domains,
+        protected QuotaService $quota,
+        protected PromptBuilder $prompts,
+        protected ModelResolver $models,
+        protected LeadCaptureService $leads,
+        protected WebhookActionService $webhooks,
+    ) {}
+
+    public function handle(string $message, string $widgetSlug, array $history, string $sessionId): array
+    {
+        // Load widget with AI Agent if linked
+        $widget = Widget::where('slug', $widgetSlug)
+            ->with(['knowledgeBase.faqs', 'user.plan', 'aiAgent.knowledgeBase.faqs'])
+            ->first();
+
+        if (! $widget) {
+            // Fallback to demo knowledge base from JSON
+            $kbPath = storage_path('app/data/knowledge-base.json');
+            if (! file_exists($kbPath)) {
+                return [
+                    'status' => 404,
+                    'body' => ['success' => false, 'error' => 'Widget not found'],
+                ];
+            }
+            $kb = json_decode(file_get_contents($kbPath), true);
+        } else {
+            // Domain Validation (Security)
+            $origin = request()->header('Origin') ?? request()->header('Referer');
+            if (! $this->domains->isAllowed($widget->settings['allowed_domains'] ?? null, $origin)) {
+                return [
+                    'status' => 403,
+                    'body' => ['success' => false, 'error' => 'Domain not allowed'],
+                ];
+            }
+
+            // Check quota before processing (skip for landing page widget)
+            if ($denied = $this->quota->check($widget->user, $widget->slug)) {
+                return $denied;
+            }
+
+            $kb = $this->prompts->buildKnowledgeArray($widget);
+        }
+
+        // Build system prompt
+        $systemPrompt = $this->prompts->buildSystemPrompt($kb, $sessionId);
+
+        // Format history (last 10 messages)
+        $formattedHistory = array_slice($history, -10);
+        $formattedHistory[] = ['role' => 'user', 'content' => $message];
+
+        // Get model based on user's plan AI tier (LLM Abstraction)
+        // AI Agent does NOT determine the model - that's controlled by plan's AI Tier
+        $model = $this->models->forWidget($widget);
+
+        // Get temperature from AI Agent if linked, otherwise use default
+        $aiAgent = $widget ? $widget->aiAgent : null;
+        $temperature = $aiAgent ? $aiAgent->ai_temperature : 0.7;
+
+        // Strategy 2: Trigger System - Insert lead collection prompt based on conditions
+        $settings = $kb['settings'] ?? [];
+        if ($instruction = $this->leads->triggerInstruction($settings, $history, $message)) {
+            $systemPrompt .= $instruction;
+        }
+
+        // Call OpenRouter
+        try {
+            $response = $this->callOpenRouter($systemPrompt, $formattedHistory, $model, $temperature);
+
+            // Log full response for debugging
+            Log::info('OpenRouter Response', ['model' => $model, 'response' => $response]);
+
+            $responseText = $response['choices'][0]['message']['content'] ?? null;
+
+            if (! $responseText) {
+                // Check if there's an error in response
+                if (isset($response['error'])) {
+                    Log::error('OpenRouter API Error', ['error' => $response['error']]);
+                    throw new \Exception($response['error']['message'] ?? 'API Error');
+                }
+                throw new \Exception('No response from AI');
+            }
+
+            // Handle Webhook Trigger (Function Calling)
+            if ($widget) {
+                $webhookResult = $this->webhooks->dispatchIfAction($widget, $responseText);
+
+                // If strictly JSON, replace with friendly message
+                if ($this->webhooks->isStrictJson($responseText) && $webhookResult) {
+                    $responseText = $webhookResult;
+                }
+
+                // Clean JSON from response if mixed
+                if ($webhookResult && ! $this->webhooks->isStrictJson($responseText)) {
+                    $responseText = $this->webhooks->stripActionJson($responseText);
+                }
+
+                $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? []);
+
+                // Increment user's monthly message quota (skip for landing page widget - unlimited)
+                $this->quota->consume($widget->user, $widget->slug);
+            }
+
+            return [
+                'status' => 200,
+                'body' => [
+                    'success' => true,
+                    'response' => $responseText,
+                    'sessionId' => $sessionId,
+                    'usage' => $response['usage'] ?? null,
+                ],
+            ];
+        } catch (\Exception $e) {
+            Log::error('Chat API Error', [
+                'message' => $e->getMessage(),
+                'model' => $model,
+                'widget' => $widgetSlug,
+            ]);
+
+            return [
+                'status' => 200,
+                'body' => [
+                    'success' => true,
+                    'response' => 'Maaf, saya sedang mengalami gangguan teknis. Silakan coba lagi dalam beberapa saat.',
+                    'sessionId' => $sessionId,
+                    'fallback' => true,
+                    'debug' => config('app.debug') ? $e->getMessage() : null,
+                ],
+            ];
+        }
+    }
+
+    protected function callOpenRouter(string $systemPrompt, array $messages, string $model, float $temperature = 0.7): ?array
+    {
+        $allMessages = [
+            ['role' => 'system', 'content' => $systemPrompt],
+            ...$messages,
+        ];
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer '.config('services.openrouter.api_key'),
+            'HTTP-Referer' => config('app.url'),
+            'X-Title' => 'Cekat SaaS',
+        ])->timeout(60)->post('https://openrouter.ai/api/v1/chat/completions', [
+            'model' => $model,
+            'messages' => $allMessages,
+            'temperature' => $temperature,
+            'max_tokens' => 1500,
+        ]);
+
+        return $response->json();
+    }
+
+    protected function persistConversation(Widget $widget, string $sessionId, string $userMessage, string $aiResponse, string $model, array $usage): void
+    {
+        $session = ChatSession::firstOrCreate(
+            ['widget_id' => $widget->id, 'visitor_uuid' => $sessionId],
+            [
+                'current_agent_id' => $widget->ai_agent_id,
+                'started_at' => now(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]
+        );
+
+        ChatMessage::create([
+            'session_id' => $session->id,
+            'ai_agent_id' => $widget->ai_agent_id,
+            'role' => 'user',
+            'content' => $userMessage,
+        ]);
+
+        ChatMessage::create([
+            'session_id' => $session->id,
+            'ai_agent_id' => $widget->ai_agent_id,
+            'role' => 'assistant',
+            'content' => $aiResponse,
+            'tokens_used' => $usage['total_tokens'] ?? 0,
+            'model_used' => $model,
+        ]);
+    }
+}
