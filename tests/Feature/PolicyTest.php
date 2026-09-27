@@ -23,7 +23,7 @@ class PolicyTest extends TestCase
     {
         $this->seq++;
 
-        $plan = Plan::create(['name' => 'P'.$this->seq, 'slug' => 'p-'.$this->seq]);
+        $plan = Plan::create(['name' => 'P'.$this->seq, 'slug' => 'p-'.$this->seq, 'can_use_whatsapp' => true, 'can_export_leads' => true]);
 
         return User::create([
             'name' => 'User '.$this->seq,

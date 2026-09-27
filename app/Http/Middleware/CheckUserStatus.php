@@ -31,6 +31,19 @@ class CheckUserStatus
             if ($status === 'banned') {
                 return redirect()->route('account.suspended', ['type' => 'banned']);
             }
+
+            // Lazy plan expiry: downgrade expired paid users to free
+            // (and deactivate their channels) on their next request/login.
+            if (\App\Services\Billing\PlanExpiryService::downgrade($user)) {
+                $channels = $user->widgets()->select('id', 'status')->get();
+
+                if ($channels->isNotEmpty()
+                    && $channels->where('status', 'active')->isEmpty()
+                    && $request->isMethod('get')
+                    && ! $request->routeIs('channels.*')) {
+                    return redirect()->route('channels.index')->with('info', 'Masa aktif langganan Anda telah berakhir. Akun Anda kini menggunakan paket Free dan semua channel dinonaktifkan — silakan aktifkan kembali satu channel untuk mulai digunakan.');
+                }
+            }
         }
 
         return $next($request);

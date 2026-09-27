@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'user.status' => \App\Http\Middleware\CheckUserStatus::class,
             'is.admin' => \App\Http\Middleware\IsAdmin::class,
+            'plan.feature' => \App\Http\Middleware\PlanFeatureGate::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

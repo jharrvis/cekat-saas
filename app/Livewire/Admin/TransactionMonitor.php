@@ -147,9 +147,15 @@ class TransactionMonitor extends Component
         $plan = $transaction->plan;
 
         if ($user && $plan) {
+            // Extend from current expiry when renewing the same plan
+            $renewing = $user->plan_id === $plan->id
+                && $user->plan_expires_at
+                && $user->plan_expires_at->isFuture();
+            $base = $renewing ? $user->plan_expires_at : now();
+
             $user->update([
                 'plan_id' => $plan->id,
-                'plan_expires_at' => now()->addMonth(),
+                'plan_expires_at' => $base->copy()->addMonth(),
                 'monthly_message_used' => 0,
             ]);
 

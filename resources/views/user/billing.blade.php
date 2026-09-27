@@ -29,9 +29,22 @@
                             <h3 class="text-lg font-semibold">Plan Saat Ini</h3>
                             <p class="text-muted-foreground text-sm">Status langganan Anda</p>
                         </div>
-                        <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
-                            <i class="fa-solid fa-check-circle mr-1"></i>Active
-                        </span>
+                        @if($user->plan && $user->plan->price > 0)
+                            @if($user->plan_expires_at && $user->plan_expires_at->isFuture())
+                                <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
+                                    <i class="fa-solid fa-check-circle mr-1"></i>Aktif s/d
+                                    {{ $user->plan_expires_at->format('d M Y') }}
+                                </span>
+                            @else
+                                <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">
+                                    <i class="fa-solid fa-circle-xmark mr-1"></i>Kedaluwarsa
+                                </span>
+                            @endif
+                        @else
+                            <span class="px-3 py-1 text-sm rounded-full bg-muted text-muted-foreground">
+                                Free Plan
+                            </span>
+                        @endif
                     </div>
 
                     <div class="flex items-center gap-4 p-4 bg-primary/5 rounded-xl border border-primary/20 mb-4">
@@ -43,6 +56,13 @@
                             <p class="text-sm text-muted-foreground">
                                 Rp {{ number_format($user->plan->price ?? 0, 0, ',', '.') }} / bulan
                             </p>
+                            @if($user->plan_expires_at)
+                                <p class="text-xs text-muted-foreground mt-1">
+                                    <i class="fa-regular fa-clock mr-1"></i>Berlaku hingga
+                                    {{ $user->plan_expires_at->format('d M Y H:i') }}
+                                    ({{ max(0, (int) ceil(now()->diffInDays($user->plan_expires_at, false))) }} hari lagi)
+                                </p>
+                            @endif
                         </div>
                         <a href="#plans" class="btn-primary">
                             <i class="fa-solid fa-arrow-up mr-2"></i>Upgrade

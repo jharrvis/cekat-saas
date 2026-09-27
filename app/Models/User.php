@@ -98,6 +98,30 @@ class User extends Authenticatable
     }
 
     /**
+     * Whether the user can access Lead Collection features (Pro and above).
+     */
+    public function canUseLeads(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return (bool) ($this->plan?->can_export_leads);
+    }
+
+    /**
+     * Whether the user can access the WhatsApp gateway (Pro and above).
+     */
+    public function canUseWhatsApp(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return (bool) ($this->plan?->can_use_whatsapp);
+    }
+
+    /**
      * Get the user's WhatsApp devices.
      */
     public function whatsappDevices()

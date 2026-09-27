@@ -19,11 +19,17 @@ Route::prefix('api')->group(function () {
     Route::post('/chat', [App\Http\Controllers\Api\ChatController::class, 'chat']);
 
     // Widget Config API - returns widget settings by slug
+    // NOTE: inside prefix('api'), so the path must NOT repeat /api
     Route::get('/widget/{slug}/config', function ($slug) {
         $widget = App\Models\Widget::where('slug', $slug)->first();
 
         if (!$widget) {
             return response()->json(['error' => 'Widget not found'], 404);
+        }
+
+        // Public visibility gate: only active widgets are served
+        if (($widget->status ?? 'active') !== 'active' || !$widget->is_active) {
+            return response()->json(['error' => 'Widget disabled', 'error_code' => 'widget_inactive'], 404);
         }
 
         // Domain Validation (Security) - shared with ChatOrchestrator
@@ -79,6 +85,7 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     Route::put('/channels/{channel}', [ChannelController::class, 'update'])->name('channels.update');
     Route::delete('/channels/{channel}', [ChannelController::class, 'destroy'])->name('channels.destroy');
     Route::post('/channels/{channel}/unlink-agent', [ChannelController::class, 'unlinkAgent'])->name('channels.unlink-agent');
+    Route::post('/channels/{channel}/activate', [ChannelController::class, 'activate'])->name('channels.activate');
 
     // Legacy redirects (bookmarks / old embed docs)
     Route::redirect('/chatbots/create', '/channels/create', 301);
@@ -124,9 +131,13 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     Route::get('/chats/{id}', [App\Http\Controllers\ChatHistoryController::class, 'show'])->name('chats.show');
     Route::post('/chats/{id}/summary', [App\Http\Controllers\ChatHistoryController::class, 'generateSummary'])->name('chats.summary');
 
-    // Leads
-    Route::get('/leads', [App\Http\Controllers\LeadController::class, 'index'])->name('leads.index');
-    Route::get('/leads/export', [App\Http\Controllers\LeadController::class, 'export'])->name('leads.export');
+    // Leads (Pro+ feature)
+    Route::get('/leads', [App\Http\Controllers\LeadController::class, 'index'])
+        ->middleware('plan.feature:leads')
+        ->name('leads.index');
+    Route::get('/leads/export', [App\Http\Controllers\LeadController::class, 'export'])
+        ->middleware('plan.feature:leads')
+        ->name('leads.export');
 
     // Billing
     Route::get('/billing', function () {
@@ -234,8 +245,8 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
     Route::get('/chat-inbox', \App\Livewire\Admin\ChatInbox::class)->name('admin.chat-inbox');
 });
 
-// WhatsApp Routes (User)
-Route::middleware(['auth', 'user.status'])->prefix('whatsapp')->group(function () {
+// WhatsApp Routes (User) - Pro+ feature (plan.feature gate)
+Route::middleware(['auth', 'user.status', 'plan.feature:whatsapp'])->prefix('whatsapp')->group(function () {
     Route::get('/', [App\Http\Controllers\WhatsAppController::class, 'index'])->name('whatsapp.index');
     Route::post('/create', [App\Http\Controllers\WhatsAppController::class, 'create'])->name('whatsapp.create');
     Route::get('/{device}/connect', [App\Http\Controllers\WhatsAppController::class, 'connect'])->name('whatsapp.connect');

@@ -18,6 +18,36 @@
             </div>
         @endif
 
+        @if (session()->has('info'))
+            <div class="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-xl mb-6">
+                <i class="fa-solid fa-circle-info mr-1"></i>{{ session('info') }}
+            </div>
+        @endif
+
+        {{-- Activation prompt: all channels inactive (e.g. after plan expiry) --}}
+        @php($activeCount = $chatbots->where('status', 'active')->count())
+        @if($chatbots->count() > 0 && $activeCount === 0)
+            <div class="bg-card rounded-xl border border-dashed border-primary/30 p-6 mb-6 text-center">
+                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fa-solid fa-lock text-primary text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold mb-1">Aktifkan Channel Anda</h3>
+                <p class="text-sm text-muted-foreground mb-4 max-w-xl mx-auto">
+                    Semua channel sedang nonaktif sehingga widget tidak tampil di website.
+                    Paket <strong>{{ $plan->name ?? 'Free' }}</strong> mendukung maksimal
+                    <strong>{{ $plan->max_widgets ?? 1 }} channel aktif</strong>
+                    @if(!$plan || !$plan->can_use_whatsapp)
+                        dan <strong>tidak termasuk WhatsApp Gateway</strong>
+                    @endif
+                    — pilih salah satu channel lalu klik <em>Aktifkan</em>.
+                </p>
+                <a href="{{ route('billing') }}"
+                    class="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition text-sm font-medium">
+                    <i class="fa-solid fa-rocket mr-2"></i> Upgrade Plan
+                </a>
+            </div>
+        @endif
+
         {{-- Header --}}
         <div class="flex justify-between items-center mb-6">
             <div>
@@ -127,6 +157,15 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
                                     <div class="flex gap-2 justify-end">
+                                        @if(($chatbot->status ?? 'draft') !== 'active')
+                                            <form action="{{ route('channels.activate', $chatbot->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg transition text-sm">
+                                                    <i class="fa-solid fa-play mr-1"></i> Aktifkan
+                                                </button>
+                                            </form>
+                                        @endif
                                         <a href="{{ route('channels.edit', $chatbot->id) }}"
                                             class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition text-sm">
                                             <i class="fa-solid fa-edit mr-1"></i> Edit

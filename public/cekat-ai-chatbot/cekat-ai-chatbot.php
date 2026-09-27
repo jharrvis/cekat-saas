@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 define('CEKAT_VERSION', '1.0.1');
 // Cache-busting version for the served widget bundle (keep in sync with
 // the ?v= query used in resources/views/**/integration & embed snippets).
-define('CEKAT_WIDGET_VERSION', '20260927-p1');
+define('CEKAT_WIDGET_VERSION', '20260927-p2');
 define('CEKAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CEKAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('CEKAT_API_URL', 'https://cekat.biz.id');

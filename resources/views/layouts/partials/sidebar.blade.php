@@ -148,6 +148,10 @@
                 <i class="fa-solid fa-user-plus w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
                     class="font-medium whitespace-nowrap transition-opacity duration-200">Leads</span>
+                @unless(auth()->user()->canUseLeads())
+                    <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
+                        title="Fitur ini tersedia di paket Pro ke atas"></i>
+                @endunless
             </a>
 
             @if(\App\Services\WhatsApp\WhatsAppManager::isEnabled())
@@ -156,6 +160,10 @@
                     <i class="fa-brands fa-whatsapp w-5 text-center text-base shrink-0"></i>
                     <span x-show="!sidebarCollapsed"
                         class="font-medium whitespace-nowrap transition-opacity duration-200">WhatsApp</span>
+                    @unless(auth()->user()->canUseWhatsApp())
+                        <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
+                            title="Fitur ini tersedia di paket Pro ke atas"></i>
+                    @endunless
                 </a>
             @endif
 
@@ -254,6 +262,17 @@
             <p class="text-[10px] text-muted-foreground">
                 {{ number_format($used, 0, ',', '.') }} / {{ number_format($quota, 0, ',', '.') }} Messages
             </p>
+            @if($user->plan_expires_at && $plan && $plan->price > 0)
+                @php($daysLeft = (int) ceil(now()->diffInDays($user->plan_expires_at, false)))
+                <p class="text-[10px] mt-1 {{ $daysLeft <= 3 ? 'text-amber-600 font-semibold' : 'text-muted-foreground' }}">
+                    <i class="fa-regular fa-clock mr-1"></i>
+                    @if($daysLeft >= 0)
+                        Berlaku s/d {{ $user->plan_expires_at->format('d M Y') }} ({{ $daysLeft }} hari lagi)
+                    @else
+                        Berakhir {{ $user->plan_expires_at->format('d M Y') }}
+                    @endif
+                </p>
+            @endif
             @if($sidebarWarning !== 'normal')
                 <a href="{{ route('billing') }}"
                     class="block mt-2 text-center px-2 py-1 {{ $sidebarWarning === 'exceeded' ? 'bg-red-500 hover:bg-red-600' : 'bg-amber-500 hover:bg-amber-600' }} text-white text-xs rounded font-medium transition">

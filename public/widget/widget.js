@@ -93,6 +93,8 @@
   };
 
   // Fetch config from API
+  // Returns 'ok' | 'disabled' (404/403/410: inactive widget or blocked
+  // domain) | 'error' (network/server failure).
   async function fetchConfig(widgetId) {
     try {
       const response = await fetch(scriptOrigin + '/api/widget/' + widgetId + '/config');
@@ -101,12 +103,15 @@
         // Merge server config with existing config (server takes priority)
         config = { ...config, ...serverConfig };
         config.apiUrl = scriptOrigin + '/api/chat';
-        return true;
+        return 'ok';
+      }
+      if (response.status === 404 || response.status === 403 || response.status === 410) {
+        return 'disabled';
       }
     } catch (e) {
       console.warn('CSAI: Failed to fetch widget config');
     }
-    return false;
+    return 'error';
   }
 
   // Domain validation - check if widget is allowed on current domain
@@ -1314,12 +1319,16 @@
   async function init() {
     if (document.getElementById('csai-widget')) return;
 
-    // If only widgetId is provided, fetch full config from server
+    // Fetch authoritative config (also tells us whether the widget is
+    // active on the server). Do not render when the widget is disabled.
     const userConfig = window.CSAIConfig || {};
-    const hasMinimalConfig = userConfig.widgetId && !userConfig.title;
 
-    if (hasMinimalConfig && userConfig.widgetId !== 'default') {
-      await fetchConfig(userConfig.widgetId);
+    if (userConfig.widgetId && userConfig.widgetId !== 'default') {
+      const cfgStatus = await fetchConfig(userConfig.widgetId);
+      if (cfgStatus === 'disabled') {
+        console.warn('CSAI Widget: widget is disabled or not available on this domain');
+        return; // Don't initialize widget
+      }
     }
 
     // Check domain authorization

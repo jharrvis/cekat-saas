@@ -139,6 +139,7 @@ class ChannelController extends Controller
 
         // Handle Allowed Domains settings (dedicated tab)
         if ($tab === 'domains') {
+            $validated = $request->validated();
             $settings = $chatbot->settings ?? [];
             $settings['allowed_domains'] = $validated['allowed_domains'] ?? null;
             $chatbot->update(['settings' => $settings]);
@@ -177,10 +178,19 @@ class ChannelController extends Controller
         $settings = $chatbot->settings ?? [];
         $settings['allowed_domains'] = $validated['allowed_domains'] ?? $settings['allowed_domains'] ?? null;
 
+        $newStatus = $validated['status'] ?? $chatbot->status;
+
+        // Plan limit: activating a channel cannot exceed plan->max_widgets active channels
+        if ($newStatus === 'active' && $chatbot->status !== 'active') {
+            if ($error = $this->guardActiveLimit($chatbot)) {
+                return redirect()->back()->with('error', $error);
+            }
+        }
+
         $chatbot->update([
             'display_name' => $validated['display_name'] ?? $chatbot->display_name,
             'description' => $validated['description'] ?? $chatbot->description,
-            'status' => $validated['status'] ?? $chatbot->status,
+            'status' => $newStatus,
             'ai_agent_id' => $newAgentId,
             'settings' => $settings,
         ]);
@@ -207,6 +217,51 @@ class ChannelController extends Controller
 
         return redirect()->route('channels.index')
             ->with('success', 'Chatbot deleted successfully!');
+    }
+
+    /**
+     * Reactivate an inactive channel (plan allows max_widgets active channels).
+     */
+    public function activate($chatbotId)
+    {
+        $chatbot = auth()->user()->widgets()->findOrFail($chatbotId);
+        Gate::authorize('update', $chatbot);
+
+        if ($chatbot->status === 'active') {
+            return redirect()->route('channels.index')->with('success', 'Channel sudah aktif.');
+        }
+
+        if ($error = $this->guardActiveLimit($chatbot)) {
+            return redirect()->route('channels.index')->with('error', $error);
+        }
+
+        $chatbot->update(['status' => 'active', 'is_active' => true]);
+
+        return redirect()->route('channels.index')
+            ->with('success', 'Channel "' . ($chatbot->display_name ?? $chatbot->name) . '" berhasil diaktifkan!');
+    }
+
+    /**
+     * Enforce plan->max_widgets as the maximum number of ACTIVE channels.
+     * Returns an error message when the limit would be exceeded, null otherwise.
+     */
+    private function guardActiveLimit(Widget $widget): ?string
+    {
+        $user = auth()->user();
+        $plan = $user->plan;
+        $maxActive = $plan?->max_widgets ?? 1;
+
+        $otherActive = $user->widgets()
+            ->where('status', 'active')
+            ->where('id', '!=', $widget->id)
+            ->count();
+
+        if ($otherActive >= $maxActive) {
+            return 'Paket ' . ($plan->name ?? 'Free') . " hanya mendukung {$maxActive} channel aktif. "
+                . 'Nonaktifkan channel lain terlebih dahulu atau upgrade paket Anda.';
+        }
+
+        return null;
     }
 
     /**

@@ -229,7 +229,7 @@
 
                 // Load widget script
                 const script = document.createElement('script');
-                script.src = '{{ asset("widget/widget.min.js") }}?v=20260927-p1';
+                script.src = '{{ asset("widget/widget.min.js") }}?v=20260927-p2';
                 document.body.appendChild(script);
 
                 widgetLoaded = true;

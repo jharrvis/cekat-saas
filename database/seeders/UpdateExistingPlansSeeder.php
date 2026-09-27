@@ -27,7 +27,7 @@ class UpdateExistingPlansSeeder extends Seeder
         Plan::where('slug', 'pro')->update([
             'chat_history_days' => 30,
             'can_export_leads' => true,
-            'can_use_whatsapp' => false,
+            'can_use_whatsapp' => true,
             'ai_tier' => 'advanced',
         ]);
         $this->command->info('✅ Pro plan updated');

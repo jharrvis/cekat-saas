@@ -193,10 +193,15 @@ class PaymentController extends Controller
         $user = $transaction->user;
         $plan = $transaction->plan;
 
-        // Update user's plan
+        // Update user's plan (extend from current expiry when renewing the same plan)
+        $renewing = $user->plan_id === $plan->id
+            && $user->plan_expires_at
+            && $user->plan_expires_at->isFuture();
+        $base = $renewing ? $user->plan_expires_at : now();
+
         $user->update([
             'plan_id' => $plan->id,
-            'plan_expires_at' => now()->addMonth(), // 1 month subscription
+            'plan_expires_at' => $base->copy()->addMonth(), // 1 month subscription
             'monthly_message_used' => 0, // Reset quota
         ]);
 

@@ -9,12 +9,22 @@
         "    widgetId: '{$widgetSlug}'\n" .
         "  };\n" .
         "</script>\n" .
-        "<script src=\"{$url}/widget/widget.min.js?v=20260927-p1\" async></script>";
+        "<script src=\"{$url}/widget/widget.min.js?v=20260927-p2\" async></script>";
 @endphp
 
 <div>
     <h3 class="text-lg font-bold mb-2">Embed Code</h3>
     <p class="text-muted-foreground mb-6">Copy and paste this code to install the chatbot widget on your website</p>
+
+    @if(($chatbot->status ?? 'draft') !== 'active' || !$chatbot->is_active)
+        <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl mb-4 text-sm">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+            Channel masih berstatus <strong>{{ ucfirst($chatbot->status ?? 'draft') }}</strong> —
+            widget <strong>belum akan tampil</strong> di website sampai status diubah ke
+            <strong>Active</strong> pada tab
+            <a href="{{ route('channels.edit.tab', [$chatbot->id, 'general']) }}" class="underline font-semibold">Umum</a>.
+        </div>
+    @endif
 
     <div class="bg-card rounded-xl shadow-sm border p-6 max-w-3xl">
         <div class="flex items-start gap-3 mb-4">

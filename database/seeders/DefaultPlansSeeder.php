@@ -50,7 +50,7 @@ class DefaultPlansSeeder extends Seeder
                 'max_faqs' => 50,
                 'chat_history_days' => 30,
                 'can_export_leads' => true,
-                'can_use_whatsapp' => false,
+                'can_use_whatsapp' => true,
                 'ai_tier' => 'advanced',
                 'allowed_models' => [
                     'openrouter/free',

@@ -52,6 +52,14 @@ class ChatOrchestrator
             }
             $kb = json_decode(file_get_contents($kbPath), true);
         } else {
+            // Public visibility gate: only active widgets are served
+            if (($widget->status ?? 'active') !== 'active' || ! $widget->is_active) {
+                return [
+                    'status' => 404,
+                    'body' => ['success' => false, 'error' => 'Widget is not active', 'error_code' => 'widget_inactive'],
+                ];
+            }
+
             // Domain Validation (Security)
             $origin = request()->header('Origin') ?? request()->header('Referer');
             if (! $this->domains->isAllowed($widget->settings['allowed_domains'] ?? null, $origin)) {
