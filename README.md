@@ -1,66 +1,98 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Cekat.biz.id — AI Customer Service SaaS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel 11 + Livewire 3 application for AI customer service agents: users create an
+**AI Agent**, add **Knowledge Base** content, attach the agent to **Channels**
+(Web Widget, WhatsApp, Landing Chatbot), then monitor conversations, leads,
+analytics, quota, and billing. Admins manage users, plans, AI model tiers,
+system settings, and operational monitoring.
 
-## About Laravel
+Workflow: **Agent → Knowledge → Channel → Monitor**. See `agent.md` (agent SOP),
+`docs/ARCHITECTURE.md` (system design), and `plan/` (planning documents).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requirements
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP ^8.2 (composer), Node 18+ (npm), a database (MySQL in production, SQLite for tests)
+- OpenRouter API key (LLM), Midtrans keys (billing), Google OAuth (optional login), Fonnte token (WhatsApp, stored via Settings)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Local setup
 
-## Learning Laravel
+```bash
+cp .env.example .env
+composer install
+npm install
+php artisan key:generate
+php artisan migrate
+npm run dev          # vite
+php artisan serve    # app (http://localhost:8000)
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+See `.env.example` for all required variables (`OPENROUTER_*`, `MIDTRANS_*`,
+`GOOGLE_*`, `FONNTE_ACCOUNT_TOKEN`, mail, queue, cache).
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Queue, jobs & scheduler
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Long work runs on the `database` queue (`QUEUE_CONNECTION=database`):
 
-## Laravel Sponsors
+```bash
+php artisan queue:listen --tries=1
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Jobs: `ProcessDocumentJob` (PDF/DOCX/TXT parsing + chunking),
+`GenerateChatSummary` (per-session summaries).
 
-### Premium Partners
+Scheduler (`php artisan schedule:run` every minute, see `routes/console.php`):
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- `quota:reset` — reset `monthly_message_used` for all users (monthly)
+- `plans:check-expiry` — H-7/H-3/H-1 reminders, expiry downgrade to free plan
 
-## Contributing
+## Widget build
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The embeddable widget is hand-built JS (not Vite):
 
-## Code of Conduct
+```bash
+npm run build:widget   # terser public/widget/widget.js -> widget.min.js (+map)
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Rules: every change to `public/widget/widget.js` **must** rebuild `widget.min.js`
+and bump the `?v=` query in all embed sources
+(`user/integration`, `channels/tabs/embed`, `widget-customizer` preview,
+WordPress plugin `CEKAT_WIDGET_VERSION`). Regression check:
 
-## Security Vulnerabilities
+```bash
+node tests/widget/parseMarkdown.regression.mjs   # 9 cases, tests the real function
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+WordPress plugin ZIP for `/downloads`:
 
-## License
+```bash
+php artisan plugin:build-wp
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Tests
+
+```bash
+php artisan test                                          # full suite (sqlite :memory:)
+php artisan test --filter=ChatApiTest                    # chat API incl. quota/domain/suspend
+php artisan test --filter=PolicyTest                     # ownership + admin boundaries
+php artisan test --filter=UiSmokeTest                    # page rendering + legacy redirects
+node tests/widget/parseMarkdown.regression.mjs           # widget link rendering
+```
+
+## Chat API (stable shape)
+
+`POST /api/chat` `{message, widgetId, history[], sessionId}` →
+`{success, response, sessionId, usage, meta{model, tokens_used}}`.
+Failures keep legacy fields and add `error_code`:
+`widget_not_found`, `domain_blocked`, `owner_missing`, `account_suspended`,
+`quota_exceeded` (429), `provider_error` (fallback message, 200).
+
+## Deployment notes
+
+- `php artisan migrate --force` on release; never remove legacy FK columns
+  (`knowledge_bases.widget_id`) until data is migrated (see `docs/ARCHITECTURE.md`)
+- `public/widget/widget.min.js` cache: version query is the busting mechanism;
+  CDN/Cloudflare must allow query strings through
+- CSRF-exempt: `/api/chat`, `/api/payment/notification`, `/api/widget/*`,
+  `/api/whatsapp/webhook/*` (see `bootstrap/app.php`)
+- Widget testing with ngrok for Fonnte webhooks: `docs/whatsapp-ngrok-testing.md`
+- Server deploy (HestiaCP): `docs/deployment-guide.md`
