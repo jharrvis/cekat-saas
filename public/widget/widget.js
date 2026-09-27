@@ -1051,13 +1051,42 @@
     text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
-    // 4. Links - Parse Markdown links FIRST [text](url)
-    text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" class="csai-link">$1</a>');
+    // 4. Links - Parse Markdown links FIRST [text](url), stashed as
+    // placeholders so the plain-URL pass below cannot re-process URLs
+    // already inside generated anchor href attributes (no nested anchors,
+    // no encoded fragments like %3Ca%20href=).
+    // Hardened: candidates are validated (http(s) only, no whitespace,
+    // quotes, backticks, or angle brackets) and the href value is
+    // attribute-escaped; unsafe candidates are left as plain text.
+    function isSafeHttpUrl(url) {
+      return /^https?:\/\/[^\s<>"'`]+$/i.test(url);
+    }
+    function linkAnchor(url, label) {
+      const safeHref = url.replace(/"/g, '&quot;');
+      return '<a href="' + safeHref + '" target="_blank" rel="noopener noreferrer" class="csai-link">' + label + '</a>';
+    }
+    let mdLinks = [];
+    text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, function (match, label, url) {
+      if (!isSafeHttpUrl(url)) return match;
+      mdLinks.push(linkAnchor(url, label));
+      return `__MD_LINK_${mdLinks.length - 1}__`;
+    });
 
-    // 5. Plain URLs (only those not already in markdown format)
-    text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="csai-link">$1</a>');
+    // 5. Plain URLs (placeholders contain no http(s):// so they are skipped
+    // automatically; trailing punctuation is kept outside the anchor).
+    text = text.replace(/(https?:\/\/[^\s<]+)/g, function (raw) {
+      let url = raw;
+      let trail = '';
+      const trailMatch = raw.match(/[.,;:!?)\]}'"]+$/);
+      if (trailMatch) {
+        trail = trailMatch[0];
+        url = raw.slice(0, -trail.length);
+      }
+      if (!url || !isSafeHttpUrl(url)) return raw;
+      return linkAnchor(url, url) + trail;
+    });
 
-    // 5. Lists (Regex)
+    // 6. Lists (Regex)
     // Unordered
     text = text.replace(/^\s*-\s+(.*)$/gm, '<li class="ul-item">$1</li>');
     // Wrap UL groups
@@ -1068,13 +1097,18 @@
     // Wrap OL groups
     text = text.replace(/((?:<li class="ol-item">.*<\/li>\n?)+)/g, '<ol class="csai-ol">$1</ol>');
 
-    // 6. Newlines to <br>, but be careful around lists
+    // 7. Newlines to <br>, but be careful around lists
     // We already wrapped lists in <ul>...</ul>, so we replace \n that are NOT inside tags? 
     // Simplify: replace \n with <br>, but remove <br> after </ul> or </ol> or </pre>
     text = text.replace(/\n/g, '<br>');
     text = text.replace(/(<\/ul>|<\/ol>|<\/pre>|<pre>)<br>/g, '$1');
 
-    // 7. Restore Code Blocks
+    // 8. Restore Markdown-link placeholders
+    text = text.replace(/__MD_LINK_(\d+)__/g, function (match, id) {
+      return typeof mdLinks[id] !== 'undefined' ? mdLinks[id] : match;
+    });
+
+    // 9. Restore Code Blocks
     text = text.replace(/__CODE_BLOCK_(\d+)__/g, function (match, id) {
       let code = placeholders[id];
       // Strip backticks
