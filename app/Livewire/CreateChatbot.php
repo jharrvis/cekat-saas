@@ -25,7 +25,7 @@ class CreateChatbot extends Component
         $plan = $user->plan;
 
         if (!$plan || $user->widgets()->count() >= $plan->max_widgets) {
-            session()->flash('error', 'You have reached your plan limit. Upgrade to create more chatbots.');
+            session()->flash('error', 'You have reached your plan limit. Upgrade to create more channels.');
             return;
         }
 
@@ -48,7 +48,7 @@ class CreateChatbot extends Component
 
         session()->flash('message', 'Chatbot created successfully!');
 
-        return redirect()->route('chatbots.knowledge', $widget->id);
+        return redirect()->route('channels.edit', $widget->id);
     }
 
     public function render()
@@ -56,3 +56,4 @@ class CreateChatbot extends Component
         return view('livewire.create-chatbot');
     }
 }
+

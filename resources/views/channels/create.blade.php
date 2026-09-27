@@ -1,22 +1,22 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Create Chatbot')
-@section('page-title', 'Create New Chatbot')
+@section('title', 'Buat Channel')
+@section('page-title', 'Buat Channel Baru')
 
 @section('content')
     <div class="max-w-2xl mx-auto">
         <div class="bg-card rounded-xl shadow-sm border p-8">
             <div class="flex items-center gap-4 mb-6">
-                <a href="{{ route('chatbots.index') }}" class="text-muted-foreground hover:text-foreground">
+                <a href="{{ route('channels.index') }}" class="text-muted-foreground hover:text-foreground">
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
                 <div>
-                    <h2 class="text-2xl font-bold">Create New Chatbot</h2>
-                    <p class="text-muted-foreground">Give your chatbot a name and description</p>
+                    <h2 class="text-2xl font-bold">Buat Channel Baru</h2>
+                    <p class="text-muted-foreground">Beri nama dan deskripsi untuk channel Web Widget</p>
                 </div>
             </div>
 
-            <form action="{{ route('chatbots.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('channels.store') }}" method="POST" class="space-y-6">
                 @csrf
 
                 @if (session()->has('error'))
@@ -26,7 +26,7 @@
                 @endif
 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Chatbot Name *</label>
+                    <label class="block text-sm font-medium mb-2">Nama Channel *</label>
                     <input type="text" name="display_name" value="{{ old('display_name') }}"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         placeholder="e.g., Customer Support Bot" required>
@@ -101,9 +101,9 @@
                 <div class="flex gap-3 pt-4">
                     <button type="submit"
                         class="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
-                        <i class="fa-solid fa-plus mr-2"></i> Create Chatbot
+                        <i class="fa-solid fa-plus mr-2"></i> Buat Channel
                     </button>
-                    <a href="{{ route('chatbots.index') }}"
+                    <a href="{{ route('channels.index') }}"
                         class="px-6 py-3 border rounded-lg hover:bg-muted/30 transition font-medium">
                         Cancel
                     </a>

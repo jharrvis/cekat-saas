@@ -44,7 +44,7 @@
                 <p class="font-medium">Domain Security</p>
                 <p class="mt-1 opacity-90">
                     For security, make sure to add your website's domain to the "Allowed Domains" list in the
-                    <a href="{{ route('chatbots.edit.tab', [$chatbot->id, 'general']) }}"
+                    <a href="{{ route('channels.edit.tab', [$chatbot->id, 'general']) }}"
                         class="underline hover:text-blue-900 dark:hover:text-blue-100 font-medium">General tab</a>.
                     Otherwise, the widget will not load on your website.
                 </p>
@@ -57,7 +57,7 @@
                 <p class="font-medium mb-2">Quick Tips</p>
                 <ul class="space-y-1 opacity-90 list-disc list-inside">
                     <li>The widget will automatically load on all pages where the code is installed</li>
-                    <li>You can customize the appearance in the <a href="{{ route('chatbots.edit.tab', [$chatbot->id, 'widget']) }}" class="underline hover:text-green-900 dark:hover:text-green-100 font-medium">Appearance tab</a></li>
+                    <li>You can customize the appearance in the <a href="{{ route('channels.edit.tab', [$chatbot->id, 'widget']) }}" class="underline hover:text-green-900 dark:hover:text-green-100 font-medium">Appearance tab</a></li>
                     <li>Test your widget before deploying to production</li>
                 </ul>
             </div>

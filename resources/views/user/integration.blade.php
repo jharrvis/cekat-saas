@@ -128,11 +128,11 @@
             {{-- No Widgets --}}
             <div class="bg-card text-card-foreground p-12 rounded-xl border shadow-sm text-center">
                 <i class="fa-solid fa-robot text-6xl text-muted-foreground mb-4"></i>
-                <h3 class="font-semibold text-lg mb-2">Belum Ada Chatbot</h3>
-                <p class="text-muted-foreground mb-4">Buat chatbot terlebih dahulu untuk mendapatkan kode embed</p>
-                <a href="{{ route('chatbots.create') }}"
+                <h3 class="font-semibold text-lg mb-2">Belum Ada Channel</h3>
+                <p class="text-muted-foreground mb-4">Buat channel terlebih dahulu untuk mendapatkan kode embed</p>
+                <a href="{{ route('channels.create') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg">
-                    <i class="fa-solid fa-plus"></i> Buat Chatbot
+                    <i class="fa-solid fa-plus"></i> Buat Channel
                 </a>
             </div>
         @endif

@@ -9,14 +9,14 @@ use App\Models\Plan;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
-class ChatbotController extends Controller
+class ChannelController extends Controller
 {
     public function index()
     {
         $chatbots = auth()->user()->widgets()->with('knowledgeBase')->get();
         $plan = auth()->user()->plan;
 
-        return view('chatbots.index', compact('chatbots', 'plan'));
+        return view('channels.index', compact('chatbots', 'plan'));
     }
 
     public function create()
@@ -26,14 +26,14 @@ class ChatbotController extends Controller
 
         // Check plan limits
         if ($plan && $user->widgets()->count() >= $plan->max_widgets) {
-            return redirect()->route('chatbots.index')
-                ->with('error', 'You have reached your plan limit. Upgrade to create more chatbots.');
+            return redirect()->route('channels.index')
+                ->with('error', 'You have reached your plan limit. Upgrade to create more channels.');
         }
 
         // Get user's AI Agents
         $aiAgents = $user->aiAgents()->where('is_active', true)->get();
 
-        return view('chatbots.create', compact('aiAgents'));
+        return view('channels.create', compact('aiAgents'));
     }
 
     public function store(StoreWidgetRequest $request)
@@ -45,7 +45,7 @@ class ChatbotController extends Controller
 
         // Check plan limits again
         if ($plan && $user->widgets()->count() >= $plan->max_widgets) {
-            return redirect()->route('chatbots.index')
+            return redirect()->route('channels.index')
                 ->with('error', 'You have reached your plan limit.');
         }
 
@@ -73,7 +73,7 @@ class ChatbotController extends Controller
             ]);
         }
 
-        return redirect()->route('chatbots.edit', $widget->id)
+        return redirect()->route('channels.edit', $widget->id)
             ->with('success', 'Chatbot created successfully! Now configure your chatbot.');
     }
 
@@ -81,13 +81,15 @@ class ChatbotController extends Controller
     {
         $chatbot = auth()->user()->widgets()->with('knowledgeBase')->findOrFail($chatbotId);
         Gate::authorize('view', $chatbot);
-        $validTabs = ['general', 'knowledge', 'model', 'widget', 'lead', 'webhook', 'analytics', 'embed'];
+        // The 'knowledge' tab stays available for widgets with their own
+        // (agent-less) knowledge base; linked widgets show the agent banner.
+        $validTabs = ['general', 'knowledge', 'widget', 'lead', 'domains', 'webhook', 'analytics', 'embed'];
 
         if (!in_array($tab, $validTabs)) {
             $tab = 'general';
         }
 
-        return view('chatbots.edit', compact('chatbot', 'tab'));
+        return view('channels.edit', compact('chatbot', 'tab'));
     }
 
     public function update(UpdateWidgetRequest $request, $chatbotId)
@@ -133,6 +135,15 @@ class ChatbotController extends Controller
             $chatbot->update(['settings' => $settings]);
 
             return redirect()->back()->with('success', 'Lead collection settings saved!');
+        }
+
+        // Handle Allowed Domains settings (dedicated tab)
+        if ($tab === 'domains') {
+            $settings = $chatbot->settings ?? [];
+            $settings['allowed_domains'] = $validated['allowed_domains'] ?? null;
+            $chatbot->update(['settings' => $settings]);
+
+            return redirect()->back()->with('success', 'Domain yang diizinkan berhasil disimpan!');
         }
 
         // Handle Webhook settings
@@ -194,7 +205,7 @@ class ChatbotController extends Controller
         Gate::authorize('delete', $chatbot);
         $chatbot->delete();
 
-        return redirect()->route('chatbots.index')
+        return redirect()->route('channels.index')
             ->with('success', 'Chatbot deleted successfully!');
     }
 
@@ -222,8 +233,9 @@ class ChatbotController extends Controller
             ]);
         }
 
-        return redirect()->route('chatbots.edit.tab', [$chatbot->id, 'knowledge'])
+        return redirect()->route('channels.edit.tab', [$chatbot->id, 'knowledge'])
             ->with('success', 'Koneksi AI Agent berhasil diputus. Widget sekarang memiliki Knowledge Base sendiri.');
     }
 }
+
 

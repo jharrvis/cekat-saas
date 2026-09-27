@@ -68,7 +68,7 @@
             <p class="text-sm text-muted-foreground mb-2">
                 Ingin mengelola Knowledge Base terpisah dari AI Agent?
             </p>
-            <form action="{{ route('chatbots.unlink-agent', $chatbot->id) }}" method="POST" class="inline">
+            <form action="{{ route('channels.unlink-agent', $chatbot->id) }}" method="POST" class="inline">
                 @csrf
                 <button type="submit"
                     onclick="return confirm('Yakin ingin memutuskan koneksi dengan AI Agent? Widget akan memiliki Knowledge Base sendiri.')"

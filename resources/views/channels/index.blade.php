@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Chatbot Widget')
-@section('page-title', 'Chatbot Widget')
+@section('title', 'Channels')
+@section('page-title', 'Channels')
 
 @section('content')
     <div>
@@ -21,12 +21,12 @@
         {{-- Header --}}
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h2 class="text-2xl font-bold">Chatbot Widget</h2>
-                <p class="text-muted-foreground">Manage your AI chatbots</p>
+                <h2 class="text-2xl font-bold">Channels</h2>
+                <p class="text-muted-foreground">Kelola channel Web Widget Anda</p>
             </div>
-            <a href="{{ route('chatbots.create') }}"
+            <a href="{{ route('channels.create') }}"
                 class="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
-                <i class="fa-solid fa-plus mr-2"></i> Create New Chatbot
+                <i class="fa-solid fa-plus mr-2"></i> Buat Channel Baru
             </a>
         </div>
 
@@ -34,7 +34,7 @@
         <div class="grid md:grid-cols-3 gap-6 mb-6">
             <div class="bg-card rounded-xl shadow-sm border p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-muted-foreground text-sm">Total Chatbots</span>
+                    <span class="text-muted-foreground text-sm">Total Channel</span>
                     <i class="fa-solid fa-robot text-blue-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $chatbots->count() }}</p>
@@ -43,7 +43,7 @@
 
             <div class="bg-card rounded-xl shadow-sm border p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-muted-foreground text-sm">Active Chatbots</span>
+                    <span class="text-muted-foreground text-sm">Channel Aktif</span>
                     <i class="fa-solid fa-check-circle text-green-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $chatbots->where('status', 'active')->count() }}</p>
@@ -61,7 +61,7 @@
             </div>
         </div>
 
-        {{-- Chatbots Table --}}
+        {{-- Channels Table --}}
         <div class="bg-card rounded-xl shadow-sm border overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -69,7 +69,7 @@
                         <tr>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                Chatbot</th>
+                                Channel</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                                 Status</th>
@@ -127,12 +127,12 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right">
                                     <div class="flex gap-2 justify-end">
-                                        <a href="{{ route('chatbots.edit', $chatbot->id) }}"
+                                        <a href="{{ route('channels.edit', $chatbot->id) }}"
                                             class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition text-sm">
                                             <i class="fa-solid fa-edit mr-1"></i> Edit
                                         </a>
-                                        <form action="{{ route('chatbots.destroy', $chatbot->id) }}" method="POST"
-                                            onsubmit="return confirm('Delete this chatbot?')">
+                                        <form action="{{ route('channels.destroy', $chatbot->id) }}" method="POST"
+                                            onsubmit="return confirm('Hapus channel ini?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -147,11 +147,11 @@
                             <tr>
                                 <td colspan="5" class="px-6 py-12 text-center">
                                     <i class="fa-solid fa-robot text-6xl text-muted-foreground mb-4"></i>
-                                    <p class="text-lg font-medium mb-2">No chatbots yet</p>
-                                    <p class="text-muted-foreground mb-4">Create your first AI chatbot to get started</p>
-                                    <a href="{{ route('chatbots.create') }}"
+                                    <p class="text-lg font-medium mb-2">Belum ada channel</p>
+                                    <p class="text-muted-foreground mb-4">Buat channel pertama untuk memulai</p>
+                                    <a href="{{ route('channels.create') }}"
                                         class="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition">
-                                        <i class="fa-solid fa-plus mr-2"></i> Create Your First Chatbot
+                                        <i class="fa-solid fa-plus mr-2"></i> Buat Channel Pertama
                                     </a>
                                 </td>
                             </tr>

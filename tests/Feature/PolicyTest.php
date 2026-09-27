@@ -73,7 +73,9 @@ class PolicyTest extends TestCase
         ['widget' => $widget] = $this->makeStack($owner, 'w-pol-2');
 
         // Scoped lookup yields 404 (no existence leak), policy denies even if resolved.
-        $this->actingAs($intruder)->get("/chatbots/{$widget->id}/edit")->assertNotFound();
+        $this->actingAs($intruder)->get("/channels/{$widget->id}/edit")->assertNotFound();
+        // Legacy URL redirects to the channels index instead of leaking.
+        $this->actingAs($intruder)->get("/chatbots/{$widget->id}/edit")->assertRedirect('/channels');
         $this->assertFalse(Gate::forUser($intruder)->allows('update', $widget));
         $this->assertFalse(Gate::forUser($intruder)->allows('delete', $widget));
         $this->assertTrue(Gate::forUser($owner)->allows('update', $widget));

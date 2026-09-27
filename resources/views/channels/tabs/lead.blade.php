@@ -11,7 +11,7 @@
                           (auth()->check() && auth()->user()->role === 'admin');
         $formAction = $isAdminContext 
             ? route('admin.landing-chatbot.update-lead') 
-            : route('chatbots.update', $chatbot);
+            : route('channels.update', $chatbot);
     @endphp
 
     @php
@@ -150,3 +150,4 @@
         </form>
     </x-feature-locked>
 </div>
+

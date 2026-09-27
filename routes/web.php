@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\ChannelController;
 
 // Landing Page
 Route::get('/', function () {
@@ -70,15 +70,20 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-    // Chatbot CRUD
-    Route::get('/chatbots', [ChatbotController::class, 'index'])->name('chatbots.index');
-    Route::get('/chatbots/create', [ChatbotController::class, 'create'])->name('chatbots.create');
-    Route::post('/chatbots', [ChatbotController::class, 'store'])->name('chatbots.store');
-    Route::get('/chatbots/{chatbot}/edit', [ChatbotController::class, 'edit'])->name('chatbots.edit');
-    Route::get('/chatbots/{chatbot}/edit/{tab?}', [ChatbotController::class, 'edit'])->name('chatbots.edit.tab');
-    Route::put('/chatbots/{chatbot}', [ChatbotController::class, 'update'])->name('chatbots.update');
-    Route::delete('/chatbots/{chatbot}', [ChatbotController::class, 'destroy'])->name('chatbots.destroy');
-    Route::post('/chatbots/{chatbot}/unlink-agent', [ChatbotController::class, 'unlinkAgent'])->name('chatbots.unlink-agent');
+    // Channel CRUD (Web Widget = channel; legacy /chatbots URLs redirect below)
+    Route::get('/channels', [ChannelController::class, 'index'])->name('channels.index');
+    Route::get('/channels/create', [ChannelController::class, 'create'])->name('channels.create');
+    Route::post('/channels', [ChannelController::class, 'store'])->name('channels.store');
+    Route::get('/channels/{channel}/edit', [ChannelController::class, 'edit'])->name('channels.edit');
+    Route::get('/channels/{channel}/edit/{tab?}', [ChannelController::class, 'edit'])->name('channels.edit.tab');
+    Route::put('/channels/{channel}', [ChannelController::class, 'update'])->name('channels.update');
+    Route::delete('/channels/{channel}', [ChannelController::class, 'destroy'])->name('channels.destroy');
+    Route::post('/channels/{channel}/unlink-agent', [ChannelController::class, 'unlinkAgent'])->name('channels.unlink-agent');
+
+    // Legacy redirects (bookmarks / old embed docs)
+    Route::redirect('/chatbots/create', '/channels/create', 301);
+    Route::redirect('/chatbots/{any}', '/channels', 301)->where('any', '.*');
+    Route::redirect('/chatbots', '/channels', 301);
 
 
     // AI Agents
@@ -214,18 +219,15 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
         return redirect()->back()->with('success', 'Lead collection settings saved!');
     })->name('admin.landing-chatbot.update-lead');
 
-    Route::get('/users', function () {
-        return view('admin.users');
-    })->name('admin.users');
-
-    Route::get('/plans', function () {
-        return view('admin.plans');
-    })->name('admin.plans');
-
     // Admin Integration (upload plugin, instructions)
     Route::get('/integration', function () {
         return view('admin.integration');
     })->name('admin.integration');
+
+    // AI Models & Tiers (LLM catalogue + tier mapping used by ModelResolver)
+    Route::get('/models', function () {
+        return view('admin.models');
+    })->name('admin.models');
 
     Route::get('/settings', \App\Livewire\Admin\SystemSettings::class)->name('admin.settings');
     Route::get('/billing', \App\Livewire\Admin\BillingMonitoring::class)->name('admin.billing');
@@ -252,3 +254,4 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
 
 // Auth Routes
 require __DIR__ . '/auth.php';
+

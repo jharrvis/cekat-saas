@@ -6,7 +6,7 @@
             Captured).
         </p>
 
-        <form action="{{ route('chatbots.update', ['chatbot' => $chatbot->id]) }}" method="POST">
+        <form action="{{ route('channels.update', ['channel' => $chatbot->id]) }}" method="POST">
             @csrf
             @method('PUT')
             <input type="hidden" name="tab" value="webhook">

@@ -29,7 +29,7 @@
 
         {{-- Left Column: Form --}}
         <div>
-            <form action="{{ route('chatbots.update', $chatbot->id) }}" method="POST" class="space-y-5">
+            <form action="{{ route('channels.update', $chatbot->id) }}" method="POST" class="space-y-5">
                 @csrf
                 @method('PUT')
 
@@ -49,7 +49,7 @@
                 <div>
                     <label class="block text-sm font-medium mb-2 flex items-center">
                         Description
-                        <x-help-tooltip text="A brief description to help you organize your chatbots." />
+                        <x-help-tooltip text="A brief description to help you organize your channels." />
                     </label>
                     <textarea name="description" rows="2"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
@@ -107,26 +107,12 @@
                     </div>
                 </div>
 
-                {{-- Allowed Domain (1 per widget) --}}
-                <div
-                    class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
-                    <label class="block text-sm font-medium mb-2 flex items-center">
-                        <i class="fa-solid fa-shield-halved text-amber-600 mr-2"></i>
-                        Allowed Domain *
-                        <x-help-tooltip text="The domain where this widget can be embedded." />
-                    </label>
-                    <input type="text" name="allowed_domains" value="{{ $chatbot->settings['allowed_domains'] ?? '' }}"
-                        class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-slate-800"
-                        placeholder="e.g., mysite.com" required>
-                    <div class="mt-2 text-xs text-amber-700 dark:text-amber-300 space-y-1">
-                        <p><i class="fa-solid fa-info-circle mr-1"></i> <strong>1 widget = 1 domain</strong> (termasuk
-                            subdomain)</p>
-                        <p><i class="fa-solid fa-check mr-1"></i> <code
-                                class="bg-amber-100 dark:bg-amber-800/50 px-1 rounded">mysite.com</code> → izin <code
-                                class="bg-amber-100 dark:bg-amber-800/50 px-1 rounded">www.mysite.com</code>, <code
-                                class="bg-amber-100 dark:bg-amber-800/50 px-1 rounded">blog.mysite.com</code></p>
-                    </div>
-                    @error('allowed_domains') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                {{-- Domain moved to the dedicated Domain tab --}}
+                <div class="bg-muted/40 border rounded-xl p-4 text-sm text-muted-foreground">
+                    <i class="fa-solid fa-shield-halved mr-2"></i>
+                    Pengaturan domain pindah ke tab
+                    <a href="{{ route('channels.edit.tab', [$chatbot->id, 'domains']) }}" class="text-primary hover:underline font-medium">Domain</a>.
+                    Saat ini: <code class="bg-muted px-1 rounded">{{ $chatbot->settings['allowed_domains'] ?? 'semua domain diizinkan' }}</code>
                 </div>
 
                 {{-- Save Button --}}
