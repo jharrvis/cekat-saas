@@ -12,6 +12,25 @@
         </div>
     @endif
 
+    {{-- Model test result (visible from table AND form) --}}
+    @if (session()->has('test_result'))
+        @php $tr = session('test_result'); @endphp
+        <div
+            class="px-4 py-3 rounded-xl mb-6 border {{ $tr['success'] ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700' }}">
+            <p class="text-sm font-semibold">
+                <i class="fa-solid {{ $tr['success'] ? 'fa-check-circle' : 'fa-times-circle' }} mr-2"></i>
+                @if ($tr['success'])
+                    {{ $tr['model'] }} — active &amp; responding
+                @else
+                    {{ $tr['model'] }} — test failed, model not responding
+                @endif
+            </p>
+            <p class="text-sm mt-1">
+                {{ $tr['success'] ? ($tr['response'] ?? '') : ($tr['error'] ?? '') }}
+            </p>
+        </div>
+    @endif
+
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -105,21 +124,6 @@
                     <textarea wire:model="description" rows="2"
                         class="w-full px-3 py-2 border rounded-lg text-sm"></textarea>
                 </div>
-
-                {{-- Test Result --}}
-                @if(session()->has('test_result'))
-                    @php $testResult = session('test_result'); @endphp
-                    <div
-                        class="md:col-span-2 p-4 rounded-lg {{ $testResult['success'] ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200' }}">
-                        <p class="text-sm font-semibold {{ $testResult['success'] ? 'text-green-800' : 'text-red-800' }}">
-                            <i class="fa-solid {{ $testResult['success'] ? 'fa-check-circle' : 'fa-times-circle' }} mr-2"></i>
-                            Test {{ $testResult['success'] ? 'Successful' : 'Failed' }} - {{ $testResult['model'] }}
-                        </p>
-                        <p class="text-sm mt-2 {{ $testResult['success'] ? 'text-green-700' : 'text-red-700' }}">
-                            {{ $testResult['success'] ? $testResult['response'] : $testResult['error'] }}
-                        </p>
-                    </div>
-                @endif
 
                 {{-- Action Buttons --}}
                 <div class="md:col-span-2 flex gap-2 items-center">

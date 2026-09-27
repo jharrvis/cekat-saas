@@ -141,28 +141,39 @@ class ModelsManager extends Component
             if ($response->successful()) {
                 $apiModels = $response->json()['data'] ?? [];
                 $imported = 0;
+                $failed = 0;
 
                 foreach (array_slice($apiModels, 0, 20) as $apiModel) { // Import top 20
-                    $existingModel = LlmModel::where('model_id', $apiModel['id'])->first();
+                    try {
+                        $existingModel = LlmModel::where('model_id', $apiModel['id'])->first();
 
-                    if (!$existingModel) {
-                        LlmModel::create([
-                            'model_id' => $apiModel['id'],
-                            'name' => $apiModel['name'] ?? $apiModel['id'],
-                            'provider' => explode('/', $apiModel['id'])[0] ?? 'Unknown',
-                            'description' => $apiModel['description'] ?? null,
-                            'input_price' => ($apiModel['pricing']['prompt'] ?? 0) * 1000000,
-                            'output_price' => ($apiModel['pricing']['completion'] ?? 0) * 1000000,
-                            'context_length' => $apiModel['context_length'] ?? 4096,
-                            'allowed_tiers' => ['business'],
-                            'is_active' => false,
-                            'popularity' => 50,
-                        ]);
-                        $imported++;
+                        if (!$existingModel) {
+                            LlmModel::create([
+                                'model_id' => $apiModel['id'],
+                                'name' => $apiModel['name'] ?? $apiModel['id'],
+                                'provider' => explode('/', $apiModel['id'])[0] ?? 'Unknown',
+                                'description' => $apiModel['description'] ?? null,
+                                // OpenRouter sponsored models report negative (provider-pays)
+                                // pricing which overflows decimal(10,6) — clamp to free.
+                                'input_price' => max(0, (float) ($apiModel['pricing']['prompt'] ?? 0) * 1000000),
+                                'output_price' => max(0, (float) ($apiModel['pricing']['completion'] ?? 0) * 1000000),
+                                'context_length' => max(1024, (int) ($apiModel['context_length'] ?? 4096)),
+                                'allowed_tiers' => ['business'],
+                                'is_active' => false,
+                                'popularity' => 50,
+                            ]);
+                            $imported++;
+                        }
+                    } catch (\Exception $rowEx) {
+                        $failed++;
                     }
                 }
 
-                session()->flash('message', "Imported {$imported} new models from OpenRouter!");
+                $msg = "Imported {$imported} new models from OpenRouter!";
+                if ($failed > 0) {
+                    $msg .= " ({$failed} rows skipped)";
+                }
+                session()->flash('message', $msg);
                 $this->loadModels();
             } else {
                 session()->flash('error', 'Failed to fetch from OpenRouter API');
@@ -200,9 +211,9 @@ class ModelsManager extends Component
                     $this->name = $found['name'] ?? $found['id'];
                     $this->provider = explode('/', $found['id'])[0] ?? 'Unknown';
                     $this->description = $found['description'] ?? '';
-                    $this->input_price = ($found['pricing']['prompt'] ?? 0) * 1000000;
-                    $this->output_price = ($found['pricing']['completion'] ?? 0) * 1000000;
-                    $this->context_length = $found['context_length'] ?? 4096;
+                    $this->input_price = max(0, (float) ($found['pricing']['prompt'] ?? 0) * 1000000);
+                    $this->output_price = max(0, (float) ($found['pricing']['completion'] ?? 0) * 1000000);
+                    $this->context_length = max(1024, (int) ($found['context_length'] ?? 4096));
 
                     session()->flash('message', 'Model info fetched successfully!');
                 } else {
