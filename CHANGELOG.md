@@ -5,6 +5,18 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Widget tidak tampil di homepage + XSS stored via settings widget (2026-09-28)
+
+**Diperbaiki (widget landing hilang — `#csai-toggle` tidak ada, konsol: "not authorized for this domain"):**
+- Akar masalah: migrasi lockdown menulis `allowed_domains` sebagai CSV (`cekat.biz.id, www.cekat.biz.id`) sedangkan `isDomainAllowed()` di `public/widget/widget.js` membandingkan seluruh string sebagai SATU domain → widget diblokir di semua origin, termasuk domain yang benar. `isDomainAllowed()` kini memecah CSV, mencocokkan per-entri (exact/subdomain/www), selalu mengizinkan host asal `<script>` (cermin server `DomainAccessService::ownHost()`), dan mempertahankan bypass localhost.
+
+**Diperbaiki (XSS stored — settings widget kendali customer mengalir ke `innerHTML`):**
+- `createWidget()` menyisipkan `title` (= `widgets.name`, bisa diedit customer), `subtitle`, `placeholder` (atribut), dan `avatarUrl` (atribut `<img>`) tanpa escape → payload HTML dieksekusi di setiap halaman yang memuat widget, termasuk preview dashboard same-origin (pencurian sesi). Ditambahkan `escapeHtml()` untuk keempatnya + `isRenderableUrl()` (hanya `http(s)://` atau path root-relatif, tanpa spasi/tanda kutip/brackets) untuk avatar; avatar tidak valid jatuh ke ikon default.
+- `parseMarkdown()`: guard pemulihan `__CODE_BLOCK_n__` — placeholder tanpa code block asli kini dipertahankan sebagai teks (sebelumnya `undefined.substring` melempar TypeError dan merusak rendering pesan).
+
+**Diverifikasi:**
+- Browser lokal: widget render (12 elemen `csai-*`), 13 payload XSS parser history tidak ada yang tereksekusi (0 flag `window.__xss*`, 0 elemen injeksi), 4 payload settings (title/subtitle/placeholder/avatar) ter-escape/ditolak, code block & inline code tetap dirender, settings lokal dipulihkan dari snapshot. `npm run build:widget` (terser) dijalankan ulang. Suite **90 passed / 308 assertions**.
+
 ### Audit keamanan API chat publik + sinkronisasi harga (`POST /api/chat`) (2026-09-28)
 
 **Diperbaiki (temuan audit — 1 request curl tanpa Origin/Relier bisa membongkar system prompt 3.287 karakter):**

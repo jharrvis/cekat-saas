@@ -114,7 +114,9 @@
     return 'error';
   }
 
-  // Domain validation - check if widget is allowed on current domain
+  // Domain validation - check if widget is allowed on current domain.
+  // allowedDomain may contain several comma-separated domains (CSV), e.g.
+  // "cekat.biz.id, www.cekat.biz.id" - each entry is matched individually.
   function isDomainAllowed() {
     const allowedDomain = config.allowedDomain || '';
 
@@ -124,32 +126,45 @@
     }
 
     const currentHost = window.location.hostname.toLowerCase();
-    const allowed = allowedDomain.toLowerCase().trim();
 
     // Allow localhost for development
     if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
       return true;
     }
 
-    // Exact match
-    if (currentHost === allowed) {
-      return true;
-    }
-
-    // Subdomain match: check if current host ends with .allowed
-    // e.g., allowed = "mysite.com" matches "www.mysite.com", "blog.mysite.com"
-    if (currentHost.endsWith('.' + allowed)) {
-      return true;
-    }
-
-    // www prefix handling: "mysite.com" should match "www.mysite.com" and vice versa
-    if (allowed.startsWith('www.')) {
-      const withoutWww = allowed.substring(4);
-      if (currentHost === withoutWww || currentHost.endsWith('.' + withoutWww)) {
+    // The app's own host may always use any widget (landing page, dashboard
+    // preview, local dev) - mirrors DomainAccessService::ownHost() server-side.
+    try {
+      const scriptHost = new URL(scriptOrigin).hostname.toLowerCase();
+      if (scriptHost && currentHost === scriptHost) {
         return true;
       }
-    } else {
-      if (currentHost === 'www.' + allowed) {
+    } catch (e) {
+      // scriptOrigin unparseable - fall through to allowlist matching
+    }
+
+    const entries = allowedDomain.split(',')
+      .map(entry => entry.trim().toLowerCase())
+      .filter(entry => entry !== '');
+
+    for (const entry of entries) {
+      // Exact match
+      if (currentHost === entry) {
+        return true;
+      }
+
+      // Subdomain match: entry "mysite.com" matches "www.mysite.com", "blog.mysite.com"
+      if (currentHost.endsWith('.' + entry)) {
+        return true;
+      }
+
+      // www prefix handling: "mysite.com" matches "www.mysite.com" and vice versa
+      if (entry.startsWith('www.')) {
+        const withoutWww = entry.substring(4);
+        if (currentHost === withoutWww || currentHost.endsWith('.' + withoutWww)) {
+          return true;
+        }
+      } else if (currentHost === 'www.' + entry) {
         return true;
       }
     }
@@ -791,11 +806,31 @@
     return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
   }
 
+  // Escape text interpolated into innerHTML templates. Widget settings
+  // (title/subtitle/placeholder/avatarUrl) are owner-controlled and flow in
+  // through the public config API - without escaping they become stored XSS
+  // on every embedding page, including our own dashboard previews.
+  function escapeHtml(value) {
+    return String(value === null || value === undefined ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // http(s) absolute or root-relative URL without quotes/whitespace/brackets
+  function isRenderableUrl(url) {
+    return typeof url === 'string'
+      && !/[\s<>"']/.test(url)
+      && /^(https?:\/\/|\/(?!\/))/.test(url);
+  }
+
   // Get avatar HTML based on config
   function getAvatarHtml() {
     // If custom avatar URL is provided
-    if (config.avatarType === 'url' && config.avatarUrl) {
-      return `<img src="${config.avatarUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+    if (config.avatarType === 'url' && config.avatarUrl && isRenderableUrl(config.avatarUrl)) {
+      return `<img src="${escapeHtml(config.avatarUrl)}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
     }
 
     // Icon-based avatars
@@ -872,8 +907,8 @@
         <div class="csai-header">
           <div class="csai-header-avatar">${getAvatarHtml()}</div>
           <div class="csai-header-info">
-            <p class="csai-header-title">${config.title}</p>
-            <p class="csai-header-subtitle">${config.subtitle}</p>
+            <p class="csai-header-title">${escapeHtml(config.title)}</p>
+            <p class="csai-header-subtitle">${escapeHtml(config.subtitle)}</p>
           </div>
           <!-- Close Button Integrated in Header -->
           <button class="csai-header-close" id="csai-close">
@@ -901,7 +936,7 @@
           <textarea 
             class="csai-input" 
             id="csai-input" 
-            placeholder="${config.placeholder}"
+            placeholder="${escapeHtml(config.placeholder)}"
             rows="1"
           ></textarea>
           
@@ -1116,6 +1151,9 @@
     // 9. Restore Code Blocks
     text = text.replace(/__CODE_BLOCK_(\d+)__/g, function (match, id) {
       let code = placeholders[id];
+      // Attacker-controlled text may contain a placeholder without any real
+      // code block - keep it as-is instead of crashing on undefined.
+      if (typeof code !== 'string') return match;
       // Strip backticks
       code = code.substring(3, code.length - 3);
       // Sanitize code content
