@@ -24,6 +24,7 @@ class PlanManager extends Component
     public $max_file_size_mb = 5;
     public $max_faqs = 10;
     public $chat_history_days = 7;
+    public $max_whatsapp_devices = 1;
     public $ai_tier = 'basic';
     public $features = [];
     public $is_active = true;
@@ -70,6 +71,7 @@ class PlanManager extends Component
         $this->max_file_size_mb = $plan->max_file_size_mb;
         $this->max_faqs = $plan->max_faqs;
         $this->chat_history_days = $plan->chat_history_days;
+        $this->max_whatsapp_devices = $plan->max_whatsapp_devices ?? 1;
         $this->ai_tier = $plan->ai_tier ?? 'basic';
         $this->features = $plan->features ?? [];
         $this->features['leads'] = (bool) $plan->can_export_leads;
@@ -91,6 +93,7 @@ class PlanManager extends Component
             'max_file_size_mb' => 'required|integer|min:1',
             'max_faqs' => 'required|integer|min:0',
             'chat_history_days' => 'required|integer|min:0',
+            'max_whatsapp_devices' => 'required|integer|min:0',
             'features' => 'array',
         ]);
 
@@ -111,6 +114,7 @@ class PlanManager extends Component
             'max_file_size_mb' => $this->max_file_size_mb,
             'max_faqs' => $this->max_faqs,
             'chat_history_days' => $this->chat_history_days,
+            'max_whatsapp_devices' => $this->max_whatsapp_devices,
             'can_export_leads' => $canExportLeads,
             'can_use_whatsapp' => $canUseWhatsApp,
             'ai_tier' => $this->ai_tier,
@@ -166,6 +170,7 @@ class PlanManager extends Component
         $this->max_file_size_mb = 5;
         $this->max_faqs = 10;
         $this->chat_history_days = 7;
+        $this->max_whatsapp_devices = 1;
         $this->ai_tier = 'basic';
         $this->features = [];
         $this->is_active = true;

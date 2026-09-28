@@ -4,6 +4,8 @@ namespace Tests\Unit\Billing;
 
 use App\Models\Plan;
 use App\Models\User;
+use App\Models\WhatsAppDevice;
+use App\Models\Widget;
 use App\Services\Billing\PlanLimitService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
@@ -55,16 +57,19 @@ class PlanLimitServiceTest extends TestCase
             'max_file_size_mb' => 11,
             'max_faqs' => 22,
             'chat_history_days' => 45,
+            'max_whatsapp_devices' => 6,
         ]);
         $user = $this->makeUser($plan);
 
         $expected = [
+            'total_channels' => 4,
             'active_channels' => 4,
             'monthly_messages' => 777,
             'knowledge_documents' => 9,
             'file_size_mb' => 11,
             'faqs' => 22,
             'chat_history_days' => 45,
+            'whatsapp_devices' => 6,
         ];
 
         foreach ($expected as $key => $value) {
@@ -305,5 +310,69 @@ class PlanLimitServiceTest extends TestCase
         $this->service->usage($admin, 'monthly_messages');
 
         $this->assertSame($before, Plan::orderBy('id')->get()->toArray());
+    }
+
+    public function test_total_channels_counts_all_widgets_and_active_channels_only_active(): void
+    {
+        $plan = $this->makePlan(['max_widgets' => 2]);
+        $user = $this->makeUser($plan);
+
+        Widget::create([
+            'user_id' => $user->id,
+            'name' => 'a',
+            'slug' => 'a-' . uniqid(),
+            'status' => 'active',
+            'is_active' => true,
+        ]);
+        Widget::create([
+            'user_id' => $user->id,
+            'name' => 'b',
+            'slug' => 'b-' . uniqid(),
+            'status' => 'draft',
+            'is_active' => false,
+        ]);
+
+        $total = $this->service->check($user, 'total_channels');
+        $active = $this->service->check($user, 'active_channels');
+
+        $this->assertSame(2, $total['used']);
+        $this->assertFalse($total['allowed']);
+        $this->assertSame(1, $active['used']);
+        $this->assertTrue($active['allowed']);
+    }
+
+    public function test_whatsapp_devices_limit_counts_user_devices(): void
+    {
+        $plan = $this->makePlan(['max_whatsapp_devices' => 2]);
+        $user = $this->makeUser($plan);
+
+        WhatsAppDevice::create([
+            'user_id' => $user->id,
+            'device_name' => 'D1',
+            'phone_number' => '628111111111',
+            'status' => 'connected',
+        ]);
+
+        $free = $this->service->check($user, 'whatsapp_devices');
+        $this->assertSame(1, $free['used']);
+        $this->assertSame(2, $free['limit']);
+        $this->assertTrue($free['allowed']);
+
+        $full = $this->service->check($user, 'whatsapp_devices', ['used' => 2]);
+        $this->assertFalse($full['allowed']);
+        $this->assertSame('limit_exceeded', $full['code']);
+    }
+
+    public function test_default_plan_is_active_free_plan(): void
+    {
+        $this->assertNull($this->service->defaultPlan());
+
+        $paid = $this->makePlan(['price' => 299000, 'is_active' => true, 'sort_order' => 0]);
+        $free = $this->makePlan(['price' => 0, 'is_active' => true, 'sort_order' => 5]);
+        $inactive = $this->makePlan(['price' => 0, 'is_active' => false, 'sort_order' => 0]);
+
+        $this->assertTrue($this->service->defaultPlan()?->is($free));
+        $this->assertFalse($this->service->defaultPlan()?->is($paid));
+        $this->assertFalse($this->service->defaultPlan()?->is($inactive));
     }
 }

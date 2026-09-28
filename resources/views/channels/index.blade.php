@@ -68,7 +68,7 @@
                     <i class="fa-solid fa-robot text-blue-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $chatbots->count() }}</p>
-                <p class="text-xs text-muted-foreground mt-1">of {{ app(\App\Services\Billing\PlanLimitService::class)->limit($plan, 'active_channels') }} allowed</p>
+                <p class="text-xs text-muted-foreground mt-1">of {{ app(\App\Services\Billing\PlanLimitService::class)->limit($plan, 'total_channels') }} allowed</p>
             </div>
 
             <div class="bg-card rounded-xl shadow-sm border p-6">

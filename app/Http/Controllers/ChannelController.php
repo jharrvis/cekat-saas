@@ -31,7 +31,7 @@ class ChannelController extends Controller
         $user = auth()->user();
 
         // Check plan limits
-        if (! $this->limits->check($user, 'active_channels', ['used' => $user->widgets()->count()])['allowed']) {
+        if (! $this->limits->check($user, 'total_channels', ['used' => $user->widgets()->count()])['allowed']) {
             return redirect()->route('channels.index')
                 ->with('error', 'You have reached your plan limit. Upgrade to create more channels.');
         }
@@ -49,7 +49,7 @@ class ChannelController extends Controller
         $user = auth()->user();
 
         // Check plan limits again
-        if (! $this->limits->check($user, 'active_channels', ['used' => $user->widgets()->count()])['allowed']) {
+        if (! $this->limits->check($user, 'total_channels', ['used' => $user->widgets()->count()])['allowed']) {
             return redirect()->route('channels.index')
                 ->with('error', 'You have reached your plan limit.');
         }

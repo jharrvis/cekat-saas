@@ -4,6 +4,7 @@ namespace App\Services\Billing;
 
 use App\Models\Plan;
 use App\Models\User;
+use App\Models\WhatsAppDevice;
 use InvalidArgumentException;
 
 /**
@@ -13,12 +14,14 @@ use InvalidArgumentException;
 class PlanLimitService
 {
     public const LIMITS = [
+        'total_channels' => 'max_widgets',
         'active_channels' => 'max_widgets',
         'monthly_messages' => 'max_messages_per_month',
         'knowledge_documents' => 'max_documents',
         'file_size_mb' => 'max_file_size_mb',
         'faqs' => 'max_faqs',
         'chat_history_days' => 'chat_history_days',
+        'whatsapp_devices' => 'max_whatsapp_devices',
     ];
 
     public const FEATURES = [
@@ -45,6 +48,7 @@ class PlanLimitService
         'max_file_size_mb' => 5,
         'max_faqs' => 10,
         'chat_history_days' => 7,
+        'max_whatsapp_devices' => 1,
         'can_export_leads' => false,
         'can_use_whatsapp' => false,
         'ai_tier' => 'basic',
@@ -53,20 +57,23 @@ class PlanLimitService
         'is_active' => true,
     ];
 
+    public function defaultPlan(): ?Plan
+    {
+        return Plan::query()
+            ->where('is_active', true)
+            ->where('price', 0)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->first();
+    }
+
     public function planFor(User $user): Plan
     {
         if ($user->plan) {
             return $user->plan;
         }
 
-        $fallback = Plan::query()
-            ->where('is_active', true)
-            ->where('price', 0)
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->first();
-
-        return $fallback ?? new Plan(self::SCHEMA_DEFAULTS);
+        return $this->defaultPlan() ?? new Plan(self::SCHEMA_DEFAULTS);
     }
 
     public function limit(Plan|User $subject, string $key): int
@@ -225,6 +232,14 @@ class PlanLimitService
 
         if ($key === 'active_channels') {
             return (int) $user->widgets()->where('status', 'active')->count();
+        }
+
+        if ($key === 'total_channels') {
+            return (int) $user->widgets()->count();
+        }
+
+        if ($key === 'whatsapp_devices') {
+            return (int) WhatsAppDevice::where('user_id', $user->id)->count();
         }
 
         return 0;

@@ -100,6 +100,11 @@
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
+                            <label class="block text-sm font-medium mb-2">Max WhatsApp Devices *</label>
+                            <input type="number" wire:model="max_whatsapp_devices" min="0"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium mb-2">Sort Order</label>
                             <input type="number" wire:model="sort_order" min="0"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">

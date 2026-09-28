@@ -73,7 +73,7 @@
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-robot text-primary"></i>
-                            <span>{{ app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'active_channels') }} Chatbot Widget</span>
+                            <span>{{ app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'total_channels') }} Chatbot Widget</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-message text-primary"></i>
@@ -273,7 +273,7 @@
                             <span class="text-sm font-normal text-muted-foreground">/bulan</span>
                         </p>
                         <ul class="space-y-2 text-sm mb-4">
-                            @php($planWidgetLimit = $planLimits->limit($plan, 'active_channels'))
+                            @php($planWidgetLimit = $planLimits->limit($plan, 'total_channels'))
                             <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ $planWidgetLimit == -1 ? 'Unlimited' : $planWidgetLimit }} Widget</li>
                             <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ number_format($planLimits->limit($plan, 'monthly_messages'), 0, ',', '.') }} Pesan</li>
                             <li><i class="fa-solid fa-check text-green-500 mr-2"></i>AI {{ ucfirst($planLimits->aiTier($plan)) }}</li>

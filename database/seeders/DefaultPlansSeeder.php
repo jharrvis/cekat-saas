@@ -26,6 +26,7 @@ class DefaultPlansSeeder extends Seeder
                 'chat_history_days' => 7,
                 'can_export_leads' => false,
                 'can_use_whatsapp' => false,
+                'max_whatsapp_devices' => 1,
                 'ai_tier' => 'basic',
                 'allowed_models' => ['openrouter/free'],
                 'features' => [
@@ -51,6 +52,7 @@ class DefaultPlansSeeder extends Seeder
                 'chat_history_days' => 30,
                 'can_export_leads' => true,
                 'can_use_whatsapp' => true,
+                'max_whatsapp_devices' => 3,
                 'ai_tier' => 'advanced',
                 'allowed_models' => [
                     'openrouter/free',
@@ -79,6 +81,7 @@ class DefaultPlansSeeder extends Seeder
                 'chat_history_days' => 90,
                 'can_export_leads' => true,
                 'can_use_whatsapp' => true,
+                'max_whatsapp_devices' => 10,
                 'ai_tier' => 'premium',
                 'allowed_models' => [
                     'openrouter/free',

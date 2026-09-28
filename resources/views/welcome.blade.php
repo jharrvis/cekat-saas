@@ -1153,7 +1153,7 @@
                         ];
                         $tagline = $taglines[$plan->slug] ?? ($plan->description ?: '');
                         $planLimits = app(\App\Services\Billing\PlanLimitService::class);
-                        $planWidgets = $planLimits->limit($plan, 'active_channels');
+                        $planWidgets = $planLimits->limit($plan, 'total_channels');
                         $bullets = [
                             $planWidgets . ' ' . \Illuminate\Support\Str::plural('Chatbot', $planWidgets),
                             number_format($planLimits->limit($plan, 'monthly_messages'), 0, ',', '.') . ' Pesan / bulan',

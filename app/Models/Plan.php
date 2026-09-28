@@ -23,6 +23,7 @@ class Plan extends Model
         'chat_history_days',
         'can_export_leads',
         'can_use_whatsapp',
+        'max_whatsapp_devices',
         'allowed_models',
         'features',
         'ai_tier',
@@ -43,6 +44,7 @@ class Plan extends Model
         'max_file_size_mb' => 'integer',
         'max_faqs' => 'integer',
         'chat_history_days' => 'integer',
+        'max_whatsapp_devices' => 'integer',
         'sort_order' => 'integer',
     ];
 

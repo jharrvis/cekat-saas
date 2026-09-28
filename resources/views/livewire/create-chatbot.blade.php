@@ -31,7 +31,7 @@
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p class="text-sm text-blue-800">
                 <i class="fa-solid fa-info-circle mr-2"></i>
-                You can create up to <strong>{{ app(\App\Services\Billing\PlanLimitService::class)->limit(auth()->user(), 'active_channels') }}</strong> channels with your
+                You can create up to <strong>{{ app(\App\Services\Billing\PlanLimitService::class)->limit(auth()->user(), 'total_channels') }}</strong> channels with your
                 current plan.
             </p>
         </div>

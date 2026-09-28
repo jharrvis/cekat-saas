@@ -38,8 +38,7 @@ class GoogleController extends Controller
                     'avatar' => $googleUser->getAvatar(),
                     'password' => Hash::make(Str::random(32)), // Random password
                     'role' => 'user',
-                    'plan_tier' => 'starter',
-                    'monthly_message_quota' => 100,
+                    'plan_id' => app(\App\Services\Billing\PlanLimitService::class)->defaultPlan()?->id,
                     'monthly_message_used' => 0,
                 ]);
 

@@ -29,8 +29,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'user',
-            'plan_tier' => 'starter', // Default plan
-            'monthly_message_quota' => 100,
+            'plan_id' => app(\App\Services\Billing\PlanLimitService::class)->defaultPlan()?->id,
             'monthly_message_used' => 0,
         ]);
 

@@ -104,7 +104,7 @@ class ChatHistoryController extends Controller
         ]);
 
         return redirect()
-            ->back()
+            ->route('chats.index')
             ->with('success', 'Percakapan berhasil dihapus permanen.');
     }
 

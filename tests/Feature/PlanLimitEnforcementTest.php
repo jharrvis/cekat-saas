@@ -7,7 +7,9 @@ use App\Livewire\KnowledgeBaseEditor;
 use App\Models\KnowledgeBase;
 use App\Models\KnowledgeDocument;
 use App\Models\Plan;
+use App\Models\Setting;
 use App\Models\User;
+use App\Models\WhatsAppDevice;
 use App\Models\Widget;
 use App\Services\Billing\PlanLimitService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -87,6 +89,96 @@ class PlanLimitEnforcementTest extends TestCase
 
         $response->assertSessionHas('error');
         $this->assertSame('draft', $draft->fresh()->status);
+    }
+
+    public function test_user_with_only_draft_widget_still_blocked_from_creating_more(): void
+    {
+        $user = $this->makeUserWith(['max_widgets' => 1]);
+        $draft = $this->makeWidget($user, 'draft');
+
+        $response = $this->actingAs($user)
+            ->get(route('channels.create'))
+            ->assertRedirect(route('channels.index'));
+
+        $response->assertSessionHas('error');
+        $this->assertSame('draft', $draft->fresh()->status);
+        $this->assertDatabaseCount('widgets', 1);
+    }
+
+    public function test_whatsapp_device_limit_is_enforced_from_plan(): void
+    {
+        Setting::set('whatsapp_module_enabled', true, 'boolean');
+        Setting::set('fonnte_account_token', 'test-token', 'string');
+
+        $user = $this->makeUserWith([
+            'can_use_whatsapp' => true,
+            'max_whatsapp_devices' => 1,
+        ]);
+
+        WhatsAppDevice::create([
+            'user_id' => $user->id,
+            'device_name' => 'D1',
+            'phone_number' => '628111111111',
+            'status' => 'connected',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('whatsapp.create'), [
+            'device_name' => 'D2',
+            'phone_number' => '08123456789',
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertSame(1, WhatsAppDevice::where('user_id', $user->id)->count());
+    }
+
+    public function test_registration_binds_default_free_plan(): void
+    {
+        $free = Plan::create([
+            'name' => 'Starter',
+            'slug' => 'starter',
+            'price' => 0,
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+        Plan::create([
+            'name' => 'Pro',
+            'slug' => 'pro-' . uniqid(),
+            'price' => 99000,
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+
+        $email = 'register-' . uniqid() . '@test.id';
+        $response = $this->post('/register', [
+            'name' => 'Registered User',
+            'email' => $email,
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticated();
+
+        $user = User::where('email', $email)->firstOrFail();
+
+        $this->assertSame($free->id, $user->plan_id);
+        $this->assertArrayNotHasKey('plan_tier', $user->getAttributes());
+    }
+
+    public function test_registration_without_any_free_plan_leaves_plan_id_null(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'No Plan User',
+            'email' => 'noplan-' . uniqid() . '@test.id',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+
+        $user = User::orderBy('id', 'desc')->first();
+        $this->assertNull($user->plan_id);
+        $this->assertSame(100, app(PlanLimitService::class)->limit($user, 'monthly_messages'));
     }
 
     public function test_faq_within_plan_limit_is_allowed(): void
@@ -200,13 +292,14 @@ class PlanLimitEnforcementTest extends TestCase
         $plan = $user->plan;
         $limits = app(PlanLimitService::class);
 
-        $this->assertFalse($limits->check($user, 'active_channels', ['used' => 1])['allowed']);
+        $this->assertFalse($limits->check($user, 'total_channels', ['used' => 1])['allowed']);
 
         Livewire::test(PlanManager::class)
             ->call('editPlan', $plan->id)
             ->set('max_widgets', 3)
             ->set('max_messages_per_month', 555)
             ->set('chat_history_days', 14)
+            ->set('max_whatsapp_devices', 5)
             ->set('features', ['leads' => true, 'whatsapp' => false, 'analytics' => true])
             ->call('savePlan');
 
@@ -214,13 +307,15 @@ class PlanLimitEnforcementTest extends TestCase
         $this->assertSame(3, (int) $fresh->max_widgets);
         $this->assertSame(555, (int) $fresh->max_messages_per_month);
         $this->assertSame(14, (int) $fresh->chat_history_days);
+        $this->assertSame(5, (int) $fresh->max_whatsapp_devices);
         $this->assertTrue((bool) $fresh->can_export_leads);
         $this->assertFalse((bool) $fresh->can_use_whatsapp);
         $this->assertArrayNotHasKey('leads', $fresh->features ?? []);
 
         $user = $user->fresh();
-        $this->assertTrue($limits->check($user, 'active_channels', ['used' => 2])['allowed']);
+        $this->assertTrue($limits->check($user, 'total_channels', ['used' => 2])['allowed']);
         $this->assertSame(555, $limits->limit($user, 'monthly_messages'));
+        $this->assertSame(5, $limits->limit($user, 'whatsapp_devices'));
         $this->assertTrue($limits->feature($user, 'leads'));
 
         $this->actingAs($user)->get(route('billing'))

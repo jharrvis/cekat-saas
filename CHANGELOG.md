@@ -5,6 +5,25 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Lanjutan remediasi plan tiers: 5 temuan follow-up (2026-09-29)
+
+**Konteks:** audit internal menemukan 5 hal: (1) hapus chat history mengandalkan `redirect()->back()` → 404 bila halaman asal sudah tertutup; (2) batas device WhatsApp masih hard-code pencocokan slug (`getMaxDevicesForUser` 1/3/10) di luar service; (3) token `active_channels` dipakai untuk create channel — user dengan widget draft tertolak membuat chatbot padahal slot masih ada; (4) registrasi/Google masih menulis legacy `plan_tier`/`monthly_message_quota` (kolom sudah drop) dan mengandalkan fallback implisit; (5) regression test belum memindai `app/Services`/`app/Console`, token legacy, maupun branching slug.
+
+**Ditambahkan:**
+- Kolom `plans.max_whatsapp_devices` (migrasi `2026_09_29_000001_add_max_whatsapp_devices_to_plans_table`, guard `hasColumn`, backfill slug lama `pro|professional`→3 dan `business|enterprise`→10, default 1) + key service `whatsapp_devices` (used = jumlah device milik user) + input "Max WhatsApp Devices *" di Plan Manager (validasi `integer|min:0`, ikut save/reset/edit) + `DefaultPlansSeeder`/`UpdateExistingPlansSeeder` menyetel nilai per tier (1/3/10).
+- `PlanLimitService::defaultPlan()` (publik): plan berbayar-nol/aktif termurah dari DB. `RegisterController` & `GoogleController` kini mengikat `plan_id` eksplisit via `defaultPlan()` (bila tidak ada → null, service memakai default schema) dan tidak lagi menulis `plan_tier`/`monthly_message_quota`.
+- Test baru: `ChatHistoryDeleteTest` (3 — hapus dari show/index/alias `leads.destroy` selalu redirect `chats.index` + baris terhapus); unit `total vs active counting`, `whatsapp_devices` limit+used, `defaultPlan()`; feature: widget draft tetap memblokir create melebihi `max_widgets`, gate device WhatsApp (module on + token + plan `max_whatsapp_devices=1` + 1 device → tertolak, jumlah tak berubah), registrasi mengikat `plan_id` plan gratis & null bila tak ada plan.
+
+**Diubah:**
+- `ChatHistoryController::destroy` → selalu `redirect()->route('chats.index')` dengan flash sukses — menghapus 404 pasca-hapus (hapus dari leads pun mendarat di chat history).
+- Semantik channel dipisah: `total_channels` (create/store; used = seluruh widget — perilaku tidak berubah) vs `active_channels` (aktivasi; used = status aktif): key baru `total_channels→max_widgets` di `PlanLimitService`, ditukar di `ChannelController` create/store, `CreateChatbot`, display `channels/index`, `welcome`, `create-chatbot`, `billing` (aktivasi/`guardActiveLimit` + `channels/index` copy kolom tetap `active_channels`).
+- `WhatsAppController::create` memakai `check($user, 'whatsapp_devices', ['used' => ...])`; `getMaxDevicesForUser` (pencocokan slug hard-code) dihapus — pesan "Anda sudah mencapai batas maksimum {limit} device." dipertahankan.
+- `PlanLimitRegressionTest` diperluas: dirs += `app/Services`, `app/Console`; token += `plan_tier`, `monthly_message_quota`; allowlist += `PlanLimitService`, `ModelResolver` (label log `ai_tier`); + tes anti slug-branching `/\$plan->slug…'(starter|free|pro|professional|business|enterprise)'/` (hanya WhatsAppController/Register/Google yang dulu match — semuanya sudah ikut diperbaiki).
+
+**Diverifikasi:**
+- Suite **151 passed / 551 assertions** (baseline 140/503).
+- Deviasi tersisa di luar cakupan: `PurgeExpiredChats` tetap membaca `plans.chat_history_days` DB mentah (NULL → fallback 7 hari; memaksa ke service akan mengubah semantik menjadi hapus-semua) — `chat_history_days` sengaja tidak dimasukkan ke daftar token terlarang.
+
 ### Single source of truth pembatasan plan tiers — `PlanLimitService` (2026-09-28)
 
 **Konteks:** aturan limit & fitur plan tersebar hard-code di ~15 titik (controller/middleware/Livewire/view/service), masing-masing membaca kolom `plans` langsung dengan fallback berbeda; KB (jumlah dokumen/ukuran file/FAQ) tidak pernah dienforce; beberapa limit tidak punya UI admin. Kebijakan (terkunci): satu service `App\Services\Billing\PlanLimitService` sebagai satu-satunya pintu baca/cek — data dari tabel `plans` tanpa migrasi baru; fallback user tanpa plan = plan gratis/starter aktif dari DB (bila tak ada → default schema; tidak pernah jatuh ke plan berbayar); ubah limit hanya via Plan Manager admin.
@@ -22,7 +41,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 **Diverifikasi:**
 - Suite **140 passed / 503 assertions** (baseline 112/383).
-- Deviasi terdokumentasi di luar cakupan: `WhatsAppController::getMaxDevicesForUser` masih mencocokkan slug plan → 1/3/10 perangkat hard-code tanpa kolom plan; `PurgeExpiredChats` membaca `plans.chat_history_days` via DB langsung (console command harian).
+- Deviasi di luar cakupan saat itu (kini diperbaiki pada bagian "Lanjutan remediasi plan tiers" di atas): `WhatsAppController::getMaxDevicesForUser` mencocokkan slug plan hard-code; `PurgeExpiredChats` membaca `plans.chat_history_days` via DB langsung (console command harian — masih deviasi aktif).
 
 ### Remediasi 3 risiko audit: PII di localStorage widget, riwayat ke provider LLM, tanpa kontrol retensi (2026-09-28)
 
