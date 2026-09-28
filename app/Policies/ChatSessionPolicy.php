@@ -11,4 +11,9 @@ class ChatSessionPolicy
     {
         return $session->widget !== null && $session->widget->user_id === $user->id;
     }
+
+    public function delete(User $user, ChatSession $session): bool
+    {
+        return $this->view($user, $session);
+    }
 }

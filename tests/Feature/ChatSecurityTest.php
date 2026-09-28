@@ -134,7 +134,7 @@ class ChatSecurityTest extends TestCase
 
         $response->assertNoContent()
             ->assertHeader('Access-Control-Allow-Origin', 'https://toko-resmi.id')
-            ->assertHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+            ->assertHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     }
 
     public function test_rate_limit_returns_friendly_json_after_30_requests(): void

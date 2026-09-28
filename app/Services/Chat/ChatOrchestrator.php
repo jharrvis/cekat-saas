@@ -26,6 +26,13 @@ use Illuminate\Support\Str;
  */
 class ChatOrchestrator
 {
+    /**
+     * How many history messages are forwarded to the LLM. Privacy + cost
+     * contract: the provider only ever sees a short window, never the
+     * whole transcript (client may send more; the server slices here).
+     */
+    public const HISTORY_WINDOW = 10;
+
     public function __construct(
         protected DomainAccessService $domains,
         protected QuotaService $quota,
@@ -97,8 +104,8 @@ class ChatOrchestrator
         // Build system prompt
         $systemPrompt = $this->prompts->buildSystemPrompt($kb, $sessionId);
 
-        // Format history (last 10 messages)
-        $formattedHistory = array_slice($history, -10);
+        // Format history (bounded window sent to the provider)
+        $formattedHistory = array_slice($history, -self::HISTORY_WINDOW);
         $formattedHistory[] = ['role' => 'user', 'content' => $message];
 
         // Get model based on user's plan AI tier (LLM Abstraction)
@@ -121,8 +128,14 @@ class ChatOrchestrator
             $model = $result['model'];
             $response = $result['body'];
 
-            // Log full response for debugging
-            Log::info('OpenRouter Response', ['model' => $model, 'response' => $response]);
+            // The response body contains the full assistant text - keep it
+            // out of production logs (PII would land in laravel.log); full
+            // body is only logged while debugging.
+            if (config('app.debug')) {
+                Log::debug('OpenRouter Response', ['model' => $model, 'response' => $response]);
+            } else {
+                Log::info('OpenRouter Response', ['model' => $model, 'usage' => $response['usage'] ?? null]);
+            }
 
             $responseText = $response['choices'][0]['message']['content'] ?? null;
 

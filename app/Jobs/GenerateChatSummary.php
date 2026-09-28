@@ -31,7 +31,12 @@ class GenerateChatSummary implements ShouldQueue
      */
     public function handle(): void
     {
-        $messages = $this->session->messages()->orderBy('created_at', 'asc')->get();
+        // Bounded input: never send the full transcript to the provider -
+        // last 20 messages, hard-trimmed to ~6.000 characters.
+        $messages = $this->session->messages()
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->slice(-20);
 
         if ($messages->isEmpty()) {
             return;
@@ -42,6 +47,10 @@ class GenerateChatSummary implements ShouldQueue
             $role = $msg->role === 'user' ? 'Customer' : 'AI';
             return "{$role}: {$msg->content}";
         })->join("\n");
+
+        if (mb_strlen($conversationText) > 6000) {
+            $conversationText = '…(awal percakapan dipotong)…'.PHP_EOL.mb_substr($conversationText, -6000);
+        }
 
         // Get model from settings
         $model = Setting::get('default_ai_model', config('services.openrouter.default_model'));

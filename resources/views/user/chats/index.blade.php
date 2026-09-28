@@ -117,6 +117,15 @@
                                         class="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition">
                                         <i class="fa-solid fa-eye mr-1"></i>View
                                     </a>
+                                    <form action="{{ route('chats.destroy', $session->id) }}" method="POST"
+                                        onsubmit="return confirm('Hapus percakapan ini permanen? Tindakan ini tidak bisa dibatalkan.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="px-3 py-1 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition">
+                                            <i class="fa-solid fa-trash mr-1"></i>Delete
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

@@ -17,14 +17,24 @@
                     </p>
                 </div>
             </div>
-            @if(!$session->summary)
-                <form action="{{ route('chats.summary', $session->id) }}" method="POST">
+            <div class="flex items-center gap-2">
+                <form action="{{ route('chats.destroy', $session->id) }}" method="POST"
+                    onsubmit="return confirm('Hapus percakapan ini permanen? Tindakan ini tidak bisa dibatalkan.')">
                     @csrf
-                    <button type="submit" class="btn-secondary">
-                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Generate Summary
+                    @method('DELETE')
+                    <button type="submit" class="btn-secondary text-red-600">
+                        <i class="fa-solid fa-trash mr-2"></i>Delete
                     </button>
                 </form>
-            @endif
+                @if(!$session->summary)
+                    <form action="{{ route('chats.summary', $session->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn-secondary">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Generate Summary
+                        </button>
+                    </form>
+                @endif
+            </div>
         </div>
 
         <div class="grid md:grid-cols-3 gap-6">

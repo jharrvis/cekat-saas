@@ -34,7 +34,11 @@ class ChatRequest extends FormRequest
         return [
             'message' => 'required|string|max:2000',
             'widgetId' => 'nullable|string|max:100',
-            'history' => 'nullable|array',
+            // Bounded history: at most 50 items, each capped - a single
+            // request can no longer ship an unbounded transcript.
+            'history' => 'nullable|array|max:50',
+            'history.*.role' => 'required|string|in:user,assistant',
+            'history.*.content' => 'required|string|max:10000',
             'sessionId' => 'nullable|string|max:200',
         ];
     }

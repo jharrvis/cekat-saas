@@ -5,6 +5,27 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Remediasi 3 risiko audit: PII di localStorage widget, riwayat ke provider LLM, tanpa kontrol retensi (2026-09-28)
+
+**Konteks:** audit keamanan menyebut (1) `chatHistory` disimpan plaintext di `localStorage` browser visitor, (2) riwayat penuh mengembang ke provider LLM, (3) `plans.chat_history_days` (7/30/90) diiklankan billing tapi tidak dieksekusi & tidak ada kontrol hapus data. Keputusan user: redaksi PII sebelum tulis localStorage (bukan server-backed), enkripsi at-rest **hanya data baru** (tanpa migrasi re-enkripsi massal; pembaca tahan-banting fallback plaintext), enforce retensi via `chat:purge` harian, DSR ganda (tenant + visitor).
+
+**Ditambahkan:**
+- `App\Support\CipherText` + accessor/mutator di `ChatMessage.content` & `ChatSession.visitor_name/email/phone/summary` — tulis baru selalu terenkripsi (`Crypt::encryptString`, `APP_KEY`), baca try/catch → baris plaintext lama tetap terbaca (tua menua via purge, bukan re-encode massal). *Catatan: `APP_KEY` kini protektif — backup & rotasi wajib.*
+- `chat:purge` (`PurgeExpiredChats`, `--dry-run`): hapus sesi pesan > retensi plan (join widget→user→plan `chat_history_days`; fallback 7 hari bila owner/plan/tanpa jendela retensi); index migrasi `chat_sessions.created_at`; `Schedule::command('chat:purge')->dailyAt('03:30')` (cron `schedule:run` sudah ada di prod).
+- DSR tenant: `DELETE /chats/{id}` + alias `DELETE /leads/{id}` (`ChatHistoryController@destroy`, scoped `whereIn widget user` + `ChatSessionPolicy::delete`) + tombol Delete di `chats/index`, `chats/show`, `leads/index`.
+- DSR visitor: `DELETE /api/widget/session` (grup `WidgetApiCors`, `throttle:chat`, sudah kena CSRF except `/api/widget/*`) — verifikasi sessionId signed (HMAC) + cocokkan fingerprint IP (`HttpClientIp`)/user agent seperti lanjutan sesi, idempoten; preflight CORS kini meng-echo `DELETE`.
+- Widget: `redactPII()` di `saveHistory()` (email, telepon 08/62, NIK 16 digit, keyword invoice/faktur/pesanan/order — hanya salinan at-rest; memori & wire tetap mentah), tombol header "Hapus percakapan" (`CSAI_forgetChat`: konfirmasi → DELETE server → `clearHistory` → greeting baru).
+
+**Diubah:**
+- `ChatRequest`: `history` dibatasi `array|max:50`, item `role in:user,assistant`, `content|max:10000` — 1 request tak lagi bisa mengirim transkrip tak terbatas.
+- `ChatOrchestrator`: konstanta `HISTORY_WINDOW = 10` (slice riwayat yang dikirim ke LLM); log respons OpenRouter → metadata saja (model+usage) di produksi, body penuh hanya saat `APP_DEBUG` (PII tak lagi masuk `laravel.log`).
+- `GenerateChatSummary`: potong input ke 20 pesan terakhir ±6.000 karakter (sebelumnya seluruh transkrip dikirim ke provider).
+- `widget.js`: wire history `slice(-12)` + cap per-item; (widget.min.js + map dibuild ulang).
+
+**Diverifikasi:**
+- Suite **112 passed / 383 assertions** — 4 test baru: `ChatHistoryCapTest`, `ChatCipherTest` (enkripsi at-rest + fallback plaintext + pluck aksesor), `ChatForgetTest` (visitor/tenant/guest), `ChatRetentionTest` (retensi 30h, dry-run, fallback 7 hari).
+- QA browser lokal: redaksi localStorage (email/telepon/NIK/invoice → `[... dihapus]`), wire history ≤12 item (raw sesuai keputusan), `DELETE /api/widget/session` 200 + sesi terhapus dari DB (`visitor_uuid` lookup 0), tombol + konfirmasi berfungsi, chat 200.
+
 ### Harga landing dari tabel `plans` sebagai sumber kebenaran (2026-09-28)
 
 **Konteks:** billing (`PaymentController`) menagih `plans.price` langsung (Starter Rp0, Pro **Rp99.000**, Business **Rp299.000**), sementara landing & FAQ bot mengiklankan Rp299k/Rp799k — divergensi 3x. Kebijakan (dipilih user): pakai nilai DB.

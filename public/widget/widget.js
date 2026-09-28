@@ -201,11 +201,28 @@
     }
   }
 
+  // Redact PII before persisting to localStorage. In-memory chatHistory
+  // and the wire keep the raw text (the assistant needs it); only the
+  // at-rest copy in the visitor's browser is scrubbed (email, phone,
+  // NIK, invoice/order references).
+  function redactPII(text) {
+    if (typeof text !== 'string') return text;
+    return text
+      .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, '[email dihapus]')
+      .replace(/(^|[^0-9])((?:\+?62|0)8[1-9][0-9]{6,11})(?![0-9])/g,
+        function (m, pre) { return pre + '[telepon dihapus]'; })
+      .replace(/\b[0-9]{16}\b/g, '[nik dihapus]')
+      .replace(/\b(invoice|faktur|pesanan|order)(\s+(?:no\.?|nomor|number|id|#)?\s*[:#-]?\s*|\s*[:#-]\s*)([A-Za-z0-9][A-Za-z0-9\-\/]{3,})/gi,
+        function (m, kw, sep) { return kw + sep + '[referensi dihapus]'; });
+  }
+
   // Save chat history to localStorage
   function saveHistory() {
     try {
       localStorage.setItem(config.storageKey + '_' + config.widgetId, JSON.stringify({
-        history: chatHistory.slice(-config.maxHistoryLength),
+        history: chatHistory.slice(-config.maxHistoryLength).map(function (m) {
+          return { role: m.role, content: redactPII(m.content) };
+        }),
         sessionId: sessionId
       }));
     } catch (e) {
@@ -275,6 +292,37 @@
   window.CSAI_endChat = function () {
     clearHistory();
     toggleChat();
+  };
+
+  // Tell the server to forget this conversation (visitor data-subject
+  // request). Fire-and-forget: the local clear must not depend on network.
+  function forgetSessionOnServer() {
+    if (!sessionId) return;
+    let url = config.configUrl + 'session';
+    if (config.apiUrl && /\/chat\/?$/.test(config.apiUrl)) {
+      url = config.apiUrl.replace(/\/chat\/?$/, '/widget/session');
+    }
+    try {
+      fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ widgetId: config.widgetId, sessionId: sessionId }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
+  // Header trash button: wipe the conversation locally AND on the server.
+  window.CSAI_forgetChat = function () {
+    if (chatHistory.length > 0 &&
+        !window.confirm('Hapus percakapan ini dari perangkat dan server?')) {
+      return;
+    }
+    forgetSessionOnServer();
+    clearHistory();
+    setTimeout(function () {
+      if (chatHistory.length === 0) addMessage('assistant', config.greeting);
+    }, 300);
   };
 
   // Inject CSS styles
@@ -468,6 +516,31 @@
       .csai-header-close svg {
         width: 20px;
         height: 20px;
+        fill: ${config.textColor};
+      }
+
+      /* Clear (Forget) Button in Header */
+      .csai-header-clear {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+        flex-shrink: 0;
+      }
+
+      .csai-header-clear:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .csai-header-clear svg {
+        width: 18px;
+        height: 18px;
         fill: ${config.textColor};
       }
 
@@ -910,7 +983,12 @@
             <p class="csai-header-title">${escapeHtml(config.title)}</p>
             <p class="csai-header-subtitle">${escapeHtml(config.subtitle)}</p>
           </div>
-          <!-- Close Button Integrated in Header -->
+          <!-- Clear (forget conversation) + Close Buttons in Header -->
+          <button class="csai-header-clear" id="csai-clear" title="Hapus percakapan" aria-label="Hapus percakapan">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+          </button>
           <button class="csai-header-close" id="csai-close">
             <svg viewBox="0 0 24 24">
               <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -1204,9 +1282,11 @@
         body: JSON.stringify({
           message: message,
           widgetId: config.widgetId,
-          history: chatHistory.map(m => ({
+          // Bounded wire history: a short window (server keeps only the
+          // last 10 for the LLM) with a per-item cap as defense in depth.
+          history: chatHistory.slice(-12).map(m => ({
             role: m.role,
-            content: m.content
+            content: (m.content || '').slice(0, 10000)
           })),
           sessionId: sessionId
         })
@@ -1282,6 +1362,7 @@
   function initEventListeners() {
     const toggleBtn = document.getElementById('csai-toggle');
     const closeBtn = document.getElementById('csai-close');
+    const clearBtn = document.getElementById('csai-clear');
     const sendBtn = document.getElementById('csai-send');
     const inputEl = document.getElementById('csai-input');
     const emojiBtn = document.getElementById('csai-emoji-btn');
@@ -1289,6 +1370,13 @@
 
     toggleBtn.addEventListener('click', toggleChat);
     closeBtn.addEventListener('click', toggleChat);
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.CSAI_forgetChat();
+      });
+    }
 
     // Emoji button
     if (emojiBtn) {

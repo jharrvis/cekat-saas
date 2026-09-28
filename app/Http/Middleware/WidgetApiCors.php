@@ -48,7 +48,7 @@ class WidgetApiCors
         if ($origin !== null && $this->originValue($origin) !== null) {
             $response
                 ->header('Access-Control-Allow-Origin', $this->originValue($origin))
-                ->header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+                ->header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
                 ->header('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Requested-With')
                 ->header('Access-Control-Max-Age', '86400')
                 ->header('Vary', 'Origin');

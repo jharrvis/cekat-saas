@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChatSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 class ChatHistoryController extends Controller
@@ -81,6 +82,30 @@ class ChatHistoryController extends Controller
         Gate::authorize('view', $session);
 
         return view('user.chats.show', compact('session'));
+    }
+
+    /**
+     * Delete a chat session and its messages (tenant data-subject request).
+     */
+    public function destroy($id)
+    {
+        $user = auth()->user();
+        $widgetIds = $user->widgets()->pluck('id');
+
+        $session = ChatSession::whereIn('widget_id', $widgetIds)->findOrFail($id);
+
+        Gate::authorize('delete', $session);
+
+        $session->delete();
+
+        Log::info('Chat session deleted by tenant', [
+            'session_id' => $session->id,
+            'user_id' => $user->id,
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Percakapan berhasil dihapus permanen.');
     }
 
     /**

@@ -71,6 +71,47 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
 
     // WhatsApp Webhook from Fonnte (no CSRF, no auth)
     Route::post('/whatsapp/webhook/{device_id}', [App\Http\Controllers\Api\WhatsAppWebhookController::class, 'handle']);
+
+    // Visitor "forget my conversation" (widget button): deletes the chat
+    // session + messages when the caller proves ownership (signed sessionId
+    // + IP/user-agent fingerprint). Path matches the /api/widget/* CSRF
+    // exception and rides the same throttle as /api/chat.
+    Route::delete('/widget/session', function (Illuminate\Http\Request $request) {
+        $data = $request->validate([
+            'widgetId' => 'required|string|max:100',
+            'sessionId' => 'required|string|max:200',
+        ]);
+
+        $widget = App\Models\Widget::where('slug', $data['widgetId'])->first();
+        if (!$widget) {
+            return response()->json(['success' => false, 'error' => 'Widget not found'], 404);
+        }
+
+        $sessions = app(App\Services\Chat\SessionIdService::class);
+        if (!$sessions->isSigned($data['sessionId'])) {
+            return response()->json(['success' => false, 'error' => 'Invalid session', 'error_code' => 'invalid_session'], 403);
+        }
+
+        $session = App\Models\ChatSession::where('widget_id', $widget->id)
+            ->where('visitor_uuid', $data['sessionId'])
+            ->first();
+
+        // Idempotent: nothing stored yet (or already forgotten).
+        if (!$session) {
+            return response()->json(['success' => true]);
+        }
+
+        // Same fingerprint gate as continuing a conversation: only the
+        // original visitor (IP + user agent) may wipe it.
+        if ($session->ip_address !== App\Support\HttpClientIp::get()
+            || $session->user_agent !== $request->userAgent()) {
+            return response()->json(['success' => false, 'error' => 'Forbidden', 'error_code' => 'fingerprint_mismatch'], 403);
+        }
+
+        $session->delete();
+
+        return response()->json(['success' => true]);
+    })->middleware('throttle:chat');
 });
 
 // Suspended/Banned Account Info Page
@@ -139,6 +180,7 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     Route::get('/chats', [App\Http\Controllers\ChatHistoryController::class, 'index'])->name('chats.index');
     Route::get('/chats/export', [App\Http\Controllers\ChatHistoryController::class, 'export'])->name('chats.export');
     Route::get('/chats/{id}', [App\Http\Controllers\ChatHistoryController::class, 'show'])->name('chats.show');
+    Route::delete('/chats/{id}', [App\Http\Controllers\ChatHistoryController::class, 'destroy'])->name('chats.destroy');
     Route::post('/chats/{id}/summary', [App\Http\Controllers\ChatHistoryController::class, 'generateSummary'])->name('chats.summary');
 
     // Leads (Pro+ feature)
@@ -148,6 +190,8 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     Route::get('/leads/export', [App\Http\Controllers\LeadController::class, 'export'])
         ->middleware('plan.feature:leads')
         ->name('leads.export');
+    // Alias: a lead IS a chat session - same scoped deletion as /chats/{id}
+    Route::delete('/leads/{id}', [App\Http\Controllers\ChatHistoryController::class, 'destroy'])->name('leads.destroy');
 
     // Billing
     Route::get('/billing', function () {
