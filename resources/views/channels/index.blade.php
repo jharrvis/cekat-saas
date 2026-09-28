@@ -35,8 +35,8 @@
                 <p class="text-sm text-muted-foreground mb-4 max-w-xl mx-auto">
                     Semua channel sedang nonaktif sehingga widget tidak tampil di website.
                     Paket <strong>{{ $plan->name ?? 'Free' }}</strong> mendukung maksimal
-                    <strong>{{ $plan->max_widgets ?? 1 }} channel aktif</strong>
-                    @if(!$plan || !$plan->can_use_whatsapp)
+                    <strong>{{ app(\App\Services\Billing\PlanLimitService::class)->limit($plan, 'active_channels') }} channel aktif</strong>
+                    @if(!app(\App\Services\Billing\PlanLimitService::class)->feature($plan, 'whatsapp'))
                         dan <strong>tidak termasuk WhatsApp Gateway</strong>
                     @endif
                     — pilih salah satu channel lalu klik <em>Aktifkan</em>.
@@ -68,7 +68,7 @@
                     <i class="fa-solid fa-robot text-blue-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $chatbots->count() }}</p>
-                <p class="text-xs text-muted-foreground mt-1">of {{ $plan->max_widgets ?? 1 }} allowed</p>
+                <p class="text-xs text-muted-foreground mt-1">of {{ app(\App\Services\Billing\PlanLimitService::class)->limit($plan, 'active_channels') }} allowed</p>
             </div>
 
             <div class="bg-card rounded-xl shadow-sm border p-6">
@@ -86,7 +86,7 @@
                     <i class="fa-solid fa-message text-purple-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ auth()->user()->monthly_message_used ?? 0 }}</p>
-                <p class="text-xs text-muted-foreground mt-1">of {{ auth()->user()->monthly_message_quota ?? 100 }} this
+                <p class="text-xs text-muted-foreground mt-1">of {{ app(\App\Services\Billing\PlanLimitService::class)->limit(auth()->user(), 'monthly_messages') }} this
                     month</p>
             </div>
         </div>

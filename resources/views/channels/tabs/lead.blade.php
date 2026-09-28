@@ -16,8 +16,8 @@
 
     @php
         // Admin context = unlock all features
-        // Otherwise check user's plan for can_export_leads
-        $isLocked = !$isAdminContext && (!optional(optional($chatbot->user)->plan)->can_export_leads);
+        // Otherwise check the widget owner's plan through PlanLimitService
+        $isLocked = !$isAdminContext && !app(\App\Services\Billing\PlanLimitService::class)->feature($chatbot->user ?? auth()->user(), 'leads');
     @endphp
 
     <x-feature-locked :locked="$isLocked" feature-name="Lead Collection" description="Upgrade to Creator or Business plan to collect leads automatically from your chatbot.">

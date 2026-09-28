@@ -11,10 +11,17 @@ use Illuminate\Support\Str;
 
 class ChannelController extends Controller
 {
+    private \App\Services\Billing\PlanLimitService $limits;
+
+    public function __construct()
+    {
+        $this->limits = app(\App\Services\Billing\PlanLimitService::class);
+    }
+
     public function index()
     {
         $chatbots = auth()->user()->widgets()->with('knowledgeBase')->get();
-        $plan = auth()->user()->plan;
+        $plan = $this->limits->planFor(auth()->user());
 
         return view('channels.index', compact('chatbots', 'plan'));
     }
@@ -22,10 +29,9 @@ class ChannelController extends Controller
     public function create()
     {
         $user = auth()->user();
-        $plan = $user->plan;
 
         // Check plan limits
-        if ($plan && $user->widgets()->count() >= $plan->max_widgets) {
+        if (! $this->limits->check($user, 'active_channels', ['used' => $user->widgets()->count()])['allowed']) {
             return redirect()->route('channels.index')
                 ->with('error', 'You have reached your plan limit. Upgrade to create more channels.');
         }
@@ -41,10 +47,9 @@ class ChannelController extends Controller
         $validated = $request->validated();
 
         $user = auth()->user();
-        $plan = $user->plan;
 
         // Check plan limits again
-        if ($plan && $user->widgets()->count() >= $plan->max_widgets) {
+        if (! $this->limits->check($user, 'active_channels', ['used' => $user->widgets()->count()])['allowed']) {
             return redirect()->route('channels.index')
                 ->with('error', 'You have reached your plan limit.');
         }
@@ -180,7 +185,7 @@ class ChannelController extends Controller
 
         $newStatus = $validated['status'] ?? $chatbot->status;
 
-        // Plan limit: activating a channel cannot exceed plan->max_widgets active channels
+        // Plan limit: activating a channel cannot exceed the plan's active channel limit
         if ($newStatus === 'active' && $chatbot->status !== 'active') {
             if ($error = $this->guardActiveLimit($chatbot)) {
                 return redirect()->back()->with('error', $error);
@@ -220,7 +225,7 @@ class ChannelController extends Controller
     }
 
     /**
-     * Reactivate an inactive channel (plan allows max_widgets active channels).
+     * Reactivate an inactive channel (plan allows a fixed number of active channels).
      */
     public function activate($chatbotId)
     {
@@ -242,14 +247,14 @@ class ChannelController extends Controller
     }
 
     /**
-     * Enforce plan->max_widgets as the maximum number of ACTIVE channels.
+     * Enforce the plan's active channel limit.
      * Returns an error message when the limit would be exceeded, null otherwise.
      */
     private function guardActiveLimit(Widget $widget): ?string
     {
         $user = auth()->user();
-        $plan = $user->plan;
-        $maxActive = $plan?->max_widgets ?? 1;
+        $plan = $this->limits->planFor($user);
+        $maxActive = $this->limits->limit($plan, 'active_channels');
 
         $otherActive = $user->widgets()
             ->where('status', 'active')

@@ -1152,28 +1152,29 @@
                             'business' => 'Batas kustom dan dukungan khusus untuk skala besar.',
                         ];
                         $tagline = $taglines[$plan->slug] ?? ($plan->description ?: '');
-                        $planFeatures = $plan->features ?? [];
+                        $planLimits = app(\App\Services\Billing\PlanLimitService::class);
+                        $planWidgets = $planLimits->limit($plan, 'active_channels');
                         $bullets = [
-                            $plan->max_widgets . ' ' . \Illuminate\Support\Str::plural('Chatbot', $plan->max_widgets),
-                            number_format((int) $plan->max_messages_per_month, 0, ',', '.') . ' Pesan / bulan',
-                            $plan->max_documents . ' Dokumen & ' . $plan->max_faqs . ' FAQ' . ($plan->max_widgets > 1 ? ' per bot' : ''),
+                            $planWidgets . ' ' . \Illuminate\Support\Str::plural('Chatbot', $planWidgets),
+                            number_format($planLimits->limit($plan, 'monthly_messages'), 0, ',', '.') . ' Pesan / bulan',
+                            $planLimits->limit($plan, 'knowledge_documents') . ' Dokumen & ' . $planLimits->limit($plan, 'faqs') . ' FAQ' . ($planWidgets > 1 ? ' per bot' : ''),
                         ];
-                        if ($plan->max_widgets === 1) {
+                        if ($planWidgets === 1) {
                             $bullets[] = 'Sematkan di 1 website';
                         }
-                        $analytics = $planFeatures['analytics'] ?? false;
+                        $analytics = $planLimits->featureValue($plan, 'analytics');
                         if ($analytics === 'basic') {
                             $bullets[] = 'Analitik Dasar';
                         } elseif ($analytics) {
                             $bullets[] = 'Analitik Lanjutan';
                         }
-                        if (! empty($planFeatures['custom_branding'])) {
+                        if (! empty($planLimits->featureValue($plan, 'custom_branding'))) {
                             $bullets[] = 'Hapus Merek Cekat';
                         }
-                        if (! empty($planFeatures['api_access'])) {
+                        if (! empty($planLimits->featureValue($plan, 'api_access'))) {
                             $bullets[] = 'Akses API';
                         }
-                        if (! empty($planFeatures['priority_support'])) {
+                        if (! empty($planLimits->featureValue($plan, 'priority_support'))) {
                             $bullets[] = 'Dukungan Prioritas';
                         }
                     @endphp

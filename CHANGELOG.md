@@ -5,6 +5,25 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Single source of truth pembatasan plan tiers — `PlanLimitService` (2026-09-28)
+
+**Konteks:** aturan limit & fitur plan tersebar hard-code di ~15 titik (controller/middleware/Livewire/view/service), masing-masing membaca kolom `plans` langsung dengan fallback berbeda; KB (jumlah dokumen/ukuran file/FAQ) tidak pernah dienforce; beberapa limit tidak punya UI admin. Kebijakan (terkunci): satu service `App\Services\Billing\PlanLimitService` sebagai satu-satunya pintu baca/cek — data dari tabel `plans` tanpa migrasi baru; fallback user tanpa plan = plan gratis/starter aktif dari DB (bila tak ada → default schema; tidak pernah jatuh ke plan berbayar); ubah limit hanya via Plan Manager admin.
+
+**Ditambahkan:**
+- `PlanLimitService`: `planFor()`, `limit()`, `feature()`, `featureValue()`, `aiTier()`, `allowsModel()`, `check()` (shape `allowed/code/message/used/limit/remaining/plan`; code `allowed|limit_exceeded|feature_locked|paid_required`; throw `InvalidArgumentException` hanya untuk key tak dikenal), `usage()`. Pemetaan key: `active_channels→max_widgets`, `monthly_messages→max_messages_per_month`, `knowledge_documents→max_documents`, `file_size_mb→max_file_size_mb`, `faqs→max_faqs`, `chat_history_days→chat_history_days`; fitur `leads`/`whatsapp` dari kolom boolean (bypass admin, read-only DB dijaga test), `analytics` terbuka hanya `true`/`'advanced'` (starter `'basic'` tetap terkunci), sisanya JSON `features`; `ai_summarize` = plan berbayar.
+- Enforcement baru KB di `KnowledgeBaseEditor` & `AgentKnowledgeEditor`: gate jumlah FAQ/dokumen (bypass admin) + aturan upload `max:min(system max_upload_size_mb, plan file_size_mb)` (admin: system saja) — sebelumnya unggah hard-code 10 MB tanpa cek jumlah.
+- Plan Manager admin: input "Chat History (days)" + checklist fitur `leads`/`whatsapp` (dipetakan ke kolom `can_export_leads`/`can_use_whatsapp`, dikeluarkan dari JSON `features`), validasi `chat_history_days` (integer ≥0) & `features` (array).
+- Test baru: `PlanLimitServiceTest` (16 unit), `PlanLimitEnforcementTest` (9 — create/store/activate channel melebihi limit, FAQ & unggah dokumen (jumlah/ukuran) tertolak, angka limit tampil di dashboard/sidebar/channels/billing, edit Plan Manager langsung dipakai service), `PlanLimitRegressionTest` (2 — static scan 8 token kolom terlarang di `app/Http/Controllers`, `app/Http/Middleware`, `app/Livewire` (kecuali `PlanManager`) + `resources/views`).
+
+**Diubah:**
+- Enforcement backend kini lewat service: `ChannelController` (create/store/guardActiveLimit), `CreateChatbot`, `QuotaService` (payload 429 legacy `quota.used/limit/reset_date` dipertahankan), `ChatOrchestrator`, `PlanFeatureGate`, `User::canUseLeads/canUseWhatsApp`, `DashboardController`, `ModelResolver`, `WhatsAppManager::getModelForWidget`, `TopicAnalyzer(Service)`, `Plan::allowsModel/hasFeature`.
+- Display UI lewat service: `sidebar`, `channels/index`, `livewire/create-chatbot`, `user/billing`, `user/settings` (angka tidak lagi baca `users.monthly_message_quota` — kolom sudah drop), tabs `general`/`lead`/`analytics`, `agents/partials/ai-tier-card`, `admin/user-manager`, `welcome` (teks output identik; contract `LandingPricingTest` lulus).
+- Perubahan perilaku disengaja: user tanpa plan kini memakai limit plan gratis/starter (bukan unlimited) dan model AI tier `basic` — `ModelResolverTest` disesuaikan (2 test baru untuk plan-less).
+
+**Diverifikasi:**
+- Suite **140 passed / 503 assertions** (baseline 112/383).
+- Deviasi terdokumentasi di luar cakupan: `WhatsAppController::getMaxDevicesForUser` masih mencocokkan slug plan → 1/3/10 perangkat hard-code tanpa kolom plan; `PurgeExpiredChats` membaca `plans.chat_history_days` via DB langsung (console command harian).
+
 ### Remediasi 3 risiko audit: PII di localStorage widget, riwayat ke provider LLM, tanpa kontrol retensi (2026-09-28)
 
 **Konteks:** audit keamanan menyebut (1) `chatHistory` disimpan plaintext di `localStorage` browser visitor, (2) riwayat penuh mengembang ke provider LLM, (3) `plans.chat_history_days` (7/30/90) diiklankan billing tapi tidak dieksekusi & tidak ada kontrol hapus data. Keputusan user: redaksi PII sebelum tulis localStorage (bukan server-backed), enkripsi at-rest **hanya data baru** (tanpa migrasi re-enkripsi massal; pembaca tahan-banting fallback plaintext), enforce retensi via `chat:purge` harian, DSR ganda (tenant + visitor).

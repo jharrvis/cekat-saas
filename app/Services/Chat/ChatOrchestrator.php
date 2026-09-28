@@ -86,8 +86,8 @@ class ChatOrchestrator
                     QuotaExceeded::dispatch(
                         $widget->user->id,
                         $widget->slug,
-                        $widget->user->monthly_message_used,
-                        $widget->user->plan->max_messages_per_month,
+                        $denied['body']['quota']['used'],
+                        $denied['body']['quota']['limit'],
                     );
                 }
 

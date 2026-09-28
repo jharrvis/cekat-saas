@@ -43,13 +43,9 @@ class ModelResolver
         }
 
         $user = $widget->user;
-        $plan = $user->plan;
-
-        if (! $plan) {
-            return $defaultModel;
-        }
-
-        $aiTier = $plan->ai_tier ?? 'basic';
+        $limits = app(\App\Services\Billing\PlanLimitService::class);
+        $plan = $limits->planFor($user);
+        $aiTier = $limits->aiTier($plan);
 
         // Setting::get may return array (if type=json) or string
         $mappingData = Setting::get('ai_tier_mapping');

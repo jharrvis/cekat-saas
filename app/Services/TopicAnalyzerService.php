@@ -326,15 +326,8 @@ PROMPT;
      */
     private function getModelForUser(User $user)
     {
-        $plan = $user->plan;
         $defaultModel = config('services.openrouter.default_model');
-
-        if (!$plan) {
-            // Free tier - use cheap/free model
-            return $defaultModel;
-        }
-
-        $aiTier = $plan->ai_tier ?? 'basic';
+        $aiTier = app(\App\Services\Billing\PlanLimitService::class)->aiTier($user);
 
         // Use appropriate model based on tier
         // For topic analysis, we don't need the most powerful model

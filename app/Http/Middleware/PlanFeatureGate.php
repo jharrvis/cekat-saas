@@ -30,11 +30,9 @@ class PlanFeatureGate
     {
         $user = auth()->user();
 
-        $allowed = match ($feature) {
-            'leads' => $user?->canUseLeads() ?? false,
-            'whatsapp' => $user?->canUseWhatsApp() ?? false,
-            default => true,
-        };
+        $allowed = isset($this->features[$feature])
+            ? $user && app(\App\Services\Billing\PlanLimitService::class)->check($user, $feature)['allowed']
+            : true;
 
         if (! $allowed) {
             if ($request->isMethod('GET')) {

@@ -8,6 +8,8 @@ use App\Models\Widget;
 use App\Models\KnowledgeBase;
 use App\Models\KnowledgeFaq;
 use App\Models\KnowledgeDocument;
+use App\Models\Setting;
+use App\Services\Billing\PlanLimitService;
 use App\Services\DocumentParser;
 use App\Services\TextChunker;
 use App\Services\WebsiteCrawler;
@@ -121,6 +123,10 @@ class KnowledgeBaseEditor extends Component
             'newFaqAnswer' => 'required|max:2000',
         ]);
 
+        if (! $this->withinFaqLimit()) {
+            return;
+        }
+
         $maxOrder = $this->knowledgeBase->faqs()->max('sort_order') ?? 0;
 
         $this->knowledgeBase->faqs()->create([
@@ -222,8 +228,12 @@ class KnowledgeBaseEditor extends Component
     public function uploadFile()
     {
         $this->validate([
-            'uploadedFile' => 'required|file|mimes:pdf,docx,txt|max:10240', // 10MB max
+            'uploadedFile' => 'required|file|mimes:pdf,docx,txt|max:' . $this->uploadMaxKilobytes(),
         ]);
+
+        if (! $this->withinDocumentLimit()) {
+            return;
+        }
 
         try {
             $file = $this->uploadedFile;
@@ -256,6 +266,10 @@ class KnowledgeBaseEditor extends Component
         $this->validate([
             'websiteUrl' => 'required|url',
         ]);
+
+        if (! $this->withinDocumentLimit()) {
+            return;
+        }
 
         try {
             // Create document record
@@ -306,6 +320,57 @@ class KnowledgeBaseEditor extends Component
         $this->loadKnowledgeBase();
 
         session()->flash('message', 'Document deleted successfully!');
+    }
+
+    private function withinFaqLimit(): bool
+    {
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $check = app(PlanLimitService::class)->check($user, 'faqs', [
+            'used' => $this->knowledgeBase->faqs()->count(),
+        ]);
+
+        if (! $check['allowed']) {
+            session()->flash('error', 'FAQ limit of your plan (' . $check['limit'] . ') reached. Delete an FAQ or upgrade your plan.');
+            return false;
+        }
+
+        return true;
+    }
+
+    private function withinDocumentLimit(): bool
+    {
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        $check = app(PlanLimitService::class)->check($user, 'knowledge_documents', [
+            'used' => $this->knowledgeBase->documents()->count(),
+        ]);
+
+        if (! $check['allowed']) {
+            session()->flash('error', 'Document limit of your plan (' . $check['limit'] . ') reached. Delete a document or upgrade your plan.');
+            return false;
+        }
+
+        return true;
+    }
+
+    private function uploadMaxKilobytes(): int
+    {
+        $user = auth()->user();
+        $systemMb = (int) Setting::get('max_upload_size_mb', 10);
+        $maxMb = $user->isAdmin()
+            ? $systemMb
+            : min($systemMb, app(PlanLimitService::class)->limit($user, 'file_size_mb'));
+
+        return $maxMb * 1024;
     }
 
     private function processDocument($document)

@@ -87,13 +87,13 @@ class DashboardController extends Controller
         $widgets = $user->widgets()->withCount('chatSessions')->get();
 
         // Usage quota from plan
-        $plan = $user->plan;
-        $quotaLimit = $plan ? ($plan->max_messages_per_month ?? 100) : 100;
-        $usedMessages = $user->monthly_message_used ?? 0;
+        $usage = app(\App\Services\Billing\PlanLimitService::class)->usage($user, 'monthly_messages');
+        $quotaLimit = $usage['limit'];
+        $usedMessages = $usage['used'];
         $usagePercent = $quotaLimit > 0
             ? round(($usedMessages / $quotaLimit) * 100)
             : 0;
-        $quotaRemaining = max(0, $quotaLimit - $usedMessages);
+        $quotaRemaining = $usage['remaining'];
 
         // Warning levels
         $quotaWarningLevel = 'normal';

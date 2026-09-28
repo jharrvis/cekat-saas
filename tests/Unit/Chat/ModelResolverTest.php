@@ -98,8 +98,23 @@ class ModelResolverTest extends TestCase
         $this->assertSame(ModelResolver::FALLBACK_MODEL, $this->resolver->forWidget($widget));
     }
 
-    public function test_user_without_plan_returns_default(): void
+    public function test_user_without_plan_uses_fallback_tier_mapping(): void
     {
+        Setting::set('ai_tier_mapping', [
+            'basic' => 'fallback/model:free',
+        ], 'json', 'api');
+        cache()->flush();
+
+        $widget = $this->makeWidgetFor(null);
+
+        $this->assertSame('fallback/model:free', $this->resolver->forWidget($widget));
+    }
+
+    public function test_user_without_plan_and_without_mapping_returns_default(): void
+    {
+        Setting::where('key', 'ai_tier_mapping')->delete();
+        cache()->flush();
+
         $widget = $this->makeWidgetFor(null);
 
         $this->assertSame(

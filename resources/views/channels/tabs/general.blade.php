@@ -128,8 +128,7 @@
         {{-- Right Column: AI Quality Info --}}
         <div>
             @php
-                $userPlan = auth()->user()->plan;
-                $aiTier = $userPlan->ai_tier ?? 'basic';
+                $aiTier = app(\App\Services\Billing\PlanLimitService::class)->aiTier(auth()->user());
 
                 $tierInfo = [
                     'basic' => [

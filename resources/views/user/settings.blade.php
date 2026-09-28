@@ -97,7 +97,7 @@
                 <div>
                     <p class="font-semibold text-primary">{{ auth()->user()->plan->name ?? 'Free Plan' }}</p>
                     <p class="text-sm text-muted-foreground mt-1">
-                        {{ auth()->user()->monthly_message_used ?? 0 }} / {{ auth()->user()->monthly_message_quota ?? 100 }}
+                        {{ auth()->user()->monthly_message_used ?? 0 }} / {{ app(\App\Services\Billing\PlanLimitService::class)->limit(auth()->user(), 'monthly_messages') }}
                         pesan bulan ini
                     </p>
                 </div>

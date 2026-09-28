@@ -201,8 +201,9 @@
     <div class="p-4 border-t bg-muted/20">
         @php
             $user = auth()->user();
-            $plan = $user->plan;
-            $quota = $plan->max_messages_per_month ?? 100;
+            $planLimits = app(\App\Services\Billing\PlanLimitService::class);
+            $plan = $planLimits->planFor($user);
+            $quota = $planLimits->limit($plan, 'monthly_messages');
             $used = $user->monthly_message_used ?? 0;
             $percentage = $quota > 0 ? min(($used / $quota) * 100, 100) : 0;
 

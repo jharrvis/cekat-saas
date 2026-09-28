@@ -39,8 +39,8 @@ class QuotaService
             ];
         }
 
-        $plan = $user->plan;
-        if ($plan && $user->monthly_message_used >= $plan->max_messages_per_month) {
+        $quota = app(\App\Services\Billing\PlanLimitService::class)->check($user, 'monthly_messages');
+        if (! $quota['allowed']) {
             return [
                 'status' => 429,
                 'body' => [
@@ -49,8 +49,8 @@ class QuotaService
                     'error_code' => 'quota_exceeded',
                     'message' => 'Maaf, kuota pesan bulanan telah habis. Silakan hubungi pemilik website.',
                     'quota' => [
-                        'used' => $user->monthly_message_used,
-                        'limit' => $plan->max_messages_per_month,
+                        'used' => $quota['used'],
+                        'limit' => $quota['limit'],
                         'reset_date' => now()->startOfMonth()->addMonth()->format('d M Y'),
                     ],
                 ],

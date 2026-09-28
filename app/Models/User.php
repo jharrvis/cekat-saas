@@ -106,7 +106,7 @@ class User extends Authenticatable
             return true;
         }
 
-        return (bool) ($this->plan?->can_export_leads);
+        return app(\App\Services\Billing\PlanLimitService::class)->feature($this, 'leads');
     }
 
     /**
@@ -118,7 +118,7 @@ class User extends Authenticatable
             return true;
         }
 
-        return (bool) ($this->plan?->can_use_whatsapp);
+        return app(\App\Services\Billing\PlanLimitService::class)->feature($this, 'whatsapp');
     }
 
     /**

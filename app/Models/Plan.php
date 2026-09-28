@@ -59,7 +59,7 @@ class Plan extends Model
      */
     public function allowsModel(string $model): bool
     {
-        return in_array($model, $this->allowed_models ?? []);
+        return app(\App\Services\Billing\PlanLimitService::class)->allowsModel($this, $model);
     }
 
     /**
@@ -67,6 +67,6 @@ class Plan extends Model
      */
     public function hasFeature(string $feature): bool
     {
-        return ($this->features[$feature] ?? false) === true;
+        return app(\App\Services\Billing\PlanLimitService::class)->feature($this, $feature);
     }
 }

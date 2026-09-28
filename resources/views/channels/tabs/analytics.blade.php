@@ -9,12 +9,9 @@
         if ($isAdminContext) {
             $isLocked = false;
         } else {
-            // Check if user has advanced analytics (Pro/Business plans)
-            $userPlan = optional($chatbot->user)->plan;
-
-            // Safely get analytics level from features JSON
-            $features = $userPlan ? ($userPlan->features ?? []) : [];
-            $analyticsValue = is_array($features) ? ($features['analytics'] ?? 'basic') : 'basic';
+            // Advanced analytics level comes from the plan through PlanLimitService
+            $analyticsValue = app(\App\Services\Billing\PlanLimitService::class)
+                ->featureValue($chatbot->user ?? auth()->user(), 'analytics');
 
             // Unlock if analytics is 'advanced' (string) OR true (boolean)
             $isLocked = !($analyticsValue === 'advanced' || $analyticsValue === true);

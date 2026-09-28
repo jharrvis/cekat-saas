@@ -17,11 +17,11 @@ class TopicAnalyzer extends Component
     public function mount()
     {
         $user = auth()->user();
-        $plan = $user->plan;
 
         // Check if user can use AI summarize (paid plans only)
-        $this->isPaidUser = $plan && $plan->price > 0;
-        $this->canUseSummarize = $this->isPaidUser;
+        $allowed = app(\App\Services\Billing\PlanLimitService::class)->check($user, 'ai_summarize')['allowed'];
+        $this->isPaidUser = $allowed;
+        $this->canUseSummarize = $allowed;
 
         // Load cached data or word frequency
         $this->loadTopics(false);

@@ -497,12 +497,8 @@ class WhatsAppManager
             return $defaultModel;
         }
 
-        $plan = $widget->user->plan;
-        if (!$plan) {
-            return $defaultModel;
-        }
-
-        $aiTier = $plan->ai_tier ?? 'basic';
+        $limits = app(\App\Services\Billing\PlanLimitService::class);
+        $aiTier = $limits->aiTier($widget->user);
         $mappingData = Setting::get('ai_tier_mapping');
 
         if ($mappingData) {
