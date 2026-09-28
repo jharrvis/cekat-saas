@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Plan;
 use App\Models\Widget;
 use App\Models\KnowledgeBase;
 use App\Models\KnowledgeFaq;
@@ -11,26 +12,25 @@ class LandingPageChatbotSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create or update landing page widget
-        $widget = Widget::updateOrCreate(
-            ['slug' => 'landing-page-default'],
-            [
-                'user_id' => null,
-                'name' => 'landing-page-default',
-                'display_name' => 'Cekat AI Assistant',
-                'description' => 'Default AI chatbot for cekat.biz.id landing page',
-                'is_active' => true,
-                'status' => 'active',
-                'settings' => [
-                    'model' => 'openrouter/free',
-                    'theme' => 'dark',
-                    'position' => 'bottom-right',
-                    // Locked to the app's own domains (security audit 2026-09-28);
-                    // mirrors the 2026_09_28_100000 migration.
-                    'allowed_domains' => 'cekat.biz.id, www.cekat.biz.id',
-                ],
-            ]
-        );
+        // Create or update landing page widget.
+        // Settings are MERGED with existing values so re-running the seeder
+        // never wipes admin customizations (greeting, colors, model, avatar).
+        $widget = Widget::firstOrNew(['slug' => 'landing-page-default']);
+        $widget->user_id = $widget->user_id ?? null;
+        $widget->name = $widget->name ?: 'landing-page-default';
+        $widget->display_name = $widget->display_name ?: 'Cekat AI Assistant';
+        $widget->description = $widget->description ?: 'Default AI chatbot for cekat.biz.id landing page';
+        $widget->is_active = true;
+        $widget->status = 'active';
+        $widget->settings = array_merge($widget->settings ?? [], [
+            'model' => $widget->settings['model'] ?? 'openrouter/free',
+            'theme' => $widget->settings['theme'] ?? 'dark',
+            'position' => $widget->settings['position'] ?? 'bottom-right',
+            // Locked to the app's own domains (security audit 2026-09-28);
+            // mirrors the 2026_09_28_100000 migration.
+            'allowed_domains' => 'cekat.biz.id, www.cekat.biz.id',
+        ]);
+        $widget->save();
 
         // Create or update knowledge base
         $kb = KnowledgeBase::updateOrCreate(
@@ -46,6 +46,9 @@ class LandingPageChatbotSeeder extends Seeder
 
         // Clear existing FAQs for this knowledge base
         KnowledgeFaq::where('knowledge_base_id', $kb->id)->delete();
+
+        // Pricing FAQ is derived from the plans table (single source of truth)
+        $pricingAnswer = $this->buildPricingAnswer();
 
         // Add FAQs about Cekat.biz.id
         $faqs = [
@@ -91,7 +94,7 @@ class LandingPageChatbotSeeder extends Seeder
             // Harga
             [
                 'question' => 'Berapa harga langganan Cekat?',
-                'answer' => 'Cekat punya 3 paket: 🆓 STARTER (Gratis): 1 chatbot, 100 pesan/bulan, 3 dokumen & 10 FAQ. ⭐ PRO (Rp 299.000/bulan): 3 chatbot, 2.000 pesan/bulan, 20 dokumen & 50 FAQ per bot, tanpa branding Cekat. 💎 BUSINESS (Rp 799.000/bulan): 10 chatbot, 10.000 pesan/bulan, 100 dokumen & 999 FAQ per bot, akses API & dukungan prioritas.',
+                'answer' => $pricingAnswer,
                 'category' => 'pricing',
             ],
             [
@@ -158,5 +161,47 @@ class LandingPageChatbotSeeder extends Seeder
         $this->command->info('✅ Landing page chatbot seeded with ' . count($faqs) . ' FAQs!');
         $this->command->info('   Widget ID: ' . $widget->id);
         $this->command->info('   Slug: ' . $widget->slug);
+    }
+
+    /**
+     * Build the pricing FAQ answer from the plans table (source of truth).
+     * Re-run the seeder after changing plan prices so the bot quotes match.
+     */
+    private function buildPricingAnswer(): string
+    {
+        $plans = Plan::where('is_active', true)->orderBy('sort_order')->get();
+
+        if ($plans->isEmpty()) {
+            return 'Cekat punya paket Starter (gratis), Pro, dan Business. Cek halaman harga di https://cekat.biz.id untuk info terbaru.';
+        }
+
+        $icons = ['🆓', '⭐', '💎', '🚀'];
+        $items = $plans->values()->map(function (Plan $plan, int $index) use ($icons) {
+            $price = $plan->price > 0
+                ? 'Rp ' . number_format((float) $plan->price, 0, ',', '.') . '/bulan'
+                : 'Gratis';
+
+            $limits = $plan->max_widgets . ' chatbot, '
+                . number_format((int) $plan->max_messages_per_month, 0, ',', '.') . ' pesan/bulan, '
+                . $plan->max_documents . ' dokumen & ' . $plan->max_faqs . ' FAQ'
+                . ($plan->max_widgets > 1 ? ' per bot' : '');
+
+            $extras = [];
+            if ($plan->hasFeature('custom_branding')) {
+                $extras[] = 'tanpa branding Cekat';
+            }
+            if ($plan->hasFeature('api_access')) {
+                $extras[] = 'akses API';
+            }
+            if ($plan->hasFeature('priority_support')) {
+                $extras[] = 'dukungan prioritas';
+            }
+            $tail = $extras ? ', ' . implode(' & ', $extras) : '';
+
+            return ($icons[$index] ?? '•') . ' ' . strtoupper($plan->name) . ' (' . $price . '): '
+                . $limits . $tail;
+        });
+
+        return 'Cekat punya ' . $plans->count() . ' paket: ' . $items->implode('. ') . '.';
     }
 }

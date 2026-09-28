@@ -1139,98 +1139,86 @@
             </div>
 
             <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-gray-200 dark:border-slate-800 flex flex-col shadow-sm hover:shadow-md transition-shadow">
-                    <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Pemula</h4>
-                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Sempurna untuk pengujian dan proyek pribadi berskala kecil.</p>
-                    <div class="mb-6 flex items-baseline gap-1">
-                        <span class="text-4xl font-bold text-slate-900 dark:text-white">Rp0</span>
-                        <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">/bulan</span>
+                @forelse ($plans as $plan)
+                    @php
+                        $isPopular = $plan->slug === 'pro';
+                        $priceLabel = $plan->price > 0
+                            ? 'Rp' . number_format((float) $plan->price, 0, ',', '.')
+                            : 'Rp0';
+                        $periodLabel = $plan->billing_period === 'yearly' ? '/tahun' : '/bulan';
+                        $taglines = [
+                            'starter' => 'Sempurna untuk pengujian dan proyek pribadi berskala kecil.',
+                            'pro' => 'Untuk bisnis berkembang yang membutuhkan dukungan andal.',
+                            'business' => 'Batas kustom dan dukungan khusus untuk skala besar.',
+                        ];
+                        $tagline = $taglines[$plan->slug] ?? ($plan->description ?: '');
+                        $planFeatures = $plan->features ?? [];
+                        $bullets = [
+                            $plan->max_widgets . ' ' . \Illuminate\Support\Str::plural('Chatbot', $plan->max_widgets),
+                            number_format((int) $plan->max_messages_per_month, 0, ',', '.') . ' Pesan / bulan',
+                            $plan->max_documents . ' Dokumen & ' . $plan->max_faqs . ' FAQ' . ($plan->max_widgets > 1 ? ' per bot' : ''),
+                        ];
+                        if ($plan->max_widgets === 1) {
+                            $bullets[] = 'Sematkan di 1 website';
+                        }
+                        $analytics = $planFeatures['analytics'] ?? false;
+                        if ($analytics === 'basic') {
+                            $bullets[] = 'Analitik Dasar';
+                        } elseif ($analytics) {
+                            $bullets[] = 'Analitik Lanjutan';
+                        }
+                        if (! empty($planFeatures['custom_branding'])) {
+                            $bullets[] = 'Hapus Merek Cekat';
+                        }
+                        if (! empty($planFeatures['api_access'])) {
+                            $bullets[] = 'Akses API';
+                        }
+                        if (! empty($planFeatures['priority_support'])) {
+                            $bullets[] = 'Dukungan Prioritas';
+                        }
+                    @endphp
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 {{ $isPopular ? 'border-2 border-brand-500 dark:border-brand-500 relative shadow-lg md:-translate-y-2 hover:shadow-xl transition-all' : 'border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow' }} flex flex-col">
+                        @if ($isPopular)
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-brand-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider animate-icon-pulse">
+                                Paling Populer
+                            </div>
+                        @endif
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2">{{ $plan->name }}</h4>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">{{ $tagline }}</p>
+                        <div class="mb-6 flex items-baseline gap-1">
+                            <span class="text-4xl font-bold text-slate-900 dark:text-white">{{ $priceLabel }}</span>
+                            <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">{{ $periodLabel }}</span>
+                        </div>
+                        <ul class="space-y-4 mb-8 flex-grow">
+                            @foreach ($bullets as $bullet)
+                                <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
+                                    <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> {{ $bullet }}
+                                </li>
+                            @endforeach
+                        </ul>
+                        @if ($plan->price <= 0)
+                            @auth
+                                <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Mulai Gratis</a>
+                            @else
+                                <a href="/register" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Mulai Gratis</a>
+                            @endauth
+                        @elseif ($loop->last)
+                            <a href="#kontak" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Hubungi Penjualan</a>
+                        @else
+                            @auth
+                                <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="w-full py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors font-medium text-sm flex justify-center items-center gap-2 group">
+                                    Berlangganan Sekarang <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                            @else
+                                <a href="/register" class="w-full py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors font-medium text-sm flex justify-center items-center gap-2 group">
+                                    Berlangganan Sekarang <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                            @endauth
+                        @endif
                     </div>
-                    <ul class="space-y-4 mb-8 flex-grow">
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 1 Chatbot
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 100 Pesan / bulan
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 3 Dokumen &amp; 10 FAQ
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Sematkan di 1 website
-                        </li>
-                    </ul>
-                    @auth
-                        <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Mulai Gratis</a>
-                    @else
-                        <a href="/register" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Mulai Gratis</a>
-                    @endauth
-                </div>
-
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 border-2 border-brand-500 dark:border-brand-500 relative flex flex-col shadow-lg md:-translate-y-2 hover:shadow-xl transition-all">
-                    <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-brand-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider animate-icon-pulse">
-                        Paling Populer
-                    </div>
-                    <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Profesional</h4>
-                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Untuk bisnis berkembang yang membutuhkan dukungan andal.</p>
-                    <div class="mb-6 flex items-baseline gap-1">
-                        <span class="text-4xl font-bold text-slate-900 dark:text-white">Rp299k</span>
-                        <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">/bulan</span>
-                    </div>
-                    <ul class="space-y-4 mb-8 flex-grow">
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 3 Chatbots
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 2.000 Pesan / bulan
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 20 Dokumen &amp; 50 FAQ per bot
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Analitik Lanjutan
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Hapus Merek Cekat
-                        </li>
-                    </ul>
-                    @auth
-                        <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="w-full py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors font-medium text-sm flex justify-center items-center gap-2 group">
-                            Berlangganan Sekarang <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
-                        </a>
-                    @else
-                        <a href="/register" class="w-full py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors font-medium text-sm flex justify-center items-center gap-2 group">
-                            Berlangganan Sekarang <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
-                        </a>
-                    @endauth
-                </div>
-
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-gray-200 dark:border-slate-800 flex flex-col shadow-sm hover:shadow-md transition-shadow">
-                    <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Perusahaan</h4>
-                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Batas kustom dan dukungan khusus untuk skala besar.</p>
-                    <div class="mb-6 flex items-baseline gap-1">
-                        <span class="text-4xl font-bold text-slate-900 dark:text-white">Rp799k</span>
-                        <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">/bulan</span>
-                    </div>
-                    <ul class="space-y-4 mb-8 flex-grow">
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 10 Chatbots
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 10.000 Pesan / bulan
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 100 Dokumen &amp; 999 FAQ per bot
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Akses API
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Dukungan Prioritas
-                        </li>
-                    </ul>
-                    <a href="#kontak" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Hubungi Penjualan</a>
-                </div>
+                @empty
+                    <p class="text-gray-600 dark:text-gray-400 md:col-span-3 text-center">Harga sedang tidak tersedia. Silakan hubungi kami untuk informasi paket.</p>
+                @endforelse
             </div>
         </div>
     </section>
@@ -1703,8 +1691,8 @@
                         isMatch: true
                     },
                     {
-                        title: 'Paket Pemula & Free Tier',
-                        snippet: 'Paket pemula gratis dibatasi 100 pesan & 3 dokumen per bulan untuk uji coba tim berskala kecil.',
+                        title: 'Paket Starter & Free Tier',
+                        snippet: 'Paket Starter gratis dibatasi 100 pesan & 3 dokumen per bulan untuk uji coba tim berskala kecil.',
                         highlight: '',
                         score: '31.2%',
                         isMatch: false

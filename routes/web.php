@@ -4,9 +4,13 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\ChannelController;
 
-// Landing Page
+// Landing Page — harga dirender dari tabel plans (sumber kebenaran)
 Route::get('/', function () {
-    return view('welcome');
+    return view('welcome', [
+        'plans' => App\Models\Plan::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get(),
+    ]);
 });
 
 // Documentation

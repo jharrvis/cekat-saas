@@ -5,6 +5,19 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Harga landing dari tabel `plans` sebagai sumber kebenaran (2026-09-28)
+
+**Konteks:** billing (`PaymentController`) menagih `plans.price` langsung (Starter Rp0, Pro **Rp99.000**, Business **Rp299.000**), sementara landing & FAQ bot mengiklankan Rp299k/Rp799k — divergensi 3x. Kebijakan (dipilih user): pakai nilai DB.
+
+**Diubah:**
+- `routes/web.php`: `GET /` meneruskan `Plan::where('is_active', true)->orderBy('sort_order')` ke view.
+- `welcome.blade.php` section `#harga`: 3 kartu hardcoded → loop `@forelse ($plans)` — nama & harga dari DB (`Rp` + `number_format`), bullet dibangun dari field plan (max_widgets/pesan/dokumen/FAQ + flags `features`), tagline per-slug (fallback `description`), badge "Paling Populer" saat `slug === 'pro'`, CTA: harga 0 → "Mulai Gratis", plan terakhir → "Hubungi Penjualan", sisanya "Berlangganan Sekarang". Simulasi RAG: "Paket Pemula" → "Paket Starter".
+- `LandingPageChatbotSeeder`: FAQ pricing kini dibangun `buildPricingAnswer()` dari tabel plans (reseed ikut harga terbaru); widget settings di-merge (`firstOrNew` + `array_merge`) agar reseed tak menimpa kustomisasi admin (greeting/warna/model/avatar).
+
+**Ditambahkan:**
+- Contract test `LandingPricingTest` (2 kasus: kartu & harga aktif dirender dari DB + harga ikut berubah saat `plans.price` diubah; plan non-aktif tidak tampil) — suite **92 passed / 324 assertions**.
+- Skrip one-off `update-faq-pricing.php` (Reflection ke `buildPricingAnswer()`) untuk memperbarui FAQ pricing di lingkungan yang ada tanpa reseed penuh (lokal sudah dijalankan; prod dijalankan saat deploy).
+
 ### Widget tidak tampil di homepage + XSS stored via settings widget (2026-09-28)
 
 **Diperbaiki (widget landing hilang — `#csai-toggle` tidak ada, konsol: "not authorized for this domain"):**
