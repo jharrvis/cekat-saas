@@ -3,7 +3,7 @@
 namespace Tests\Unit\Chat;
 
 use App\Services\Chat\DomainAccessService;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 class DomainAccessServiceTest extends TestCase
 {
@@ -42,5 +42,13 @@ class DomainAccessServiceTest extends TestCase
     {
         $this->assertTrue($this->service->isAllowed('example.com', 'http://localhost:8000'));
         $this->assertTrue($this->service->isAllowed('example.com', 'http://127.0.0.1:8000'));
+    }
+
+    public function test_app_own_host_is_allowed_even_when_not_listed(): void
+    {
+        config(['app.url' => 'https://cekat-saas.test']);
+
+        $this->assertTrue($this->service->isAllowed('example.com', 'https://cekat-saas.test/dashboard'));
+        $this->assertFalse($this->service->isAllowed('example.com', 'https://evil.test/x'));
     }
 }

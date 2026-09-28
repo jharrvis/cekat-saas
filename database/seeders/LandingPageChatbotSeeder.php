@@ -25,6 +25,9 @@ class LandingPageChatbotSeeder extends Seeder
                     'model' => 'openrouter/free',
                     'theme' => 'dark',
                     'position' => 'bottom-right',
+                    // Locked to the app's own domains (security audit 2026-09-28);
+                    // mirrors the 2026_09_28_100000 migration.
+                    'allowed_domains' => 'cekat.biz.id, www.cekat.biz.id',
                 ],
             ]
         );
@@ -88,7 +91,7 @@ class LandingPageChatbotSeeder extends Seeder
             // Harga
             [
                 'question' => 'Berapa harga langganan Cekat?',
-                'answer' => 'Cekat punya 3 paket: 🆓 STARTER (Gratis): 1 chatbot, 100 pesan/bulan, model AI gratis. ⭐ PRO (Rp 99.000/bulan): 3 chatbot, 1000 pesan, model AI premium. 💎 BUSINESS (Rp 299.000/bulan): 10 chatbot, 5000 pesan, semua model AI. Ada promo Early Access diskon 50% lho!',
+                'answer' => 'Cekat punya 3 paket: 🆓 STARTER (Gratis): 1 chatbot, 100 pesan/bulan, 3 dokumen & 10 FAQ. ⭐ PRO (Rp 299.000/bulan): 3 chatbot, 2.000 pesan/bulan, 20 dokumen & 50 FAQ per bot, tanpa branding Cekat. 💎 BUSINESS (Rp 799.000/bulan): 10 chatbot, 10.000 pesan/bulan, 100 dokumen & 999 FAQ per bot, akses API & dukungan prioritas.',
                 'category' => 'pricing',
             ],
             [

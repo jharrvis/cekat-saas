@@ -8,6 +8,7 @@ use App\Services\Chat\LeadCaptureService;
 use App\Services\Chat\ModelResolver;
 use App\Services\Chat\PromptBuilder;
 use App\Services\Chat\QuotaService;
+use App\Services\Chat\SessionIdService;
 use App\Services\Chat\WebhookActionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -26,6 +27,7 @@ class ChatOrchestratorFallbackTest extends TestCase
             app(ModelResolver::class),
             app(LeadCaptureService::class),
             app(WebhookActionService::class),
+            app(SessionIdService::class),
         ) extends ChatOrchestrator {
             public function callPublic(string $prompt, array $messages, string $model): array
             {

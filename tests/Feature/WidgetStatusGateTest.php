@@ -82,7 +82,7 @@ class WidgetStatusGateTest extends TestCase
             'widgetId' => $widget->slug,
             'history' => [],
             'sessionId' => 'sess_gate_test',
-        ]);
+        ], ['Origin' => 'https://toko.test']);
 
         $response->assertNotFound()
             ->assertJsonPath('error_code', 'widget_inactive')
@@ -98,6 +98,6 @@ class WidgetStatusGateTest extends TestCase
             'widgetId' => $widget->slug,
             'history' => [],
             'sessionId' => 'sess_gate_test_2',
-        ])->assertNotFound()->assertJsonPath('error_code', 'widget_inactive');
+        ], ['Origin' => 'https://toko.test'])->assertNotFound()->assertJsonPath('error_code', 'widget_inactive');
     }
 }

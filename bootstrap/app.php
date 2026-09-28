@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,6 +13,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
         $middleware->validateCsrfTokens(except: [
             '/api/chat',
             '/api/payment/notification', // Midtrans webhook
@@ -26,5 +30,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (ThrottleRequestsException $e, Request $request) {
+            if ($request->is('api/chat') || $request->is('api/widget/*')) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'rate_limited',
+                    'error_code' => 'rate_limited',
+                    'message' => 'Terlalu banyak permintaan. Silakan tunggu sebentar lalu coba lagi.',
+                ], 429, $e->getHeaders());
+            }
+        });
     })->create();

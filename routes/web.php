@@ -15,11 +15,17 @@ Route::get('/docs/webhooks', function () {
 })->name('docs.webhooks');
 
 // API Routes
-Route::prefix('api')->group(function () {
-    Route::post('/chat', [App\Http\Controllers\Api\ChatController::class, 'chat']);
+Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->group(function () {
+    // CORS preflight (the middleware answers it before the controller)
+    Route::options('/chat', fn () => response()->noContent());
+
+    Route::post('/chat', [App\Http\Controllers\Api\ChatController::class, 'chat'])
+        ->middleware('throttle:chat');
 
     // Widget Config API - returns widget settings by slug
     // NOTE: inside prefix('api'), so the path must NOT repeat /api
+    Route::options('/widget/{slug}/config', fn () => response()->noContent());
+
     Route::get('/widget/{slug}/config', function ($slug) {
         $widget = App\Models\Widget::where('slug', $slug)->first();
 

@@ -31,6 +31,12 @@ class DomainAccessService
         $originDomain = parse_url($origin, PHP_URL_HOST);
         $allowedList = array_map('trim', explode(',', $allowedCsv));
 
+        // The application's own host may always use any widget (landing page,
+        // dashboard test chat, local development) regardless of the allowlist.
+        if (is_string($originDomain) && $originDomain === $this->ownHost()) {
+            return true;
+        }
+
         if (in_array($originDomain, $allowedList, true)) {
             return true;
         }
@@ -40,5 +46,12 @@ class DomainAccessService
         }
 
         return false;
+    }
+
+    protected function ownHost(): ?string
+    {
+        $url = (string) config('app.url');
+
+        return $url !== '' ? parse_url($url, PHP_URL_HOST) : null;
     }
 }

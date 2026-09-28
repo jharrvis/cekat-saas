@@ -10,6 +10,7 @@ use App\Events\WebhookActionTriggered;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\Widget;
+use App\Support\HttpClientIp;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -32,6 +33,7 @@ class ChatOrchestrator
         protected ModelResolver $models,
         protected LeadCaptureService $leads,
         protected WebhookActionService $webhooks,
+        protected SessionIdService $sessions,
     ) {}
 
     public function handle(string $message, string $widgetSlug, array $history, string $sessionId): array
@@ -86,6 +88,10 @@ class ChatOrchestrator
             }
 
             $kb = $this->prompts->buildKnowledgeArray($widget);
+
+            // A leaked/forged session id from another fingerprint must not
+            // continue that conversation - issue a fresh signed id instead.
+            $sessionId = $this->sessions->bindFingerprint($widget, $sessionId);
         }
 
         // Build system prompt
@@ -197,7 +203,6 @@ class ChatOrchestrator
                     'sessionId' => $sessionId,
                     'fallback' => true,
                     'error_code' => 'provider_error',
-                    'debug' => config('app.debug') ? $e->getMessage() : null,
                 ],
             ];
         }
@@ -265,7 +270,7 @@ class ChatOrchestrator
             [
                 'current_agent_id' => $widget->ai_agent_id,
                 'started_at' => now(),
-                'ip_address' => request()->ip(),
+                'ip_address' => HttpClientIp::get(),
                 'user_agent' => request()->userAgent(),
             ]
         );

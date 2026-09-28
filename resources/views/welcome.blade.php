@@ -1151,13 +1151,13 @@
                             <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 1 Chatbot
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 500.000 Karakter per bot
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 100 Pesan / bulan
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 50 Pesan / bulan
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 3 Dokumen &amp; 10 FAQ
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Sematkan di website tanpa batas
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Sematkan di 1 website
                         </li>
                     </ul>
                     @auth
@@ -1174,18 +1174,18 @@
                     <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Profesional</h4>
                     <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Untuk bisnis berkembang yang membutuhkan dukungan andal.</p>
                     <div class="mb-6 flex items-baseline gap-1">
-                        <span class="text-4xl font-bold text-slate-900 dark:text-white">Rp399k</span>
+                        <span class="text-4xl font-bold text-slate-900 dark:text-white">Rp299k</span>
                         <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">/bulan</span>
                     </div>
                     <ul class="space-y-4 mb-8 flex-grow">
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 5 Chatbots
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 5.000.000 Karakter per bot
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 3 Chatbots
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
                             <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 2.000 Pesan / bulan
+                        </li>
+                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 20 Dokumen &amp; 50 FAQ per bot
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
                             <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Analitik Lanjutan
@@ -1209,18 +1209,18 @@
                     <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Perusahaan</h4>
                     <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">Batas kustom dan dukungan khusus untuk skala besar.</p>
                     <div class="mb-6 flex items-baseline gap-1">
-                        <span class="text-4xl font-bold text-slate-900 dark:text-white">Rp1.4jt</span>
+                        <span class="text-4xl font-bold text-slate-900 dark:text-white">Rp799k</span>
                         <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">/bulan</span>
                     </div>
                     <ul class="space-y-4 mb-8 flex-grow">
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Chatbot Tanpa Batas
-                        </li>
-                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 20.000.000 Karakter/bot
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 10 Chatbots
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
                             <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 10.000 Pesan / bulan
+                        </li>
+                        <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> 100 Dokumen &amp; 999 FAQ per bot
                         </li>
                         <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
                             <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> Akses API
@@ -1658,8 +1658,8 @@
                     },
                     {
                         title: 'Multi-Format Knowledge Base',
-                        snippet: 'Unggah PDF/DOCX dokumen internal tanpa batas dengan isolasi data terenkripsi.',
-                        highlight: 'dokumen internal tanpa batas',
+                        snippet: 'Unggah PDF/DOCX dokumen internal hingga 20 file per bot dengan isolasi data terenkripsi.',
+                        highlight: 'dokumen internal hingga 20 file per bot',
                         score: '96.2%',
                         isMatch: true
                     },
@@ -1681,17 +1681,17 @@
             },
             enterprise: {
                 id: 'enterprise',
-                title: 'Kapasitas Paket Enterprise',
+                title: 'Kapasitas Paket Business',
                 badge: 'Pricing & Skala',
-                question: 'Berapa batas kapasitas karakter dokumen pada paket Enterprise Cekat?',
-                tokens: ['Batas Karakter', 'Dokumen Bot', 'Paket Enterprise'],
+                question: 'Berapa kuota dokumen dan jumlah chatbot pada paket Business Cekat?',
+                tokens: ['Kuota Dokumen', 'Jumlah Chatbot', 'Paket Business'],
                 vectorCoords: ['+0.724', '+0.115', '-0.582', '+0.903', '+0.331'],
                 latency: 11,
                 kbDocs: [
                     {
-                        title: 'Kapasitas Dokumen Enterprise',
-                        snippet: 'Paket Enterprise menyediakan hingga 20.000.000 karakter per bot tanpa batas jumlah chatbot.',
-                        highlight: 'hingga 20.000.000 karakter per bot',
+                        title: 'Kapasitas Dokumen Business',
+                        snippet: 'Paket Business menyediakan hingga 100 dokumen & 999 FAQ per bot untuk 10 chatbot aktif.',
+                        highlight: '100 dokumen & 999 FAQ per bot',
                         score: '99.1%',
                         isMatch: true
                     },
@@ -1704,19 +1704,19 @@
                     },
                     {
                         title: 'Paket Pemula & Free Tier',
-                        snippet: 'Paket pemula gratis dibatasi 500.000 karakter untuk uji coba tim berskala kecil.',
+                        snippet: 'Paket pemula gratis dibatasi 100 pesan & 3 dokumen per bulan untuk uji coba tim berskala kecil.',
                         highlight: '',
                         score: '31.2%',
                         isMatch: false
                     }
                 ],
                 reasoning: [
-                    { title: 'Injeksi Konteks', detail: 'Klausul kuota karakter paket Enterprise diekstrak' },
-                    { title: 'Validasi Anti-Halusinasi', detail: 'Angka 20.000.000 diverifikasi akurat dari tabel harga' },
+                    { title: 'Injeksi Konteks', detail: 'Klausul kuota dokumen paket Business diekstrak' },
+                    { title: 'Validasi Anti-Halusinasi', detail: 'Angka 100 dokumen diverifikasi akurat dari tabel harga' },
                     { title: 'Sintesis Respon', detail: 'Menyajikan jawaban transparan dan detail untuk prospek' }
                 ],
-                output: 'Paket Enterprise mendukung hingga 20.000.000 karakter dokumen per bot, pembuatan chatbot tanpa batas, akses REST API penuh, dan dukungan dedicated.',
-                citation: 'Skema_Harga_Enterprise.pdf #Halaman 4'
+                output: 'Paket Business menyediakan hingga 100 dokumen & 999 FAQ per bot untuk 10 chatbot, kuota 10.000 pesan/bulan, akses REST API penuh, dan dukungan prioritas.',
+                citation: 'Skema_Harga_Business.pdf #Halaman 4'
             }
         };
 

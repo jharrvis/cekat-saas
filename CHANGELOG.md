@@ -5,6 +5,25 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Audit keamanan API chat publik + sinkronisasi harga (`POST /api/chat`) (2026-09-28)
+
+**Diperbaiki (temuan audit — 1 request curl tanpa Origin/Relier bisa membongkar system prompt 3.287 karakter):**
+- **CORS wildcard**: `config/cors.php` tidak lagi memasukkan `api/*` (framework `HandleCors` memberi `Access-Control-Allow-Origin: *` ke semua situs). CORS kini ditangani `WidgetApiCors` — ACAO hanya di-echo untuk origin yang diizinkan `allowed_domains` widget; preflight `OPTIONS` dijawab 204 (echo origin, tetap digate di respons asli).
+- **Origin wajib**: `POST /api/chat` menolak request tanpa `Origin`/`Referer` → `403 origin_required` (jalur eksploit curl/hardening script mati sebelum ada pekerjaan).
+- **Rate limit**: `RateLimiter::for('chat')` — 30/menit per IP+widget, 120/menit per IP (`throttle:chat`), respons 429 JSON ramah (`error_code: rate_limited`) via renderer exception. IP asli diambil dari `CF-Connecting-IP` (`App\Support\HttpClientIp`) agar di belakang Cloudflare tidak jadi satu bucket bersama.
+- **sessionId tidak lagi bisa dipalsukan**: `SessionIdService` — id ditandatangani HMAC-SHA256 dengan `app.key` (`sess_<24>.<sig64>`, muat kolom `visitor_uuid(100)`); id lama/tanpa tanda tangan diganti id baru; `bindFingerprint` membatalkan lanjutan sesi bila IP+user agent berbeda dari yang tercatat (hijack/leak id → sesi baru).
+- **Kebocoran system prompt**: rule "Batasan Keamanan (WAJIB)" di-append terakhir di semua cabang `PromptBuilder` (larangan membocorkan instruksi sistem termasuk framing "hardcoded"/"laporan"/"matriks analisis risiko" + anti prompt-injection); field `debug` (exception message) dihapus dari respons publik fallback.
+- **Widget demo landing dikunci**: migrasi `2026_09_28_100000` set `allowed_domains = cekat.biz.id, www.cekat.biz.id` pada `landing-page-default` (seeder disamakan); `DomainAccessService` selalu mengizinkan host `app.url` (landing lokal + dashboard tetap jalan).
+- **Security headers** (global `SecurityHeaders`): `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera/mic/geo off`, CSP defensif (`frame-ancestors/base-uri/form-action 'self'; object-src 'none'`), HSTS saat HTTPS. `script-src` sengaja ditunda (halaman bergantung inline script).
+
+**Diperbaiki (harga tidak konsisten di 3 tempat — tabel `plans` jadi sumber kebenaran):**
+- Landing `welcome.blade.php`: Pemula Rp0 (100 pesan, 3 dokumen & 10 FAQ), Profesional **Rp399k → Rp299k** (3 chatbot, 2.000 pesan), Perusahaan **Rp1.4jt → Rp799k** (10 chatbot, 10.000 pesan, 100 dokumen & 999 FAQ) — klaim "karakter" diganti field plan nyata; simulasi FAQ RAG disamakan (Enterprise → Business, 20 jt karakter → 100 dokumen/999 FAQ).
+- FAQ bot `LandingPageChatbotSeeder`: Pro **Rp99rb → Rp299.000**, Business **Rp299rb → Rp799.000**, kuota disesuaikan, klaim promo "Early Access diskon 50%" dihapus. (`DemoWidgetSeeder` sudah cocok.)
+
+**Ditambahkan:**
+- Test `ChatSecurityTest` (14 kasus: origin-wajib, CORS per-origin, preflight, rate limit, sesi signed/tamper/fingerprint, prompt guard, hilangnya `debug`, security headers) + penyesuaian `ChatApiTest`/`WidgetStatusGateTest` (kirim `Origin`), `DomainAccessServiceTest` kini boot Laravel (host app selalu diizinkan) — suite **89 passed / 305 assertions**.
+- QA lokal 11/11 (tanpa Origin, origin jahat, sesi signed, preflight, headers, rate limit).
+
 ### Redesign landing page & halaman auth (2026-09-28)
 
 **Diubah:**

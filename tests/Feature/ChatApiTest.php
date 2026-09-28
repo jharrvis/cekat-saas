@@ -78,18 +78,22 @@ class ChatApiTest extends TestCase
             'widgetId' => 'w-uji',
             'history' => [],
             'sessionId' => 'sess_test_1',
-        ]);
+        ], ['Origin' => 'https://toko.test']);
 
         $response->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('sessionId', 'sess_test_1')
             ->assertJsonPath('response', 'Silakan order di https://toko.test/order kak')
             ->assertJsonPath('meta.tokens_used', 42)
             ->assertJsonStructure(['meta' => ['model', 'tokens_used']]);
 
+        // Unsigned client-supplied ids are replaced by server-minted signed ones
+        $sessionId = $response->json('sessionId');
+        $this->assertNotSame('sess_test_1', $sessionId);
+        $this->assertMatchesRegularExpression('/^sess_[A-Za-z0-9]{24}\.[0-9a-f]{64}$/', $sessionId);
+
         $this->assertSame(1, $user->fresh()->monthly_message_used);
 
-        $session = ChatSession::where('visitor_uuid', 'sess_test_1')->first();
+        $session = ChatSession::where('visitor_uuid', $sessionId)->first();
         $this->assertNotNull($session);
         $this->assertSame($widget->id, $session->widget_id);
         $this->assertSame($agent->id, $session->current_agent_id);
@@ -111,7 +115,7 @@ class ChatApiTest extends TestCase
             'message' => 'halo',
             'widgetId' => 'w-uji',
             'sessionId' => 'sess_q',
-        ]);
+        ], ['Origin' => 'https://toko.test']);
 
         $response->assertStatus(429)
             ->assertJsonPath('error', 'quota_exceeded')
@@ -148,7 +152,7 @@ class ChatApiTest extends TestCase
             'message' => 'halo',
             'widgetId' => 'w-uji',
             'sessionId' => 'sess_s',
-        ]);
+        ], ['Origin' => 'https://toko.test']);
 
         $response->assertForbidden()->assertJsonPath('error', 'Widget temporarily unavailable');
     }
@@ -166,7 +170,7 @@ class ChatApiTest extends TestCase
                 'message' => 'halo',
                 'widgetId' => 'tidak-ada',
                 'sessionId' => 'sess_x',
-            ]);
+            ], ['Origin' => 'https://toko.test']);
 
             $response->assertNotFound()->assertJsonPath('error', 'Widget not found');
         } finally {
