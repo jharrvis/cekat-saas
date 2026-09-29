@@ -157,14 +157,16 @@ class ChatOrchestrator
                     WebhookActionTriggered::dispatch($widget->slug, $action['action']);
                 }
 
-                // If strictly JSON, replace with friendly message
-                if ($this->webhooks->isStrictJson($responseText) && $webhookResult) {
-                    $responseText = $webhookResult;
-                }
-
-                // Clean JSON from response if mixed
-                if ($webhookResult && ! $this->webhooks->isStrictJson($responseText)) {
-                    $responseText = $this->webhooks->stripActionJson($responseText);
+                // Clean the action JSON from the reply — with OR without a
+                // configured webhook (an unconfigured webhook must not leak
+                // the raw {"action":...} payload into the visitor's chat).
+                if ($action && $this->webhooks->isStrictJson($responseText)) {
+                    $responseText = $webhookResult ?? 'Data berhasil diproses.';
+                } elseif ($action) {
+                    $cleaned = trim($this->webhooks->stripActionJson($responseText));
+                    if ($cleaned !== '') {
+                        $responseText = $cleaned;
+                    }
                 }
 
                 $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? []);

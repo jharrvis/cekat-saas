@@ -5,12 +5,14 @@ namespace Tests\Feature;
 use App\Models\AiAgent;
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
+use App\Mail\NewLead;
 use App\Models\KnowledgeBase;
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\Widget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class ChatApiTest extends TestCase
@@ -156,6 +158,59 @@ class ChatApiTest extends TestCase
         ], ['Origin' => 'https://toko.test']);
 
         $response->assertForbidden()->assertJsonPath('error', 'Widget temporarily unavailable');
+    }
+
+    public function test_save_lead_reply_is_stripped_persists_lead_and_emails_owner_without_webhook(): void
+    {
+        Mail::fake();
+
+        ['plan' => $plan, 'widget' => $widget] = $this->makeStack();
+        $plan->update(['can_export_leads' => true]);
+        $this->assertEmpty($widget->settings['webhook_url'] ?? null);
+
+        $this->fakeOpenRouter(
+            'Terima kasih Kak Budi! Data sudah saya catat lengkap ya. '
+            . '{"action": "save_lead", "name": "Budi Gunawan", "email": "bdgwn@test.id", "phone": "0812345464458"}'
+        );
+
+        $response = $this->postJson('/api/chat', [
+            'message' => 'Nama Budi, email bdgwn@test.id, HP 0812345464458',
+            'widgetId' => 'w-uji',
+            'history' => [],
+            'sessionId' => 'sess_lead_e2e',
+        ], ['Origin' => 'https://toko.test']);
+
+        $response->assertOk();
+        $reply = $response->json('response');
+        $this->assertStringContainsString('Terima kasih Kak Budi', $reply);
+        $this->assertStringNotContainsString('save_lead', $reply);
+        $this->assertStringNotContainsString('{', $reply);
+
+        $session = ChatSession::where('visitor_uuid', $response->json('sessionId'))->first();
+        $this->assertNotNull($session);
+        $this->assertTrue((bool) $session->is_lead);
+        $this->assertSame('Budi Gunawan', $session->visitor_name);
+        $this->assertSame('bdgwn@test.id', $session->visitor_email);
+        $this->assertSame('0812345464458', $session->visitor_phone);
+
+        Mail::assertSent(NewLead::class, fn ($m) => $m->hasTo('owner@test.id'));
+    }
+
+    public function test_strict_json_action_reply_without_webhook_returns_friendly_message(): void
+    {
+        $this->makeStack();
+
+        $this->fakeOpenRouter('{"action": "save_lead", "name": "Budi"}');
+
+        $response = $this->postJson('/api/chat', [
+            'message' => 'simpan lead',
+            'widgetId' => 'w-uji',
+            'history' => [],
+            'sessionId' => 'sess_strict_json',
+        ], ['Origin' => 'https://toko.test']);
+
+        $response->assertOk()
+            ->assertJsonPath('response', 'Data berhasil diproses.');
     }
 
     public function test_chat_unknown_widget_returns_404(): void

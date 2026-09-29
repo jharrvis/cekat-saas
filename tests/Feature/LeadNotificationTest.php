@@ -48,8 +48,7 @@ class LeadNotificationTest extends TestCase
 
         $session = ChatSession::create([
             'widget_id' => $widget->id,
-            'session_id' => 'sess-lead-' . uniqid(),
-            'visitor_uuid' => (string) \Illuminate\Support\Str::uuid(),
+            'visitor_uuid' => 'sess-lead-' . uniqid(),
             'started_at' => now(),
         ]);
 
@@ -65,7 +64,7 @@ class LeadNotificationTest extends TestCase
         event(new LeadCaptured(
             $widget->slug,
             ['name', 'email'],
-            $session->session_id,
+            $session->visitor_uuid,
             ['name' => 'Budi Santoso', 'email' => 'budi@example.com'],
         ));
 
@@ -86,7 +85,7 @@ class LeadNotificationTest extends TestCase
         event(new LeadCaptured(
             $widget->slug,
             ['name'],
-            $session->session_id,
+            $session->visitor_uuid,
             ['name' => 'Freebie'],
         ));
 
@@ -106,7 +105,7 @@ class LeadNotificationTest extends TestCase
         $payload = fn () => event(new LeadCaptured(
             $widget->slug,
             ['name', 'email'],
-            $session->session_id,
+            $session->visitor_uuid,
             ['name' => 'Budi', 'email' => 'budi@example.com'],
         ));
 
@@ -127,10 +126,11 @@ class LeadNotificationTest extends TestCase
         event(new LeadCaptured(
             $widget->slug,
             ['name'],
-            $session->session_id,
+            $session->visitor_uuid,
             ['name' => 'No Webhook'],
         ));
 
         Mail::assertSent(NewLead::class, fn ($m) => $m->hasTo($owner->email));
     }
 }
+

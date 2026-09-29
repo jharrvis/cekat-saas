@@ -27,8 +27,10 @@ class SendLeadNotification
         $session = null;
 
         if ($e->sessionId) {
+            // Orchestrator mints the id into chat_sessions.visitor_uuid
+            // (chat_sessions.session_id is a nullable legacy column).
             $session = ChatSession::where('widget_id', $widget->id)
-                ->where('session_id', $e->sessionId)
+                ->where('visitor_uuid', $e->sessionId)
                 ->first();
         }
 
