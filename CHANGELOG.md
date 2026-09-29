@@ -5,6 +5,18 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Resume percakapan: natural tanpa sebutan "AI" + validasi output job summary (2026-09-29)
+
+**Konteks:** resume (summary) di dashboard menyebut "AI" karena label transkrip `AI:` ikut terkirim ke prompt; user meminta resume lebih informatif & natural tanpa menyebut AI (ganti "layanan customer service"). Ditemukan juga penyebab "resume tidak muncul di production": job summary lama di-dispatch ke queue sedangkan production `QUEUE_CONNECTION=database` **tanpa queue worker** (worker yang ada milik aplikasi lain) → ChatInbox "Generate" & closing lama tak pernah menghasilkan ringkasan; model free kadang mengembalikan sampah (mis. `User Safety: safe`) yang tersimpan apa adanya. Lingkup fitur (penawaran penutupan + resume): berlaku untuk **semua widget semua pelanggan** — timing global di `widget.js` (90 dtk idle → tawaran, +60 dtk → tutup+resume, +5 dtk → minimize), bisa dioverride per-site via `window.CSAIConfig` sebelum memuat widget.
+
+**Diubah:**
+- `GenerateChatSummary`: label transkrip `AI` → `Layanan Customer Service`; system prompt baru — catatan profesional untuk tim layanan customer service (topik pembicaraan, kebutuhan customer, hasil + tindak lanjut; maksimal 3 kalimat, prosa mengalir tanpa label), larangan eksplisit menyebut "AI"/"chatbot"/"model" (puji pihak pelayan dengan "layanan customer service"/"tim kami"); `max_tokens` 200→250.
+- Validasi output: buang code fence markdown, tolak hasil <40 karakter (log warning + potongan konten), retry 1×; gagal total → `summary` null (closing generik di widget / resume kosong di dashboard — bukan sampah tersimpan).
+
+**Diverifikasi:**
+- Regenerasi resume pada sesi percakapan nyata → natural, informatif, tanpa "AI": *"Customer menanyakan harga paket Business, dan layanan customer service menjelaskan rincian paket beserta fitur-fiturnya serta menawarkan bantuan lebih lanjut untuk melakukan pemesanan…"*; sampah `User Safety: safe` kini ditolak & di-retry.
+- Suite **159 passed / 583 assertions**; backfill resume sesi ended di production setelah deploy.
+
 ### Widget: offer idle mengulang tanpa henti + auto-close sesi dengan ringkasan & auto-minimize (2026-09-29)
 
 **Konteks:** tawaran "Apakah Anda masih membutuhkan bantuan?" setelah idle terus-muncul-muncul dan widget tak pernah menutup diri; beberapa kasus menampilkan "Percakapan ditutup." berulang-ulang. Akar: (1) duplikat `function toggleChat` — versi sederhana menimpa versi lengkap ber-timer; (2) `addMessage()` selalu me-reset siklus idle → `closeOfferSent` ter-flip balik; (3) auto-scroll memicu listener `scroll` → membatalkan timer offer/minimize; (4) tidak ada endpoint menutup sesi server; (5) offer bisa fired saat balasan AI masih loading → close memakai sessionId unsigned (belum diadopsi dari respons `/api/chat`) → 403 → closing generik; (6) pesan closing sendiri me-reset idle cycle → offer → close → offer (loop; closing berikutnya 403 karena sessionId sudah dirotasi). Keputusan user: **auto-minimize + grace 5 detik** (dibatalkan bila visitor kembali aktif) dan tombol manual **"Tutup percakapan" juga menutup sesi server + summary**.
