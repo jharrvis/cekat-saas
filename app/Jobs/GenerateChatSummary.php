@@ -68,8 +68,18 @@ class GenerateChatSummary implements ShouldQueue
         // cleanly (widget falls back to the generic closing message).
         try {
             $summary = null;
+            $userPrompt = "Buatkan resume dari percakapan berikut:\n\n{$conversationText}";
 
             for ($attempt = 1; $attempt <= 2 && $summary === null; $attempt++) {
+                // Weak models sometimes answer by echoing the instruction.
+                // The retry breaks the pattern: explicit anti-echo guard and
+                // a different temperature (a low-temp retry repeats itself).
+                $prompt = $attempt === 1
+                    ? $userPrompt
+                    : $userPrompt."\n\nPENTING: teks di atas hanya instruksi format. JANGAN mengulangi, meringkas, "
+                        .'atau menyebutnya. Keluarkan HANYA teks resume percakapan dalam Bahasa Indonesia, '
+                        .'dimulai langsung dari topik pembicaraan.';
+
                 $data = \App\Services\OpenRouterClient::chatCompletion([
                     'model' => $model,
                     'messages' => [
@@ -84,10 +94,10 @@ class GenerateChatSummary implements ShouldQueue
                         ],
                         [
                             'role' => 'user',
-                            'content' => "Buatkan resume dari percakapan berikut:\n\n{$conversationText}"
+                            'content' => $prompt
                         ]
                     ],
-                    'temperature' => 0.3,
+                    'temperature' => $attempt === 1 ? 0.3 : 0.7,
                     // Free reasoning models burn part of the budget on
                     // reasoning tokens; 250 truncated mid-sentence.
                     'max_tokens' => 400,
