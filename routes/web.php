@@ -76,6 +76,11 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
     // session + messages when the caller proves ownership (signed sessionId
     // + IP/user-agent fingerprint). Path matches the /api/widget/* CSRF
     // exception and rides the same throttle as /api/chat.
+    // OPTIONS companion required: without it the cross-origin preflight
+    // hits the router's 405 (no CORS headers) and the browser cancels
+    // the actual DELETE (net::ERR_FAILED) - same as /chat above.
+    Route::options('/widget/session', fn () => response()->noContent());
+
     Route::delete('/widget/session', function (Illuminate\Http\Request $request) {
         $data = $request->validate([
             'widgetId' => 'required|string|max:100',
@@ -118,6 +123,11 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
     // AI summary synchronously (production has no queue worker). Same
     // ownership gate as the DELETE above (signed sessionId + IP/UA
     // fingerprint); idempotent when already ended or never started.
+    // OPTIONS companion: the widget calls this cross-origin (bmp.net.id ->
+    // cekat.biz.id), so the preflight must be answered by WidgetApiCors
+    // instead of the router 405, or the POST is cancelled by the browser.
+    Route::options('/widget/session/close', fn () => response()->noContent());
+
     Route::post('/widget/session/close', function (Illuminate\Http\Request $request) {
         $data = $request->validate([
             'widgetId' => 'required|string|max:100',

@@ -190,6 +190,40 @@ class WidgetSessionCloseTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_cross_origin_preflight_for_close_and_delete_is_answered(): void
+    {
+        // Regression: without OPTIONS companion routes the preflight hit the
+        // router's 405 (text/html, no CORS headers) and the browser cancelled
+        // the actual request with net::ERR_FAILED - observed live on bmp.net.id.
+        $this->makeStack();
+
+        $response = $this->call(
+            'OPTIONS',
+            '/api/widget/session/close',
+            [],
+            [],
+            [],
+            ['HTTP_ORIGIN' => 'http://bmp.net.id', 'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => 'POST']
+        );
+
+        $response->assertStatus(204);
+        $response->assertHeader('Access-Control-Allow-Origin', 'http://bmp.net.id');
+        $this->assertStringContainsString('POST', (string) $response->headers->get('Access-Control-Allow-Methods'));
+
+        $response = $this->call(
+            'OPTIONS',
+            '/api/widget/session',
+            [],
+            [],
+            [],
+            ['HTTP_ORIGIN' => 'http://bmp.net.id', 'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => 'DELETE']
+        );
+
+        $response->assertStatus(204);
+        $response->assertHeader('Access-Control-Allow-Origin', 'http://bmp.net.id');
+        $this->assertStringContainsString('DELETE', (string) $response->headers->get('Access-Control-Allow-Methods'));
+    }
+
     public function test_summary_job_accepts_a_bare_session_id(): void
     {
         ['widget' => $widget] = $this->makeStack();
