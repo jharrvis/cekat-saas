@@ -45,4 +45,44 @@ class LeadCaptureServiceTest extends TestCase
         $this->assertNotNull($this->service->triggerInstruction($settings, [], 'Berapa HARGA nya kak?'));
         $this->assertNull($this->service->triggerInstruction($settings, [], 'halo kak'));
     }
+
+    public function test_extract_lead_from_message_full_contact(): void
+    {
+        $lead = $this->service->extractLeadFromMessage(
+            'Nama saya Budi Gunawan, email bdgwn@yahoo.co.id, telepon 0812345464458'
+        );
+
+        $this->assertNotNull($lead);
+        $this->assertSame('save_lead', $lead['action']);
+        $this->assertSame('Budi Gunawan', $lead['name']);
+        $this->assertSame('bdgwn@yahoo.co.id', $lead['email']);
+        $this->assertSame('0812345464458', $lead['phone']);
+    }
+
+    public function test_extract_lead_stops_name_at_contact_keyword(): void
+    {
+        $lead = $this->service->extractLeadFromMessage(
+            'Nama saya Ahmad Fauzi, email ahmad@test.id ya kak'
+        );
+
+        $this->assertSame('Ahmad Fauzi', $lead['name'] ?? null);
+        $this->assertSame('ahmad@test.id', $lead['email'] ?? null);
+    }
+
+    public function test_extract_lead_accepts_email_or_phone_only(): void
+    {
+        $emailOnly = $this->service->extractLeadFromMessage('kirim ke budi@gmail.com ya');
+        $this->assertNull($emailOnly['name'] ?? null);
+        $this->assertSame('budi@gmail.com', $emailOnly['email']);
+
+        $phoneOnly = $this->service->extractLeadFromMessage('chat wa +6281234567890');
+        $this->assertSame('6281234567890', $phoneOnly['phone']);
+        $this->assertArrayNotHasKey('name', $phoneOnly);
+    }
+
+    public function test_extract_lead_requires_email_or_phone(): void
+    {
+        $this->assertNull($this->service->extractLeadFromMessage('nama saya Budi, saya mau tanya harga'));
+        $this->assertNull($this->service->extractLeadFromMessage('halo kak berapa harganya?'));
+    }
 }

@@ -148,40 +148,44 @@ class ChatOrchestrator
                 throw new \Exception('No response from AI');
             }
 
-            // Handle Webhook Trigger (Function Calling)
-            if ($widget) {
-                $action = $this->webhooks->extractAction($responseText);
-                $webhookResult = $this->webhooks->dispatchIfAction($widget, $responseText);
+                // Handle Webhook Trigger (Function Calling)
+                if ($widget) {
+                    $replyAction = $this->webhooks->extractAction($responseText);
+                    $webhookResult = $this->webhooks->dispatchIfAction($widget, $responseText);
 
-                if ($webhookResult && $action) {
-                    WebhookActionTriggered::dispatch($widget->slug, $action['action']);
-                }
-
-                // Clean the action JSON from the reply — with OR without a
-                // configured webhook (an unconfigured webhook must not leak
-                // the raw {"action":...} payload into the visitor's chat).
-                if ($action && $this->webhooks->isStrictJson($responseText)) {
-                    $responseText = $webhookResult ?? 'Data berhasil diproses.';
-                } elseif ($action) {
-                    $cleaned = trim($this->webhooks->stripActionJson($responseText));
-                    if ($cleaned !== '') {
-                        $responseText = $cleaned;
+                    if ($webhookResult && $replyAction) {
+                        WebhookActionTriggered::dispatch($widget->slug, $replyAction['action']);
                     }
-                }
 
-                $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? []);
+                    // Clean the action JSON from the reply — with OR without a
+                    // configured webhook (an unconfigured webhook must not leak
+                    // the raw {"action":...} payload into the visitor's chat).
+                    if ($replyAction && $this->webhooks->isStrictJson($responseText)) {
+                        $responseText = $webhookResult ?? 'Data berhasil diproses.';
+                    } elseif ($replyAction) {
+                        $cleaned = trim($this->webhooks->stripActionJson($responseText));
+                        if ($cleaned !== '') {
+                            $responseText = $cleaned;
+                        }
+                    }
 
-                // Lead capture: fires regardless of webhook config, after the
-                // session row exists (SendLeadNotification persists the lead
-                // onto the session and emails the widget owner).
-                if ($action && ($action['action'] ?? null) === 'save_lead') {
-                    LeadCaptured::dispatch(
-                        $widget->slug,
-                        array_values(array_intersect(['name', 'email', 'phone'], array_keys($action))),
-                        $sessionId,
-                        array_intersect_key($action, array_flip(['name', 'email', 'phone'])),
-                    );
-                }
+                    $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? []);
+
+                    // Lead capture: prefer the AI-emitted action; when the free
+                    // model skips the JSON block, fall back to a deterministic
+                    // extraction from the visitor's own message so the lead is
+                    // never dropped. Fires regardless of webhook config, after
+                    // the session row exists (SendLeadNotification persists the
+                    // lead onto the session and emails the widget owner).
+                    $action = $replyAction ?? $this->leads->extractLeadFromMessage($message);
+                    if ($action && ($action['action'] ?? null) === 'save_lead') {
+                        LeadCaptured::dispatch(
+                            $widget->slug,
+                            array_values(array_intersect(['name', 'email', 'phone'], array_keys($action))),
+                            $sessionId,
+                            array_intersect_key($action, array_flip(['name', 'email', 'phone'])),
+                        );
+                    }
 
                 // Increment user's monthly message quota (skip for landing page widget - unlimited)
                 $this->quota->consume($widget->user, $widget->slug);

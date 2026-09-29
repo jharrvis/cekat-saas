@@ -213,6 +213,38 @@ class ChatApiTest extends TestCase
             ->assertJsonPath('response', 'Data berhasil diproses.');
     }
 
+    public function test_lead_captured_from_visitor_message_when_ai_omits_json_action(): void
+    {
+        Mail::fake();
+
+        ['plan' => $plan] = $this->makeStack();
+        $plan->update(['can_export_leads' => true]);
+
+        // Free models sometimes skip the save_lead JSON block entirely;
+        // the fallback must still persist the lead from the visitor's
+        // own message and email the owner.
+        $this->fakeOpenRouter('Tentu Kak, data sudah saya simpan. Nanti tim kami hubungi ya!');
+
+        $response = $this->postJson('/api/chat', [
+            'message' => 'Nama saya Budi Gunawan, email bdgwn@yahoo.co.id, telepon 0812345464458. Tolong simpan datanya.',
+            'widgetId' => 'w-uji',
+            'history' => [],
+            'sessionId' => 'sess_lead_fallback',
+        ], ['Origin' => 'https://toko.test']);
+
+        $response->assertOk();
+        $this->assertStringNotContainsString('{', $response->json('response'));
+
+        $session = ChatSession::where('visitor_uuid', $response->json('sessionId'))->first();
+        $this->assertNotNull($session);
+        $this->assertTrue((bool) $session->is_lead);
+        $this->assertSame('Budi Gunawan', $session->visitor_name);
+        $this->assertSame('bdgwn@yahoo.co.id', $session->visitor_email);
+        $this->assertSame('0812345464458', $session->visitor_phone);
+
+        Mail::assertSent(NewLead::class, fn ($m) => $m->hasTo('owner@test.id'));
+    }
+
     public function test_chat_unknown_widget_returns_404(): void
     {
         // The 404 branch only runs when the demo JSON fallback is absent,

@@ -16,8 +16,16 @@ class LeadController extends Controller
         $user = auth()->user();
         $widgetIds = $user->widgets()->pluck('id');
 
+        // A lead counts as soon as ANY contact detail was captured (name
+        // alone is optional — email/phone-only leads still must show up).
+        $hasContact = function ($q) {
+            $q->whereNotNull('visitor_name')
+                ->orWhereNotNull('visitor_email')
+                ->orWhereNotNull('visitor_phone');
+        };
+
         $query = ChatSession::whereIn('widget_id', $widgetIds)
-            ->whereNotNull('visitor_name')
+            ->where($hasContact)
             ->with('widget');
 
         // Filter by widget
@@ -37,17 +45,17 @@ class LeadController extends Controller
 
         // Stats
         $totalSessions = ChatSession::whereIn('widget_id', $widgetIds)->count();
-        $totalLeads = ChatSession::whereIn('widget_id', $widgetIds)->whereNotNull('visitor_name')->count();
+        $totalLeads = ChatSession::whereIn('widget_id', $widgetIds)->where($hasContact)->count();
 
         $stats = [
             'total' => $totalLeads,
             'this_month' => ChatSession::whereIn('widget_id', $widgetIds)
-                ->whereNotNull('visitor_name')
+                ->where($hasContact)
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count(),
             'this_week' => ChatSession::whereIn('widget_id', $widgetIds)
-                ->whereNotNull('visitor_name')
+                ->where($hasContact)
                 ->where('created_at', '>=', now()->startOfWeek())
                 ->count(),
             'conversion_rate' => $totalSessions > 0 ? ($totalLeads / $totalSessions) * 100 : 0,
@@ -67,7 +75,11 @@ class LeadController extends Controller
         $widgetIds = $user->widgets()->pluck('id');
 
         $leads = ChatSession::whereIn('widget_id', $widgetIds)
-            ->whereNotNull('visitor_name')
+            ->where(function ($q) {
+                $q->whereNotNull('visitor_name')
+                    ->orWhereNotNull('visitor_email')
+                    ->orWhereNotNull('visitor_phone');
+            })
             ->with('widget')
             ->orderBy('created_at', 'desc')
             ->get();
