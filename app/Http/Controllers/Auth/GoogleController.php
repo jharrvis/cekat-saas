@@ -29,6 +29,19 @@ class GoogleController extends Controller
                 if (!$user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
+
+                // Unverified account (incl. legacy users) - email the OTP now
+                if (! $user->hasVerifiedEmail()
+                    && ! app(\App\Services\Auth\EmailOtpService::class)->hasLiveCode($user)) {
+                    try {
+                        $user->sendEmailVerificationNotification();
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Failed to send verification code', [
+                            'user_id' => $user->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
             } else {
                 // Create new user - email is NOT auto-verified: every new
                 // account must enter the OTP sent to their inbox

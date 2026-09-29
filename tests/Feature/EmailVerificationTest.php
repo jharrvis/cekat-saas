@@ -132,7 +132,55 @@ class EmailVerificationTest extends TestCase
             ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('Verifikasi Email Anda')
-            ->assertSee('modal@test.id', false);
+            ->assertSee('modal@test.id', false)
+            // x-data param MUST be a quoted string - unquoted '{ idle }' is a
+            // JS variable reference (ReferenceError) that kills the component.
+            ->assertSee("verifyOtpModal('idle')", false);
+    }
+
+    public function test_login_emails_the_otp_to_unverified_user(): void
+    {
+        Mail::fake();
+
+        $user = $this->makeUnverified('login-otp@test.id');
+
+        $this->post('/login', [
+            'email' => 'login-otp@test.id',
+            'password' => 'secret123',
+        ])->assertRedirect('/dashboard');
+
+        Mail::assertSent(EmailOtp::class, fn ($m) => $m->hasTo('login-otp@test.id'));
+    }
+
+    public function test_login_does_not_resend_while_a_code_is_live(): void
+    {
+        Mail::fake();
+
+        $user = $this->makeUnverified('login-live@test.id');
+        $user->sendEmailVerificationNotification();
+
+        $this->post('/login', [
+            'email' => 'login-live@test.id',
+            'password' => 'secret123',
+        ])->assertRedirect('/dashboard');
+
+        // only the pre-login send (login itself must not duplicate it)
+        Mail::assertSent(EmailOtp::class, 1);
+    }
+
+    public function test_login_of_verified_user_sends_no_code(): void
+    {
+        Mail::fake();
+
+        $user = $this->makeUnverified('login-done@test.id');
+        $user->forceFill(['email_verified_at' => now()])->save();
+
+        $this->post('/login', [
+            'email' => 'login-done@test.id',
+            'password' => 'secret123',
+        ])->assertRedirect('/dashboard');
+
+        Mail::assertNotSent(EmailOtp::class);
     }
 
     public function test_verified_user_does_not_see_the_modal(): void

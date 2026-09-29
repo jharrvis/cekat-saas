@@ -5,7 +5,7 @@
         $otpLive = app(\App\Services\Auth\EmailOtpService::class)->hasLiveCode(auth()->user());
     @endphp
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <div x-data="verifyOtpModal({{ $otpLive ? 'sent' : 'idle' }})" x-init="init()"
+    <div x-data="verifyOtpModal('{{ $otpLive ? 'sent' : 'idle' }}')" x-init="init()"
         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/95 backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-labelledby="verify-otp-title">
         <div class="w-full max-w-md rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
@@ -106,14 +106,17 @@
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'text/html',
                         },
-                    }).then(() => {
-                        // Redirect back (200/302 followed) or throttled (429) -
-                        // either way the next manual resend is allowed later.
+                    }).then((res) => {
+                        if (!res.ok) {
+                            // throttled / CSRF / server error - keep the button
+                            // usable so the user can retry manually.
+                            this.resendState = 'idle';
+                            return;
+                        }
                         this.resendState = 'sent';
                         this.startCountdown();
                     }).catch(() => {
-                        this.resendState = 'sent';
-                        this.startCountdown();
+                        this.resendState = 'idle';
                     });
                 },
 
