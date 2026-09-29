@@ -5,6 +5,23 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Widget: offer idle mengulang tanpa henti + auto-close sesi dengan ringkasan & auto-minimize (2026-09-29)
+
+**Konteks:** tawaran "Apakah Anda masih membutuhkan bantuan?" setelah idle terus-muncul-muncul dan widget tak pernah menutup diri; beberapa kasus menampilkan "Percakapan ditutup." berulang-ulang. Akar: (1) duplikat `function toggleChat` — versi sederhana menimpa versi lengkap ber-timer; (2) `addMessage()` selalu me-reset siklus idle → `closeOfferSent` ter-flip balik; (3) auto-scroll memicu listener `scroll` → membatalkan timer offer/minimize; (4) tidak ada endpoint menutup sesi server; (5) offer bisa fired saat balasan AI masih loading → close memakai sessionId unsigned (belum diadopsi dari respons `/api/chat`) → 403 → closing generik; (6) pesan closing sendiri me-reset idle cycle → offer → close → offer (loop; closing berikutnya 403 karena sessionId sudah dirotasi). Keputusan user: **auto-minimize + grace 5 detik** (dibatalkan bila visitor kembali aktif) dan tombol manual **"Tutup percakapan" juga menutup sesi server + summary**.
+
+**Ditambahkan:**
+- Endpoint `POST /api/widget/session/close` (grup widget, CSRF-except `/api/widget/*`, `throttle:chat`): verifikasi widgetId + sessionId signed (HMAC) + fingerprint IP/UA → tutup sesi (`status='ended'`, `ended_at`) → `dispatchSync(GenerateChatSummary)` bila ada pesan → kembalikan `{success, summary}`; idempoten (sesi sudah ended → ringkasan lama), sesi tak ditemukan → `{noop}`; tanpa queue worker (prod tanpa worker) summary tetap sinkron.
+- Latch `conversationClosed` di widget: satu closing per percakapan — `showCloseOffer`/`resetInactivityTimer` menolak siklus baru setelah closing; diangkat hanya oleh pesan visitor baru (`sendMessage`) atau `CSAI_endChat`. Guard `isLoading` mencegah offer/close saat balasan AI masih in-flight (sessionId belum signed). `closeConversation`: latch di-set sebelum await → closing message & aktivitas apa pun tak bisa memulai siklus kedua; pesan penutup (summary LLM atau generik) → rotasi `sessionId` → auto-minimize setelah `closeGraceTimeout` (5 detik; dibatalkan aktivitas visitor). `CSAI_endChat` kini juga `closeSessionOnServer()` (fire-and-forget) + latch; `CSAI_continueChat` menghapus bubble offer.
+- Test: `WidgetSessionCloseTest` (8 — happy path + summary, idempoten, noop, sesi tanpa pesan, unsigned 403, fingerprint mismatch 403, widget salah 404, ctor `GenerateChatSummary` menerima int); `tests/widget/inactivityClose.regression.mjs` diperluas (16 check — latch, guard isLoading, urutan latch-vs-await, rotasi sessionId, endpoint, dsb).
+
+**Diubah:**
+- `GenerateChatSummary::__construct` menerima `ChatSession|int|string` (sebelumnya hanya model → `ChatInbox::closeSession` yang mengirim int kena TypeError); `ChatInbox` & `ChatHistoryController` meng-`dispatchSync` job summary (tanpa worker → summary selalu terhasil, flash kini "Summary berhasil di-generate.").
+- Widget state machine: `resetInactivityTimer` me-clear timer minimize + menghapus bubble offer basi; auto-scroll ditandai `autoScrollUntil` (listener `scroll` mengabaikannya); duplikat `toggleChat` dihapus (satu deklarasi menyatukan greeting/badge/timer); satu helper `scrollToBottom()` sebagai satu-satunya tulis `scrollTop`.
+
+**Diverifikasi:**
+- QA browser (timer QA 4s/3s/2s): offer tampil tepat 1× → close **200 + summary** → minimize tepat 1× → tidak ada loop; guard `isLoading` terbukti melewatkan offer saat reply in-flight; tombol manual "Tutup percakapan" menutup sesi server (200, idempoten). Ringkasan LLM pernah `empty_content` (provider) → degradasi graceful ke closing generik.
+- Suite **159 passed / 583 assertions** (baseline 151/551); regression widget 16/16 + parseMarkdown 9/9 hijau; `npm run build:widget` (min.js bebas instrumen QA).
+
 ### Lanjutan remediasi plan tiers: 5 temuan follow-up (2026-09-29)
 
 **Konteks:** audit internal menemukan 5 hal: (1) hapus chat history mengandalkan `redirect()->back()` → 404 bila halaman asal sudah tertutup; (2) batas device WhatsApp masih hard-code pencocokan slug (`getMaxDevicesForUser` 1/3/10) di luar service; (3) token `active_channels` dipakai untuk create channel — user dengan widget draft tertolak membuat chatbot padahal slot masih ada; (4) registrasi/Google masih menulis legacy `plan_tier`/`monthly_message_quota` (kolom sudah drop) dan mengandalkan fallback implisit; (5) regression test belum memindai `app/Services`/`app/Console`, token legacy, maupun branching slug.

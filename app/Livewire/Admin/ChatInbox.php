@@ -31,8 +31,8 @@ class ChatInbox extends Component
                 'status' => 'ended',
             ]);
 
-            // Dispatch summary job
-            \App\Jobs\GenerateChatSummary::dispatch($sessionId);
+            // Generate inline: production has no queue worker for this app
+            \App\Jobs\GenerateChatSummary::dispatchSync($session);
         }
 
         if ($this->selectedSession && $this->selectedSession->id === $sessionId) {

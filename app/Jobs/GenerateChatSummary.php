@@ -20,10 +20,15 @@ class GenerateChatSummary implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * Accepts a model or a bare id so legacy call sites that dispatch the
+     * session id (ChatInbox) keep working instead of throwing a TypeError.
      */
-    public function __construct(ChatSession $session)
+    public function __construct(ChatSession|int|string $session)
     {
-        $this->session = $session;
+        $this->session = $session instanceof ChatSession
+            ? $session
+            : ChatSession::findOrFail($session);
     }
 
     /**

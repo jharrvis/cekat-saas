@@ -64,6 +64,7 @@
     // Auto-close settings
     inactivityTimeout: 90000, // 90 seconds
     closeOfferTimeout: 60000, // 60 seconds after offer
+    closeGraceTimeout: 5000, // show closing summary this long before auto-minimize
     enableEmoji: true,
     autoCloseEnabled: true
   };
@@ -82,7 +83,15 @@
   let inactivityTimer = null;
   let closeOfferSent = false;
   let closeOfferTimer = null;
+  let minimizeTimer = null;
+  let autoScrollUntil = 0;
   let emojiPickerOpen = false;
+  // One closing per conversation: once the auto-close flow has run, no
+  // new offer/close cycle may start until the visitor sends a message
+  // (which begins a fresh conversation). Without this latch the closing
+  // message's own activity reset re-armed the idle cycle and the
+  // offer -> close -> offer loop repeated forever.
+  let conversationClosed = false;
 
   // Emoji Dictionary
   const EMOJI_SET = {
@@ -243,6 +252,17 @@
     }
   }
 
+  // Programmatic scroll helper: flags the scroll so the scroll listener
+  // does not treat it as user activity. Without the flag the auto-scroll
+  // that follows every addMessage cancelled the close-offer/minimize
+  // timers, which made the idle offer repeat forever and the widget never
+  // close itself.
+  function scrollToBottom(el) {
+    if (!el) return;
+    autoScrollUntil = Date.now() + 300;
+    el.scrollTop = el.scrollHeight;
+  }
+
   // Reset Inactivity Timer
   function resetInactivityTimer() {
     if (!isOpen || !config.autoCloseEnabled) return;
@@ -250,8 +270,21 @@
     // Clear existing timers
     if (inactivityTimer) clearTimeout(inactivityTimer);
     if (closeOfferTimer) clearTimeout(closeOfferTimer);
+    // Any real visitor activity also cancels a pending auto-minimize
+    // (grace period after the closing summary).
+    if (minimizeTimer) {
+      clearTimeout(minimizeTimer);
+      minimizeTimer = null;
+    }
 
+    // A pending offer is no longer relevant once the visitor interacts:
+    // remove its bubble so a later cycle does not stack a second one.
+    if (closeOfferSent) removeOfferBubble();
     closeOfferSent = false;
+
+    // Conversation already ended: activity may cancel the pending
+    // minimize, but never re-arms the offer/close cycle.
+    if (conversationClosed) return;
 
     // Set new timer
     inactivityTimer = setTimeout(showCloseOffer, config.inactivityTimeout);
@@ -259,38 +292,103 @@
 
   // Show Close Offer (Bot Message)
   function showCloseOffer() {
-    if (!isOpen || closeOfferSent) return;
+    // isLoading: a reply is still in flight - the reply's own addMessage
+    // will re-arm the cycle, and closing now would use a session id that
+    // has not been signed by the chat response yet (403 on close).
+    if (!isOpen || closeOfferSent || conversationClosed || isLoading) return;
 
-    closeOfferSent = true;
+    // Nothing to offer when the visitor never actually chatted
+    // (opened the widget, glanced, walked away).
+    if (!chatHistory.some(function (m) { return m.role === 'user'; })) return;
 
-    const offerHtml = `
+    const offerHtml = `<div data-csai-offer>
       Apakah Anda masih membutuhkan bantuan?
       <div class="csai-quick-actions">
         <button class="csai-quick-btn" onclick="window.CSAI_continueChat()">Ya, lanjutkan</button>
         <button class="csai-quick-btn danger" onclick="window.CSAI_endChat()">Tutup percakapan</button>
       </div>
-    `;
+    </div>`;
 
     addMessage('assistant', offerHtml, true, true); // Skip adding to permanent history
 
-    // Set auto-close timer if no response
-    closeOfferTimer = setTimeout(() => {
-      if (isOpen) {
-        toggleChat(); // Minimize
-      }
+    // Set the guard AFTER addMessage: addMessage itself resets activity
+    // state, so setting the flag first let it flip back to false and the
+    // offer was re-sent every inactivity cycle.
+    closeOfferSent = true;
+
+    // No response after closeOfferTimeout -> end the conversation on the
+    // server (status ended + AI summary), show it, then auto-minimize.
+    closeOfferTimer = setTimeout(function () {
+      if (isOpen && closeOfferSent) closeConversation();
     }, config.closeOfferTimeout);
+  }
+
+  function removeOfferBubble() {
+    const offer = document.querySelector('[data-csai-offer]');
+    if (offer) {
+      const bubble = offer.closest('.csai-message');
+      (bubble || offer).remove();
+    }
+  }
+
+  // End the conversation server-side WITHOUT deleting it (the DELETE
+  // endpoint above is the DSR wipe). Returns {success, noop, summary} or
+  // null on network failure. Fire-and-forget callers ignore the promise.
+  function closeSessionOnServer() {
+    if (!sessionId) return Promise.resolve({ success: true, noop: true, summary: null });
+    try {
+      return fetch(config.configUrl + 'session/close', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ widgetId: config.widgetId, sessionId: sessionId }),
+        keepalive: true
+      }).then(function (r) { return r.json(); }).catch(function () { return null; });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  }
+
+  // Auto-close flow: end session + summary -> show closing message ->
+  // rotate to a fresh sessionId -> auto-minimize after the grace period
+  // (cancelled by any visitor activity via resetInactivityTimer).
+  async function closeConversation() {
+    // Latch immediately so nothing that happens during the await (or the
+    // closing message's own activity reset) can start another cycle.
+    conversationClosed = true;
+    const data = await closeSessionOnServer();
+    const summary = data && data.summary ? String(data.summary) : null;
+
+    removeOfferBubble();
+
+    const closingText = summary
+      ? 'Percakapan ditutup. Berikut ringkasan percakapan Anda:\n\n' + summary
+      : 'Percakapan ditutup. Terima kasih sudah menghubungi kami!';
+    // Persisted: the summary stays visible when the widget is reopened.
+    addMessage('assistant', closingText);
+
+    // Next message starts a brand-new server session; the closed one
+    // stays in the dashboard with its summary.
+    sessionId = generateSessionId();
+    saveHistory();
+
+    minimizeTimer = setTimeout(function () {
+      minimizeTimer = null;
+      if (isOpen) toggleChat();
+    }, config.closeGraceTimeout || 5000);
   }
 
   // Global functions for inline onclick handlers
   window.CSAI_continueChat = function () {
+    removeOfferBubble();
     resetInactivityTimer();
-    // Remove the offer message or just add a system note?
-    // For simplicity, we just insert a user action note
-    // addMessage('user', 'Dilanjutkan...', true);
   };
 
   window.CSAI_endChat = function () {
+    // Manual close also ends the session server-side and generates the
+    // summary (fire-and-forget; the local wipe must not wait on network).
+    closeSessionOnServer();
     clearHistory();
+    conversationClosed = true;
     toggleChat();
   };
 
@@ -1056,7 +1154,6 @@
 
   // Toggle Chat with Auto-Close Logic
   function toggleChat() {
-    const widget = document.getElementById('csai-widget');
     const windowEl = document.getElementById('csai-window');
     const buttonEl = document.getElementById('csai-toggle');
     const badgeEl = document.getElementById('csai-badge');
@@ -1071,11 +1168,18 @@
       badgeEl.style.display = 'none';
       badgeEl.textContent = '0';
 
-      // Also hide main button if on mobile (to avoid overlap or distraction?) 
+      // Also hide main button if on mobile (to avoid overlap or distraction?)
       // Actually usually we want to keep it to close, but in full screen we used header close
       // Let's hide the floating button when open on mobile to make room
       if (window.innerWidth <= 480) {
         buttonEl.classList.add('hidden');
+      }
+
+      // Show greeting if first time
+      if (chatHistory.length === 0) {
+        setTimeout(() => {
+          addMessage('assistant', config.greeting);
+        }, 500);
       }
 
       // Focus input (with slight delay for animation)
@@ -1085,8 +1189,7 @@
 
       // Scroll to bottom
       setTimeout(() => {
-        const messagesEl = document.getElementById('csai-messages');
-        if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+        scrollToBottom(document.getElementById('csai-messages'));
       }, 100);
 
       // Start inactivity timer
@@ -1100,6 +1203,10 @@
       // Clear timers
       if (inactivityTimer) clearTimeout(inactivityTimer);
       if (closeOfferTimer) clearTimeout(closeOfferTimer);
+      if (minimizeTimer) {
+        clearTimeout(minimizeTimer);
+        minimizeTimer = null;
+      }
       closeOfferSent = false;
     }
   }
@@ -1137,7 +1244,7 @@
     }
 
     messagesEl.appendChild(messageEl);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    scrollToBottom(messagesEl);
 
     if (!skipHistory) {
       chatHistory.push({ role, content });
@@ -1250,7 +1357,7 @@
     typingEl.id = 'csai-typing';
     typingEl.innerHTML = '<span></span><span></span><span></span>';
     messagesEl.appendChild(typingEl);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+    scrollToBottom(messagesEl);
   }
 
   // Hide typing indicator
@@ -1264,6 +1371,9 @@
     if (isLoading || !message.trim()) return;
 
     isLoading = true;
+    // A new visitor message opens a fresh conversation: lift the closing
+    // latch so the idle offer/close cycle may run again later.
+    conversationClosed = false;
     const sendBtn = document.getElementById('csai-send');
     sendBtn.disabled = true;
 
@@ -1312,39 +1422,6 @@
     } finally {
       isLoading = false;
       sendBtn.disabled = false;
-    }
-  }
-
-  // Toggle chat window
-  function toggleChat() {
-    isOpen = !isOpen;
-    const windowEl = document.getElementById('csai-window');
-    const buttonEl = document.getElementById('csai-toggle');
-
-    if (isOpen) {
-      windowEl.classList.add('open');
-      buttonEl.classList.add('open');
-      document.getElementById('csai-input').focus();
-
-      // Show greeting if first time
-      if (chatHistory.length === 0) {
-        setTimeout(() => {
-          addMessage('assistant', config.greeting);
-          // Scroll to bottom after greeting
-          const messagesEl = document.getElementById('csai-messages');
-          if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
-        }, 500);
-      }
-
-      // Always scroll to bottom when opening
-      setTimeout(() => {
-        const messagesEl = document.getElementById('csai-messages');
-        if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
-      }, 100);
-
-    } else {
-      windowEl.classList.remove('open');
-      buttonEl.classList.remove('open');
     }
   }
 
@@ -1425,8 +1502,9 @@
       resetInactivityTimer();
     });
 
-    // Reset timer on scroll
+    // Reset timer on scroll (programmatic auto-scroll is flagged and ignored)
     messagesEl.addEventListener('scroll', () => {
+      if (Date.now() < autoScrollUntil) return;
       resetInactivityTimer();
     });
 

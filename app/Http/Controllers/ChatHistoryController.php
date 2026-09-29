@@ -122,10 +122,10 @@ class ChatHistoryController extends Controller
 
         Gate::authorize('view', $session);
 
-        // Dispatch job to generate summary
-        \App\Jobs\GenerateChatSummary::dispatch($session);
+        // Generate inline: production has no queue worker for this app
+        \App\Jobs\GenerateChatSummary::dispatchSync($session);
 
-        return redirect()->back()->with('success', 'Summary sedang di-generate. Refresh halaman dalam beberapa detik.');
+        return redirect()->back()->with('success', 'Summary berhasil di-generate.');
     }
 
     /**

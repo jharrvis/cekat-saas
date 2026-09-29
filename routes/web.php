@@ -112,6 +112,59 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
 
         return response()->json(['success' => true]);
     })->middleware('throttle:chat');
+
+    // Visitor conversation auto-close (inactivity timeout or the manual
+    // "Tutup percakapan" button): marks the session ended and generates the
+    // AI summary synchronously (production has no queue worker). Same
+    // ownership gate as the DELETE above (signed sessionId + IP/UA
+    // fingerprint); idempotent when already ended or never started.
+    Route::post('/widget/session/close', function (Illuminate\Http\Request $request) {
+        $data = $request->validate([
+            'widgetId' => 'required|string|max:100',
+            'sessionId' => 'required|string|max:200',
+        ]);
+
+        $widget = App\Models\Widget::where('slug', $data['widgetId'])->first();
+        if (!$widget) {
+            return response()->json(['success' => false, 'error' => 'Widget not found'], 404);
+        }
+
+        $sessions = app(App\Services\Chat\SessionIdService::class);
+        if (!$sessions->isSigned($data['sessionId'])) {
+            return response()->json(['success' => false, 'error' => 'Invalid session', 'error_code' => 'invalid_session'], 403);
+        }
+
+        $session = App\Models\ChatSession::where('widget_id', $widget->id)
+            ->where('visitor_uuid', $data['sessionId'])
+            ->first();
+
+        // Nothing to close: the visitor never started a conversation.
+        if (!$session) {
+            return response()->json(['success' => true, 'noop' => true, 'summary' => null]);
+        }
+
+        if ($session->ip_address !== App\Support\HttpClientIp::get()
+            || $session->user_agent !== $request->userAgent()) {
+            return response()->json(['success' => false, 'error' => 'Forbidden', 'error_code' => 'fingerprint_mismatch'], 403);
+        }
+
+        if ($session->status === 'ended') {
+            return response()->json(['success' => true, 'summary' => $session->summary]);
+        }
+
+        $session->update([
+            'status' => 'ended',
+            'ended_at' => now(),
+        ]);
+
+        $summary = null;
+        if ($session->messages()->exists()) {
+            \App\Jobs\GenerateChatSummary::dispatchSync($session);
+            $summary = $session->fresh()->summary;
+        }
+
+        return response()->json(['success' => true, 'summary' => $summary]);
+    })->middleware('throttle:chat');
 });
 
 // Suspended/Banned Account Info Page
