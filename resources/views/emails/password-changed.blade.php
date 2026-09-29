@@ -1,55 +1,18 @@
-<!DOCTYPE html>
-<html>
+<x-emails.layout title="Password Diubah" category="Keamanan Akun">
+    <x-emails.heading>Password Akun Diubah</x-emails.heading>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Diubah</title>
-</head>
+    <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 16px;">
+        Halo {{ $user->name }},
+    </p>
+    <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 4px;">
+        Password akun Cekat Anda baru saja diubah melalui <strong>{{ $changedVia }}</strong>
+        pada {{ now()->format('d M Y H:i') }} WIB{{ $ip ? ' (IP: ' . $ip . ')' : '' }}.
+    </p>
 
-<body
-    style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
-        style="background-color: #f4f4f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table role="presentation" width="600" cellspacing="0" cellpadding="0"
-                    style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                    <tr>
-                        <td
-                            style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 40px 40px 30px; text-align: center;">
-                            <h1 style="color: #ffffff; font-size: 26px; margin: 0;">Password Akun Diubah</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
-                                Halo <strong>{{ $user->name }}</strong>,
-                            </p>
-                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
-                                Password akun Cekat Anda baru saja diubah melalui <strong>{{ $changedVia }}</strong>
-                                pada {{ now()->format('d M Y H:i') }} WIB{{ $ip ? ' (IP: ' . $ip . ')' : '' }}.
-                            </p>
-                            <div style="background-color: #fef3c7; border-radius: 12px; padding: 20px; margin: 24px 0;">
-                                <p style="color: #92400e; font-size: 14px; line-height: 1.6; margin: 0;">
-                                    <strong>Bukan Anda?</strong> Segera atur ulang password melalui halaman
-                                    "Lupa sandi?" dan hubungi support.
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td
-                            style="background-color: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                                &copy; {{ date('Y') }} Cekat - AI Customer Service Platform
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-
-</html>
+    <x-emails.panel tone="alert">
+        <p style="font-size:14px;line-height:1.6;color:#78350f;margin:0;">
+            <strong>Bukan Anda?</strong> Segera atur ulang password melalui halaman &ldquo;Lupa sandi?&rdquo;
+            dan hubungi support.
+        </p>
+    </x-emails.panel>
+</x-emails.layout>

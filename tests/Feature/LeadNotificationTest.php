@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Events\LeadCaptured;
 use App\Mail\NewLead;
+use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\Widget;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -131,6 +133,93 @@ class LeadNotificationTest extends TestCase
         ));
 
         Mail::assertSent(NewLead::class, fn ($m) => $m->hasTo($owner->email));
+    }
+
+    public function test_lead_email_contains_summary_generated_before_send(): void
+    {
+        Mail::fake();
+        Http::fake([
+            'openrouter.ai/*' => Http::response([
+                'choices' => [['message' => [
+                    'content' => 'Customer bertanya tentang paket Pro dan meminta penjelasan fitur '
+                        .'sebelum memutuskan pembelian. Tim kami menawarkan demo gratis minggu depan.',
+                ]]],
+            ], 200),
+        ]);
+
+        [$owner, $widget, $session] = $this->makeStack(true);
+
+        ChatMessage::create([
+            'session_id' => $session->id,
+            'role' => 'user',
+            'content' => 'Halo, saya tertarik dengan paket Pro. Berapa harganya?',
+        ]);
+        ChatMessage::create([
+            'session_id' => $session->id,
+            'role' => 'assistant',
+            'content' => 'Paket Pro tersedia dan menawarkan fitur lengkap. Mau saya jelaskan?',
+        ]);
+
+        event(new LeadCaptured(
+            $widget->slug,
+            ['name', 'email'],
+            $session->visitor_uuid,
+            ['name' => 'Budi', 'email' => 'budi@example.com'],
+        ));
+
+        // The summary runs deferred (after the chat response); flush it.
+        $this->app->terminate();
+
+        Mail::assertSent(NewLead::class, 1);
+
+        $fresh = $session->fresh();
+        $this->assertNotNull($fresh->summary);
+
+        Mail::assertSent(NewLead::class, function (NewLead $m) use ($fresh) {
+            $html = $m->render();
+
+            return str_contains($html, 'Ringkasan Percakapan')
+                && str_contains($html, $fresh->summary)
+                && str_contains($html, 'Budi');
+        });
+    }
+
+    public function test_lead_email_falls_back_to_excerpt_when_summary_unavailable(): void
+    {
+        Mail::fake();
+        Http::fake(); // summary LLM call fails validation -> excerpt path
+
+        [$owner, $widget, $session] = $this->makeStack(true);
+
+        ChatMessage::create([
+            'session_id' => $session->id,
+            'role' => 'user',
+            'content' => 'Saya mau tanya soal billing langganan saya.',
+        ]);
+        ChatMessage::create([
+            'session_id' => $session->id,
+            'role' => 'assistant',
+            'content' => 'Baik, silakan sebutkan nomor invoice Anda.',
+        ]);
+
+        event(new LeadCaptured(
+            $widget->slug,
+            ['name', 'email'],
+            $session->visitor_uuid,
+            ['name' => 'Siti', 'email' => 'siti@example.com'],
+        ));
+
+        $this->app->terminate();
+
+        Mail::assertSent(NewLead::class, 1);
+        $this->assertNull($session->fresh()->summary);
+
+        Mail::assertSent(NewLead::class, function (NewLead $m) {
+            $html = $m->render();
+
+            return str_contains($html, 'Potongan Percakapan')
+                && str_contains($html, 'billing langganan');
+        });
     }
 }
 

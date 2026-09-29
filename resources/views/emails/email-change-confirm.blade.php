@@ -1,63 +1,23 @@
-<!DOCTYPE html>
-<html>
+<x-emails.layout title="Konfirmasi Perubahan Email" category="Perubahan Email">
+    <x-emails.heading>Konfirmasi Perubahan Email</x-emails.heading>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konfirmasi Perubahan Email</title>
-</head>
+    <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 16px;">
+        Halo {{ $user->name }},
+    </p>
+    <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 4px;">
+        Anda meminta perubahan email akun Cekat dari
+        <strong>{{ $oldEmail }}</strong> menjadi <strong>{{ $newEmail }}</strong>.
+    </p>
+    <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 4px;">
+        Klik tombol di bawah untuk mengonfirmasi. Perubahan hanya aktif setelah dikonfirmasi dari inbox ini.
+    </p>
 
-<body
-    style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
-        style="background-color: #f4f4f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table role="presentation" width="600" cellspacing="0" cellpadding="0"
-                    style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                    <tr>
-                        <td
-                            style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 40px 40px 30px; text-align: center;">
-                            <h1 style="color: #ffffff; font-size: 26px; margin: 0;">Konfirmasi Perubahan Email</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
-                                Halo <strong>{{ $user->name }}</strong>,
-                            </p>
-                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 12px;">
-                                Anda meminta perubahan email akun Cekat dari
-                                <strong>{{ $oldEmail }}</strong> menjadi <strong>{{ $newEmail }}</strong>.
-                            </p>
-                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
-                                Klik tombol di bawah untuk mengonfirmasi. Perubahan hanya aktif setelah dikonfirmasi
-                                dari inbox ini.
-                            </p>
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="{{ $confirmationUrl }}"
-                                    style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                                    Konfirmasi Perubahan Email
-                                </a>
-                            </div>
-                            <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0;">
-                                Link berlaku 24 jam. Jika Anda tidak mengajukan perubahan ini, abaikan email ini —
-                                email Anda tidak akan berubah.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td
-                            style="background-color: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                                &copy; {{ date('Y') }} Cekat - AI Customer Service Platform
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
+    <div style="margin:28px 0 6px;">
+        <x-emails.button :href="$confirmationUrl">Konfirmasi Perubahan Email</x-emails.button>
+    </div>
 
-</html>
+    <p style="font-size:13px;line-height:1.65;color:#71717a;margin:8px 0 0;">
+        Link berlaku 24 jam. Jika Anda tidak mengajukan perubahan ini, abaikan email ini &mdash;
+        email Anda tidak akan berubah.
+    </p>
+</x-emails.layout>

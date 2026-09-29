@@ -111,7 +111,7 @@
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <span class="text-muted-foreground">Session ID:</span>
-                            <span class="font-mono text-xs">{{ Str::limit($session->session_id, 12) }}</span>
+                            <span class="font-mono text-xs">{{ Str::limit($session->visitor_uuid ?? $session->session_id ?? '-', 16) }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-muted-foreground">Started:</span>
@@ -121,6 +121,39 @@
                             <span class="text-muted-foreground">Last Activity:</span>
                             <span>{{ $session->updated_at->diffForHumans() }}</span>
                         </div>
+                        @if($session->ip_address)
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">IP Address:</span>
+                                <span class="font-mono text-xs">{{ $session->ip_address }}</span>
+                            </div>
+                        @endif
+                        @if($browser = \App\Support\VisitorGeo::describeAgent($session->user_agent))
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">Browser:</span>
+                                <span class="text-right">{{ $browser }}</span>
+                            </div>
+                        @endif
+                        @if($session->device_type)
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">Device:</span>
+                                <span class="capitalize">{{ $session->device_type }}</span>
+                            </div>
+                        @endif
+                        @if($location = trim(implode(', ', array_filter([
+                            $session->location_data['city'] ?? null,
+                            $session->location_data['region'] ?? null,
+                            $session->location_data['country'] ?? null,
+                        ]))))
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">Location:</span>
+                                <span class="text-right">{{ $location }}</span>
+                            </div>
+                        @elseif($session->location_data['country_code'] ?? null)
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">Location:</span>
+                                <span>{{ $session->location_data['country_code'] }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -1,89 +1,67 @@
-<!DOCTYPE html>
-<html>
+<x-emails.layout title="Lead Baru" category="Notifikasi Lead">
+    <x-emails.heading>Lead Baru Masuk</x-emails.heading>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lead Baru</title>
-</head>
+    <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 4px;">
+        Halo {{ $user->name }},
+    </p>
+    <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 4px;">
+        Widget <strong>{{ $widget->name }}</strong> baru saja menangkap lead dari percakapan
+        pada {{ ($session?->created_at ?? now())->format('d M Y H:i') }} WIB.
+    </p>
 
-<body
-    style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f5;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
-        style="background-color: #f4f4f5; padding: 40px 20px;">
-        <tr>
-            <td align="center">
-                <table role="presentation" width="600" cellspacing="0" cellpadding="0"
-                    style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                    <tr>
-                        <td
-                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 40px 30px; text-align: center;">
-                            <h1 style="color: #ffffff; font-size: 26px; margin: 0;">🆕 Lead Baru Masuk</h1>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 40px;">
-                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
-                                Halo <strong>{{ $user->name }}</strong>,
-                            </p>
-                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
-                                Widget <strong>{{ $widget->name }}</strong> baru saja menangkap lead dari percakapan
-                                pada {{ ($session?->created_at ?? now())->format('d M Y H:i') }} WIB.
-                            </p>
+    <x-emails.panel>
+        @if($lead['name'] ?? null)
+            <x-emails.field label="Nama" :value="$lead['name']" />
+        @endif
+        @if($lead['email'] ?? null)
+            <x-emails.field label="Email" :value="$lead['email']" />
+        @endif
+        @if($lead['phone'] ?? null)
+            <x-emails.field label="Telepon" :value="$lead['phone']" />
+        @endif
+        @if($location = trim(implode(', ', array_filter([
+            $session?->location_data['city'] ?? null,
+            $session?->location_data['country'] ?? null,
+        ]))))
+            <x-emails.field label="Lokasi" :value="$location" />
+        @endif
+        @unless(($lead['name'] ?? null) || ($lead['email'] ?? null) || ($lead['phone'] ?? null))
+            <p style="font-size:14px;line-height:1.6;color:#3f3f46;margin:0;">
+                Data kontak terlampir di percakapan.
+            </p>
+        @endunless
+    </x-emails.panel>
 
-                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
-                                style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; margin: 0 0 24px;">
-                                <tr>
-                                    <td style="padding: 20px 24px;">
-                                        @if($lead['name'] ?? null)
-                                            <p style="color: #166534; font-size: 14px; margin: 0 0 8px;">
-                                                <strong>Nama:</strong> {{ $lead['name'] }}
-                                            </p>
-                                        @endif
-                                        @if($lead['email'] ?? null)
-                                            <p style="color: #166534; font-size: 14px; margin: 0 0 8px;">
-                                                <strong>Email:</strong> {{ $lead['email'] }}
-                                            </p>
-                                        @endif
-                                        @if($lead['phone'] ?? null)
-                                            <p style="color: #166534; font-size: 14px; margin: 0 0 8px;">
-                                                <strong>Telepon:</strong> {{ $lead['phone'] }}
-                                            </p>
-                                        @endif
-                                        @if(!($lead['name'] ?? null) && !($lead['email'] ?? null) && !($lead['phone'] ?? null))
-                                            <p style="color: #166534; font-size: 14px; margin: 0;">
-                                                Data kontak terlampir di percakapan.
-                                            </p>
-                                        @endif
-                                    </td>
-                                </tr>
-                            </table>
+    @if($session?->summary)
+        <div style="font-size:11px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;color:#71717a;margin:26px 0 8px;">
+            Ringkasan Percakapan</div>
+        <p style="font-size:15px;line-height:1.7;color:#18181b;background-color:#fafafa;border:1px solid #e4e4e7;border-radius:8px;padding:18px 20px;margin:0;">
+            {{ $session->summary }}
+        </p>
+    @else
+        @php
+            $recent = $session ? $session->messages()->orderByDesc('id')->take(3)->get()->reverse() : collect();
+        @endphp
+        @if($recent->isNotEmpty())
+            <div style="font-size:11px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;color:#71717a;margin:26px 0 8px;">
+                Potongan Percakapan Terakhir</div>
+            <x-emails.panel>
+                @foreach($recent as $msg)
+                    <p style="font-size:14px;line-height:1.6;color:#3f3f46;margin:0 0 {{ $loop->last ? '0' : '10px' }};">
+                        <strong style="color:#18181b;">{{ $msg->role === 'user' ? 'Pengunjung' : 'Layanan' }}:</strong>
+                        {{ \Illuminate\Support\Str::limit($msg->content, 220) }}
+                    </p>
+                @endforeach
+            </x-emails.panel>
+        @endif
+    @endif
 
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="{{ url('/leads') }}"
-                                    style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                                    Lihat &amp; Follow Up Lead
-                                </a>
-                            </div>
+    <div style="margin:28px 0 6px;">
+        <x-emails.button :href="url('/leads')">Lihat &amp; Follow Up Lead</x-emails.button>
+    </div>
 
-                            <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0;">
-                                Balas cepat meningkatkan peluang konversi. Lead ini juga tersimpan di menu
-                                <strong>Lead Collection</strong> dasbor Anda.
-                            </p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td
-                            style="background-color: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                            <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                                &copy; {{ date('Y') }} Cekat - AI Customer Service Platform
-                            </p>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-
-</html>
+    <p style="font-size:13px;line-height:1.65;color:#71717a;margin:8px 0 0;">
+        Balas cepat meningkatkan peluang konversi. Lead ini juga tersimpan di menu
+        <strong>Lead Collection</strong> dasbor Anda.
+    </p>
+</x-emails.layout>

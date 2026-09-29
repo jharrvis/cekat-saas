@@ -11,6 +11,7 @@ use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\Widget;
 use App\Support\HttpClientIp;
+use App\Support\VisitorGeo;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -296,8 +297,32 @@ class ChatOrchestrator
                 'started_at' => now(),
                 'ip_address' => HttpClientIp::get(),
                 'user_agent' => request()->userAgent(),
+                'device_type' => VisitorGeo::deviceType(request()->userAgent()),
             ]
         );
+
+        if ($session->wasRecentlyCreated) {
+            // Coarse geo (country/city) for the chat history detail view.
+            // Deferred after the response: the visitor never waits on it,
+            // and a lookup failure leaves location_data null (view copes).
+            $ip = $session->ip_address;
+            $widgetId = $widget->id;
+            $uuid = $sessionId;
+
+            app()->terminating(function () use ($ip, $widgetId, $uuid) {
+                try {
+                    $geo = VisitorGeo::resolve($ip);
+
+                    if ($geo) {
+                        ChatSession::where('widget_id', $widgetId)
+                            ->where('visitor_uuid', $uuid)
+                            ->update(['location_data' => $geo]);
+                    }
+                } catch (\Throwable $ex) {
+                    Log::warning('Visitor geo lookup failed', ['error' => $ex->getMessage()]);
+                }
+            });
+        }
 
         ChatMessage::create([
             'session_id' => $session->id,
