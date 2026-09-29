@@ -200,4 +200,52 @@ class WidgetSessionCloseTest extends TestCase
 
         $this->assertNotNull($session->fresh()->summary);
     }
+
+    public function test_summary_rejects_prompt_echo_and_retries(): void
+    {
+        ['widget' => $widget] = $this->makeStack();
+        $session = $this->makeSession($widget, $this->signedId());
+        ChatMessage::create(['session_id' => $session->id, 'role' => 'user', 'content' => 'Cara daftarnya bagaimana?']);
+        ChatMessage::create(['session_id' => $session->id, 'role' => 'assistant', 'content' => 'Silakan isi formulir pendaftaran.']);
+
+        Http::fake([
+            'openrouter.ai/*' => Http::sequence()
+                ->push(['choices' => [['message' => [
+                    'content' => 'We need to produce a short summary in Indonesian, natural, professional, max 3 sentences covering the topic.',
+                ]]]], 200)
+                ->push(['choices' => [['message' => [
+                    'content' => 'Customer menanyakan cara pendaftaran. Layanan customer service menjelaskan langkah verifikasi identitas lewat email.',
+                ]]]], 200),
+        ]);
+
+        \App\Jobs\GenerateChatSummary::dispatchSync($session->id);
+
+        $fresh = $session->fresh();
+        $this->assertNotNull($fresh->summary, 'first response was junk, the retry must produce a usable summary');
+        $this->assertStringContainsString('langkah verifikasi', $fresh->summary);
+        $this->assertStringNotContainsString('We need to produce', $fresh->summary);
+        Http::assertSentCount(2);
+    }
+
+    public function test_summary_stays_empty_when_provider_returns_only_junk(): void
+    {
+        ['widget' => $widget] = $this->makeStack();
+        $session = $this->makeSession($widget, $this->signedId());
+        ChatMessage::create(['session_id' => $session->id, 'role' => 'user', 'content' => 'halo']);
+
+        Http::fake([
+            'openrouter.ai/*' => Http::sequence()
+                ->push(['choices' => [['message' => ['content' => 'User Safety: safe']]]], 200)
+                ->push(['choices' => [['message' => [
+                    'content' => 'Buatkan resume dari percakapan berikut: Customer: halo',
+                ]]]], 200),
+        ]);
+
+        \App\Jobs\GenerateChatSummary::dispatchSync($session->id);
+
+        $fresh = $session->fresh();
+        $this->assertNull($fresh->summary, 'junk must never be persisted as a summary');
+        $this->assertNull($fresh->summary_generated_at);
+        Http::assertSentCount(2);
+    }
 }

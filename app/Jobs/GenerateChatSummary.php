@@ -62,10 +62,10 @@ class GenerateChatSummary implements ShouldQueue
         // Get model from settings
         $model = Setting::get('default_ai_model', config('services.openrouter.default_model'));
 
-        // Generate summary using OpenRouter. Free models occasionally return
-        // empty or off-topic junk (e.g. "User Safety: safe"), so the result
-        // is validated and retried once before giving up - a missing summary
-        // degrades to the generic closing message.
+        // Generate summary using OpenRouter. Weak free models occasionally
+        // return empty output, safety junk ("User Safety: safe"), or even
+        // echo the instruction itself - validate, retry once, and give up
+        // cleanly (widget falls back to the generic closing message).
         try {
             $summary = null;
 
@@ -87,7 +87,10 @@ class GenerateChatSummary implements ShouldQueue
                             'content' => "Buatkan resume dari percakapan berikut:\n\n{$conversationText}"
                         ]
                     ],
-                    'max_tokens' => 250,
+                    'temperature' => 0.3,
+                    // Free reasoning models burn part of the budget on
+                    // reasoning tokens; 250 truncated mid-sentence.
+                    'max_tokens' => 400,
                 ], 60, 'Cekat SaaS Summary');
 
                 if (!empty($data['error'])) {
@@ -105,10 +108,10 @@ class GenerateChatSummary implements ShouldQueue
                     $candidate = trim(preg_replace('/^```[a-z]*\n?|\n?```$/i', '', $candidate));
                 }
 
-                if (mb_strlen($candidate) >= 40) {
+                if ($this->isUsableSummary($candidate)) {
                     $summary = $candidate;
                 } else {
-                    Log::warning('Chat summary rejected (too short or junk)', [
+                    Log::warning('Chat summary rejected (junk or prompt echo)', [
                         'session_id' => $this->session->id,
                         'attempt' => $attempt,
                         'content' => mb_substr($candidate, 0, 120),
@@ -128,5 +131,35 @@ class GenerateChatSummary implements ShouldQueue
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * A summary must read as Indonesian prose about the conversation.
+     * Guards against: empty/short output, safety junk, and weak models
+     * that answer by repeating the instructions back ("We need to produce
+     * a short summary in Indonesian...", "Buatkan resume dari...").
+     */
+    protected function isUsableSummary(string $text): bool
+    {
+        if (mb_strlen($text) < 40) {
+            return false;
+        }
+
+        // Instruction echo / meta commentary (EN or ID).
+        if (preg_match(
+            '/we need to produce|short summary|summary (in|of) (indonesian|indonesia)'
+            .'|buatkan resume|ringkasan dari percakapan|kamu menulis catatan|maksimal 3 kalimat'
+            .'|berikut adalah|berikut ini adalah|as an ai|sebagai ai/i',
+            $text
+        )) {
+            return false;
+        }
+
+        // Must contain Indonesian prose markers.
+        return (bool) preg_match(
+            '/\b(yang|dan|untuk|dengan|pelanggan|customer service|meminta|menjelaskan|'
+            .'percakapan|layanan|membantu|menawarkan|menanyakan)\b/i',
+            $text
+        );
     }
 }
