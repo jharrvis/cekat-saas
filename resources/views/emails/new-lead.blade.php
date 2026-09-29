@@ -21,9 +21,21 @@
         @endif
         @if($location = trim(implode(', ', array_filter([
             $session?->location_data['city'] ?? null,
+            $session?->location_data['region'] ?? null,
             $session?->location_data['country'] ?? null,
         ]))))
             <x-emails.field label="Lokasi" :value="$location" />
+        @endif
+        @if($session?->ip_address)
+            <x-emails.field label="IP Address" :value="$session->ip_address" :mono="true" />
+        @endif
+        @php
+            $device = $session
+                ? (\App\Support\VisitorGeo::describeAgent($session->user_agent) ?: ucfirst((string) ($session->device_type ?? '')))
+                : '';
+        @endphp
+        @if($device !== '')
+            <x-emails.field label="Perangkat" :value="$device" />
         @endif
         @unless(($lead['name'] ?? null) || ($lead['email'] ?? null) || ($lead['phone'] ?? null))
             <p style="font-size:14px;line-height:1.6;color:#3f3f46;margin:0;">

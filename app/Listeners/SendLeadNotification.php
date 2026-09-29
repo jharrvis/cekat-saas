@@ -75,6 +75,15 @@ class SendLeadNotification
         // back to the excerpt built into the view when generation fails.
         if ($session && ! $session->summary && $session->messages()->exists()) {
             app()->terminating(function () use ($session, $send, $e, $owner) {
+                // The geo lookup registers its own terminating callback before
+                // this one (ChatOrchestrator::persistConversation), so a refresh
+                // here picks up location_data resolved moments earlier.
+                try {
+                    $session->refresh();
+                } catch (\Throwable $ex) {
+                    // Row vanished mid-flight; render with the instance we hold.
+                }
+
                 try {
                     GenerateChatSummary::dispatchSync($session);
                     $session->refresh();

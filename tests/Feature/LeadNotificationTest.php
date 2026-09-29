@@ -184,6 +184,44 @@ class LeadNotificationTest extends TestCase
         });
     }
 
+    public function test_lead_email_contains_ip_device_and_location(): void
+    {
+        Mail::fake();
+
+        [$owner, $widget, $session] = $this->makeStack(true);
+
+        $session->update([
+            'ip_address' => '203.0.113.42',
+            'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36',
+            'device_type' => 'desktop',
+            'location_data' => [
+                'country_code' => 'ID',
+                'country' => 'Indonesia',
+                'region' => 'Java',
+                'city' => 'Semarang',
+                'isp' => 'PT. Telekomunikasi Selular',
+            ],
+        ]);
+
+        event(new LeadCaptured(
+            $widget->slug,
+            ['name', 'email'],
+            $session->visitor_uuid,
+            ['name' => 'Rina', 'email' => 'rina@example.com'],
+        ));
+
+        Mail::assertSent(NewLead::class, function (NewLead $m) {
+            $html = $m->render();
+
+            return str_contains($html, 'IP Address')
+                && str_contains($html, '203.0.113.42')
+                && str_contains($html, 'Perangkat')
+                && str_contains($html, 'Chrome 153')
+                && str_contains($html, 'Windows')
+                && str_contains($html, 'Semarang, Java, Indonesia');
+        });
+    }
+
     public function test_lead_email_falls_back_to_excerpt_when_summary_unavailable(): void
     {
         Mail::fake();

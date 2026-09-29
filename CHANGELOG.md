@@ -5,6 +5,16 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Email lead lengkap (IP/Perangkat/Lokasi) + baris "Percakapan Terbaru" klik ke Chat Detail (2026-09-29)
+
+**Konteks (permintaan user):** (1) user bertanya kapan summary dibuat — dijawab & didokumentasikan: **summary dibuat saat lead terdeteksi** (deferred via `app()->terminating()` sesaat setelah respons chat keluar, sebelum email dikirim), **bukan** menunggu session ditutup; endpoint close hanya fallback idempoten bila belum ada. (2) Email lead diminta memuat data leads lengkap: IP address, device, dan lokasi kota. (3) Setiap baris "Percakapan Terbaru" di dashboard harus bisa diklik menuju halaman chat (Chat Detail sesi tsb — konfirmasi user).
+
+**Diubah:**
+1. **Email `new-lead` + field `IP Address`** (mono), **`Perangkat`** (label `VisitorGeo::describeAgent` "Chrome 153 · Windows", fallback `device_type`), dan **`Lokasi`** kini lengkap `city, region, country` (sebelumnya hanya city+country). `SendLeadNotification`: `$session->refresh()` dipindah ke **awal** callback terminating — callback geo (`ChatOrchestrator::persistConversation`) terdaftar lebih dulu (FIFO) sehingga `location_data` hasil lookup sudah tersedia saat email dirender. IP/device sudah diisi saat sesi dibuat sehingga selalu ada.
+2. **Dashboard `user/dashboard.blade.php`:** kartu baris "Percakapan Terbaru" kini `<a href="route('chats.show', $conv['id'])">` (block, hover `border-primary/40`, tooltip "Buka detail percakapan") — satu klik ke Chat Detail percakapan tersebut; data `id` sudah tersedia dari `DashboardController::getRecentConversations`.
+
+**Test baru (2):** `LeadNotificationTest::test_lead_email_contains_ip_device_and_location` (assert render email memuat IP `203.0.113.42`, "Chrome 153 · Windows", "Semarang, Java, Indonesia") + `DashboardRecentConversationsTest` (row link ke `chats.show`). Suite **207 passed / 786 assertions** (baseline 195/723).
+
 ### Redesign total 13 template email + summary di email lead + rekam detail pengunjung di chat history (2026-09-29)
 
 **Konteks (4 permintaan user):** (1) semua template email terlihat "AI-generated" — gradasi warna pelangi + emoji ikon (🆕🔐🎉⚙️⏰✅🚫⚠️🚀) di header; diminta redesign profesional/elegant tanpa gradasi & ikon ambigu; (2) email notifikasi lead harus menyertakan ringkasan percakapan; (3) chat history harus merekam detail pengunjung (IP, browser, negara/kota/lokasi, info penting); (4) saat chat ditutup AI langsung meng-generate summary tanpa klik manual.

@@ -356,7 +356,8 @@
             @if(count($recentConversations) > 0)
                 <div class="space-y-4">
                     @foreach($recentConversations as $conv)
-                        <div class="p-4 border rounded-lg hover:bg-muted/30 transition">
+                        <a href="{{ route('chats.show', $conv['id']) }}"
+                           class="block p-4 border rounded-lg hover:bg-muted/30 hover:border-primary/40 transition" title="Buka detail percakapan">
                             {{-- Header Row --}}
                             <div class="flex items-start justify-between gap-2 mb-2">
                                 <div class="flex items-center gap-3">
@@ -431,7 +432,7 @@
                                     @endif
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
             @else
