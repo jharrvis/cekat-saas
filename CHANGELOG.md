@@ -24,7 +24,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 - `PasswordResetController::reset` closure memanggil `$this->ip()` (tidak ada di controller) → alert reset tak terkirim (ter-log error); kini `use ($request)` → `$request->ip()`.
 
 **Diverifikasi:**
-- SMTP lokal & production port 587 terbuka; uji `Mail::raw` via Brevo relay → `SENT_OK`.
+- SMTP lokal & production port 587 terbuka; uji `Mail::raw` via Brevo relay → `SENT_OK` (lokal & production).
+- E2E production: register → halaman `verification.notice` + `VerifyEmail` terkirim → link signed dikunjungi → `email_verified_at` terisi + `WelcomeUser` & `AdminNewSignup` terkirim (nol log error mail) → landing dashboard; `config:show mail` prod: `smtp`/Brevo/`ADMIN_NOTIFY_EMAIL` aktif (blok Gmail placeholder diganti, backup `.env.bak-20260929-email`); data user test dibersihkan.
 - Suite **181 passed / 659 assertions** (baseline 162/596).
 
 ### Resume percakapan: natural tanpa sebutan "AI" + validasi output job summary (2026-09-29)
