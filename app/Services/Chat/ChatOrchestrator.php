@@ -44,8 +44,12 @@ class ChatOrchestrator
         protected SessionIdService $sessions,
     ) {}
 
-    public function handle(string $message, string $widgetSlug, array $history, string $sessionId): array
+    public function handle(string $message, string $widgetSlug, array $history, string $sessionId, string $pageUrl = '', string $referrerUrl = ''): array
     {
+        // Captured at request receipt, BEFORE the LLM call (up to ~60s) -
+        // otherwise the visitor's message would be stamped with "when the
+        // bot finished typing", which made chat times look out of sync.
+        $receivedAt = now();
         // Load widget with AI Agent if linked
         $widget = Widget::where('slug', $widgetSlug)
             ->with(['knowledgeBase.faqs', 'user.plan', 'aiAgent.knowledgeBase.faqs'])
@@ -170,7 +174,7 @@ class ChatOrchestrator
                         }
                     }
 
-                    $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? []);
+                    $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? [], $pageUrl, $referrerUrl, $receivedAt);
 
                     // Lead capture: prefer the AI-emitted action; when the free
                     // model skips the JSON block, fall back to a deterministic
@@ -288,18 +292,40 @@ class ChatOrchestrator
         ]);
     }
 
-    protected function persistConversation(Widget $widget, string $sessionId, string $userMessage, string $aiResponse, string $model, array $usage): void
+    protected function persistConversation(Widget $widget, string $sessionId, string $userMessage, string $aiResponse, string $model, array $usage, string $pageUrl = '', string $referrerUrl = '', ?\DateTimeInterface $receivedAt = null): void
     {
+        // Full page URL comes from the widget; the Referer header is only an
+        // origin-only fallback for older embeds.
+        $referer = $referrerUrl !== '' ? $referrerUrl : (string) (request()->header('Referer') ?? '');
+
         $session = ChatSession::firstOrCreate(
             ['widget_id' => $widget->id, 'visitor_uuid' => $sessionId],
             [
                 'current_agent_id' => $widget->ai_agent_id,
-                'started_at' => now(),
+                'started_at' => $receivedAt ?? now(),
+                'source_url' => $pageUrl !== '' ? $pageUrl : null,
+                'referer_url' => $referer !== '' ? mb_substr($referer, 0, 500) : null,
                 'ip_address' => HttpClientIp::get(),
                 'user_agent' => request()->userAgent(),
                 'device_type' => VisitorGeo::deviceType(request()->userAgent()),
             ]
         );
+
+        // Keep the page/referrer current on every message (a visitor may
+        // start on the landing page and continue from another) - this also
+        // refreshes updated_at so "Last Activity" reflects real activity.
+        $touched = false;
+        if ($pageUrl !== '' && $pageUrl !== $session->source_url) {
+            $session->source_url = $pageUrl;
+            $touched = true;
+        }
+        if ($referer !== '' && $referer !== $session->referer_url) {
+            $session->referer_url = mb_substr($referer, 0, 500);
+            $touched = true;
+        }
+        if ($touched) {
+            $session->save();
+        }
 
         if ($session->wasRecentlyCreated) {
             // Coarse geo (country/city) for the chat history detail view.
@@ -324,12 +350,16 @@ class ChatOrchestrator
             });
         }
 
-        ChatMessage::create([
+        // The visitor's message is stamped with the receive time, not the
+        // reply time; the assistant message keeps the actual reply time.
+        $userMessageRow = new ChatMessage([
             'session_id' => $session->id,
             'ai_agent_id' => $widget->ai_agent_id,
             'role' => 'user',
             'content' => $userMessage,
         ]);
+        $userMessageRow->created_at = $receivedAt ?? now();
+        $userMessageRow->save();
 
         ChatMessage::create([
             'session_id' => $session->id,

@@ -154,6 +154,18 @@
                                 <span>{{ $session->location_data['country_code'] }}</span>
                             </div>
                         @endif
+                        @if($session->source_url)
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">Halaman:</span>
+                                <span class="text-right text-xs break-all" title="{{ $session->source_url }}">{{ \Illuminate\Support\Str::limit($session->source_url, 70) }}</span>
+                            </div>
+                        @endif
+                        @if($session->referer_url)
+                            <div class="flex justify-between gap-4">
+                                <span class="text-muted-foreground">Referrer:</span>
+                                <span class="text-right text-xs break-all" title="{{ $session->referer_url }}">{{ \Illuminate\Support\Str::limit($session->referer_url, 70) }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

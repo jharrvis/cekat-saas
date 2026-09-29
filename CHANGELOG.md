@@ -5,6 +5,26 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Halaman & referrer chat (history + email) + fix sinkronisasi jam chat (2026-09-30)
+
+**Permintaan:** (1) ambil URL referral & halaman tempat user chat → tampilkan di chat history & notifikasi email; (2) jam chat tidak sinkron — jam server atau jam aplikasi?
+
+**1. Halaman + Referrer chat:**
+- **Widget** kirim `pageUrl` (`location.href`) & `referrerUrl` (`document.referrer`) di payload `/api/chat` (cap 500; header Referer server hanya fallback karena cross-origin browser hanya kirim origin saja).
+- `ChatRequest` validasi nullable, `ChatOrchestrator` simpan ke kolom **yang sudah ada tapi tak pernah ditulis**: `chat_sessions.source_url` (halaman) & `referer_url` — diperbarui tiap pesan (halaman saat ini, `updated_at` ikut ter-refresh → "Last Activity" jadi akurat) + fallback header.
+- **Chat detail** (`chats.show`): baris `Halaman:` & `Referrer:` (truncate 70 + full title). **Email lead**: field `Halaman` & `Referrer` (mono, 120) setelah Perangkat.
+- Cache buster widget → `?v=20260930-p2`.
+
+**2. Jam chat tidak sinkron — diagnosis: JAM APLIKASI (bukan jam server error).** Tiga penyebab:
+- (a) **Penyebab utama:** app simpan `created_at` dalam **UTC** (`.env` `APP_TIMEZONE=UTC`) tapi semua view cetak `format('d M Y H:i')` **tanpa konversi**, sementara 6 email menulis label **"WIB"** dengan nilai UTC → telat 7 jam.
+- (b) Pesan user di-stamp **setelah** panggilan LLM selesai (bisa +60 detik) → timestamp bubble user = waktu bot selesai balas, bukan waktu pesan dikirim.
+- (c) Drift env: `.env.example` = `Asia/Jakarta` tapi `.env` live = `UTC`.
+- **Fix:** `APP_TIMEZONE=Asia/Jakarta` (config default + local & prod .env) + migrasi sekali-jalan `2026_09_30_080000_shift_datetimes_from_utc_to_wib` (geser **semua** kolom datetime/timestamp di 18 tabel +7 jam — nilai tersimpan tetap merepresentasikan instan yang sama; jalankan **bersamaan** dengan perubahan .env dalam satu deploy) → semua view, email, CSV, relatif- waktu otomatis WIB. `ChatOrchestrator::handle()` kini menangkap `$receivedAt = now()` **di awal request**; pesan user di-stamp `receivedAt`, balasan bot tetap waktu balas nyata (uji: sleep 1s di fake LLM → user msg < bot msg).
+
+**Test baru (6):** `ChatApiTest` (+2: persist pageUrl/referrerUrl & update halaman berikutnya; stamp receive-time vs reply-time), `ChatHistoryShowTest` (+1: baris Halaman/Referrer & absensi saat tak ada), `LeadNotificationTest` (+1, diperluas: email berisi Halaman/Referrer), `TimezoneTest` (2: app berjalan `+07:00`, chat detail render wall-clock tersimpan tanpa konversi ganda). Suite **219 passed / 849 assertions** (baseline 214/824).
+
+**Catatan operasional:** deploy timezone WAJIB urutan: (1) `sed` prod `.env` `APP_TIMEZONE=Asia/Jakarta` + `config:cache`, (2) jalankan deploy (migrasi geser data). Developer lain: samakan `.env` lokal sebelum `php artisan migrate`.
+
 ### Fix avatar channel (5 bug), picker ikon Lucide, & perbaikan domain restriction (2026-09-30)
 
 **Konteks (permintaan user):** (1) tab Tampilan channel — icon/avatar tak bisa diganti & upload tak tampil di widget; (2) tampilkan ikon avatar relevan pakai Lucide; (3) audit ikon aplikasi; (4) persona name (analisis, jawaban di thread); (5) pembatasan domain — sudah benar? boleh kosong? sebaiknya mandatori?

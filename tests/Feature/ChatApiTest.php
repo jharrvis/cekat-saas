@@ -267,4 +267,76 @@ class ChatApiTest extends TestCase
             }
         }
     }
+
+    public function test_chat_persists_page_url_and_referrer_on_session(): void
+    {
+        ['widget' => $widget] = $this->makeStack();
+        $this->fakeOpenRouter();
+
+        $response = $this->postJson('/api/chat', [
+            'message' => 'halo',
+            'widgetId' => 'w-uji',
+            'sessionId' => 'sess_page_1',
+            'pageUrl' => 'https://toko.test/promo/lebaran?ref=ig',
+            'referrerUrl' => 'https://www.instagram.com/p/abc123',
+        ], ['Origin' => 'https://toko.test']);
+
+        $response->assertOk();
+
+        $session = ChatSession::where('visitor_uuid', $response->json('sessionId'))->first();
+        $this->assertNotNull($session);
+        $this->assertSame('https://toko.test/promo/lebaran?ref=ig', $session->source_url);
+        $this->assertSame('https://www.instagram.com/p/abc123', $session->referer_url);
+
+        // A later message from another page updates the current page.
+        $this->postJson('/api/chat', [
+            'message' => 'lanjut',
+            'widgetId' => 'w-uji',
+            'sessionId' => $response->json('sessionId'),
+            'pageUrl' => 'https://toko.test/checkout',
+        ], ['Origin' => 'https://toko.test'])->assertOk();
+
+        $session->refresh();
+        $this->assertSame('https://toko.test/checkout', $session->source_url);
+        $this->assertSame('https://www.instagram.com/p/abc123', $session->referer_url);
+    }
+
+    public function test_user_message_is_stamped_at_receive_time_not_after_llm_reply(): void
+    {
+        ['widget' => $widget] = $this->makeStack();
+
+        // Slow down the LLM so any "stamp after the call" bug is visible.
+        Http::fake([
+            'openrouter.ai/*' => function () {
+                sleep(1);
+
+                return Http::response([
+                    'choices' => [['message' => ['content' => 'Halo!']]],
+                    'usage' => ['total_tokens' => 7],
+                ], 200);
+            },
+        ]);
+
+        $response = $this->postJson('/api/chat', [
+            'message' => 'tes waktu',
+            'widgetId' => 'w-uji',
+            'sessionId' => 'sess_time_1',
+        ], ['Origin' => 'https://toko.test']);
+
+        $response->assertOk();
+
+        $session = ChatSession::where('visitor_uuid', $response->json('sessionId'))->first();
+        [$userMsg, $botMsg] = $session->messages()->orderBy('id')->get();
+
+        $this->assertTrue(
+            $userMsg->created_at->lt($botMsg->created_at),
+            "user message ({$userMsg->created_at}) must be stamped before the bot reply ({$botMsg->created_at})"
+        );
+        // The visitor's message is stamped at request receipt - well before
+        // the (sleep-delayed) reply finished.
+        $this->assertTrue(
+            $userMsg->created_at->lte($botMsg->created_at->copy()->subSeconds(1)),
+            'user message timestamp must reflect receipt, not reply completion'
+        );
+    }
 }

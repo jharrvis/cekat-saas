@@ -1409,7 +1409,12 @@
             role: m.role,
             content: (m.content || '').slice(0, 10000)
           })),
-          sessionId: sessionId
+          sessionId: sessionId,
+          // Where the visitor is chatting from (chat history detail + lead
+          // email). The browser's Referer header is origin-only cross-origin,
+          // so the full URL must come from the client.
+          pageUrl: window.location.href.slice(0, 500),
+          referrerUrl: (document.referrer || '').slice(0, 500)
         })
       });
 

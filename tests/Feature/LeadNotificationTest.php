@@ -184,7 +184,7 @@ class LeadNotificationTest extends TestCase
         });
     }
 
-    public function test_lead_email_contains_ip_device_and_location(): void
+    public function test_lead_email_contains_ip_device_location_and_page(): void
     {
         Mail::fake();
 
@@ -194,6 +194,8 @@ class LeadNotificationTest extends TestCase
             'ip_address' => '203.0.113.42',
             'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36',
             'device_type' => 'desktop',
+            'source_url' => 'https://toko.id/promo/lebaran?ref=ig',
+            'referer_url' => 'https://www.instagram.com/p/abc123',
             'location_data' => [
                 'country_code' => 'ID',
                 'country' => 'Indonesia',
@@ -218,7 +220,11 @@ class LeadNotificationTest extends TestCase
                 && str_contains($html, 'Perangkat')
                 && str_contains($html, 'Chrome 153')
                 && str_contains($html, 'Windows')
-                && str_contains($html, 'Semarang, Java, Indonesia');
+                && str_contains($html, 'Semarang, Java, Indonesia')
+                && str_contains($html, 'Halaman')
+                && str_contains($html, 'https://toko.id/promo/lebaran?ref=ig')
+                && str_contains($html, 'Referrer')
+                && str_contains($html, 'https://www.instagram.com/p/abc123');
         });
     }
 

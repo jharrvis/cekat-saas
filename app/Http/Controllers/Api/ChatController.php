@@ -19,6 +19,8 @@ class ChatController extends Controller
             widgetSlug: $input['widgetSlug'],
             history: $input['history'],
             sessionId: $input['sessionId'],
+            pageUrl: $input['pageUrl'],
+            referrerUrl: $input['referrerUrl'],
         );
 
         return response()->json($result['body'], $result['status']);

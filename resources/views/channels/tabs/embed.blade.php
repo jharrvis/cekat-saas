@@ -9,7 +9,7 @@
         "    widgetId: '{$widgetSlug}'\n" .
         "  };\n" .
         "</script>\n" .
-        "<script src=\"{$url}/widget/widget.min.js?v=20260930-p1\" async></script>";
+        "<script src=\"{$url}/widget/widget.min.js?v=20260930-p2\" async></script>";
 @endphp
 
 <div>

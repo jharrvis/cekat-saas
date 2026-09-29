@@ -37,6 +37,12 @@
         @if($device !== '')
             <x-emails.field label="Perangkat" :value="$device" />
         @endif
+        @if($session?->source_url)
+            <x-emails.field label="Halaman" :value="\Illuminate\Support\Str::limit($session->source_url, 120)" :mono="true" />
+        @endif
+        @if($session?->referer_url)
+            <x-emails.field label="Referrer" :value="\Illuminate\Support\Str::limit($session->referer_url, 120)" :mono="true" />
+        @endif
         @unless(($lead['name'] ?? null) || ($lead['email'] ?? null) || ($lead['phone'] ?? null))
             <p style="font-size:14px;line-height:1.6;color:#3f3f46;margin:0;">
                 Data kontak terlampir di percakapan.

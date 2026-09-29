@@ -40,6 +40,10 @@ class ChatRequest extends FormRequest
             'history.*.role' => 'required|string|in:user,assistant',
             'history.*.content' => 'required|string|max:10000',
             'sessionId' => 'nullable|string|max:200',
+            // Page the visitor chats on + where they came from (old widgets
+            // omit both - nullable keeps them compatible).
+            'pageUrl' => 'nullable|string|max:500',
+            'referrerUrl' => 'nullable|string|max:500',
         ];
     }
 
@@ -68,6 +72,8 @@ class ChatRequest extends FormRequest
             'widgetSlug' => $validated['widgetId'] ?? 'default',
             'history' => $validated['history'] ?? [],
             'sessionId' => $sessionId,
+            'pageUrl' => $validated['pageUrl'] ?? '',
+            'referrerUrl' => $validated['referrerUrl'] ?? '',
         ];
     }
 

@@ -45,6 +45,8 @@ class ChatHistoryShowTest extends TestCase
             ],
             'is_lead' => true,
             'visitor_name' => 'Rina',
+            'source_url' => 'https://toko.id/pricing?ref=ig',
+            'referer_url' => 'https://google.com/search?q=toko+id',
         ]);
 
         $this->actingAs($user)
@@ -59,6 +61,41 @@ class ChatHistoryShowTest extends TestCase
             ->assertSee('Device')
             ->assertSee('Desktop')
             ->assertSee('Location')
-            ->assertSee('Semarang, Java, Indonesia');
+            ->assertSee('Semarang, Java, Indonesia')
+            ->assertSee('Halaman')
+            ->assertSee('https://toko.id/pricing?ref=ig')
+            ->assertSee('Referrer')
+            ->assertSee('https://google.com/search?q=toko+id');
+    }
+
+    public function test_show_page_omits_page_rows_when_not_captured(): void
+    {
+        $user = User::create([
+            'name' => 'No Page Owner',
+            'email' => 'nopage-owner-' . uniqid() . '@test.id',
+            'password' => 'secret123',
+            'email_verified_at' => now(),
+            'role' => 'user',
+        ]);
+
+        $widget = Widget::create([
+            'user_id' => $user->id,
+            'name' => 'w-nopage',
+            'slug' => 'w-nopage-' . uniqid(),
+            'status' => 'active',
+            'is_active' => true,
+        ]);
+
+        $session = ChatSession::create([
+            'widget_id' => $widget->id,
+            'visitor_uuid' => 'sess_NoPageUuidExample1234567890',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('chats.show', $session->id))
+            ->assertOk()
+            ->assertSee('Session ID')
+            ->assertDontSee('Halaman:')
+            ->assertDontSee('Referrer:');
     }
 }
