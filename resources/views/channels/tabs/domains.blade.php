@@ -1,12 +1,25 @@
 {{-- Allowed Domains Tab --}}
 <div>
     <h3 class="text-lg font-bold mb-4">Domain yang Diizinkan</h3>
-    <p class="text-muted-foreground mb-6">Batasi website mana saja yang boleh memuat channel ini. Kosongkan untuk mengizinkan semua domain.</p>
+    <p class="text-muted-foreground mb-6">Batasi website mana saja yang boleh memuat channel ini.</p>
 
     <form action="{{ route('channels.update', $chatbot->id) }}" method="POST" class="max-w-2xl space-y-5">
         @csrf
         @method('PUT')
         <input type="hidden" name="tab" value="domains">
+
+        @php $isEmpty = trim($chatbot->settings['allowed_domains'] ?? '') === ''; @endphp
+        @if ($isEmpty)
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                <p class="text-sm text-red-700 dark:text-red-300">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+                    <strong>Tanpa pembatasan domain.</strong>
+                    Widget ini saat ini bisa dipasang dan dipakai dari situs mana pun
+                    (orang lain bisa menyalin kode embed dan memakai chatbot Anda).
+                    Isi daftar domain agar aman.
+                </p>
+            </div>
+        @endif
 
         <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
             <label for="allowed_domains" class="block text-sm font-medium mb-2 flex items-center">

@@ -5,6 +5,24 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Fix avatar channel (5 bug), picker ikon Lucide, & perbaikan domain restriction (2026-09-30)
+
+**Konteks (permintaan user):** (1) tab Tampilan channel — icon/avatar tak bisa diganti & upload tak tampil di widget; (2) tampilkan ikon avatar relevan pakai Lucide; (3) audit ikon aplikasi; (4) persona name (analisis, jawaban di thread); (5) pembatasan domain — sudah benar? boleh kosong? sebaiknya mandatori?
+
+**Bug avatar yang ditemukan & diperbaiki:**
+1. **Upload tak pernah tampil di widget** — customizer menyimpan `avatar_type='image'` tapi `widget.js getAvatarHtml()` hanya me-render `<img>` untuk `'url'` → jatuh ke ikon default. Fix: widget.js menerima `'image'` ATAU `'url'` (admin pakai 'url', customizer 'image').
+2. **Preview widget box hard-code** — header preview selalu `fa-robot`, launcher `fa-comment`, tak pernah membaca `$avatarIcon`/`$avatarUrl` → "klik icon tidak berubah". Fix: preview membaca state via component baru `x-widget-avatar` (SVG Lucide inline, 10 ikon + alias lama).
+3. **`avatarUpload` tak pernah di-reset** — save berikutnya (mis. setelah kembali ke ikon) re-store file & memaksa `avatar_type='image'` lagi → pilihan icon hilang. Fix: reset ke null setelah store.
+4. **`saveSettings()` MENIMPA seluruh settings JSON** (bug paling kritis) — hanya 7 key ditulis ulang → **`allowed_domains` (domain restriction!) hilang tiap save**, plus `subtitle`, `placeholder`, `lead_*`, `webhook_*`. Fix: **merge** key (pola `LandingChatbotManager`). Tanpa ini, pembatasan domain bisa mati diam-diam.
+5. **6 dari 8 ikon picker tak didukung widget** (widget cuma `robot|support|user`) → semua fallback jadi robot.
+Plus: embed code tanpa cache-buster, test-widget injection pakai key snake_case (tak dipakai widget.js) → camelCase + `?v=20260930-p1` di semua embed.
+
+**Ikon avatar baru (Lucide-style, stroke SVG):** `bot, headphones, user-round, smile, message-circle, heart, store, briefcase, life-buoy, sparkles` — relevan utk customer service (Bot AI, Headset, Persona, Ramah, Chat, Peduli, Toko, Bisnis, Bantuan, AI Premium); grid 5×2 dengan label; alias lama (`robot/support/user` + nama FA lama) tetap diterima. **Catatan `lucide-animated.com`:** library React + Motion — komponen React, tidak bisa dipakai langsung di widget vanilla JS/Blade; yang dipakai = SVG statis gaya Lucide (MIT) dengan animasi CSS `hover:scale-105` di picker. (Audit ikon: dashboard 531 ikon FontAwesome di 55 file, landing/auth sudah Lucide via `data-lucide`, widget = inline SVG — migrasi total FA→Lucide terpisah, besar, tidak diganggu di perubahan ini.)
+
+**Domain restriction — analisis:** diterapkan di 5 titik (config 403, `ChatOrchestrator` 403 `domain_blocked`, `WidgetApiCors` tanpa ACAO, `ChatRequest` origin_required, client gate) + localhost/own-host bypass. **Kosong = izinkan semua (fail-open) by design** → embed lintas situs memang bisa; mitigasi tetap ada (quota, throttle, origin wajib). Perbaikan: (a) bug #4 di atas (wipe); (b) **server exact-match vs UI & client yang menjanjikan subdomain** → `mysite.com` di server menolak `www.mysite.com` padahal teks tab Domains bilang diizinkan → `DomainAccessService` kini match exact + subdomain + www-tolerant (mirror `widget.js`); (c) tab Domains kini menampilkan **peringatan merah bila kosong** ("widget bisa dipasang di situs mana pun"). Keputusan *domain wajib diisi* (mandatory) = kebijakan breaking → ditawarkan ke user.
+
+**Test baru (5):** `WidgetCustomizerTest` (4 — save MERGE settings mempertahankan allowed_domains/subtitle/placeholder/webhook/model, pilihan icon tersimpan, upload→icon tak re-upload, preview render ikon) + `DomainAccessServiceTest::test_subdomain_and_www_variants_match_as_ui_promises`. Suite **214 passed / 824 assertions** (baseline 195/723).
+
 ### Duplikasi Greeting dihapus + halaman AI Agents dirapikan (2026-09-29)
 
 **Konteks (permintaan user):** (1) Greeting Message muncul di dua tempat — AI Agent & Channel — mana yang dipakai & hapus salah satu; (2) tab Lanjutan detail agent ada section "Statistik" isinya kosong — hapus bila tak relevan; (3) list agents dibuat lebih compact & informatif — hapus kolom Percakapan/Pesan (selalu 0) dan nama model.

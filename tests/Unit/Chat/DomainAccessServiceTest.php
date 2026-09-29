@@ -44,6 +44,21 @@ class DomainAccessServiceTest extends TestCase
         $this->assertTrue($this->service->isAllowed('example.com', 'http://127.0.0.1:8000'));
     }
 
+    public function test_subdomain_and_www_variants_match_as_ui_promises(): void
+    {
+        // The Domains tab promises: mysite.com also allows www./blog.mysite.com.
+        $this->assertTrue($this->service->isAllowed('mysite.com', 'https://www.mysite.com/'));
+        $this->assertTrue($this->service->isAllowed('mysite.com', 'https://blog.mysite.com/'));
+        $this->assertTrue($this->service->isAllowed('www.mysite.com', 'https://mysite.com/'));
+
+        // Neighbouring hosts must NOT match.
+        $this->assertFalse($this->service->isAllowed('mysite.com', 'https://notmysite.com/'));
+        $this->assertFalse($this->service->isAllowed('mysite.com', 'https://evilmysite.com/'));
+
+        // Case-insensitive host comparison.
+        $this->assertTrue($this->service->isAllowed('Mysite.COM', 'https://WWW.mysite.com/'));
+    }
+
     public function test_app_own_host_is_allowed_even_when_not_listed(): void
     {
         config(['app.url' => 'https://cekat-saas.test']);

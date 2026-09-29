@@ -51,11 +51,28 @@
                         </div>
 
                         @if ($avatarType === 'icon')
+                            @php
+                                // Keep in sync with public/widget/widget.js getAvatarHtml() + x-widget-avatar.
+                                $avatarIcons = [
+                                    'bot' => 'Bot AI',
+                                    'headphones' => 'Headset',
+                                    'user-round' => 'Persona',
+                                    'smile' => 'Ramah',
+                                    'message-circle' => 'Chat',
+                                    'heart' => 'Peduli',
+                                    'store' => 'Toko',
+                                    'briefcase' => 'Bisnis',
+                                    'life-buoy' => 'Bantuan',
+                                    'sparkles' => 'AI Premium',
+                                ];
+                            @endphp
                             <div class="grid grid-cols-5 gap-3">
-                                @foreach (['robot', 'comments', 'headset', 'user', 'bell', 'comment-dots', 'message', 'circle-question'] as $icon)
+                                @foreach ($avatarIcons as $icon => $label)
                                     <button type="button" wire:click="$set('avatarIcon', '{{ $icon }}')"
-                                        class="h-12 border rounded-lg flex items-center justify-center transition {{ $avatarIcon === $icon ? 'ring-2 ring-primary border-primary bg-primary/5' : 'hover:bg-gray-50' }}">
-                                        <i class="fa-solid fa-{{ $icon }} text-xl text-gray-700"></i>
+                                        title="{{ $label }}"
+                                        class="h-14 border rounded-lg flex flex-col items-center justify-center gap-0.5 transition hover:scale-105 {{ $avatarIcon === $icon ? 'ring-2 ring-primary border-primary bg-primary/5 text-primary' : 'text-gray-600 hover:bg-gray-50' }}">
+                                        <x-widget-avatar :icon="$icon" size="22px" />
+                                        <span class="text-[9px] leading-none">{{ $label }}</span>
                                     </button>
                                 @endforeach
                             </div>
@@ -166,8 +183,12 @@
                                 w-80 bg-white rounded-2xl shadow-2xl border overflow-hidden">
                         {{-- Header --}}
                         <div class="p-4 text-white flex items-center gap-3" style="background: {{ $primaryColor }}">
-                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                <i class="fa-solid fa-robot"></i>
+                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center overflow-hidden text-white">
+                                <x-widget-avatar
+                                    :type="$avatarUpload ? 'image' : $avatarType"
+                                    :icon="$avatarIcon"
+                                    :url="$avatarUpload ? $avatarUpload->temporaryUrl() : $avatarUrl"
+                                    size="24px" />
                             </div>
                             <div class="flex-1">
                                 <p class="font-semibold">{{ $name }}</p>
@@ -221,15 +242,15 @@
                     title: '{{ addslashes($name) }}',
                     subtitle: 'Online • Reply cepat',
                     greeting: `{!! addslashes($greeting) !!}`,
-                    avatar_type: '{{ $avatarType }}',
-                    avatar_icon: '{{ $avatarIcon }}',
-                    avatar_url: '{{ $avatarUrl }}',
+                    avatarType: '{{ $avatarType }}',
+                    avatarIcon: '{{ $avatarIcon }}',
+                    avatarUrl: '{{ $avatarUrl }}',
                     showBranding: true
                 };
 
                 // Load widget script
                 const script = document.createElement('script');
-                script.src = '{{ asset("widget/widget.min.js") }}?v=20260927-p2';
+                script.src = '{{ asset("widget/widget.min.js") }}?v=20260930-p1';
                 document.body.appendChild(script);
 
                 widgetLoaded = true;
