@@ -25,6 +25,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 **Catatan operasional:** deploy timezone WAJIB urutan: (1) `sed` prod `.env` `APP_TIMEZONE=Asia/Jakarta` + `config:cache`, (2) jalankan deploy (migrasi geser data). Developer lain: samakan `.env` lokal sebelum `php artisan migrate`.
 
+**Cloudflare stale widget (found during E2E):** edge cache `widget.min.js` 4 jam (CF default utk JS; origin tak kirim `Cache-Control`) → embed tanpa query-string menerima JS lama lama setelah deploy. Fix: `public/widget/.htaccess` set `Cache-Control: no-cache, must-revalidate` utk `widget.min.js` + `a2enmod headers` di server (mod_headers sebelumnya mati, tanpa ini `.htaccess` diam-diam di-skip). E2E terverifikasi di prod: session 455 `source_url=https://bmp.net.id/promo-e2e-browser`, `referer_url=https://google.com/search?q=hosting+bmp`, pesan user di-stamp `06:55:39` vs balasan bot `06:55:42`. Edge entry lama expire sendiri ≤4 jam (atau purge manual di dashboard CF); embed baru (`?v=20260930-p2`) langsung miss → file terbaru.
+
 ### Fix avatar channel (5 bug), picker ikon Lucide, & perbaikan domain restriction (2026-09-30)
 
 **Konteks (permintaan user):** (1) tab Tampilan channel — icon/avatar tak bisa diganti & upload tak tampil di widget; (2) tampilkan ikon avatar relevan pakai Lucide; (3) audit ikon aplikasi; (4) persona name (analisis, jawaban di thread); (5) pembatasan domain — sudah benar? boleh kosong? sebaiknya mandatori?
