@@ -5,6 +5,23 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Verifikasi email via kode OTP + modal wajib (ganti link signed) (2026-09-29)
+
+**Konteks:** permintaan user — (1) pendaftar baru wajib diverifikasi dengan **kode verifikasi yang diinput** (Email OTP), bukan klik link; (2) pendaftar Google juga wajib (email Google dianggap pre-verified → sebelumnya tidak pernah ada email terkirim, inilah penyebab "email verifikasi tidak terkirim" pada akun `jonofwb1@gmail.com` — didaftarkan via Google OAuth, otomatis `verified` tanpa email); (3) seluruh user lama non-admin di-set **belum verifikasi** + **modal wajib tak bisa ditutup** di dashboard sampai kode benar. Keputusan user: Email OTP, Google tetap wajib kode, admin dikecualikan dari un-verify (hindari lockout panel admin), modal blocking.
+
+**Diubah:**
+- `EmailOtpService` (`app/Services/Auth`): kode 6 digit disimpan **hashed** (sha256) di cache, TTL 5 mnt, jeda resend 60 dtk (`hasLiveCode`), maks 5 percobaan salah lalu kode di-invalidate (`verify` mem-padded input, `hash_equals`).
+- Mailable `EmailOtp` + `emails/email-otp.blade.php` (kode besar, masa berlaku, abaikan bila tak diminta); `VerifyEmail` (link signed) + view `emails/verify-email` & `auth/verify-email` **dihapus**.
+- Route: hapus `GET /email/verify/{id}/{hash}` (signed link); `POST /email/verify` (`verification.verify`, auth+`throttle:10,1`) → cocokkan kode → `markEmailAsVerified()` + `event(Verified)` → dashboard; `POST /email/verification-notification` (`verification.resend`, `throttle:6,1`) → regenerate + kirim OTP (`otp_success` flash); `GET /email/verify` (notice) → redirect dashboard.
+- `User::sendEmailVerificationNotification()` kini generate + kirim `EmailOtp`; `RegisterController` redirect ke **dashboard** (bukan notice) dengan flash info kode; `GoogleController`: user baru **tanpa** `email_verified_at` + kirim OTP (hapus dispatch `Verified` otomatis — kini fired saat kode benar).
+- Gerbang: hapus middleware `verified` dari grup dashboard/user & WhatsApp (biar modal yang tampil; grup admin 2× **tetap** `verified`); modal blocking `layouts/partials/verify-modal.blade.php` di-include di `layouts.dashboard` (28 view): overlay `z-[100]` tanpa tombol tutup/klik-outside/ESC, input `one-time-code` 6 digit, auto-kirim kode pertama via fetch saat `hasLiveCode` false, countdown resend 60 dtk, inline error/`otp_success`, jalan keluar via logout.
+- Migrasi `2026_09_29_120000_unverify_existing_non_admin_users`: `email_verified_at = NULL` untuk semua `role != 'admin'` (down: set kembali now()); admin `admin@cekat.biz.id` tetap verified.
+- `NotifyAdminNewSignup`: skip bila akun >24 jam (user lama yang re-verify bukan "pendaftar baru" — mencegah banjir notice); `SendWelcomeEmail` tetap semua (mereka belum pernah dapat welcome).
+- Test: `EmailVerificationTest` di-rewrite penuh (8 — register→dashboard+OTP, kode benar→verified+welcome+admin, kode salah, resend, brute5× invalidate, modal tampil/tersembunyi, notice→dashboard); `PlanLimitEnforcementTest` ekspektasi register → `route('dashboard')`.
+
+**Diverifikasi:**
+- Suite **185 passed / 679 assertions** (baseline 181/659).
+
 ### Sistem email Brevo SMTP: verifikasi email, ganti email, alert keamanan & notifikasi lead/admin (2026-09-29)
 
 **Konteks:** pengiriman email tidak pernah berfungsi — 5 mailable (`WelcomeUser`, `PaymentSuccess`, `PlanExpiringReminder`, `PlanExpired`, `AccountSuspended`) meng-`implements ShouldQueue` sementara production `QUEUE_CONNECTION=database` **tanpa queue worker** (`Mailer::sendMailable` otomatis me-queue → tak pernah terkirim); tidak ada verifikasi email pendaftar; tidak ada notifikasi saat password/ganti email/setting admin berubah; lead capture hanya lewat webhook (kini `LeadCaptured` tidak pernah sampai ke owner). Kebutuhan user: (1) verifikasi email tiap pendaftar baru, (2) notifikasi perubahan user (alert password, ganti email + link verifikasi, notifikasi setting admin), (3) notifikasi lead baru, (4) SMTP Brevo (bukan API) dengan login relay `84e87c001@smtp-brevo.com`, sender `lora@cekat.biz.id`, penerima admin via env `ADMIN_NOTIFY_EMAIL` (`info@mcimedia.net`).

@@ -3,73 +3,87 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Services\Auth\EmailOtpService;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
+/**
+ * Email verification via 6-digit OTP (EmailOtpService + EmailOtp mailable).
+ * The UI is the blocking modal in the dashboard layout; these are its
+ * endpoints (verify code / resend code).
+ */
 class EmailVerificationController extends Controller
 {
+    public function __construct(private EmailOtpService $otp) {}
+
     /**
-     * Show the verification notice page ("check your inbox").
+     * Legacy notice route - verification now happens in the dashboard modal.
      */
     public function notice(Request $request)
     {
+        if (! $request->user()) {
+            return redirect()->route('login');
+        }
+
         if ($request->user()->hasVerifiedEmail()) {
             return redirect()->route('dashboard');
         }
 
-        return view('auth.verify-email');
+        return redirect()->route('dashboard');
     }
 
     /**
-     * Mark the user's email as verified (signed link from the email).
+     * Verify the submitted OTP (POST, route name verification.verify).
      */
-    public function verify(Request $request)
+    public function verifyCode(Request $request)
     {
-        $user = User::find($request->route('id'));
+        $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
 
-        if (! $user
-            || ! hash_equals((string) sha1($user->getEmailForVerification()), (string) $request->route('hash'))) {
-            return redirect()->route('login')->withErrors([
-                'email' => 'Link verifikasi tidak valid atau sudah kedaluwarsa. Silakan login lalu kirim ulang link verifikasi.',
-            ]);
-        }
+        $user = $request->user();
 
         if ($user->hasVerifiedEmail()) {
-            return redirect()->intended(route('dashboard'))->with('success', 'Email Anda sudah terverifikasi.');
+            return redirect()->route('dashboard');
+        }
+
+        if (! $this->otp->verify($user, $request->input('code'))) {
+            return back()->withErrors([
+                'code' => 'Kode salah atau kedaluwarsa. Periksa email Anda atau minta kode baru.',
+            ]);
         }
 
         $user->markEmailAsVerified();
         event(new Verified($user));
 
-        return redirect()->intended(route('dashboard'))
+        return redirect()->route('dashboard')
             ->with('success', 'Email berhasil diverifikasi! Selamat datang di Cekat.');
     }
 
     /**
-     * Resend the verification link (throttled by the route).
+     * (Re)generate and send the OTP (POST, route name verification.resend).
      */
     public function resend(Request $request)
     {
-        if ($request->user()->hasVerifiedEmail()) {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
             return redirect()->route('dashboard');
         }
 
         try {
-            $request->user()->sendEmailVerificationNotification();
+            $user->sendEmailVerificationNotification();
         } catch (\Throwable $e) {
-            Log::error('Failed to send verification email', [
-                'user_id' => $request->user()->id,
+            \Illuminate\Support\Facades\Log::error('Failed to send verification code', [
+                'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
 
             return back()->withErrors([
-                'email' => 'Gagal mengirim email verifikasi. Silakan coba lagi beberapa saat lagi.',
+                'code' => 'Gagal mengirim kode. Silakan coba lagi beberapa saat lagi.',
             ]);
         }
 
-        return back()->with('success', 'Link verifikasi baru telah dikirim ke ' . $request->user()->email . '.');
+        return back()->with('otp_success', 'Kode verifikasi baru dikirim ke ' . $user->email . '.');
     }
 }

@@ -176,7 +176,7 @@ Route::get('/account/suspended', function () {
 })->middleware('auth')->name('account.suspended');
 
 // User Dashboard Routes (Protected by auth + status check)
-Route::middleware(['auth', 'user.status', 'verified'])->group(function () {
+Route::middleware(['auth', 'user.status'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
@@ -370,7 +370,7 @@ Route::middleware(['auth', 'is.admin', 'verified'])->prefix('admin')->group(func
 });
 
 // WhatsApp Routes (User) - Pro+ feature (plan.feature gate)
-Route::middleware(['auth', 'user.status', 'verified', 'plan.feature:whatsapp'])->prefix('whatsapp')->group(function () {
+    Route::middleware(['auth', 'user.status', 'plan.feature:whatsapp'])->prefix('whatsapp')->group(function () {
     Route::get('/', [App\Http\Controllers\WhatsAppController::class, 'index'])->name('whatsapp.index');
     Route::post('/create', [App\Http\Controllers\WhatsAppController::class, 'create'])->name('whatsapp.create');
     Route::get('/{device}/connect', [App\Http\Controllers\WhatsAppController::class, 'connect'])->name('whatsapp.connect');

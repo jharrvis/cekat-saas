@@ -100,12 +100,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Send the email verification link (branded mailable instead of the
-     * framework notification - matches the rest of the transactional email).
+     * Send the email verification code (6-digit OTP, branded mailable) -
+     * the code is entered in the blocking dashboard modal.
      */
     public function sendEmailVerificationNotification()
     {
-        \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\VerifyEmail($this));
+        $code = app(\App\Services\Auth\EmailOtpService::class)->generate($this);
+
+        \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\EmailOtp($this, $code));
     }
 
     /**

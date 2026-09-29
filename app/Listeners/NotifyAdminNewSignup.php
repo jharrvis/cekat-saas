@@ -16,6 +16,12 @@ class NotifyAdminNewSignup
 {
     public function handle(Verified $e): void
     {
+        // Only brand-new signups: long-standing accounts (re-verifying
+        // after the unverify migration) are not "pendaftar baru".
+        if ($e->user->created_at?->lt(now()->subDay())) {
+            return;
+        }
+
         $to = config('mail.admin_notify')
             ?: User::where('role', 'admin')->orderBy('id')->value('email');
 

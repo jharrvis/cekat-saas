@@ -50,17 +50,18 @@ class RegisterController extends Controller
         // Log the user in
         Auth::login($user);
 
-        // Send verification link (login is allowed, dashboard is gated by 'verified')
+        // Send the OTP verification code (login is allowed; the dashboard
+        // shows a blocking verify modal until the code is entered)
         try {
             $user->sendEmailVerificationNotification();
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send verification email', [
+            \Illuminate\Support\Facades\Log::error('Failed to send verification code', [
                 'user_id' => $user->id,
                 'error' => $e->getMessage(),
             ]);
         }
 
-        return redirect()->route('verification.notice')
-            ->with('success', 'Pendaftaran berhasil! Silakan cek email Anda untuk link verifikasi.');
+        return redirect()->route('dashboard')
+            ->with('success', 'Pendaftaran berhasil! Kami mengirim kode verifikasi 6 digit ke email Anda.');
     }
 }

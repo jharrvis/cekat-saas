@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Email</title>
+    <title>Kode Verifikasi</title>
 </head>
 
 <body
@@ -15,45 +15,37 @@
             <td align="center">
                 <table role="presentation" width="600" cellspacing="0" cellpadding="0"
                     style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                    <!-- Header -->
                     <tr>
                         <td
-                            style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 40px 40px 30px; text-align: center;">
-                            <h1 style="color: #ffffff; font-size: 28px; margin: 0;">Verifikasi Email Anda</h1>
+                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 40px 30px; text-align: center;">
+                            <h1 style="color: #ffffff; font-size: 26px; margin: 0;">🔐 Kode Verifikasi</h1>
                         </td>
                     </tr>
-
-                    <!-- Content -->
                     <tr>
                         <td style="padding: 40px;">
                             <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
                                 Halo <strong>{{ $user->name }}</strong>,
                             </p>
-
-                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 24px;">
-                                Terima kasih telah mendaftar di <strong>Cekat</strong>. Silakan verifikasi alamat
-                                email Anda dengan mengklik tombol di bawah ini.
+                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 8px;">
+                                Masukkan kode berikut untuk memverifikasi email Anda:
                             </p>
 
-                            <div style="text-align: center; margin: 32px 0;">
-                                <a href="{{ $verificationUrl }}"
-                                    style="display: inline-block; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                                    Verifikasi Email Sekarang
-                                </a>
+                            <div style="text-align: center; margin: 28px 0;">
+                                <span
+                                    style="display: inline-block; background-color: #f0fdf4; border: 2px dashed #10b981; border-radius: 12px; padding: 18px 36px; font-size: 38px; font-weight: 700; letter-spacing: 12px; color: #065f46;">
+                                    {{ $code }}
+                                </span>
                             </div>
 
-                            <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0 0 8px;">
-                                Link verifikasi berlaku selama <strong>60 menit</strong>. Jika Anda tidak mendaftar
-                                di layanan kami, abaikan email ini.
+                            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0 0 4px;">
+                                Kode berlaku <strong>5 menit</strong>. Minta kode baru bila kedaluwarsa.
                             </p>
-                            <p style="color: #6b7280; font-size: 13px; line-height: 1.6; margin: 0;">
-                                Tombol tidak berfungsi? Salin tautan berikut ke browser Anda:<br>
-                                <span style="word-break: break-all; color: #7c3aed;">{{ $verificationUrl }}</span>
+                            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0;">
+                                Tidak meminta kode ini? Abaikan email ini — akun Anda tidak akan
+                                berubah sampai kode dimasukkan.
                             </p>
                         </td>
                     </tr>
-
-                    <!-- Footer -->
                     <tr>
                         <td
                             style="background-color: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb;">

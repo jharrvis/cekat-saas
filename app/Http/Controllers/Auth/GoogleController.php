@@ -30,11 +30,11 @@ class GoogleController extends Controller
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
             } else {
-                // Create new user
+                // Create new user - email is NOT auto-verified: every new
+                // account must enter the OTP sent to their inbox
                 $user = User::create([
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
-                    'email_verified_at' => now(), // Google emails are pre-verified by Google
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
                     'password' => Hash::make(Str::random(32)), // Random password
@@ -57,8 +57,14 @@ class GoogleController extends Controller
                     'persona_tone' => 'friendly',
                 ]);
 
-                // Same as email verification: welcome email + admin signup notice
-                event(new \Illuminate\Auth\Events\Verified($user));
+                try {
+                    $user->sendEmailVerificationNotification();
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send verification code', [
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
 
             Auth::login($user);
