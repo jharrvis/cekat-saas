@@ -1,0 +1,8 @@
+<IfModule mod_headers.c>
+    # The widget is version-bumped server-side; Cloudflare used to edge-cache
+    # it for hours (max-age=14400), serving stale JS to every embed that
+    # points at the bare URL. Always revalidate so updates propagate fast.
+    <Files "widget.min.js">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </Files>
+</IfModule>
