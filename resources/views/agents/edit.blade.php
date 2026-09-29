@@ -28,7 +28,7 @@
                 </div>
                 <div class="flex-1">
                     <h2 class="text-xl font-bold">{{ $agent->name }}</h2>
-                    <p class="text-sm text-muted-foreground">Slug: {{ $agent->slug }} · {{ $agent->is_active ? 'Aktif' : 'Nonaktif' }}</p>
+                    <p class="text-sm text-muted-foreground">Slug: {{ $agent->slug }} · {{ $agent->is_active ? 'Aktif' : 'Nonaktif' }} · Dibuat {{ $agent->created_at->format('d M Y') }}</p>
                 </div>
                 <form action="{{ route('agents.toggle-status', $agent) }}" method="POST">
                     @csrf
@@ -140,13 +140,6 @@
                                     class="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer">
                                 <span class="text-xs text-muted-foreground">Kreatif</span>
                             </div>
-                        </div>
-
-                        <div>
-                            <label for="agent-greeting" class="block text-sm font-medium mb-2">Greeting Message</label>
-                            <textarea id="agent-greeting" name="greeting_message" rows="2"
-                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                placeholder="Halo! 👋 Ada yang bisa saya bantu?">{{ old('greeting_message', $agent->greeting_message) }}</textarea>
                         </div>
 
                         <div>
@@ -305,24 +298,6 @@
                 {{-- TAB: Lanjutan --}}
                 <div x-show="tab === 'lanjutan'" role="tabpanel" class="max-w-2xl space-y-6" x-cloak>
                     @include('agents.partials.ai-tier-card')
-
-                    <div class="bg-card border rounded-xl p-5">
-                        <h3 class="font-semibold mb-4">Statistik</h3>
-                        <div class="space-y-3 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-muted-foreground">Total Pesan</span>
-                                <span class="font-bold">{{ number_format($agent->messages_used) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-muted-foreground">Total Percakapan</span>
-                                <span class="font-bold">{{ number_format($agent->conversations_count) }}</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-muted-foreground">Dibuat</span>
-                                <span class="font-bold">{{ $agent->created_at->format('d M Y') }}</span>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-5">
                         <h3 class="font-semibold text-red-700 dark:text-red-400 mb-4">Danger Zone</h3>

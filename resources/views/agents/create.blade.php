@@ -83,22 +83,16 @@
                         </div>
                     </div>
 
-                    {{-- Greeting & Fallback --}}
+                    {{-- Fallback --}}
                     <div class="space-y-4">
-                        <h3 class="font-semibold text-lg border-b pb-2">💬 Pesan</h3>
-                        
-                        <div>
-                            <label class="block text-sm font-medium mb-2">Greeting Message</label>
-                            <textarea name="greeting_message" rows="2"
-                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                placeholder="Halo! 👋 Ada yang bisa saya bantu?">{{ old('greeting_message', 'Halo! 👋 Ada yang bisa saya bantu?') }}</textarea>
-                        </div>
+                        <h3 class="font-semibold text-lg border-b pb-2">💬 Fallback</h3>
 
                         <div>
                             <label class="block text-sm font-medium mb-2">Fallback Message (saat error)</label>
                             <textarea name="fallback_message" rows="2"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                 placeholder="Maaf, saya sedang mengalami gangguan teknis. Silakan coba lagi nanti.">{{ old('fallback_message') }}</textarea>
+                            <p class="text-xs text-muted-foreground mt-1">Greeting widget diatur di pengaturan Channel (Widget Customizer).</p>
                         </div>
                     </div>
 

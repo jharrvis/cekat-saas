@@ -45,66 +45,67 @@
 
         {{-- Agents Grid --}}
         @if($agents->count() > 0)
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 @foreach($agents as $agent)
-                    <div class="bg-card border rounded-xl p-5 hover:shadow-md transition group">
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex items-center gap-3">
+                    @php
+                        $kb = $agent->knowledgeBase;
+                        $faqCount = (int) ($kb->faqs_count ?? 0);
+                        $docCount = (int) ($kb->documents_count ?? 0);
+                    @endphp
+                    <div class="bg-card border rounded-xl p-4 hover:shadow-md transition group">
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-3 min-w-0">
                                 <div
-                                    class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white">
-                                    <i class="fa-solid fa-robot text-xl"></i>
+                                    class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-indigo-600 flex items-center justify-center text-white shrink-0">
+                                    <i class="fa-solid fa-robot"></i>
                                 </div>
-                                <div>
-                                    <h3 class="font-semibold text-lg group-hover:text-primary transition">{{ $agent->name }}</h3>
+                                <div class="min-w-0">
+                                    <h3 class="font-semibold truncate group-hover:text-primary transition">{{ $agent->name }}</h3>
                                     <p class="text-xs text-muted-foreground">
-                                        {{ $agent->widgets_count }} widget{{ $agent->widgets_count !== 1 ? 's' : '' }}
+                                        {{ $agent->widgets_count }} channel{{ $agent->widgets_count !== 1 ? 's' : '' }}
+                                        · Dibuat {{ $agent->created_at->format('d M Y') }}
                                     </p>
                                 </div>
                             </div>
                             <span
-                                class="px-2 py-1 text-xs rounded-full {{ $agent->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                                class="px-2 py-1 text-xs rounded-full shrink-0 {{ $agent->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
                                 {{ $agent->is_active ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
 
                         @if($agent->description)
-                            <p class="text-sm text-muted-foreground mb-4 line-clamp-2">{{ $agent->description }}</p>
+                            <p class="text-sm text-muted-foreground mb-3 line-clamp-2">{{ $agent->description }}</p>
                         @endif
 
-                        {{-- Stats --}}
-                        <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div class="bg-muted/50 rounded-lg p-3 text-center">
-                                <p class="text-lg font-bold text-primary">{{ number_format($agent->messages_used) }}</p>
-                                <p class="text-xs text-muted-foreground">Pesan</p>
-                            </div>
-                            <div class="bg-muted/50 rounded-lg p-3 text-center">
-                                <p class="text-lg font-bold text-indigo-600">{{ number_format($agent->conversations_count) }}</p>
-                                <p class="text-xs text-muted-foreground">Percakapan</p>
-                            </div>
-                        </div>
-
-                        {{-- AI Model & Personality --}}
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            <span class="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
-                                <i class="fa-solid fa-microchip mr-1"></i>
-                                {{ Str::afterLast($agent->ai_model, '/') }}
+                        {{-- Informative chips --}}
+                        <div class="flex flex-wrap gap-1.5 mb-3">
+                            <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                                <i class="fa-solid fa-user mr-1"></i>{{ ucfirst($agent->personality) }}
                             </span>
-                            <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">
-                                <i class="fa-solid fa-user mr-1"></i>
-                                {{ ucfirst($agent->personality) }}
+                            @if(($faqCount + $docCount) > 0)
+                                <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">
+                                    <i class="fa-solid fa-brain mr-1"></i>{{ $faqCount }} FAQ · {{ $docCount }} dok
+                                </span>
+                            @else
+                                <span class="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
+                                    <i class="fa-solid fa-brain mr-1"></i>Knowledge kosong
+                                </span>
+                            @endif
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                <i class="fa-solid fa-calendar mr-1"></i>{{ $agent->created_at->diffForHumans(short: true) }}
                             </span>
                         </div>
 
                         {{-- Actions --}}
                         <div class="flex gap-2 pt-3 border-t">
                             <a href="{{ route('agents.edit', $agent) }}"
-                                class="flex-1 text-center px-3 py-2 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 transition">
+                                class="flex-1 text-center px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 transition">
                                 <i class="fa-solid fa-edit mr-1"></i> Edit
                             </a>
                             <form action="{{ route('agents.toggle-status', $agent) }}" method="POST" class="flex-1">
                                 @csrf
                                 <button type="submit"
-                                    class="w-full px-3 py-2 bg-secondary text-secondary-foreground text-sm rounded-lg hover:bg-secondary/80 transition">
+                                    class="w-full px-3 py-1.5 bg-secondary text-secondary-foreground text-sm rounded-lg hover:bg-secondary/80 transition">
                                     <i class="fa-solid {{ $agent->is_active ? 'fa-pause' : 'fa-play' }} mr-1"></i>
                                     {{ $agent->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
                                 </button>

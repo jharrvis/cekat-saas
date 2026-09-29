@@ -18,7 +18,6 @@ class UpdateAiAgentRequest extends FormRequest
             'description' => 'nullable|string|max:1000',
             'personality' => 'required|in:professional,friendly,casual,formal',
             'ai_temperature' => 'required|numeric|min:0|max:2',
-            'greeting_message' => 'nullable|string|max:500',
             'system_prompt' => 'nullable|string|max:2000',
             'fallback_message' => 'nullable|string|max:500',
             'is_active' => 'boolean',

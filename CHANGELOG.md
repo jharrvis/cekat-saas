@@ -5,6 +5,17 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Duplikasi Greeting dihapus + halaman AI Agents dirapikan (2026-09-29)
+
+**Konteks (permintaan user):** (1) Greeting Message muncul di dua tempat — AI Agent & Channel — mana yang dipakai & hapus salah satu; (2) tab Lanjutan detail agent ada section "Statistik" isinya kosong — hapus bila tak relevan; (3) list agents dibuat lebih compact & informatif — hapus kolom Percakapan/Pesan (selalu 0) dan nama model.
+
+**Analisis & keputusan:**
+- **Greeting aktif = di Channel.** Endpoint `/api/widget/{slug}/config` (routes/web.php) menyajikan `settings['greeting']` dari **Widget Customizer** → itulah yang dirender widget sebagai bubble sapaan. `ai_agents.greeting_message` **dead code**: tak pernah dibaca renderer/prompt mana pun (`PromptBuilder::buildSystemPrompt` hanya memakai system_prompt/FAQ/dokumen; accessor `getGreetingMessageWithDefault()` juga tak pernah dipanggil). **Diputuskan: greeting tetap di Channel, field di AI Agent dihapus total** — form create/edit, validasi `Store/UpdateAiAgentRequest`, key `greeting_message` dari knowledge array, `fillable`+accessor model, dan **drop column** via migrasi `2026_09_29_170315_drop_greeting_message_from_ai_agents_table`. Form create menampilkan catatan "Greeting widget diatur di pengaturan Channel".
+- **Section "Statistik" (tab Lanjutan) dihapus** — `messages_used`/`conversations_count` selalu 0 karena method `incrementMessagesUsed`/`incrementConversations` tak pernah dipanggil dari mana pun. "Dibuat" dipindahkan ke header agent (`Slug · Aktif · Dibuat 14 Mar 2026`).
+- **List agents compact & informatif:** hapus grid statistik 2 kotak (Pesan/Percakapan) + chip nama model; kartu dikecilkan (padding p-4, avatar 10, judul text-base, gap-3); chip baru: **Personality**, **"N FAQ · M dok"** (atau "Knowledge kosong" — data dari `knowledgeBase` `withCount(['faqs','documents'])` di `AiAgentController@index`), dan relatif "Dibuat"; sub-header kini "N channel · Dibuat …".
+
+**Test baru (2):** `AgentsIndexTest` — index tanpa "Percakapan"/field greeting + chip knowledge, form create tanpa field Greeting. Suite **209 passed / 796 assertions** (baseline 195/723).
+
 ### Email lead lengkap (IP/Perangkat/Lokasi) + baris "Percakapan Terbaru" klik ke Chat Detail (2026-09-29)
 
 **Konteks (permintaan user):** (1) user bertanya kapan summary dibuat — dijawab & didokumentasikan: **summary dibuat saat lead terdeteksi** (deferred via `app()->terminating()` sesaat setelah respons chat keluar, sebelum email dikirim), **bukan** menunggu session ditutup; endpoint close hanya fallback idempoten bila belum ada. (2) Email lead diminta memuat data leads lengkap: IP address, device, dan lokasi kota. (3) Setiap baris "Percakapan Terbaru" di dashboard harus bisa diklik menuju halaman chat (Chat Detail sesi tsb — konfirmasi user).

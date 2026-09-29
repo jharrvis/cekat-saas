@@ -28,7 +28,6 @@ class PromptBuilder
                     'name' => $aiAgent->name,
                     'personality' => $aiAgent->personality,
                     'system_prompt' => $aiAgent->system_prompt,
-                    'greeting_message' => $aiAgent->greeting_message,
                     'fallback_message' => $aiAgent->fallback_message,
                 ],
                 'company' => [

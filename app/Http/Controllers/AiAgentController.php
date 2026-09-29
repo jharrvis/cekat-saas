@@ -17,6 +17,7 @@ class AiAgentController extends Controller
     {
         $agents = Auth::user()->aiAgents()
             ->withCount('widgets')
+            ->with(['knowledgeBase' => fn ($q) => $q->withCount(['faqs', 'documents'])])
             ->orderBy('created_at', 'desc')
             ->get();
 
