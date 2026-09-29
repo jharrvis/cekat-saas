@@ -7,6 +7,8 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ### Verifikasi email via kode OTP + modal wajib (ganti link signed) (2026-09-29)
 
+**Perbaikan kritis (laporan user: "email tidak terkirim sama sekali, tidak ada tombol resend"):** `x-data` modal dirender sebagai `verifyOtpModal({ idle })` — shorthand `{ idle }` di JS adalah **reference ke variabel `idle`** (bukan literal) → `ReferenceError` mematikan komponen Alpine → tombol resend tampil **kosong/tanpa teks** dan auto-send `fetch` tidak pernah jalan (bukti: `Cache::get('email_otp:14')` = null, nol error log). Perbaikan: (1) quote param → `verifyOtpModal('idle')` (+regresi test `assertSee`); (2) fetch gagal (!ok/Catch) → state kembali `idle` (tombol bisa diklik ulang, bukan fake "terkirim"); (3) **hardening server-side**: `LoginController` & `GoogleController` (existing user) kirim OTP saat login bila unverified && `!hasLiveCode` → kode selalu terkirim walau JS mati (guard cegah spam <60 dtk). E2E ulang: console nol error JS, `POST /email/verification-notification [302]`, `email_otp:{id}` terisi (16 dtk), tombol "Kode terkirim — kirim ulang dalam 60s" tampil, kode diterima → modal hilang, nol `Failed to send verification code`.
+
 **Konteks:** permintaan user — (1) pendaftar baru wajib diverifikasi dengan **kode verifikasi yang diinput** (Email OTP), bukan klik link; (2) pendaftar Google juga wajib (email Google dianggap pre-verified → sebelumnya tidak pernah ada email terkirim, inilah penyebab "email verifikasi tidak terkirim" pada akun `jonofwb1@gmail.com` — didaftarkan via Google OAuth, otomatis `verified` tanpa email); (3) seluruh user lama non-admin di-set **belum verifikasi** + **modal wajib tak bisa ditutup** di dashboard sampai kode benar. Keputusan user: Email OTP, Google tetap wajib kode, admin dikecualikan dari un-verify (hindari lockout panel admin), modal blocking.
 
 **Diubah:**
@@ -21,7 +23,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 **Diverifikasi:**
 - E2E production: register → landing `/dashboard` dengan **modal blocking** (`dialog "Verifikasi Email Anda"`, input kode, auto-send kode pertama, resend ber-countdown, tombol logout) → kode diterima → modal hilang, `email_verified_at` terisi, `EmailOtp`/`WelcomeUser`/`AdminNewSignup` terkirim (nol log error mail); migrasi: admin 1 verified, non-admin verified **0**, unverified 9; data user test dibersihkan.
-- Suite **185 passed / 679 assertions** (baseline 181/659).
+- Suite **188 passed / 689 assertions** (baseline 181/659).
 
 ### Sistem email Brevo SMTP: verifikasi email, ganti email, alert keamanan & notifikasi lead/admin (2026-09-29)
 
