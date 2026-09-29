@@ -113,4 +113,16 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Notification Address
+    |--------------------------------------------------------------------------
+    |
+    | Recipient of system notifications (new signups, admin settings changes).
+    | Falls back to the first admin account when empty.
+    |
+    */
+
+    'admin_notify' => env('ADMIN_NOTIFY_EMAIL'),
+
 ];

@@ -5,6 +5,28 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Sistem email Brevo SMTP: verifikasi email, ganti email, alert keamanan & notifikasi lead/admin (2026-09-29)
+
+**Konteks:** pengiriman email tidak pernah berfungsi — 5 mailable (`WelcomeUser`, `PaymentSuccess`, `PlanExpiringReminder`, `PlanExpired`, `AccountSuspended`) meng-`implements ShouldQueue` sementara production `QUEUE_CONNECTION=database` **tanpa queue worker** (`Mailer::sendMailable` otomatis me-queue → tak pernah terkirim); tidak ada verifikasi email pendaftar; tidak ada notifikasi saat password/ganti email/setting admin berubah; lead capture hanya lewat webhook (kini `LeadCaptured` tidak pernah sampai ke owner). Kebutuhan user: (1) verifikasi email tiap pendaftar baru, (2) notifikasi perubahan user (alert password, ganti email + link verifikasi, notifikasi setting admin), (3) notifikasi lead baru, (4) SMTP Brevo (bukan API) dengan login relay `84e87c001@smtp-brevo.com`, sender `lora@cekat.biz.id`, penerima admin via env `ADMIN_NOTIFY_EMAIL` (`info@mcimedia.net`).
+
+**Diubah:**
+- Hapus `implements ShouldQueue` (sinkron) dari 5 mailable; semua kirim email dibungkus try/catch (mail gagal tak boleh merusak alur transaksi); `config/mail.php` + `.env.example` + `docs/deployment-guide.md` (§6 & §11): blok Brevo SMTP + `ADMIN_NOTIFY_EMAIL`, catatan SMTP key (`xsmtpsib-`) ≠ API key (`xkeysib-`).
+- `User` `implements MustVerifyEmail` + override `sendEmailVerificationNotification()` (mailable `App\Mail\VerifyEmail`, link signed 60 mnt); `email_verified_at` & `pending_email` masuk `$fillable`; `RegisterController` redirect ke `verification.notice`; `Verified` event → listener auto-discovery (`SendWelcomeEmail` kirim `WelcomeUser`, `NotifyAdminNewSignup` kabari admin); Google signup baru dispatch `Verified` (email pre-verified); migrasi backfill `email_verified_at` untuk user lama (up: null→now; down: no-op) agar tak terkunci.
+- Route verifikasi di `routes/auth.php`: `verification.notice` (auth), `verification.verify` (auth+signed+`throttle:6,1`), `verification.resend` (auth+throttle); middleware `verified` ditambahkan ke 4 grup route (dashboard/user, 2× admin, `plan.feature:whatsapp`).
+- Fitur ganti email: migrasi `pending_email` (`2026_09_29_110000`); `PUT /settings/email` (`UpdateEmailRequest`: valid, beda dari aktif, unique) → simpan pending + `EmailChangeConfirm` ke alamat baru + `EmailChangeRequestAlert` ke alamat lama; `GET /settings/email/confirm` (signed+throttle) → hash `sha1(pending)` cocok + cek unique ulang → aktifkan email, `email_verified_at=now()`, `EmailChangeDone` ke alamat lama; kartu "Ganti Email" (+badge pending) di `user/settings`.
+- Alert password: mailable `PasswordChanged` (user, IP, via) dikirim dari `PUT /settings/password` dan dari `PasswordResetController::reset` ("Tautan Reset Password").
+- Notifikasi lead baru: `LeadCaptured` kini membawa `sessionId` + nilai lead (PII hanya untuk email, tidak pernah di-log) dan **di-dispatch tanpa syarat webhook**, setelah `persistConversation` (baris sesi sudah ada); listener `SendLeadNotification` menandai `chat_sessions.is_lead` + `visitor_name/email/phone` (ter-encrypt via mutator) lalu kirim `NewLead` ke pemilik widget — **1× per sesi**, di-gate fitur `leads` (`can_export_leads`; data tetap tersimpan untuk plan gratis).
+- Notifikasi setting admin: event `AdminSettingsChanged` + `keys` (field disimpan), dispatch juga dari `WhatsAppSettings::saveSettings/toggleModule`; listener `NotifyAdminSettingsChanged` → mailable `AdminSettingsChangedNotice` ke `ADMIN_NOTIFY_EMAIL` (fallback admin pertama), tanpa rahasia.
+- Test baru (19): `EmailVerificationTest` (4), `EmailChangeTest` (5), `PasswordChangeAlertTest` (3 — settings + wrong current + reset via token), `LeadNotificationTest` (4 — persist+notify, plan gratis, dedupe per sesi, tanpa webhook), `AdminSettingsNotificationTest` (3 — konfigurasi, fallback admin, tanpa penerima).
+
+**Diperbaiki (temuan saat test):**
+- `SettingsController::confirmEmail` membaca `$request->route('id')`/`route('hash')` padahal signed link membawa param sebagai **query string** → selalu "link tidak valid"; kini `$request->query('id')`/`query('hash')`.
+- `PasswordResetController::reset` closure memanggil `$this->ip()` (tidak ada di controller) → alert reset tak terkirim (ter-log error); kini `use ($request)` → `$request->ip()`.
+
+**Diverifikasi:**
+- SMTP lokal & production port 587 terbuka; uji `Mail::raw` via Brevo relay → `SENT_OK`.
+- Suite **181 passed / 659 assertions** (baseline 162/596).
+
 ### Resume percakapan: natural tanpa sebutan "AI" + validasi output job summary (2026-09-29)
 
 **Konteks:** resume (summary) di dashboard menyebut "AI" karena label transkrip `AI:` ikut terkirim ke prompt; user meminta resume lebih informatif & natural tanpa menyebut AI (ganti "layanan customer service"). Ditemukan juga penyebab "resume tidak muncul di production": job summary lama di-dispatch ke queue sedangkan production `QUEUE_CONNECTION=database` **tanpa queue worker** (worker yang ada milik aplikasi lain) → ChatInbox "Generate" & closing lama tak pernah menghasilkan ringkasan; model free kadang mengembalikan sampah (mis. `User Safety: safe`) yang tersimpan apa adanya. Lingkup fitur (penawaran penutupan + resume): berlaku untuk **semua widget semua pelanggan** — timing global di `widget.js` (90 dtk idle → tawaran, +60 dtk → tutup+resume, +5 dtk → minimize), bisa dioverride per-site via `window.CSAIConfig` sebelum memuat widget.

@@ -30,6 +30,7 @@ class ChatApiTest extends TestCase
             'name' => 'Owner',
             'email' => 'owner@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'plan_id' => $plan->id,
             'monthly_message_used' => $overrides['used'] ?? 0,
             // status defaults to 'active' via migration; only override when set

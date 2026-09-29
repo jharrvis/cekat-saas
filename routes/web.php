@@ -176,7 +176,7 @@ Route::get('/account/suspended', function () {
 })->middleware('auth')->name('account.suspended');
 
 // User Dashboard Routes (Protected by auth + status check)
-Route::middleware(['auth', 'user.status'])->group(function () {
+Route::middleware(['auth', 'user.status', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
@@ -220,8 +220,25 @@ Route::middleware(['auth', 'user.status'])->group(function () {
 
     Route::put('/settings/password', function (App\Http\Requests\UpdatePasswordRequest $request) {
         auth()->user()->update(['password' => Hash::make($request->validated()['password'])]);
+
+        try {
+            \Illuminate\Support\Facades\Mail::to(auth()->user()->email)
+                ->send(new \App\Mail\PasswordChanged(auth()->user(), request()->ip()));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send password changed alert', [
+                'user_id' => auth()->id(),
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return back()->with('success', 'Password berhasil diubah!');
     })->name('settings.update-password');
+
+    Route::put('/settings/email', [\App\Http\Controllers\SettingsController::class, 'updateEmail'])
+        ->name('settings.update-email');
+    Route::get('/settings/email/confirm', [\App\Http\Controllers\SettingsController::class, 'confirmEmail'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('settings.email.confirm');
 
     // User Integration (view embed code)
     Route::get('/integration', function () {
@@ -262,7 +279,7 @@ Route::middleware(['auth', 'user.status'])->group(function () {
 });
 
 // Admin Routes - PROTECTED: Only admin users can access
-Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'is.admin', 'verified'])->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
@@ -353,7 +370,7 @@ Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
 });
 
 // WhatsApp Routes (User) - Pro+ feature (plan.feature gate)
-Route::middleware(['auth', 'user.status', 'plan.feature:whatsapp'])->prefix('whatsapp')->group(function () {
+Route::middleware(['auth', 'user.status', 'verified', 'plan.feature:whatsapp'])->prefix('whatsapp')->group(function () {
     Route::get('/', [App\Http\Controllers\WhatsAppController::class, 'index'])->name('whatsapp.index');
     Route::post('/create', [App\Http\Controllers\WhatsAppController::class, 'create'])->name('whatsapp.create');
     Route::get('/{device}/connect', [App\Http\Controllers\WhatsAppController::class, 'connect'])->name('whatsapp.connect');
@@ -366,7 +383,7 @@ Route::middleware(['auth', 'user.status', 'plan.feature:whatsapp'])->prefix('wha
 });
 
 // WhatsApp Admin Settings
-Route::middleware(['auth', 'is.admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'is.admin', 'verified'])->prefix('admin')->group(function () {
     Route::get('/whatsapp', App\Livewire\Admin\WhatsAppSettings::class)->name('admin.whatsapp');
 });
 

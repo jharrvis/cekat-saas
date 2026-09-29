@@ -33,6 +33,7 @@ class ChatForgetTest extends TestCase
             'name' => 'Owner',
             'email' => 'owner-fgt@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'plan_id' => $plan->id,
         ]);
 
@@ -164,6 +165,7 @@ class ChatForgetTest extends TestCase
             'name' => 'Intruder',
             'email' => 'intruder@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'plan_id' => $plan->id,
         ]);
 

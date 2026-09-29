@@ -36,6 +36,7 @@ class PlanLimitEnforcementTest extends TestCase
             'name' => 'User ' . $this->seq,
             'email' => 'user-' . $this->seq . '-' . uniqid() . '@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'role' => $role,
             'plan_id' => $plan->id,
         ], $userAttrs));
@@ -156,7 +157,7 @@ class PlanLimitEnforcementTest extends TestCase
             'password_confirmation' => 'secret123',
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('verification.notice'));
         $this->assertAuthenticated();
 
         $user = User::where('email', $email)->firstOrFail();
@@ -174,7 +175,7 @@ class PlanLimitEnforcementTest extends TestCase
             'password_confirmation' => 'secret123',
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('verification.notice'));
 
         $user = User::orderBy('id', 'desc')->first();
         $this->assertNull($user->plan_id);

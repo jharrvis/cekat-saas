@@ -44,6 +44,7 @@ class PlanExpiryTest extends TestCase
             'name' => 'U' . $this->seq,
             'email' => "u{$this->seq}-" . uniqid() . '@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'plan_id' => $plan->id,
         ], $attrs));
     }

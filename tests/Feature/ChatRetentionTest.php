@@ -34,6 +34,7 @@ class ChatRetentionTest extends TestCase
             'name' => 'Owner',
             'email' => 'owner-ret@'.uniqid().'.test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'plan_id' => $plan->id,
         ]);
 
@@ -104,6 +105,7 @@ class ChatRetentionTest extends TestCase
             'name' => 'Owner',
             'email' => 'owner-noret@'.uniqid().'.test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'plan_id' => $plan->id,
         ]);
 

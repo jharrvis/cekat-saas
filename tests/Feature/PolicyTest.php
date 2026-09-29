@@ -29,6 +29,7 @@ class PolicyTest extends TestCase
             'name' => 'User '.$this->seq,
             'email' => "user{$this->seq}@test.id",
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'role' => $role,
             'plan_id' => $plan->id,
         ]);

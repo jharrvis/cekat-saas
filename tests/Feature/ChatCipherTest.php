@@ -34,6 +34,7 @@ class ChatCipherTest extends TestCase
             'name' => 'Owner',
             'email' => 'owner-cipher@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'plan_id' => $plan->id,
         ]);
 

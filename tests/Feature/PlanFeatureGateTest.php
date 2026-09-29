@@ -25,6 +25,7 @@ class PlanFeatureGateTest extends TestCase
             'name' => 'User ' . $seq,
             'email' => 'user-' . $seq . '-' . uniqid() . '@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'role' => $role,
             'plan_id' => $plan->id,
         ], $userAttrs));

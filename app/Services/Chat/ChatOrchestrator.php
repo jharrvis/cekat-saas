@@ -155,13 +155,6 @@ class ChatOrchestrator
 
                 if ($webhookResult && $action) {
                     WebhookActionTriggered::dispatch($widget->slug, $action['action']);
-
-                    if ($action['action'] === 'save_lead') {
-                        LeadCaptured::dispatch(
-                            $widget->slug,
-                            array_values(array_intersect(['name', 'email', 'phone'], array_keys($action))),
-                        );
-                    }
                 }
 
                 // If strictly JSON, replace with friendly message
@@ -175,6 +168,18 @@ class ChatOrchestrator
                 }
 
                 $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? []);
+
+                // Lead capture: fires regardless of webhook config, after the
+                // session row exists (SendLeadNotification persists the lead
+                // onto the session and emails the widget owner).
+                if ($action && ($action['action'] ?? null) === 'save_lead') {
+                    LeadCaptured::dispatch(
+                        $widget->slug,
+                        array_values(array_intersect(['name', 'email', 'phone'], array_keys($action))),
+                        $sessionId,
+                        array_intersect_key($action, array_flip(['name', 'email', 'phone'])),
+                    );
+                }
 
                 // Increment user's monthly message quota (skip for landing page widget - unlimited)
                 $this->quota->consume($widget->user, $widget->slug);

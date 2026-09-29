@@ -24,6 +24,7 @@ class UiSmokeTest extends TestCase
             'name' => 'U'.$this->seq,
             'email' => "u{$this->seq}@test.id",
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'role' => $role,
             'plan_id' => $plan->id,
         ]);

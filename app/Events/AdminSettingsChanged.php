@@ -11,5 +11,6 @@ class AdminSettingsChanged
     public function __construct(
         public readonly string $group,
         public readonly ?int $userId,
+        public readonly array $keys = [],
     ) {}
 }

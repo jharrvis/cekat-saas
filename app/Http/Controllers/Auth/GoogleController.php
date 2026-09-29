@@ -34,6 +34,7 @@ class GoogleController extends Controller
                 $user = User::create([
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
+                    'email_verified_at' => now(), // Google emails are pre-verified by Google
                     'google_id' => $googleUser->getId(),
                     'avatar' => $googleUser->getAvatar(),
                     'password' => Hash::make(Str::random(32)), // Random password
@@ -55,6 +56,9 @@ class GoogleController extends Controller
                     'persona_name' => 'AI Assistant',
                     'persona_tone' => 'friendly',
                 ]);
+
+                // Same as email verification: welcome email + admin signup notice
+                event(new \Illuminate\Auth\Events\Verified($user));
             }
 
             Auth::login($user);

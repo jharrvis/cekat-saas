@@ -50,6 +50,17 @@ class RegisterController extends Controller
         // Log the user in
         Auth::login($user);
 
-        return redirect()->route('dashboard')->with('success', 'Welcome to Cekat! Your account has been created successfully.');
+        // Send verification link (login is allowed, dashboard is gated by 'verified')
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send verification email', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return redirect()->route('verification.notice')
+            ->with('success', 'Pendaftaran berhasil! Silakan cek email Anda untuk link verifikasi.');
     }
 }

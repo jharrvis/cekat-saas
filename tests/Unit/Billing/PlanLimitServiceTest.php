@@ -43,6 +43,7 @@ class PlanLimitServiceTest extends TestCase
             'name' => 'User '.$seq,
             'email' => 'pluser-'.$seq.'-'.uniqid().'@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'role' => 'user',
             'plan_id' => $plan?->id,
         ], $attrs));

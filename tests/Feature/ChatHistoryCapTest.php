@@ -33,6 +33,7 @@ class ChatHistoryCapTest extends TestCase
             'name' => 'Owner',
             'email' => 'owner-cap@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'plan_id' => $plan->id,
         ]);
 

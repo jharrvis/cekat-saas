@@ -21,6 +21,7 @@ class ChatHistoryDeleteTest extends TestCase
             'name' => 'User ' . $seq,
             'email' => 'chatter-' . $seq . '-' . uniqid() . '@test.id',
             'password' => 'secret123',
+            'email_verified_at' => now(),
             'role' => 'user',
         ]);
 
