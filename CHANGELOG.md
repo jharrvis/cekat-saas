@@ -11,12 +11,12 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 **Diubah:**
 - `GenerateChatSummary`: label transkrip `AI` → `Layanan Customer Service`; system prompt baru — catatan profesional untuk tim layanan customer service (topik pembicaraan, kebutuhan customer, hasil + tindak lanjut; maksimal 3 kalimat, prosa mengalir tanpa label), larangan eksplisit menyebut "AI"/"chatbot"/"model" (puji pihak pelayan dengan "layanan customer service"/"tim kami"); `max_tokens` 200→250.
-- Validasi output `isUsableSummary()`: buang code fence markdown; tolak <40 karakter, echo instruksi (EN/ID: "We need to produce…", "Buatkan resume…", "User Safety"-style junk), dan hasil tanpa penanda Bahasa Indonesia; retry 1× (total 2 attempt), `temperature` 0.3; gagal total → `summary` null (closing generik di widget / resume kosong di dashboard — bukan sampah tersimpan).
+- Validasi output `isUsableSummary()`: buang code fence markdown; tolak <40 karakter, echo instruksi (EN/ID: "We need to produce…", "Buatkan resume…", "User Safety"-style junk), **meta-leak reasoning** ("Okay, let me tackle…", "The user wants me…", "Berikut…"), dan hasil tanpa penanda Bahasa Indonesia; retry 1× (total 2 attempt), `temperature` 0.3, `max_tokens` 400 (reasoning models memotong tengah kalimat pada 250); gagal total → `summary` null (closing generik di widget / resume kosong di dashboard — bukan sampah tersimpan).
 
 **Diverifikasi:**
 - Regenerasi resume pada sesi percakapan nyata → natural, informatif, tanpa "AI": *"Customer menanyakan harga paket Business, dan layanan customer service menjelaskan rincian paket beserta fitur-fiturnya serta menawarkan bantuan lebih lanjut untuk melakukan pemesanan…"*.
-- Backfill awal di production memunculkan 2 sampah prompt-echo (model kecil menyalin instruksi, lolos validasi `≥40 char`) → diperkuat `isUsableSummary()` + `temperature 0.3`, 2 test regression baru (`prompt echo → retry`, `hanya sampah → summary null`); 2 sesi tersebut di-regenerate setelah deploy.
-- Suite **161 passed / 590 assertions** (baseline 159/583).
+- Backfill awal di production memunculkan sampah prompt-echo & meta-leak (model kecil menyalin instruksi) → diperkuat `isUsableSummary()` + `temperature 0.3`; 3 test regression baru (prompt-echo → retry, hanya-sampah → summary null, unit validasi echo/meta); sesi terdampak di-regenerate setelah deploy.
+- Suite **162 passed / 596 assertions** (baseline 159/583).
 
 ### Widget: offer idle mengulang tanpa henti + auto-close sesi dengan ringkasan & auto-minimize (2026-09-29)
 

@@ -248,4 +248,29 @@ class WidgetSessionCloseTest extends TestCase
         $this->assertNull($fresh->summary_generated_at);
         Http::assertSentCount(2);
     }
+
+    public function test_summary_validation_rejects_echo_and_meta_leaks(): void
+    {
+        $method = new \ReflectionMethod(\App\Jobs\GenerateChatSummary::class, 'isUsableSummary');
+        $method->setAccessible(true);
+        $job = new \App\Jobs\GenerateChatSummary(new \App\Models\ChatSession());
+
+        $rejected = [
+            'User Safety: safe',
+            'We need to produce a short summary in Indonesian, natural, professional, max 3 sentences covering the topic.',
+            'Buatkan resume dari percakapan berikut: Customer menanyakan harga paket lalu layanan customer service menjelaskan rinciannya kepada customer.',
+            'Okay, let me tackle this request. The user wants me to create a resume of the customer conversation in Bahasa Indonesia covering topic, need, and outcome.',
+            'Sure! Here is the summary: pelanggan bertanya lalu dijawab dengan lengkap oleh layanan customer service kami.',
+        ];
+        foreach ($rejected as $text) {
+            $this->assertFalse($method->invoke($job, $text), "should reject: ".mb_substr($text, 0, 50));
+        }
+
+        $this->assertTrue(
+            $method->invoke(
+                $job,
+                'Customer menanyakan cara pendaftaran. Layanan customer service menjelaskan langkah verifikasi identitas lewat email dan menawarkan bantuan lebih lanjut.'
+            )
+        );
+    }
 }

@@ -145,11 +145,14 @@ class GenerateChatSummary implements ShouldQueue
             return false;
         }
 
-        // Instruction echo / meta commentary (EN or ID).
+        // Instruction echo / meta commentary (EN or ID): weak models answer
+        // by repeating the prompt back or narrating their own reasoning.
         if (preg_match(
             '/we need to produce|short summary|summary (in|of) (indonesian|indonesia)'
             .'|buatkan resume|ringkasan dari percakapan|kamu menulis catatan|maksimal 3 kalimat'
-            .'|berikut adalah|berikut ini adalah|as an ai|sebagai ai/i',
+            .'|berikut adalah|berikut ini adalah|as an ai|sebagai ai'
+            .'|^(okay|ok[, ]|sure|baik[, ]|berikut|here is|here\'s)\b'
+            .'|\b(let me|the user wants|i need to|i will|let\'s)\b/i',
             $text
         )) {
             return false;
