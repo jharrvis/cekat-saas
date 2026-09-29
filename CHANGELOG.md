@@ -20,6 +20,7 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 - Test: `EmailVerificationTest` di-rewrite penuh (8 — register→dashboard+OTP, kode benar→verified+welcome+admin, kode salah, resend, brute5× invalidate, modal tampil/tersembunyi, notice→dashboard); `PlanLimitEnforcementTest` ekspektasi register → `route('dashboard')`.
 
 **Diverifikasi:**
+- E2E production: register → landing `/dashboard` dengan **modal blocking** (`dialog "Verifikasi Email Anda"`, input kode, auto-send kode pertama, resend ber-countdown, tombol logout) → kode diterima → modal hilang, `email_verified_at` terisi, `EmailOtp`/`WelcomeUser`/`AdminNewSignup` terkirim (nol log error mail); migrasi: admin 1 verified, non-admin verified **0**, unverified 9; data user test dibersihkan.
 - Suite **185 passed / 679 assertions** (baseline 181/659).
 
 ### Sistem email Brevo SMTP: verifikasi email, ganti email, alert keamanan & notifikasi lead/admin (2026-09-29)
