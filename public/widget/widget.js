@@ -1046,6 +1046,38 @@
       pre { background: #1e293b; color: #fff; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; }
       pre code { background: transparent; color: inherit; padding: 0; }
       .csai-link { color: #2563eb; text-decoration: underline; }
+
+      /* Table Styles */
+      .csai-table-wrap {
+        overflow-x: auto;
+        margin: 8px 0;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #fff;
+      }
+      .csai-table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 13px;
+      }
+      .csai-table th {
+        background: #f8fafc;
+        color: #0f172a;
+        font-weight: 600;
+        text-align: left;
+        padding: 8px 12px;
+        border-bottom: 2px solid #e2e8f0;
+        white-space: nowrap;
+      }
+      .csai-table td {
+        padding: 7px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        vertical-align: top;
+      }
+      .csai-table tbody tr:nth-child(even) { background: #f8fafc; }
+      .csai-table tbody tr:last-child td { border-bottom: none; }
+      .csai-table tbody tr:hover { background: #f1f5f9; }
     `;
 
     // Hide scrollbar for input but keep functionality
@@ -1517,6 +1549,7 @@
   function parseMarkdown(text) {
     if (!text) return '';
     let placeholders = [];
+    let tables = [];
 
     // 1. Hide Code Blocks and stash them
     text = text.replace(/```([\s\S]*?)```/g, function (match) {
@@ -1570,6 +1603,61 @@
       return linkAnchor(url, url) + trail;
     });
 
+    // 5b. Tables - stash full blocks (header + separator + body rows)
+    //     and rebuild them as real <table> markup. Runs after the inline
+    //     passes above, so cells already carry <strong>/<code>/<a> HTML.
+    //     Detects both raw GFM tables (| a | b |) and the aligned plain
+    //     text tables the server sanitizer emits (a | b / --- | ---).
+    function splitTableRow(line) {
+      let s = line.trim();
+      if (s.charAt(0) === '|') s = s.substring(1);
+      if (s.charAt(s.length - 1) === '|') s = s.substring(0, s.length - 1);
+      return s.split('|').map(function (c) { return c.trim(); });
+    }
+    function buildTableHtml(block) {
+      const header = splitTableRow(block[0]);
+      const sep = splitTableRow(block[1] || '');
+      const aligns = header.map(function (_, k) {
+        const c = sep[k] || '';
+        if (/:-:/.test(c)) return 'center';
+        if (/:-$/.test(c)) return 'right';
+        return 'left';
+      });
+      let html = '<div class="csai-table-wrap"><table class="csai-table"><thead><tr>';
+      html += header.map(function (c, k) {
+        return '<th style="text-align:' + aligns[k] + '">' + c + '</th>';
+      }).join('');
+      html += '</tr></thead><tbody>';
+      for (let r = 2; r < block.length; r++) {
+        const cells = splitTableRow(block[r]);
+        html += '<tr>' + header.map(function (_, k) {
+          return '<td style="text-align:' + aligns[k] + '">' + (cells[k] !== undefined ? cells[k] : '') + '</td>';
+        }).join('') + '</tr>';
+      }
+      return html + '</tbody></table></div>';
+    }
+    (function () {
+      const lines = text.split('\n');
+      const out = [];
+      const hasPipe = (l) => l.indexOf('|') !== -1;
+      for (let i = 0; i < lines.length; i++) {
+        const header = lines[i].trim();
+        const sep = i + 1 < lines.length ? lines[i + 1].trim() : '';
+        const sepOk = /^[\s:|-]+$/.test(sep) && sep.indexOf('-') !== -1 &&
+          (sep.indexOf('|') !== -1 || /^\|/.test(header) || /\|$/.test(header));
+        if (hasPipe(header) && sepOk) {
+          let end = i + 2;
+          while (end < lines.length && hasPipe(lines[end].trim())) end++;
+          tables.push(buildTableHtml(lines.slice(i, end)));
+          out.push('__TABLE_BLOCK_' + (tables.length - 1) + '__');
+          i = end - 1;
+          continue;
+        }
+        out.push(lines[i]);
+      }
+      text = out.join('\n');
+    })();
+
     // 6. Lists (Regex)
     // Unordered
     text = text.replace(/^\s*-\s+(.*)$/gm, '<li class="ul-item">$1</li>');
@@ -1587,7 +1675,13 @@
     text = text.replace(/\n/g, '<br>');
     text = text.replace(/(<\/ul>|<\/ol>|<\/pre>|<pre>)<br>/g, '$1');
 
-    // 8. Restore Markdown-link placeholders
+    // 8. Restore Tables (before link/code placeholders so anything
+    //    stashed inside cells gets processed too), then Markdown links.
+    text = text.replace(/__TABLE_BLOCK_(\d+)__/g, function (match, id) {
+      return typeof tables[id] !== 'undefined' ? tables[id] : match;
+    });
+    text = text.replace(/<br>(<div class="csai-table-wrap">)/g, '$1');
+    text = text.replace(/(<\/table><\/div>)<br>/g, '$1');
     text = text.replace(/__MD_LINK_(\d+)__/g, function (match, id) {
       return typeof mdLinks[id] !== 'undefined' ? mdLinks[id] : match;
     });

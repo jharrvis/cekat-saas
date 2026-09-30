@@ -5,6 +5,17 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Tabel chatbot dirender profesional (2026-09-30)
+
+**Masalah:** balasan AI berformat markdown table (`| Ukuran | Estimasi Harga |` + `|---|`) tampil mentah — pipe & garis pemisah berantakan di widget maupun inbox admin.
+
+**Fix dua lapis:**
+1. **`TextSanitizer::markdownToPlain`** — blok tabel ditarik sejak awal (placeholder `\x1B`, aman dari collapse spasi) lalu dirender jadi **tabel plain-text rapi berkolom** (`renderPlainTable`): lebar kolom pakai `mb_strwidth`, align kanan `:-:` didukung, sel bersihin inline markdown (link/emphasis/tag) via `inlineToPlain` (refactor step 2/4/5 jadi `linksToPlain`/`emphasisToPlain`/`tagsToPlain` — perilaku utuh). Format hasil tetap idempotent & terdeteksi ulang sebagai tabel saat sanitize berikutnya. Terpakai di widget, chat history, inbox admin (nl2br) & email lead.
+2. **Widget `parseMarkdown`** — deteksi tabel (GFM berpipe **dan** tabel plain server) setelah pass inline → rebuild jadi `<table class="csai-table">` + wrapper `overflow-x` (th nowrap, header bg, zebra row, hover, align per kolom); restore sebelum placeholder link/code agar isi sel ikut diproses; `<br>` di sekitar tabel dibersihkan. `<script>` dalam sel tetap escaped.
+3. CSS `.csai-table*` di widget; cache buster → `?v=20260930-p6`.
+
+**Test:** +4 TextSanitizer (`aligned plain`, `inline cleaned`, `round two unchanged`, `pipe tanpa separator bukan tabel`) → suite **246 passed / 960 assertions**. Smoke Node: GFM→`<table>`, plain server→`<table>`, XSS escaped, list/link biasa utuh.
+
 ### Fix lead: data pelengkap tak lagi diabaikan setelah lead terkunci (2026-09-30)
 
 **Laporan 2 session:**

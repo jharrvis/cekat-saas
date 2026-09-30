@@ -64,4 +64,67 @@ class TextSanitizerTest extends TestCase
         $once = TextSanitizer::markdownToPlain($in);
         $this->assertSame($once, TextSanitizer::markdownToPlain($once));
     }
+
+    public function test_markdown_table_is_rendered_as_aligned_plain_text(): void
+    {
+        $in = implode("\n", [
+            '| Ukuran | Estimasi Harga |',
+            '|--------|-----------------|',
+            '| Pintu lebar 80 cm × tinggi 40 cm | Rp 584.000 |',
+            '| Pintu lebar 100 cm × tinggi 60 cm | Rp 760.000 |',
+            '| Pintu lebar 120 cm × tinggi 80 cm | Rp 1.232.000 |',
+        ]);
+
+        $out = TextSanitizer::markdownToPlain($in);
+
+        $this->assertStringNotContainsString('|---', $out);
+
+        $lines = explode("\n", $out);
+        $this->assertCount(5, $lines);
+
+        // Column separator aligns with the pipes of every row.
+        foreach ($lines as $line) {
+            $this->assertStringContainsString(' | ', $line);
+            $this->assertSame(mb_strpos($lines[1], '|'), mb_strpos($line, '|'));
+        }
+
+        // Header, rule and data rows are padded to identical column width.
+        $col0 = array_map(fn ($line) => explode('|', $line)[0], $lines);
+        $this->assertSame(
+            array_unique(array_map(fn ($cell) => mb_strwidth($cell), $col0)),
+            [mb_strwidth($col0[0])],
+        );
+
+        $this->assertStringContainsString('Rp 1.232.000', $out);
+    }
+
+    public function test_table_cells_get_inline_markdown_cleaned(): void
+    {
+        $in = "| Produk | Harga |\n| --- | --- |\n| **Paket Pro** | [Rp100rb](https://toko.test) |";
+
+        $out = TextSanitizer::markdownToPlain($in);
+
+        $this->assertStringContainsString('Paket Pro', $out);
+        $this->assertStringContainsString('Rp100rb (https://toko.test)', $out);
+        $this->assertStringNotContainsString('**', $out);
+        $this->assertStringNotContainsString('](', $out);
+    }
+
+    public function test_table_survives_round_two_unchanged(): void
+    {
+        $in = "Berikut daftarnya:\n\n| A | B |\n|---|---|\n| 1 | 2 |";
+
+        $once = TextSanitizer::markdownToPlain($in);
+        $this->assertSame($once, TextSanitizer::markdownToPlain($once));
+    }
+
+    public function test_pipe_line_without_separator_is_not_tabled(): void
+    {
+        $in = "Harga | berlaku mulai hari ini\n---";
+
+        $out = TextSanitizer::markdownToPlain($in);
+
+        $this->assertStringContainsString('Harga | berlaku mulai hari ini', $out);
+        $this->assertStringNotContainsString('---', $out);
+    }
 }
