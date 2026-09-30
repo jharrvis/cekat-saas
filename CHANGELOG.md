@@ -5,6 +5,14 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Fix lead: data pelengkap tak lagi diabaikan setelah lead terkunci (2026-09-30)
+
+**Laporan 2 session:**
+1. `sess_OXiFp7cQPZj…` (465): form pre-chat → lead LENGKAP (name/email/phone), plan business, 0 error mail di log — **kode benar**; email kemungkinan nyangkut **SPAM** (From `lora@cekat.biz.id` via Brevo relay; verifikasi sender/SPF-DKIM di dashboard Brevo + cek folder spam).
+2. `sess_UwkS0LtJXO4…` (458): nama+email hilang, hanya phone — **bug listener**: `SendLeadNotification` hanya persist saat `!$alreadyLead`. Urutan chat: "082190906070" → dispatch `{phone}` → lead terkunci; "rintoelfrido@yahoo.com" & "Nama RINTO" → dispatch berikutnya **di-return** → name/email tak pernah masuk.
+
+**Fix:** `SendLeadNotification::handle` kini **merge setiap `LeadCaptured`**: `is_lead=true` + isi/timpa `visitor_name/email/phone` dari data dispatch (nilai baru menang utk field yang disertakan; field tak disentuh dipertahankan). Email notifikasi tetap **sekali per session** (data pelengkap hanya update Lead Collection). +2 test (`later captures complete the lead even after first notification` — phone dulu lalu name/email tetap masuk & mail=1; `new capture overwrites stale lead values`). Suite **242 passed / 939 assertions** (baseline 240/929). Backfill session 458 (Rinto: name+email dari transcript) via script prod.
+
 ### Pre-chat form: AI tahu nama pengunjung + greeting menyapa nama (2026-09-30)
 
 **Laporan:** form diisi & tersimpan sbg lead, tapi bot tak tahu nama saat ditanya ("siapa nama saya?").

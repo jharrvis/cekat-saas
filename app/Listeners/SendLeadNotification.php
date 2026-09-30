@@ -38,23 +38,27 @@ class SendLeadNotification
 
         $alreadyLead = (bool) $session?->is_lead;
 
-        if ($session && ! $alreadyLead) {
+        if ($session) {
             $session->is_lead = true;
 
-            if ($e->lead['name'] ?? null) {
-                $session->visitor_name = $e->lead['name'];
-            }
-            if ($e->lead['email'] ?? null) {
-                $session->visitor_email = $e->lead['email'];
-            }
-            if ($e->lead['phone'] ?? null) {
-                $session->visitor_phone = $e->lead['phone'];
+            // Merge on EVERY capture - not only the first one. A visitor
+            // typically reveals data in pieces (phone first, email later);
+            // the first capture must not lock out the rest, or the lead
+            // row would keep a partial name/email forever.
+            foreach (['name' => 'visitor_name', 'email' => 'visitor_email', 'phone' => 'visitor_phone'] as $key => $column) {
+                $value = $e->lead[$key] ?? null;
+
+                if ($value !== null && trim((string) $value) !== '' && $session->{$column} !== $value) {
+                    $session->{$column} = $value;
+                }
             }
 
             $session->save();
         }
 
         // One notification per session; Lead Collection is a paid feature.
+        // The email always carries whatever the session row holds at this
+        // moment; completing the data later only updates Lead Collection.
         if ($alreadyLead) {
             return;
         }

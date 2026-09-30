@@ -117,6 +117,63 @@ class LeadNotificationTest extends TestCase
         Mail::assertSent(NewLead::class, 1);
     }
 
+    public function test_later_captures_complete_the_lead_even_after_first_notification(): void
+    {
+        Mail::fake();
+
+        [$owner, $widget, $session] = $this->makeStack(true);
+
+        // First capture: only the phone (visitor shared it first).
+        event(new LeadCaptured(
+            $widget->slug,
+            ['phone'],
+            $session->visitor_uuid,
+            ['phone' => '082190906070'],
+        ));
+
+        $fresh = $session->fresh();
+        $this->assertTrue($fresh->is_lead);
+        $this->assertSame('082190906070', $fresh->visitor_phone);
+        $this->assertNull($fresh->visitor_name);
+        $this->assertNull($fresh->visitor_email);
+
+        // Later captures: name and email must still land on the session,
+        // even though the lead flag is already set and the owner email
+        // was already sent once.
+        event(new LeadCaptured(
+            $widget->slug,
+            ['name'],
+            $session->visitor_uuid,
+            ['name' => 'Rinto Elfrido'],
+        ));
+        event(new LeadCaptured(
+            $widget->slug,
+            ['email'],
+            $session->visitor_uuid,
+            ['email' => 'rintoelfrido@yahoo.com'],
+        ));
+
+        $fresh = $session->fresh();
+        $this->assertTrue($fresh->is_lead);
+        $this->assertSame('082190906070', $fresh->visitor_phone);
+        $this->assertSame('Rinto Elfrido', $fresh->visitor_name);
+        $this->assertSame('rintoelfrido@yahoo.com', $fresh->visitor_email);
+
+        Mail::assertSent(NewLead::class, 1);
+    }
+
+    public function test_new_capture_overwrites_stale_lead_values(): void
+    {
+        Mail::fake();
+
+        [$owner, $widget, $session] = $this->makeStack(true);
+
+        event(new LeadCaptured($widget->slug, ['email'], $session->visitor_uuid, ['email' => 'wrong@example.com']));
+        event(new LeadCaptured($widget->slug, ['email'], $session->visitor_uuid, ['email' => 'fixed@example.com']));
+
+        $this->assertSame('fixed@example.com', $session->fresh()->visitor_email);
+    }
+
     public function test_lead_email_works_even_without_webhook_configured(): void
     {
         Mail::fake();
