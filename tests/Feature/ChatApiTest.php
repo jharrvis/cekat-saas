@@ -339,4 +339,28 @@ class ChatApiTest extends TestCase
             'user message timestamp must reflect receipt, not reply completion'
         );
     }
+
+    public function test_markdown_in_ai_reply_is_sanitized_before_return_and_persist(): void
+    {
+        ['widget' => $widget] = $this->makeStack();
+        $this->fakeOpenRouter("## Paket Pro\n\nHarga **Rp100rb** - lihat [harga](https://toko.test/harga) ya 👋");
+
+        $response = $this->postJson('/api/chat', [
+            'message' => 'cek markdown',
+            'widgetId' => 'w-uji',
+            'sessionId' => 'sess_md_1',
+        ], ['Origin' => 'https://toko.test']);
+
+        $response->assertOk();
+
+        $expected = "Paket Pro\n\nHarga Rp100rb - lihat harga (https://toko.test/harga) ya 👋";
+        $this->assertSame($expected, $response->json('response'));
+
+        // The persisted row (chat history + email excerpt source) matches.
+        $session = ChatSession::where('visitor_uuid', $response->json('sessionId'))->first();
+        $assistant = ChatMessage::where('session_id', $session->id)->where('role', 'assistant')->first();
+        $this->assertSame($expected, $assistant->content);
+        $this->assertStringNotContainsString('**', $assistant->content);
+        $this->assertStringNotContainsString('##', $assistant->content);
+    }
 }

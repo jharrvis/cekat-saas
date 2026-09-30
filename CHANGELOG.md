@@ -5,6 +5,22 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Bersihkan markdown/mojibake dari balasan chatbot (2026-09-30)
+
+**Permintaan:** hapus karakter `##`, `**`, dll (markdown mentah) & mojibake dari chatbot dan chat history.
+
+**Akar masalah:** widget hanya mem-parse subset markdown (tanpa aturan heading → `##` tampil mentah), sedangkan chat history, admin inbox, email lead & ringkasan menampilkan teks escape polos → `**bold**`/`##` terlihat apa adanya.
+
+**Fix (satu titik sanitasi, menutup semua permukaan):**
+- `app/Support/TextSanitizer.php` (baru): `markdownToPlain()` — headings/`**`/`__`/`*`/`_` (word-boundary: `snake_case`, `2*3` aman) /`~~`/inline code/blockquote/HR/tag HTML; `[label](url)` → `label (url)` (URL tetap); gambar → alt; **fenced code diproteksi placeholder** (isi kode utuh, fence dibuang — sekaligus menutup leak ```json sisa `stripActionJson`); spasi ganda & blank line dirapikan; repair mojibake best-effort (validasi UTF-8 → iconv; peta CP1252 umum: `â€™`→`, `Ã©`→é, dll). Invarian: URL polos byte-identikal, emoji utuh, idempoten.
+- `ChatOrchestrator`: panggil **setelah** ekstraksi action JSON (`{"action":...}` tetap utuh) & **sebelum** `persistConversation` → widget + history + inbox + email bersih; panggilan kedua sebelum `return` menutup path demo tanpa widget. `GenerateChatSummary`: sanitasi ringkasan (mengganti strip fence manual).
+- `chat:sanitize-history` (command baru, `--dry-run`): bersihkan **baris lama** di `chat_messages.content` + `chat_sessions.summary` (konten ter-encrypt, diakses via model).
+- Tidak mengubah `widget.js` (parseMarkdown tetap sebagai escaper XSS + linkifier; test regresi utuh).
+
+**Audit Lead Collection Settings (Strategi 1/2/3) — temuan:** S1 Prompt Engineering = **berjalan** (`PromptBuilder.php:197-215`, diuji `PromptBuilderTest`); S2 Trigger System = **berjalan tapi cacat** — `count($history)+1` memakai history **klien** (bisa dipalsukan, menghitung giliran AI), `lead_trigger_keywords` (substring) menimpa ambang pesan ke-N, tanpa resep; S3 Pre-Chat Form = **dead code** — `lead_form_*` disimpan UI & controller tapi **tak pernah dibaca** (tak ada form di widget/config); plus 2 jalur tak terlihat selalu aktif (JSON `save_lead` dari AI & regex fallback) yang **mengabaikan ketiga toggle**, dan plan lock bersifat presentasi-only. Keputusan perbaikan → ditawarkan ke user.
+
+**Test baru (8):** `TextSanitizerTest` (7 unit: heading/bold, URL+emoji+snake_case identik, link, fence utuh, blockquote/HR/HTML, mojibake, idempoten) + `ChatApiTest::test_markdown_in_ai_reply_is_sanitized_before_return_and_persist`. Suite **227 passed / 870 assertions** (baseline 219/849).
+
 ### Halaman & referrer chat (history + email) + fix sinkronisasi jam chat (2026-09-30)
 
 **Permintaan:** (1) ambil URL referral & halaman tempat user chat → tampilkan di chat history & notifikasi email; (2) jam chat tidak sinkron — jam server atau jam aplikasi?

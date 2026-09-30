@@ -11,6 +11,7 @@ use App\Models\ChatMessage;
 use App\Models\ChatSession;
 use App\Models\Widget;
 use App\Support\HttpClientIp;
+use App\Support\TextSanitizer;
 use App\Support\VisitorGeo;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -174,6 +175,12 @@ class ChatOrchestrator
                         }
                     }
 
+                    // Markdown -> plain text AFTER action extraction (which
+                    // needs the raw {"action":...} JSON) and BEFORE persist,
+                    // so the widget, chat history, admin inbox and lead email
+                    // all show clean text (##, **, raw HTML removed).
+                    $responseText = TextSanitizer::markdownToPlain($responseText);
+
                     $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? [], $pageUrl, $referrerUrl, $receivedAt);
 
                     // Lead capture: prefer the AI-emitted action; when the free
@@ -204,11 +211,13 @@ class ChatOrchestrator
                 );
             }
 
+            // Idempotent: covers the widgetless demo path (never persisted);
+            // the widget path was already sanitized before persisting.
             return [
                 'status' => 200,
                 'body' => [
                     'success' => true,
-                    'response' => $responseText,
+                    'response' => TextSanitizer::markdownToPlain($responseText),
                     'sessionId' => $sessionId,
                     'usage' => $response['usage'] ?? null,
                     'meta' => [

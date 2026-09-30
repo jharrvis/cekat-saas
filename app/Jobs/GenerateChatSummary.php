@@ -112,11 +112,12 @@ class GenerateChatSummary implements ShouldQueue
                     break;
                 }
 
-                $candidate = trim((string) ($data['choices'][0]['message']['content'] ?? ''));
-                // Strip accidental markdown code fences.
-                if (str_starts_with($candidate, '```')) {
-                    $candidate = trim(preg_replace('/^```[a-z]*\n?|\n?```$/i', '', $candidate));
-                }
+                // Plain-text cleanup: strips markdown (headings, bold) and
+                // stray code fences; the summary is rendered raw in the
+                // chat detail view and the lead email.
+                $candidate = \App\Support\TextSanitizer::markdownToPlain(
+                    (string) ($data['choices'][0]['message']['content'] ?? '')
+                );
 
                 if ($this->isUsableSummary($candidate)) {
                     $summary = $candidate;
