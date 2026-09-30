@@ -110,6 +110,13 @@ class ChatOrchestrator
         // Build system prompt
         $systemPrompt = $this->prompts->buildSystemPrompt($kb, $sessionId);
 
+        // The visitor's identity (pre-chat form on turn 1, persisted lead
+        // on later turns) must reach the AI - otherwise the bot cannot
+        // answer "siapa nama saya?" even though the lead was captured.
+        if ($visitor = $this->visitorContext($widget, $sessionId, $leadForm)) {
+            $systemPrompt .= "\n".$visitor;
+        }
+
         // Format history (bounded window sent to the provider)
         $formattedHistory = array_slice($history, -self::HISTORY_WINDOW);
         $formattedHistory[] = ['role' => 'user', 'content' => $message];
@@ -261,6 +268,53 @@ class ChatOrchestrator
                 ],
             ];
         }
+    }
+
+    /**
+     * Strategy 3's AI context: the visitor's name/email/phone, addressed
+     * by name in the reply. Turn 1 carries it only in the request body
+     * (the session row does not exist until after the LLM call); later
+     * turns read the lead persisted on the session.
+     */
+    protected function visitorContext(?Widget $widget, string $sessionId, ?array $leadForm): string
+    {
+        $data = array_filter(
+            array_intersect_key($leadForm ?? [], array_flip(['name', 'email', 'phone'])),
+            fn ($value) => trim((string) $value) !== '',
+        );
+
+        if (! $data && $widget) {
+            $session = ChatSession::query()
+                ->where('widget_id', $widget->id)
+                ->where('visitor_uuid', $sessionId)
+                ->first(['visitor_name', 'visitor_email', 'visitor_phone']);
+
+            if ($session) {
+                $data = array_filter([
+                    'name' => $session->visitor_name,
+                    'email' => $session->visitor_email,
+                    'phone' => $session->visitor_phone,
+                ], fn ($value) => $value !== null && trim((string) $value) !== '');
+            }
+        }
+
+        if (! $data) {
+            return '';
+        }
+
+        $parts = [];
+        if (isset($data['name'])) {
+            $parts[] = 'Nama: '.$data['name'];
+        }
+        if (isset($data['email'])) {
+            $parts[] = 'Email: '.$data['email'];
+        }
+        if (isset($data['phone'])) {
+            $parts[] = 'No HP: '.$data['phone'];
+        }
+
+        return '[Data pengunjung: '.implode('; ', $parts)
+            .'. Sapa pengunjung dengan namanya dan gunakan data ini bila relevan.]';
     }
 
     /**

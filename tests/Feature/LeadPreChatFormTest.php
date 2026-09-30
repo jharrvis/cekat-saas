@@ -78,7 +78,14 @@ class LeadPreChatFormTest extends TestCase
 
     private function lastSystemPrompt(): string
     {
-        [$request] = Http::recorded(fn () => true)->last();
+        // The lead-email summary also calls the LLM (deferred after the
+        // chat turn); skip those requests and keep the chat system prompt.
+        $pairs = Http::recorded(fn ($request) => ! str_contains(
+            (string) ($request->data()['messages'][0]['content'] ?? ''),
+            'catatan resume percakapan',
+        ));
+
+        [$request] = $pairs->last();
 
         return (string) $request->data()['messages'][0]['content'];
     }
@@ -138,6 +145,68 @@ class LeadPreChatFormTest extends TestCase
         $this->assertSame('081234567890', $session->visitor_phone);
 
         Mail::assertSent(NewLead::class, fn ($m) => $m->hasTo('form-owner@test.id'));
+    }
+
+    public function test_visitor_from_prechat_form_reaches_the_ai_prompt_on_turn_one(): void
+    {
+        $this->makeStack(['lead_form_enabled' => true]);
+        $this->fakeOpenRouter('Halo!');
+
+        $this->postJson('/api/chat', [
+            'message' => 'Siapa nama saya?',
+            'widgetId' => 'w-form',
+            'history' => [],
+            'leadForm' => ['name' => 'Dewi Anggraini', 'email' => 'dewi@example.com'],
+        ], ['Origin' => 'https://toko.test'])->assertOk();
+
+        $prompt = $this->lastSystemPrompt();
+        $this->assertStringContainsString('[Data pengunjung:', $prompt);
+        $this->assertStringContainsString('Nama: Dewi Anggraini', $prompt);
+        $this->assertStringContainsString('Email: dewi@example.com', $prompt);
+        $this->assertStringContainsString('Sapa pengunjung dengan namanya', $prompt);
+    }
+
+    public function test_visitor_identity_from_session_reaches_later_turns(): void
+    {
+        $this->makeStack(['lead_form_enabled' => true]);
+        $this->fakeOpenRouter('Halo!');
+
+        // Turn 1: capture the lead through the form (session created with
+        // this request's fingerprint).
+        $first = $this->postJson('/api/chat', [
+            'message' => 'Halo, saya mau tanya',
+            'widgetId' => 'w-form',
+            'history' => [],
+            'leadForm' => ['name' => 'Budi Santoso', 'email' => 'budi@example.com', 'phone' => '08111222333'],
+        ], ['Origin' => 'https://toko.test'])->assertOk();
+
+        // Turn 2: no leadForm payload - identity comes from the session.
+        $this->postJson('/api/chat', [
+            'message' => 'Siapa nama saya?',
+            'widgetId' => 'w-form',
+            'history' => [],
+            'sessionId' => $first->json('sessionId'),
+        ], ['Origin' => 'https://toko.test'])->assertOk();
+
+        $prompt = $this->lastSystemPrompt();
+        $this->assertStringContainsString('[Data pengunjung:', $prompt);
+        $this->assertStringContainsString('Nama: Budi Santoso', $prompt);
+        $this->assertStringContainsString('Email: budi@example.com', $prompt);
+        $this->assertStringContainsString('No HP: 08111222333', $prompt);
+    }
+
+    public function test_no_visitor_context_is_added_without_lead_data(): void
+    {
+        $this->makeStack();
+        $this->fakeOpenRouter('Halo!');
+
+        $this->postJson('/api/chat', [
+            'message' => 'Halo',
+            'widgetId' => 'w-form',
+            'history' => [],
+        ], ['Origin' => 'https://toko.test'])->assertOk();
+
+        $this->assertStringNotContainsString('[Data pengunjung:', $this->lastSystemPrompt());
     }
 
     public function test_prechat_form_rejects_invalid_email(): void

@@ -426,7 +426,8 @@
     forgetSessionOnServer();
     clearHistory();
     setTimeout(function () {
-      if (chatHistory.length === 0) addMessage('assistant', config.greeting);
+      greetingShown = false;
+      showGreeting();
     }, 300);
   };
 
@@ -1298,6 +1299,28 @@
   // Pre-chat form (Strategy 3): shown once per browser, before the first
   // message. All-required fields block chat until filled; otherwise a
   // skip link lets engagement-minded owners keep the form optional.
+  let greetingShown = false;
+
+  // Greeting that may address the visitor by name. Owner convention:
+  // "Halo {name}, ..." -> substituted verbatim; without the token the
+  // name is woven into the opening salutation ("Halo! ..." -> "Halo Dewi! ...").
+  function renderGreetingText() {
+    const text = config.greeting || 'Halo! 👋 Ada yang bisa saya bantu hari ini?';
+    const name = (pendingLeadForm && String(pendingLeadForm.name || '').trim()) || '';
+
+    if (!name) return text;
+    if (text.includes('{name}')) return text.split('{name}').join(name);
+    if (/^halo\b/i.test(text)) return text.replace(/^halo/i, 'Halo ' + name);
+
+    return 'Halo ' + name + ', ' + text;
+  }
+
+  function showGreeting() {
+    if (greetingShown || chatHistory.length > 0) return;
+    greetingShown = true;
+    addMessage('assistant', renderGreetingText());
+  }
+
   function maybeShowPreChatForm() {
     const lf = config.leadForm;
     if (!lf || !lf.enabled) return false;
@@ -1360,6 +1383,7 @@
       if (Object.keys(data).length > 0) pendingLeadForm = data;
       markPreChatDone();
       hidePreChatForm();
+      setTimeout(showGreeting, 300);
 
       const inputEl = document.getElementById('csai-input');
       if (inputEl) inputEl.focus();
@@ -1370,6 +1394,7 @@
       skipBtn.addEventListener('click', () => {
         markPreChatDone();
         hidePreChatForm();
+        setTimeout(showGreeting, 300);
 
         const inputEl = document.getElementById('csai-input');
         if (inputEl) inputEl.focus();
@@ -1407,15 +1432,14 @@
         buttonEl.classList.add('hidden');
       }
 
-      // Show greeting if first time
-      if (chatHistory.length === 0) {
-        setTimeout(() => {
-          addMessage('assistant', config.greeting);
-        }, 500);
-      }
-
       // Strategy 3: one-time pre-chat form before the first message
       const prechatOpen = maybeShowPreChatForm();
+
+      // Show greeting if first time - deferred while the pre-chat form
+      // is open, so the greeting can address the visitor by name.
+      if (chatHistory.length === 0 && !prechatOpen) {
+        setTimeout(showGreeting, 500);
+      }
 
       // Focus input (with slight delay for animation)
       setTimeout(() => {

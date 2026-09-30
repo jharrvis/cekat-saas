@@ -5,6 +5,24 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Pre-chat form: AI tahu nama pengunjung + greeting menyapa nama (2026-09-30)
+
+**Laporan:** form diisi & tersimpan sbg lead, tapi bot tak tahu nama saat ditanya ("siapa nama saya?").
+
+**Fix 1 — identitas pengunjung disuntik ke system prompt** (`ChatOrchestrator::visitorContext()`):
+- Turn 1: data `leadForm` dari request (session row belum ada sebelum LLM).
+- Turn berikutnya: dibaca dari `chat_sessions.visitor_name/email/phone` (lead yg sudah persist).
+- Bentuk: `[Data pengunjung: Nama: X; Email: Y; No HP: Z. Sapa pengunjung dengan namanya dan gunakan data ini bila relevan.]`
+- Tanpa data → tanpa konteks (netral).
+
+**Fix 2 — greeting menyapa nama** (`widget.js renderGreetingText` + `showGreeting`):
+- `{name}` di greeting disubstitusikan verbatim utk posisi/gaya bebas.
+- Tanpa token → disisipkan ke sapaan awal: `Halo! 👋 ...` → `Halo Dewi! 👋 ...`; greeting non-"Halo" → prepend `Halo {nama}, `.
+- Greeting **ditunda** selama pre-chat form terbuka → muncul sesudah submit/skip dgn nama; skip (tanpa data) → greeting biasa. `CSAI_forgetChat` reset flag agar greeting baru tampil.
+- Nama dari form aman (melewati sanitasi `parseMarkdown` widget).
+
+**Test:** +3 (`visitor dari form masuk prompt turn 1`, `identitas dari session masuk turn 2`, `tanpa lead data = tanpa konteks`) + perbaikan `lastSystemPrompt` test (skip request prompt summary). Suite **240 passed / 929 assertions** (baseline 237/916). Cache buster → `?v=20260930-p5`.
+
 ### Config endpoint: expose `model` (2026-09-30)
 - `/api/widget/{slug}/config` kini mengembalikan `model` = `settings['model']` widget (fallback `config('services.openrouter.default_model')`, konsisten `WidgetCustomizer::boot`); `widget.js` defaultConfig ikut punya `model: null`. +1 test (default & override), suite **237 passed / 916 assertions**. Cache buster → `?v=20260930-p4`.
 - **E2E Strategi 3 terverifikasi di prod:** form tampil dari `https://cekat.biz.id/` (Nama*, Email*, tanpa tombol Lewati), submit → chat → **session 460** `is_lead=true` + `visitor_name/email/phone` terisi.
