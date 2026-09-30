@@ -63,6 +63,14 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
             'avatarUrl' => $settings['avatar_url'] ?? '',
             'showBranding' => true,
             'allowedDomain' => $settings['allowed_domains'] ?? '',
+            // Pre-chat form (Strategy 3): widget shows it once per browser
+            // before the visitor's first message.
+            'leadForm' => [
+                'enabled' => (bool) ($settings['lead_form_enabled'] ?? false),
+                'requireName' => (bool) ($settings['lead_form_require_name'] ?? true),
+                'requireEmail' => (bool) ($settings['lead_form_require_email'] ?? false),
+                'requirePhone' => (bool) ($settings['lead_form_require_phone'] ?? false),
+            ],
         ]);
     });
 

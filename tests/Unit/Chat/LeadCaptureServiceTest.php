@@ -17,24 +17,26 @@ class LeadCaptureServiceTest extends TestCase
 
     public function test_disabled_trigger_returns_null(): void
     {
-        $this->assertNull($this->service->triggerInstruction([], array_fill(0, 10, []), 'halo'));
+        $this->assertNull($this->service->triggerInstruction([], 'halo', 1));
+        $this->assertNull($this->service->triggerInstruction(['lead_trigger_enabled' => false], 'halo', 99));
     }
 
-    public function test_message_count_trigger(): void
+    public function test_message_count_trigger_uses_server_turn(): void
     {
         $settings = ['lead_trigger_enabled' => true, 'lead_trigger_after_message' => 3];
 
-        $this->assertNull($this->service->triggerInstruction($settings, [['role' => 'user']], 'halo'));
-        $instruction = $this->service->triggerInstruction(
-            $settings,
-            [['role' => 'user'], ['role' => 'assistant']],
-            'halo lagi'
-        );
+        $this->assertNull($this->service->triggerInstruction($settings, 'halo', 1));
+        $this->assertNull($this->service->triggerInstruction($settings, 'halo lagi', 2));
+        $instruction = $this->service->triggerInstruction($settings, 'halo lagi', 3);
         $this->assertNotNull($instruction);
         $this->assertStringContainsString('nama/email/telepon', $instruction);
+
+        // Below threshold remains silent even with a long (forged) history
+        // on the wire - the count comes from the DB transcript only.
+        $this->assertNull($this->service->triggerInstruction($settings, 'paket apa saja?', 2));
     }
 
-    public function test_keyword_trigger_is_case_insensitive(): void
+    public function test_keyword_trigger_is_case_insensitive_and_word_bounded(): void
     {
         $settings = [
             'lead_trigger_enabled' => true,
@@ -42,8 +44,20 @@ class LeadCaptureServiceTest extends TestCase
             'lead_trigger_keywords' => 'harga, order',
         ];
 
-        $this->assertNotNull($this->service->triggerInstruction($settings, [], 'Berapa HARGA nya kak?'));
-        $this->assertNull($this->service->triggerInstruction($settings, [], 'halo kak'));
+        $this->assertNotNull($this->service->triggerInstruction($settings, 'Berapa HARGA nya kak?', 1));
+        $this->assertNotNull($this->service->triggerInstruction($settings, 'saya mau order paket Pro', 1));
+        $this->assertNull($this->service->triggerInstruction($settings, 'halo kak', 1));
+        // "harga" must not fire inside an unrelated word
+        $this->assertNull($this->service->triggerInstruction($settings, 'saya menghargai penjelasannya', 1));
+        // below the threshold stays silent without a keyword hit
+        $this->assertNull($this->service->triggerInstruction($settings, 'gimana kabarnya?', 1));
+    }
+
+    public function test_threshold_below_one_is_clamped(): void
+    {
+        $settings = ['lead_trigger_enabled' => true, 'lead_trigger_after_message' => 0];
+
+        $this->assertNotNull($this->service->triggerInstruction($settings, 'halo', 1));
     }
 
     public function test_extract_lead_from_message_full_contact(): void

@@ -66,7 +66,9 @@
     closeOfferTimeout: 60000, // 60 seconds after offer
     closeGraceTimeout: 5000, // show closing summary this long before auto-minimize
     enableEmoji: true,
-    autoCloseEnabled: true
+    autoCloseEnabled: true,
+    // Pre-chat form (Strategy 3) - server config overrides when enabled
+    leadForm: null
   };
 
   // Merge with user config (initial)
@@ -92,6 +94,9 @@
   // message's own activity reset re-armed the idle cycle and the
   // offer -> close -> offer loop repeated forever.
   let conversationClosed = false;
+  // Pre-chat form (Strategy 3): details submitted before the first
+  // message, attached to that first chat request only.
+  let pendingLeadForm = null;
 
   // Emoji Dictionary
   const EMOJI_SET = {
@@ -531,6 +536,102 @@
         display: flex;
       }
 
+      /* Pre-chat form (Strategy 3) - covers the window body, header stays
+         clickable on top so the visitor can always close the widget. */
+      .csai-prechat {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        background: #ffffff;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .csai-prechat.visible {
+        display: flex;
+      }
+
+      .csai-prechat-card {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+      }
+
+      .csai-prechat-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 6px;
+      }
+
+      .csai-prechat-desc {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 0 0 18px;
+        line-height: 1.5;
+      }
+
+      .csai-prechat-field {
+        display: block;
+        text-align: left;
+        margin-bottom: 12px;
+      }
+
+      .csai-prechat-field span {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 5px;
+      }
+
+      .csai-prechat-field input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 9px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+      }
+
+      .csai-prechat-field input:focus {
+        border-color: ${config.primaryColor};
+        box-shadow: 0 0 0 3px ${config.primaryColor}33;
+      }
+
+      .csai-prechat-error {
+        display: none;
+        font-size: 12px;
+        color: #dc2626;
+        margin: 0 0 10px;
+      }
+
+      .csai-prechat-submit {
+        width: 100%;
+        padding: 10px 0;
+        border: none;
+        border-radius: 8px;
+        background: ${config.primaryColor};
+        color: ${config.textColor};
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .csai-prechat-skip {
+        width: 100%;
+        margin-top: 8px;
+        padding: 8px 0;
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        font-size: 13px;
+        cursor: pointer;
+      }
+
       @keyframes csai-slide-up {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
@@ -546,6 +647,8 @@
         align-items: center;
         gap: 12px;
         flex-shrink: 0;
+        position: relative;
+        z-index: 6; /* Keep close button clickable above the pre-chat form */
       }
 
       .csai-header-avatar {
@@ -1085,6 +1188,33 @@
 
       <!-- Chat Window -->
       <div class="csai-window" id="csai-window">
+        <!-- Pre-Chat Form (Strategy 3) -->
+        <div class="csai-prechat" id="csai-prechat">
+          <div class="csai-prechat-card">
+            <p class="csai-prechat-title">Sebelum mulai 💬</p>
+            <p class="csai-prechat-desc">Isi data singkat ini agar kami bisa membantu Anda lebih cepat.</p>
+            <form id="csai-prechat-form" novalidate>
+              <label class="csai-prechat-field">
+                <span>Nama${(config.leadForm && config.leadForm.requireName) ? ' *' : ''}</span>
+                <input type="text" name="name" maxlength="120" placeholder="Nama Anda" autocomplete="name">
+              </label>
+              <label class="csai-prechat-field">
+                <span>Email${(config.leadForm && config.leadForm.requireEmail) ? ' *' : ''}</span>
+                <input type="email" name="email" maxlength="190" placeholder="nama@email.com" autocomplete="email">
+              </label>
+              <label class="csai-prechat-field">
+                <span>No HP/WA${(config.leadForm && config.leadForm.requirePhone) ? ' *' : ''}</span>
+                <input type="tel" name="phone" maxlength="30" placeholder="08xxxxxxxxxx" autocomplete="tel">
+              </label>
+              <p class="csai-prechat-error" id="csai-prechat-error"></p>
+              <button type="submit" class="csai-prechat-submit">Mulai Chat</button>
+              ${!(config.leadForm && (config.leadForm.requireName || config.leadForm.requireEmail || config.leadForm.requirePhone))
+                ? '<button type="button" class="csai-prechat-skip" id="csai-prechat-skip">Lewati</button>'
+                : ''}
+            </form>
+          </div>
+        </div>
+
         <!-- Header -->
         <div class="csai-header">
           <div class="csai-header-avatar">${getAvatarHtml()}</div>
@@ -1163,6 +1293,95 @@
     inputEl.dispatchEvent(new Event('input'));
   };
 
+  // Pre-chat form (Strategy 3): shown once per browser, before the first
+  // message. All-required fields block chat until filled; otherwise a
+  // skip link lets engagement-minded owners keep the form optional.
+  function maybeShowPreChatForm() {
+    const lf = config.leadForm;
+    if (!lf || !lf.enabled) return false;
+    if (localStorage.getItem('csai_leadform_done_' + config.widgetId)) return false;
+    if (chatHistory.length > 0 || pendingLeadForm) return false;
+
+    const el = document.getElementById('csai-prechat');
+    if (!el) return false;
+    el.classList.add('visible');
+
+    setTimeout(() => {
+      const first = el.querySelector('input');
+      if (first) first.focus();
+    }, 300);
+
+    return true;
+  }
+
+  function hidePreChatForm() {
+    const el = document.getElementById('csai-prechat');
+    if (el) el.classList.remove('visible');
+  }
+
+  function markPreChatDone() {
+    try {
+      localStorage.setItem('csai_leadform_done_' + config.widgetId, '1');
+    } catch (e) { /* private mode - just show again next visit */ }
+  }
+
+  function initPreChatForm() {
+    const form = document.getElementById('csai-prechat-form');
+    if (!form) return;
+
+    const lf = config.leadForm || {};
+    const errorEl = document.getElementById('csai-prechat-error');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const get = (name) => {
+        const input = form.querySelector('input[name="' + name + '"]');
+        return input ? input.value.trim() : '';
+      };
+
+      const name = get('name').slice(0, 120);
+      const email = get('email').slice(0, 190);
+      const phone = get('phone').slice(0, 30);
+
+      if (lf.requireName && !name) return showPreChatError('Nama wajib diisi.');
+      if (lf.requireEmail && !email) return showPreChatError('Email wajib diisi.');
+      if (lf.requirePhone && !phone) return showPreChatError('No HP wajib diisi.');
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showPreChatError('Format email tidak valid.');
+      if (errorEl) errorEl.style.display = 'none';
+
+      const data = {};
+      if (name) data.name = name;
+      if (email) data.email = email;
+      if (phone) data.phone = phone;
+
+      if (Object.keys(data).length > 0) pendingLeadForm = data;
+      markPreChatDone();
+      hidePreChatForm();
+
+      const inputEl = document.getElementById('csai-input');
+      if (inputEl) inputEl.focus();
+    });
+
+    const skipBtn = document.getElementById('csai-prechat-skip');
+    if (skipBtn) {
+      skipBtn.addEventListener('click', () => {
+        markPreChatDone();
+        hidePreChatForm();
+
+        const inputEl = document.getElementById('csai-input');
+        if (inputEl) inputEl.focus();
+      });
+    }
+
+    function showPreChatError(msg) {
+      if (errorEl) {
+        errorEl.textContent = msg;
+        errorEl.style.display = 'block';
+      }
+    }
+  }
+
   // Toggle Chat with Auto-Close Logic
   function toggleChat() {
     const windowEl = document.getElementById('csai-window');
@@ -1193,9 +1412,12 @@
         }, 500);
       }
 
+      // Strategy 3: one-time pre-chat form before the first message
+      const prechatOpen = maybeShowPreChatForm();
+
       // Focus input (with slight delay for animation)
       setTimeout(() => {
-        if (inputEl) inputEl.focus();
+        if (inputEl && !prechatOpen) inputEl.focus();
       }, 300);
 
       // Scroll to bottom
@@ -1395,30 +1617,36 @@
     showTyping();
 
     try {
+      const payload = {
+        message: message,
+        widgetId: config.widgetId,
+        // Bounded wire history: a short window (server keeps only the
+        // last 10 for the LLM) with a per-item cap as defense in depth.
+        history: chatHistory.slice(-12).map(m => ({
+          role: m.role,
+          content: (m.content || '').slice(0, 10000)
+        })),
+        sessionId: sessionId,
+        // Where the visitor is chatting from (chat history detail + lead
+        // email). The browser's Referer header is origin-only cross-origin,
+        // so the full URL must come from the client.
+        pageUrl: window.location.href.slice(0, 500),
+        referrerUrl: (document.referrer || '').slice(0, 500)
+      };
+
+      // Pre-chat form details ride the first message, once.
+      if (pendingLeadForm) payload.leadForm = pendingLeadForm;
+
       const response = await fetch(config.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          message: message,
-          widgetId: config.widgetId,
-          // Bounded wire history: a short window (server keeps only the
-          // last 10 for the LLM) with a per-item cap as defense in depth.
-          history: chatHistory.slice(-12).map(m => ({
-            role: m.role,
-            content: (m.content || '').slice(0, 10000)
-          })),
-          sessionId: sessionId,
-          // Where the visitor is chatting from (chat history detail + lead
-          // email). The browser's Referer header is origin-only cross-origin,
-          // so the full URL must come from the client.
-          pageUrl: window.location.href.slice(0, 500),
-          referrerUrl: (document.referrer || '').slice(0, 500)
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
+      if (pendingLeadForm) pendingLeadForm = null;
 
       hideTyping();
 
@@ -1561,6 +1789,7 @@
     injectStyles();
     createWidget();
     initEventListeners();
+    initPreChatForm();
     renderHistory();
 
     console.log('CSAI Widget initialized');

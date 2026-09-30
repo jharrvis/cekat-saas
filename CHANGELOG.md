@@ -5,6 +5,23 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Lead Collection: fix Strategi 2 (trigger) + implement Strategi 3 (Pre-Chat Form) (2026-09-30)
+
+**Audit** menemukan S1 jalan, S2 cacat, S3 dead code. Perbaikan (dipilih user: fix S2 + implement S3):
+
+**Strategi 2 — Trigger System (fix):**
+- Hitungan "setelah pesan ke-N" kini dari **transcript DB** (`ChatOrchestrator::currentTurn()`: jumlah `chat_messages` role=user utk session + 1), bukan `count($history)+1` dari payload klien (spoofable & ikut menghitung giliran AI → trigger sering kebablasan/dini). Baris pertama / demo tanpa widget = turn 1.
+- Kata kunci → **word-boundary** (`\b` + preg_quote, case-insensitive): `"harga"` match "Berapa **harga** paket?" tapi tidak di "**menghargai**"/"borders". Keyword tetap shortcut OR dgn ambang; ambang di-clamp min 1.
+- `LeadCaptureService::triggerInstruction($settings, $message, $currentTurn)` — signature berubah (history dihapus).
+
+**Strategi 3 — Pre-Chat Form (implementasi, sebelumnya dead code):**
+- **Config endpoint** (`/api/widget/{slug}/config`) kini mengekspos `leadForm {enabled, requireName, requireEmail, requirePhone}` dari key `lead_form_*`.
+- **Widget** (`widget.js`): overlay form sekali per browser (`csai_leadform_done_{widgetId}` localStorage) tampil saat window dibuka sebelum pesan pertama; field Nama/Email/No HP (tanda `*` utk required); tombol "Lewati" hanya muncul kalau tak ada field wajib; validasi client (required + format email); header tetap di atas overlay (z-index) supaya tombol close selalu bisa diklik. Data dikirim **sekali** bersama pesan pertama sebagai `leadForm`.
+- **Server**: `ChatRequest` validasi `leadForm` (name ≤120, email valid ≤190, phone ≤30 → 422 bila tidak); `ChatOrchestrator` — data form **diutamakan** di atas ekstraksi AI/regex lalu `LeadCaptured::dispatch` → session `is_lead` + `visitor_name/email/phone` + email owner (sekali per session, gate plan `leads`).
+- Cache buster widget → `?v=20260930-p3`.
+
+**Test baru (10):** `LeadPreChatFormTest` (8: expose config, default off, form→chat→session+mail, validasi 422 email/nama, trigger turn ke-3 dari DB, forged history tak memicu trigger, keyword whole-word) + `LeadCaptureServiceTest` diperbarui (3 utuh: server turn, word-boundary, clamp). Suite **236 passed / 913 assertions** (baseline 227/870).
+
 ### Bersihkan markdown/mojibake dari balasan chatbot (2026-09-30)
 
 **Permintaan:** hapus karakter `##`, `**`, dll (markdown mentah) & mojibake dari chatbot dan chat history.

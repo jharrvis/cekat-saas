@@ -44,6 +44,12 @@ class ChatRequest extends FormRequest
             // omit both - nullable keeps them compatible).
             'pageUrl' => 'nullable|string|max:500',
             'referrerUrl' => 'nullable|string|max:500',
+            // Pre-chat form (Strategy 3): the visitor's details captured
+            // before the first message. Sent once with that message.
+            'leadForm' => 'nullable|array',
+            'leadForm.name' => 'nullable|string|max:120',
+            'leadForm.email' => 'nullable|string|email|max:190',
+            'leadForm.phone' => 'nullable|string|max:30',
         ];
     }
 
@@ -74,6 +80,7 @@ class ChatRequest extends FormRequest
             'sessionId' => $sessionId,
             'pageUrl' => $validated['pageUrl'] ?? '',
             'referrerUrl' => $validated['referrerUrl'] ?? '',
+            'leadForm' => $validated['leadForm'] ?? null,
         ];
     }
 

@@ -6,34 +6,37 @@ namespace App\Services\Chat;
  * Strategy 2 (trigger system) of lead collection: decides whether the
  * assistant should ask for the visitor's contact details after answering.
  *
- * Extracted from Api\ChatController. Returns the instruction to append
- * to the system prompt, or null when no trigger fires.
+ * Returns the instruction to append to the system prompt, or null when
+ * no trigger fires.
+ *
+ * $currentTurn is the SERVER-side visitor turn (prior user messages in
+ * the ChatSession + 1). It must never be derived from the client history
+ * payload: that is attacker-controlled and counts assistant replies too,
+ * so a forged history fired the trigger early.
  */
 class LeadCaptureService
 {
-    public function triggerInstruction(array $settings, array $history, string $message): ?string
+    public function triggerInstruction(array $settings, string $message, int $currentTurn): ?string
     {
         if (empty($settings['lead_trigger_enabled'])) {
             return null;
         }
 
-        $triggerAfter = $settings['lead_trigger_after_message'] ?? 3;
+        $triggerAfter = max(1, (int) ($settings['lead_trigger_after_message'] ?? 3));
         $triggerKeywords = $settings['lead_trigger_keywords'] ?? '';
         $keywordList = array_map('trim', explode(',', strtolower($triggerKeywords)));
 
-        $messageCount = count($history) + 1; // Including current message
-        $messageLower = strtolower($message);
+        $shouldTrigger = $currentTurn >= $triggerAfter;
 
-        $shouldTrigger = false;
-
-        if ($messageCount >= $triggerAfter) {
-            $shouldTrigger = true;
-        }
-
-        foreach ($keywordList as $keyword) {
-            if (! empty($keyword) && strpos($messageLower, $keyword) !== false) {
-                $shouldTrigger = true;
-                break;
+        // Keyword shortcut: word-boundary match only, so "harga" fires on
+        // "Berapa harga paketnya?" but not inside an unrelated word.
+        if (! $shouldTrigger) {
+            foreach ($keywordList as $keyword) {
+                if ($keyword !== ''
+                    && preg_match('/\b'.preg_quote($keyword, '/').'\b/iu', $message)) {
+                    $shouldTrigger = true;
+                    break;
+                }
             }
         }
 

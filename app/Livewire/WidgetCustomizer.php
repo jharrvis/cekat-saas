@@ -119,7 +119,7 @@ class WidgetCustomizer extends Component
     widgetId: '{$widgetSlug}'
   };
 </script>
-<script src="{$url}/widget/widget.min.js?v=20260930-p2" async></script>
+<script src="{$url}/widget/widget.min.js?v=20260930-p3" async></script>
 HTML;
     }
 

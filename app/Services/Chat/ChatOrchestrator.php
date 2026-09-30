@@ -45,7 +45,7 @@ class ChatOrchestrator
         protected SessionIdService $sessions,
     ) {}
 
-    public function handle(string $message, string $widgetSlug, array $history, string $sessionId, string $pageUrl = '', string $referrerUrl = ''): array
+    public function handle(string $message, string $widgetSlug, array $history, string $sessionId, string $pageUrl = '', string $referrerUrl = '', ?array $leadForm = null): array
     {
         // Captured at request receipt, BEFORE the LLM call (up to ~60s) -
         // otherwise the visitor's message would be stamped with "when the
@@ -124,7 +124,7 @@ class ChatOrchestrator
 
         // Strategy 2: Trigger System - Insert lead collection prompt based on conditions
         $settings = $kb['settings'] ?? [];
-        if ($instruction = $this->leads->triggerInstruction($settings, $history, $message)) {
+        if ($instruction = $this->leads->triggerInstruction($settings, $message, $this->currentTurn($widget, $settings, $sessionId))) {
             $systemPrompt .= $instruction;
         }
 
@@ -183,20 +183,37 @@ class ChatOrchestrator
 
                     $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? [], $pageUrl, $referrerUrl, $receivedAt);
 
-                    // Lead capture: prefer the AI-emitted action; when the free
-                    // model skips the JSON block, fall back to a deterministic
-                    // extraction from the visitor's own message so the lead is
-                    // never dropped. Fires regardless of webhook config, after
-                    // the session row exists (SendLeadNotification persists the
-                    // lead onto the session and emails the widget owner).
-                    $action = $replyAction ?? $this->leads->extractLeadFromMessage($message);
-                    if ($action && ($action['action'] ?? null) === 'save_lead') {
+                    // Lead capture: the pre-chat form (Strategy 3) wins when
+                    // the visitor filled it - explicit, complete data over
+                    // extraction guesses. Otherwise prefer the AI-emitted
+                    // action; when the free model skips the JSON block, fall
+                    // back to a deterministic extraction from the visitor's
+                    // own message so the lead is never dropped. Fires
+                    // regardless of webhook config, after the session row
+                    // exists (SendLeadNotification persists the lead onto
+                    // the session and emails the widget owner).
+                    $formLead = array_filter(
+                        array_intersect_key($leadForm ?? [], array_flip(['name', 'email', 'phone'])),
+                        fn ($value) => trim((string) $value) !== '',
+                    );
+
+                    if ($formLead) {
                         LeadCaptured::dispatch(
                             $widget->slug,
-                            array_values(array_intersect(['name', 'email', 'phone'], array_keys($action))),
+                            array_values(array_intersect(['name', 'email', 'phone'], array_keys($formLead))),
                             $sessionId,
-                            array_intersect_key($action, array_flip(['name', 'email', 'phone'])),
+                            array_intersect_key($formLead, array_flip(['name', 'email', 'phone'])),
                         );
+                    } else {
+                        $action = $replyAction ?? $this->leads->extractLeadFromMessage($message);
+                        if ($action && ($action['action'] ?? null) === 'save_lead') {
+                            LeadCaptured::dispatch(
+                                $widget->slug,
+                                array_values(array_intersect(['name', 'email', 'phone'], array_keys($action))),
+                                $sessionId,
+                                array_intersect_key($action, array_flip(['name', 'email', 'phone'])),
+                            );
+                        }
                     }
 
                 // Increment user's monthly message quota (skip for landing page widget - unlimited)
@@ -244,6 +261,33 @@ class ChatOrchestrator
                 ],
             ];
         }
+    }
+
+    /**
+     * Strategy 2's server-side turn counter: how many visitor messages
+     * this session already stored + the current one. Never derived from
+     * the client's history array (spoofable, and it counts assistant
+     * replies too). First message / widgetless demo = turn 1.
+     */
+    protected function currentTurn(?Widget $widget, array $settings, string $sessionId): int
+    {
+        if (! $widget || empty($settings['lead_trigger_enabled'])) {
+            return 1;
+        }
+
+        $session = ChatSession::query()
+            ->where('widget_id', $widget->id)
+            ->where('visitor_uuid', $sessionId)
+            ->first();
+
+        if (! $session) {
+            return 1;
+        }
+
+        return ChatMessage::query()
+                ->where('session_id', $session->id)
+                ->where('role', 'user')
+                ->count() + 1;
     }
 
     /**
