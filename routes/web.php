@@ -63,6 +63,9 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
             'avatarUrl' => $settings['avatar_url'] ?? '',
             'showBranding' => true,
             'allowedDomain' => $settings['allowed_domains'] ?? '',
+            // AI model this widget chats with (settings override, default
+            // falls back to the app-wide default model).
+            'model' => $settings['model'] ?? config('services.openrouter.default_model'),
             // Pre-chat form (Strategy 3): widget shows it once per browser
             // before the visitor's first message.
             'leadForm' => [

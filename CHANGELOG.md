@@ -5,6 +5,11 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Config endpoint: expose `model` (2026-09-30)
+- `/api/widget/{slug}/config` kini mengembalikan `model` = `settings['model']` widget (fallback `config('services.openrouter.default_model')`, konsisten `WidgetCustomizer::boot`); `widget.js` defaultConfig ikut punya `model: null`. +1 test (default & override), suite **237 passed / 916 assertions**. Cache buster → `?v=20260930-p4`.
+- **E2E Strategi 3 terverifikasi di prod:** form tampil dari `https://cekat.biz.id/` (Nama*, Email*, tanpa tombol Lewati), submit → chat → **session 460** `is_lead=true` + `visitor_name/email/phone` terisi.
+- **Temuan:** `allowed_domains` landing widget = `cekat.biz.id, www.cekat.biz.id` → origin `bmp.net.id` kena **403 Domain not allowed** (config & chat) → widget ter-embed di bmp tidak berfungsi sampai bmp di-whitelist (keputusan pemilik landing). Config endpoint tak men-set ACAO utk origin di-luar allowlist (by design `WidgetApiCors`) → browser bmp melihat CORS error.
+
 ### Lead Collection: fix Strategi 2 (trigger) + implement Strategi 3 (Pre-Chat Form) (2026-09-30)
 
 **Audit** menemukan S1 jalan, S2 cacat, S3 dead code. Perbaikan (dipilih user: fix S2 + implement S3):

@@ -71,7 +71,18 @@ class WidgetStatusGateTest extends TestCase
 
         $this->getJson("/api/widget/{$widget->slug}/config")
             ->assertOk()
-            ->assertJsonPath('widgetId', $widget->slug);
+            ->assertJsonPath('widgetId', $widget->slug)
+            ->assertJsonPath('model', config('services.openrouter.default_model'));
+    }
+
+    public function test_config_endpoint_exposes_widget_model_override(): void
+    {
+        $widget = $this->makeWidget('active');
+        $widget->update(['settings' => ['model' => 'openai/gpt-4o-mini']]);
+
+        $this->getJson("/api/widget/{$widget->slug}/config")
+            ->assertOk()
+            ->assertJsonPath('model', 'openai/gpt-4o-mini');
     }
 
     public function test_chat_endpoint_rejects_inactive_widget(): void

@@ -67,6 +67,8 @@
     closeGraceTimeout: 5000, // show closing summary this long before auto-minimize
     enableEmoji: true,
     autoCloseEnabled: true,
+    // AI model (server config override when available)
+    model: null,
     // Pre-chat form (Strategy 3) - server config overrides when enabled
     leadForm: null
   };
