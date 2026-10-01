@@ -50,8 +50,7 @@ class SystemSettings extends Component
             'support_email' => 'string',
             'allow_registration' => 'boolean',
             'maintenance_mode' => 'boolean',
-            // API
-            'openrouter_api_key' => 'string',
+            // API (OpenRouter API key lives in .env OPENROUTER_API_KEY, not in DB)
             'default_ai_model' => 'string',
             'api_timeout' => 'number',
             // Limits
@@ -64,6 +63,8 @@ class SystemSettings extends Component
             $type = $settingTypes[$key] ?? 'string';
             Setting::set($key, $value, $type, $group);
         }
+
+        \App\Events\AdminSettingsChanged::dispatch($group, auth()->id(), array_keys($settingsToSave));
 
         session()->flash('message', ucfirst($group) . ' settings saved successfully!');
         $this->loadSettings();

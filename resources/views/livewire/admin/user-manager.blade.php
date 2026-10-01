@@ -178,7 +178,7 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-sm">
-                                {{ $user->monthly_message_used ?? 0 }} / {{ $user->plan->max_messages_per_month ?? 0 }}
+                                {{ $user->monthly_message_used ?? 0 }} / {{ app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'monthly_messages') }}
                             </td>
                             <td class="px-4 py-3 text-sm text-muted-foreground">
                                 {{ $user->created_at->format('d M Y') }}
@@ -392,7 +392,7 @@
                         <div class="bg-muted/30 rounded-lg p-3">
                             <p class="text-sm text-muted-foreground">Messages Used</p>
                             <p class="font-medium">{{ $selectedUser->monthly_message_used ?? 0 }} /
-                                {{ $selectedUser->plan->max_messages_per_month ?? 0 }}</p>
+                                {{ app(\App\Services\Billing\PlanLimitService::class)->limit($selectedUser, 'monthly_messages') }}</p>
                         </div>
                         <div class="bg-muted/30 rounded-lg p-3">
                             <p class="text-sm text-muted-foreground">Widgets</p>

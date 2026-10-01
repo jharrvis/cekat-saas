@@ -20,10 +20,15 @@ class GenerateChatSummary implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * Accepts a model or a bare id so legacy call sites that dispatch the
+     * session id (ChatInbox) keep working instead of throwing a TypeError.
      */
-    public function __construct(ChatSession $session)
+    public function __construct(ChatSession|int|string $session)
     {
-        $this->session = $session;
+        $this->session = $session instanceof ChatSession
+            ? $session
+            : ChatSession::findOrFail($session);
     }
 
     /**
@@ -31,51 +36,105 @@ class GenerateChatSummary implements ShouldQueue
      */
     public function handle(): void
     {
-        $messages = $this->session->messages()->orderBy('created_at', 'asc')->get();
+        // Bounded input: never send the full transcript to the provider -
+        // last 20 messages, hard-trimmed to ~6.000 characters.
+        $messages = $this->session->messages()
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->slice(-20);
 
         if ($messages->isEmpty()) {
             return;
         }
 
-        // Build conversation text
+        // Build conversation text. Role labels matter: they end up in the
+        // summary, so the service side is named "layanan customer service"
+        // (never "AI"/"chatbot") to keep the resume natural for the team.
         $conversationText = $messages->map(function ($msg) {
-            $role = $msg->role === 'user' ? 'Customer' : 'AI';
+            $role = $msg->role === 'user' ? 'Customer' : 'Layanan Customer Service';
             return "{$role}: {$msg->content}";
         })->join("\n");
 
+        if (mb_strlen($conversationText) > 6000) {
+            $conversationText = '…(awal percakapan dipotong)…'.PHP_EOL.mb_substr($conversationText, -6000);
+        }
+
         // Get model from settings
-        $model = Setting::get('default_ai_model', 'openai/gpt-4o-mini');
+        $model = Setting::get('default_ai_model', config('services.openrouter.default_model'));
 
-        // Generate summary using OpenRouter
+        // Generate summary using OpenRouter. Weak free models occasionally
+        // return empty output, safety junk ("User Safety: safe"), or even
+        // echo the instruction itself - validate, retry once, and give up
+        // cleanly (widget falls back to the generic closing message).
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.openrouter.api_key'),
-                'HTTP-Referer' => config('app.url'),
-            ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                        'model' => $model,
-                        'messages' => [
-                            [
-                                'role' => 'system',
-                                'content' => 'Kamu adalah asisten yang membuat ringkasan percakapan customer service. Buatkan ringkasan singkat (maksimal 3 kalimat) dalam Bahasa Indonesia yang mencakup: topik utama, kebutuhan customer, dan hasil percakapan.'
-                            ],
-                            [
-                                'role' => 'user',
-                                'content' => "Buatkan ringkasan dari percakapan berikut:\n\n{$conversationText}"
-                            ]
+            $summary = null;
+            $userPrompt = "Buatkan resume dari percakapan berikut:\n\n{$conversationText}";
+
+            for ($attempt = 1; $attempt <= 2 && $summary === null; $attempt++) {
+                // Weak models sometimes answer by echoing the instruction.
+                // The retry breaks the pattern: explicit anti-echo guard and
+                // a different temperature (a low-temp retry repeats itself).
+                $prompt = $attempt === 1
+                    ? $userPrompt
+                    : $userPrompt."\n\nPENTING: teks di atas hanya instruksi format. JANGAN mengulangi, meringkas, "
+                        .'atau menyebutnya. Keluarkan HANYA teks resume percakapan dalam Bahasa Indonesia, '
+                        .'dimulai langsung dari topik pembicaraan.';
+
+                $data = \App\Services\OpenRouterClient::chatCompletion([
+                    'model' => $model,
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => 'Kamu menulis catatan resume percakapan (ringkasan) untuk tim layanan customer service. '
+                                .'Tulis dalam Bahasa Indonesia yang natural, informatif, dan profesional — seperti catatan singkat sesi bantuan yang ditinggalkan untuk tim, '
+                                .'maksimal 3 kalimat, mencakup: topik pembicaraan, kebutuhan customer, dan hasil percakapan beserta tindak lanjutnya '
+                                .'(misalnya data yang diminta, langkah verifikasi, atau janji follow-up). '
+                                .'JANGAN menyebut kata "AI", "chatbot", atau "model" dalam ringkasan — pihak yang melayani disebut "layanan customer service" atau "tim kami". '
+                                .'Jangan menyalin label "Customer:"/"Layanan Customer Service:" ke dalam hasil; tulis sebagai prosa yang mengalir.'
                         ],
-                        'max_tokens' => 200,
+                        [
+                            'role' => 'user',
+                            'content' => $prompt
+                        ]
+                    ],
+                    'temperature' => $attempt === 1 ? 0.3 : 0.7,
+                    // Free reasoning models burn part of the budget on
+                    // reasoning tokens; 250 truncated mid-sentence.
+                    'max_tokens' => 400,
+                ], 60, 'Cekat SaaS Summary');
+
+                if (!empty($data['error'])) {
+                    Log::error('Failed to generate chat summary', [
+                        'session_id' => $this->session->id,
+                        'attempt' => $attempt,
+                        'error' => $data['error'],
                     ]);
+                    break;
+                }
 
-            if ($response->successful()) {
-                $data = $response->json();
-                $summary = $data['choices'][0]['message']['content'] ?? null;
+                // Plain-text cleanup: strips markdown (headings, bold) and
+                // stray code fences; the summary is rendered raw in the
+                // chat detail view and the lead email.
+                $candidate = \App\Support\TextSanitizer::markdownToPlain(
+                    (string) ($data['choices'][0]['message']['content'] ?? '')
+                );
 
-                if ($summary) {
-                    $this->session->update([
-                        'summary' => $summary,
-                        'summary_generated_at' => now(),
+                if ($this->isUsableSummary($candidate)) {
+                    $summary = $candidate;
+                } else {
+                    Log::warning('Chat summary rejected (junk or prompt echo)', [
+                        'session_id' => $this->session->id,
+                        'attempt' => $attempt,
+                        'content' => mb_substr($candidate, 0, 120),
                     ]);
                 }
+            }
+
+            if ($summary !== null) {
+                $this->session->update([
+                    'summary' => $summary,
+                    'summary_generated_at' => now(),
+                ]);
             }
         } catch (\Exception $e) {
             Log::error('Failed to generate chat summary', [
@@ -83,5 +142,38 @@ class GenerateChatSummary implements ShouldQueue
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * A summary must read as Indonesian prose about the conversation.
+     * Guards against: empty/short output, safety junk, and weak models
+     * that answer by repeating the instructions back ("We need to produce
+     * a short summary in Indonesian...", "Buatkan resume dari...").
+     */
+    protected function isUsableSummary(string $text): bool
+    {
+        if (mb_strlen($text) < 40) {
+            return false;
+        }
+
+        // Instruction echo / meta commentary (EN or ID): weak models answer
+        // by repeating the prompt back or narrating their own reasoning.
+        if (preg_match(
+            '/we need to produce|short summary|summary (in|of) (indonesian|indonesia)'
+            .'|buatkan resume|ringkasan dari percakapan|kamu menulis catatan|maksimal 3 kalimat'
+            .'|berikut adalah|berikut ini adalah|as an ai|sebagai ai'
+            .'|^(okay|ok[, ]|sure|baik[, ]|berikut|here is|here\'s)\b'
+            .'|\b(let me|the user wants|i need to|i will|let\'s)\b/i',
+            $text
+        )) {
+            return false;
+        }
+
+        // Must contain Indonesian prose markers.
+        return (bool) preg_match(
+            '/\b(yang|dan|untuk|dengan|pelanggan|customer service|meminta|menjelaskan|'
+            .'percakapan|layanan|membantu|menawarkan|menanyakan)\b/i',
+            $text
+        );
     }
 }

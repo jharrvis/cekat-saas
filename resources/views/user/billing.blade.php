@@ -29,9 +29,22 @@
                             <h3 class="text-lg font-semibold">Plan Saat Ini</h3>
                             <p class="text-muted-foreground text-sm">Status langganan Anda</p>
                         </div>
-                        <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
-                            <i class="fa-solid fa-check-circle mr-1"></i>Active
-                        </span>
+                        @if($user->plan && $user->plan->price > 0)
+                            @if($user->plan_expires_at && $user->plan_expires_at->isFuture())
+                                <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
+                                    <i class="fa-solid fa-check-circle mr-1"></i>Aktif s/d
+                                    {{ $user->plan_expires_at->format('d M Y') }}
+                                </span>
+                            @else
+                                <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">
+                                    <i class="fa-solid fa-circle-xmark mr-1"></i>Kedaluwarsa
+                                </span>
+                            @endif
+                        @else
+                            <span class="px-3 py-1 text-sm rounded-full bg-muted text-muted-foreground">
+                                Free Plan
+                            </span>
+                        @endif
                     </div>
 
                     <div class="flex items-center gap-4 p-4 bg-primary/5 rounded-xl border border-primary/20 mb-4">
@@ -43,6 +56,13 @@
                             <p class="text-sm text-muted-foreground">
                                 Rp {{ number_format($user->plan->price ?? 0, 0, ',', '.') }} / bulan
                             </p>
+                            @if($user->plan_expires_at)
+                                <p class="text-xs text-muted-foreground mt-1">
+                                    <i class="fa-regular fa-clock mr-1"></i>Berlaku hingga
+                                    {{ $user->plan_expires_at->format('d M Y H:i') }}
+                                    ({{ max(0, (int) ceil(now()->diffInDays($user->plan_expires_at, false))) }} hari lagi)
+                                </p>
+                            @endif
                         </div>
                         <a href="#plans" class="btn-primary">
                             <i class="fa-solid fa-arrow-up mr-2"></i>Upgrade
@@ -53,20 +73,20 @@
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-robot text-primary"></i>
-                            <span>{{ $user->plan->max_widgets ?? 1 }} Chatbot Widget</span>
+                            <span>{{ app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'total_channels') }} Chatbot Widget</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-message text-primary"></i>
-                            <span>{{ number_format($user->plan->max_messages_per_month ?? 100, 0, ',', '.') }}
+                            <span>{{ number_format(app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'monthly_messages'), 0, ',', '.') }}
                                 Pesan/bulan</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-clock-rotate-left text-primary"></i>
-                            <span>{{ $user->plan->chat_history_days ?? 7 }} Hari Chat History</span>
+                            <span>{{ app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'chat_history_days') }} Hari Chat History</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-brain text-primary"></i>
-                            <span>AI Quality: {{ ucfirst($user->plan->ai_tier ?? 'Basic') }}</span>
+                            <span>AI Quality: {{ ucfirst(app(\App\Services\Billing\PlanLimitService::class)->aiTier($user)) }}</span>
                         </div>
                     </div>
                 </div>
@@ -76,7 +96,7 @@
                     <h3 class="text-lg font-semibold mb-4">Penggunaan Bulan Ini</h3>
 
                     @php
-                        $quota = $user->plan->max_messages_per_month ?? 100;
+                        $quota = app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'monthly_messages');
                         $used = $user->monthly_message_used ?? 0;
                         $percentage = $quota > 0 ? min(($used / $quota) * 100, 100) : 0;
                         $isWarning = $percentage >= 80;
@@ -234,6 +254,7 @@
                     @php
                         $isCurrent = $user->plan_id == $plan->id;
                         $isPopular = $plan->slug === 'pro';
+                        $planLimits = app(\App\Services\Billing\PlanLimitService::class);
                     @endphp
                     <div class="relative p-4 border rounded-xl {{ $isPopular ? 'border-primary ring-2 ring-primary/20' : '' }} {{ $isCurrent ? 'bg-primary/5' : '' }}">
                         @if($isPopular)
@@ -252,10 +273,11 @@
                             <span class="text-sm font-normal text-muted-foreground">/bulan</span>
                         </p>
                         <ul class="space-y-2 text-sm mb-4">
-                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ $plan->max_widgets == -1 ? 'Unlimited' : $plan->max_widgets }} Widget</li>
-                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ number_format($plan->max_messages_per_month, 0, ',', '.') }} Pesan</li>
-                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>AI {{ ucfirst($plan->ai_tier ?? 'Basic') }}</li>
-                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ $plan->chat_history_days ?? 7 }} Hari History</li>
+                            @php($planWidgetLimit = $planLimits->limit($plan, 'total_channels'))
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ $planWidgetLimit == -1 ? 'Unlimited' : $planWidgetLimit }} Widget</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ number_format($planLimits->limit($plan, 'monthly_messages'), 0, ',', '.') }} Pesan</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>AI {{ ucfirst($planLimits->aiTier($plan)) }}</li>
+                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ $planLimits->limit($plan, 'chat_history_days') }} Hari History</li>
                         </ul>
                         @if($isCurrent)
                             <button class="w-full py-2 rounded-lg text-sm bg-green-100 text-green-700 cursor-default" disabled>

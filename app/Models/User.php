@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -20,6 +20,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'pending_email',
+        'email_verified_at',
         'password',
         'google_id',
         'avatar',
@@ -66,6 +68,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Personal API keys for the public read API (/api/v1).
+     */
+    public function apiKeys()
+    {
+        return $this->hasMany(ApiKey::class);
+    }
+
+    /**
      * Get the user's plan.
      */
     public function plan()
@@ -95,6 +105,54 @@ class User extends Authenticatable
     public function isUser(): bool
     {
         return $this->role === 'user';
+    }
+
+    /**
+     * Send the email verification code (6-digit OTP, branded mailable) -
+     * the code is entered in the blocking dashboard modal.
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $code = app(\App\Services\Auth\EmailOtpService::class)->generate($this);
+
+        \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\EmailOtp($this, $code));
+    }
+
+    /**
+     * Whether the user can access Lead Collection features (Pro and above).
+     */
+    public function canUseLeads(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return app(\App\Services\Billing\PlanLimitService::class)->feature($this, 'leads');
+    }
+
+    /**
+     * Whether the user can use the public read API with an API key
+     * (gated by the plan's api_access feature flag).
+     */
+    public function canUseApi(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return app(\App\Services\Billing\PlanLimitService::class)->feature($this, 'api_access');
+    }
+
+    /**
+     * Whether the user can access the WhatsApp gateway (Pro and above).
+     */
+    public function canUseWhatsApp(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return app(\App\Services\Billing\PlanLimitService::class)->feature($this, 'whatsapp');
     }
 
     /**

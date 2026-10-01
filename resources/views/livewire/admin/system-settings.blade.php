@@ -85,11 +85,11 @@
                 <form wire:submit.prevent="saveSettings('api')" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium mb-2">OpenRouter API Key</label>
-                        <input type="password" wire:model="apiSettings.openrouter_api_key"
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            placeholder="sk-or-v1-...">
-                        <p class="text-xs text-muted-foreground mt-1">Get your API key from <a href="https://openrouter.ai"
-                                target="_blank" class="text-blue-600">openrouter.ai</a></p>
+                        <div class="w-full px-4 py-2 border rounded-lg bg-muted text-sm text-muted-foreground">
+                            {{ config('services.openrouter.api_key') ? 'Ter-set di .env (OPENROUTER_API_KEY)' : 'Belum di-set — tambahkan OPENROUTER_API_KEY di .env' }}
+                        </div>
+                        <p class="text-xs text-muted-foreground mt-1">Dikelola lewat file <code>.env</code> server (bukan lewat dashboard).
+                            Buat key di <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer" class="text-blue-600">openrouter.ai</a>.</p>
                     </div>
 
                     <div>

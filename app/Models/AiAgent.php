@@ -26,7 +26,6 @@ class AiAgent extends Model
         'max_tokens',
         'language',
         'fallback_message',
-        'greeting_message',
         'messages_used',
         'conversations_count',
         'settings',
@@ -143,14 +142,6 @@ class AiAgent extends Model
     public function getFallbackMessageWithDefault(): string
     {
         return $this->fallback_message ?? 'Maaf, saya sedang mengalami gangguan teknis. Silakan coba lagi nanti.';
-    }
-
-    /**
-     * Get greeting message with default.
-     */
-    public function getGreetingMessageWithDefault(): string
-    {
-        return $this->greeting_message ?? 'Halo! 👋 Ada yang bisa saya bantu?';
     }
 
     /**

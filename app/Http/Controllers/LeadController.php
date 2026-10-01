@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChatSession;
+use App\Services\Api\LeadQueryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -11,14 +11,13 @@ class LeadController extends Controller
     /**
      * Display list of leads (chat sessions with customer info)
      */
-    public function index(Request $request)
+    public function index(Request $request, LeadQueryService $leads)
     {
         $user = auth()->user();
-        $widgetIds = $user->widgets()->pluck('id');
 
-        $query = ChatSession::whereIn('widget_id', $widgetIds)
-            ->whereNotNull('visitor_name')
-            ->with('widget');
+        // A lead counts as soon as ANY contact detail was captured (name
+        // alone is optional — email/phone-only leads still must show up).
+        $query = $leads->leadsFor($user)->with('widget');
 
         // Filter by widget
         if ($request->widget) {
@@ -33,41 +32,24 @@ class LeadController extends Controller
             });
         }
 
-        $leads = $query->orderBy('created_at', 'desc')->paginate(20);
+        $leadsPage = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        // Stats
-        $totalSessions = ChatSession::whereIn('widget_id', $widgetIds)->count();
-        $totalLeads = ChatSession::whereIn('widget_id', $widgetIds)->whereNotNull('visitor_name')->count();
-
-        $stats = [
-            'total' => $totalLeads,
-            'this_month' => ChatSession::whereIn('widget_id', $widgetIds)
-                ->whereNotNull('visitor_name')
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->count(),
-            'this_week' => ChatSession::whereIn('widget_id', $widgetIds)
-                ->whereNotNull('visitor_name')
-                ->where('created_at', '>=', now()->startOfWeek())
-                ->count(),
-            'conversion_rate' => $totalSessions > 0 ? ($totalLeads / $totalSessions) * 100 : 0,
-        ];
+        $stats = $leads->statsFor($user);
 
         $widgets = $user->widgets;
 
-        return view('user.leads.index', compact('leads', 'stats', 'widgets'));
+        return view('user.leads.index', compact('leadsPage', 'stats', 'widgets'))
+            ->with('leads', $leadsPage);
     }
 
     /**
      * Export leads to CSV
      */
-    public function export(Request $request)
+    public function export(Request $request, LeadQueryService $leads)
     {
         $user = auth()->user();
-        $widgetIds = $user->widgets()->pluck('id');
 
-        $leads = ChatSession::whereIn('widget_id', $widgetIds)
-            ->whereNotNull('visitor_name')
+        $rows = $leads->leadsFor($user)
             ->with('widget')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -79,13 +61,13 @@ class LeadController extends Controller
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ];
 
-        $callback = function () use ($leads) {
+        $callback = function () use ($rows) {
             $file = fopen('php://output', 'w');
 
             // Header row
             fputcsv($file, ['Name', 'Email', 'Phone', 'Widget', 'Date', 'Session ID']);
 
-            foreach ($leads as $lead) {
+            foreach ($rows as $lead) {
                 fputcsv($file, [
                     $lead->visitor_name ?? '',
                     $lead->visitor_email ?? '',

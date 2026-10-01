@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreWhatsAppDeviceRequest;
+use App\Http\Requests\UpdateWhatsAppDeviceRequest;
 use App\Models\WhatsAppDevice;
 use App\Services\WhatsApp\WhatsAppManager;
 use App\Services\WhatsApp\FonnteService;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -50,28 +52,20 @@ class WhatsAppController extends Controller
     /**
      * Create a new WhatsApp device.
      */
-    public function create(Request $request)
+    public function create(StoreWhatsAppDeviceRequest $request)
     {
         if (!WhatsAppManager::isReady()) {
             return back()->with('error', 'WhatsApp module is not available.');
         }
 
-        $request->validate([
-            'device_name' => 'required|string|max:100',
-            'phone_number' => 'required|string|regex:/^[0-9]{8,13}$/',
-            'widget_id' => 'nullable|exists:widgets,id',
-        ], [
-            'phone_number.required' => 'Nomor WhatsApp wajib diisi.',
-            'phone_number.regex' => 'Nomor WhatsApp harus berupa 8-13 digit angka.',
+        // Check user's plan device limit (PlanLimitService -> plans.max_whatsapp_devices)
+        $user = auth()->user();
+        $check = app(\App\Services\Billing\PlanLimitService::class)->check($user, 'whatsapp_devices', [
+            'used' => WhatsAppDevice::where('user_id', $user->id)->count(),
         ]);
 
-        // Check user's device limit (could be based on plan)
-        $user = auth()->user();
-        $deviceCount = WhatsAppDevice::where('user_id', $user->id)->count();
-        $maxDevices = $this->getMaxDevicesForUser($user);
-
-        if ($deviceCount >= $maxDevices) {
-            return back()->with('error', "Anda sudah mencapai batas maksimum {$maxDevices} device.");
+        if (! $check['allowed']) {
+            return back()->with('error', "Anda sudah mencapai batas maksimum {$check['limit']} device.");
         }
 
         // Normalize phone number to include country code
@@ -107,10 +101,7 @@ class WhatsAppController extends Controller
      */
     public function connect(WhatsAppDevice $device)
     {
-        // Authorization check
-        if ($device->user_id !== auth()->id()) {
-            abort(403);
-        }
+        Gate::authorize('view', $device);
 
         if (!WhatsAppManager::isReady()) {
             return redirect()->route('whatsapp.index')
@@ -127,7 +118,7 @@ class WhatsAppController extends Controller
      */
     public function getQR(WhatsAppDevice $device)
     {
-        if ($device->user_id !== auth()->id()) {
+        if (Gate::denies('view', $device)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -153,7 +144,7 @@ class WhatsAppController extends Controller
      */
     public function refreshStatus(WhatsAppDevice $device)
     {
-        if ($device->user_id !== auth()->id()) {
+        if (Gate::denies('view', $device)) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -176,19 +167,9 @@ class WhatsAppController extends Controller
     /**
      * Update device settings.
      */
-    public function update(Request $request, WhatsAppDevice $device)
+    public function update(UpdateWhatsAppDeviceRequest $request, WhatsAppDevice $device)
     {
-        if ($device->user_id !== auth()->id()) {
-            abort(403);
-        }
-
-        $request->validate([
-            'device_name' => 'sometimes|string|max:100',
-            'widget_id' => 'nullable|exists:widgets,id',
-            'is_active' => 'sometimes|boolean',
-        ]);
-
-        $device->update($request->only(['device_name', 'widget_id', 'is_active']));
+        $device->update($request->validated());
 
         return back()->with('success', 'Device berhasil diperbarui.');
     }
@@ -198,9 +179,7 @@ class WhatsAppController extends Controller
      */
     public function disconnect(WhatsAppDevice $device)
     {
-        if ($device->user_id !== auth()->id()) {
-            abort(403);
-        }
+        Gate::authorize('update', $device);
 
         try {
             $fonnte = new FonnteService();
@@ -223,9 +202,7 @@ class WhatsAppController extends Controller
      */
     public function destroy(WhatsAppDevice $device)
     {
-        if ($device->user_id !== auth()->id()) {
-            abort(403);
-        }
+        Gate::authorize('delete', $device);
 
         try {
             $this->manager->deleteDevice($device);
@@ -242,9 +219,7 @@ class WhatsAppController extends Controller
      */
     public function messages(WhatsAppDevice $device)
     {
-        if ($device->user_id !== auth()->id()) {
-            abort(403);
-        }
+        Gate::authorize('view', $device);
 
         $messages = $device->messages()
             ->orderBy('created_at', 'desc')
@@ -254,24 +229,5 @@ class WhatsAppController extends Controller
             'device' => $device,
             'messages' => $messages,
         ]);
-    }
-
-    /**
-     * Get max devices allowed for user based on plan.
-     */
-    private function getMaxDevicesForUser($user): int
-    {
-        $plan = $user->plan;
-        if (!$plan) {
-            return 1; // Free tier - 1 device
-        }
-
-        // This could be stored in plan settings
-        return match ($plan->slug ?? $plan->name ?? '') {
-            'starter', 'free' => 1,
-            'pro', 'professional' => 3,
-            'business', 'enterprise' => 10,
-            default => 1,
-        };
     }
 }

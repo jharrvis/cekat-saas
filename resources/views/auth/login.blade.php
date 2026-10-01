@@ -1,214 +1,203 @@
 <!DOCTYPE html>
-<html lang="id">
-
+<html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Cekat.biz.id</title>
-
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-
-    <!-- Tailwind CSS -->
+    <title>Masuk | Cekat.biz.id - AI Chatbot Kustom</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
                     colors: {
                         brand: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                            950: '#020617',
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#1e1b4b',
+                            900: '#312e81',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
+<body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen m-0 p-0 overflow-x-hidden transition-colors duration-300">
 
-<body class="bg-gray-50 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+    <!-- Floating Controls -->
+    <div class="absolute top-6 right-6 z-50 flex items-center gap-3">
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-lg" title="Ganti Tema">
+            <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+            <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+        </button>
+        <a href="/" class="px-3.5 py-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-2 shadow-lg">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Beranda
+        </a>
+    </div>
 
-    <!-- Left Side - Form -->
-    <div class="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 bg-white h-full overflow-y-auto">
-        <div class="w-full max-w-md space-y-8">
-            <!-- Logo -->
-            <a href="/" class="flex items-center gap-2 font-bold text-2xl tracking-tight text-slate-900 mb-8">
-                <div
-                    class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-lg shadow-lg">
-                    <i class="fa-solid fa-bolt"></i>
+    <main class="w-screen min-h-screen grid lg:grid-cols-12 m-0 p-0">
+
+        <!-- Kolom Kiri: Branding -->
+        <div class="lg:col-span-5 bg-slate-900 dark:bg-slate-950 p-8 sm:p-12 lg:p-16 flex flex-col justify-between text-white relative overflow-hidden border-r border-slate-800">
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30"></div>
+            <div class="absolute -top-32 -left-32 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(99,102,241,0.15),transparent_50%)]"></div>
+
+            <!-- Logo & Brand -->
+            <div class="relative z-10 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/30 ring-1 ring-brand-400/30">
+                    <i data-lucide="bot" class="w-5 h-5"></i>
                 </div>
-                Cekat<span class="text-slate-400 font-normal">.biz.id</span>
-            </a>
-
-            <div class="space-y-2">
-                <h1 class="text-3xl font-bold tracking-tight">Welcome back</h1>
-                <p class="text-slate-500">Masuk ke akun Anda untuk mengelola Chatbot.</p>
+                <span class="font-bold text-xl tracking-tight text-white">Cekat<span class="text-brand-400">.biz.id</span></span>
             </div>
 
-            <!-- Social Login -->
-            <div class="space-y-3">
+            <!-- Pesan Utama -->
+            <div class="relative z-10 my-auto py-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-medium mb-6 backdrop-blur-sm">
+                    <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+                    Neural Network Engine v4.2
+                </div>
+
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 leading-tight">
+                    Otomatisasi Layanan Pelanggan dengan <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-indigo-300 to-sky-400">Data Anda Sendiri</span>.
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    Unggah dokumen perusahaan Anda, bangun asisten AI kustom yang akurat, dan jawab pertanyaan klien 24/7 tanpa risiko halusinasi.
+                </p>
+
+                <div class="mt-8 p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                        <i data-lucide="cpu" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-200">Kapasitas Embedding RAG</div>
+                        <div class="text-[11px] text-slate-400">Sinkronisasi dokumen instan & aman</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian Bawah Kolom Kiri -->
+            <div class="relative z-10 text-xs text-slate-500 font-mono">
+                SECURE 256-BIT SSL ENCRYPTION
+            </div>
+        </div>
+
+        <!-- Kolom Kanan: Form -->
+        <div class="lg:col-span-7 bg-white dark:bg-slate-950 p-8 sm:p-12 lg:p-16 flex flex-col justify-center items-center relative">
+
+            <div class="w-full max-w-md mx-auto">
+                <!-- Tab Switcher (Masuk / Daftar) -->
+                <div class="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-2xl mb-8 border border-slate-200 dark:border-slate-800">
+                    <span class="flex-1 py-3 text-xs font-bold rounded-xl transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm text-center">Masuk</span>
+                    <a href="{{ route('register') }}" class="flex-1 py-3 text-xs font-bold rounded-xl transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-center">Daftar Baru</a>
+                </div>
+
+                <div class="text-left mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Selamat Datang Kembali</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Masukkan detail akun Anda untuk mengakses dasbor chatbot.</p>
+                </div>
+
+                {{-- Google SSO --}}
                 <a href="{{ route('google.login') }}"
-                    class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700 font-medium py-2.5 rounded-xl transition duration-200 group">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg"
-                        class="w-5 h-5 group-hover:scale-110 transition" alt="Google">
-                    Sign in with Google
+                    class="w-full flex items-center justify-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium py-3.5 rounded-xl text-sm transition-colors group mb-4">
+                    <svg class="w-5 h-5 group-hover:scale-110 transition" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    Masuk dengan Google
                 </a>
-            </div>
 
-            <div class="relative flex py-2 items-center">
-                <div class="flex-grow border-t border-slate-200"></div>
-                <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium uppercase tracking-wider">Atau dengan
-                    email</span>
-                <div class="flex-grow border-t border-slate-200"></div>
-            </div>
+                <div class="relative flex py-2 items-center mb-4">
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                    <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-medium uppercase tracking-wider">Atau dengan email</span>
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                </div>
 
-            <!-- Form -->
-            <form class="space-y-4" action="/login" method="POST" x-data="{ loading: false }" @submit="loading = true">
-                @csrf
+                <!-- FORM LOGIN -->
+                <form method="POST" action="/login" data-loading>
+                    @csrf
 
-                @if($errors->any())
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-                        {{ $errors->first() }}
+                    @if($errors->any())
+                        <div class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm mb-4">
+                            {{ $errors->first() }}
+                        </div>
+                    @endif
+
+                    <div class="space-y-4">
+                        <div>
+                            <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Email Perusahaan</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i data-lucide="mail" class="w-4 h-4"></i></span>
+                                <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="nama@perusahaan.com"
+                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="password" class="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400">Kata Sandi</label>
+                                <a href="{{ route('password.request') }}" class="text-xs text-brand-600 dark:text-brand-400 hover:underline font-medium">Lupa sandi?</a>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i data-lucide="key" class="w-4 h-4"></i></span>
+                                <input type="password" id="password" name="password" required placeholder="••••••••"
+                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-500/25 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
+                            Masuk ke Dasbor
+                        </button>
                     </div>
-                @endif
-
-                <div class="space-y-1">
-                    <label for="email" class="block text-sm font-medium text-slate-700">Email address</label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}"
-                        class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 transition placeholder-slate-400"
-                        placeholder="nama@perusahaan.com" required>
-                </div>
-
-                <div class="space-y-1">
-                    <div class="flex justify-between">
-                        <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
-                        <a href="{{ route('password.request') }}"
-                            class="text-sm font-medium text-blue-600 hover:text-blue-500">Lupa password?</a>
-                    </div>
-                    <input type="password" id="password" name="password"
-                        class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 transition placeholder-slate-400"
-                        placeholder="••••••••" required>
-                </div>
-
-
-                <div class="pt-2">
-                    <button type="submit" :disabled="loading"
-                        class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 transition shadow-lg shadow-slate-900/20 disabled:opacity-70 disabled:cursor-not-allowed">
-                        <span x-show="!loading">Sign in</span>
-                        <span x-show="loading" class="flex items-center justify-center gap-2">
-                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                            Signing in...
-                        </span>
-                    </button>
-                </div>
-            </form>
-
-            <p class="text-center text-sm text-slate-500">
-                Belum punya akun?
-                <a href="{{ route('register') }}" class="font-semibold text-blue-600 hover:text-blue-500">Daftar
-                    sekarang</a>
-            </p>
-        </div>
-    </div>
-
-    <!-- Right Side - Visual -->
-    <div class="hidden lg:flex lg:w-1/2 bg-slate-900 relative items-center justify-center overflow-hidden">
-        <!-- Background decorative elements -->
-        <div class="absolute inset-0 bg-[#0f172a]">
-            <!-- Grid pattern -->
-            <div class="absolute inset-0 opacity-10"
-                style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 32px 32px;">
+                </form>
             </div>
 
-            <!-- Glow effects -->
-            <div
-                class="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2">
-            </div>
-            <div
-                class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2">
-            </div>
         </div>
 
-        <!-- Content -->
-        <div class="relative z-10 max-w-lg text-center p-12">
-            <div class="mb-8 relative inline-block">
-                <div class="absolute inset-0 bg-blue-500 blur-2xl opacity-20 rounded-full"></div>
-                <!-- Using Font Awesome robot icon as fallback -->
-                <div class="w-64 h-64 flex items-center justify-center relative z-10">
-                    <i class="fa-solid fa-robot text-white text-9xl drop-shadow-2xl animate-float"></i>
-                </div>
-            </div>
+    </main>
 
-            <h2 class="text-3xl font-bold text-white mb-4">Customer Service 24/7 Tanpa Lelah</h2>
-            <p class="text-slate-400 text-lg leading-relaxed">
-                Bergabunglah dengan 500+ bisnis yang telah mengotomatiskan layanan pelanggan mereka dengan AI Cerdas.
-            </p>
+    <script>
+        lucide.createIcons();
 
-            <!-- Testimonial card -->
-            <div
-                class="mt-12 bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-xl text-left flex gap-4 items-center max-w-sm mx-auto transform hover:scale-105 transition duration-300 cursor-default">
-                <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-xs">
-                    JD
-                </div>
-                <div>
-                    <div class="flex text-yellow-400 text-xs mb-1">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <p class="text-slate-300 text-xs">"Hemat waktu banget! Setup cuma 5 menit."</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <style>
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
-
-            100% {
-                transform: translateY(0px);
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
             }
         }
 
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
-        }
-    </style>
+        document.querySelectorAll('form[data-loading]').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                const btn = form.querySelector('button[type="submit"]');
+                if (!btn) return;
+                btn.disabled = true;
+                btn.textContent = 'Memproses...';
+            });
+        });
+    </script>
 </body>
-
 </html>

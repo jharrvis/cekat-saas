@@ -21,6 +21,17 @@ Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'
 Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
 Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
 
+// Email Verification (OTP code, rendered as the blocking dashboard modal)
+Route::get('/email/verify', [App\Http\Controllers\Auth\EmailVerificationController::class, 'notice'])
+    ->middleware('auth')
+    ->name('verification.notice');
+Route::post('/email/verify', [App\Http\Controllers\Auth\EmailVerificationController::class, 'verifyCode'])
+    ->middleware(['auth', 'throttle:10,1'])
+    ->name('verification.verify');
+Route::post('/email/verification-notification', [App\Http\Controllers\Auth\EmailVerificationController::class, 'resend'])
+    ->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.resend');
+
 // Google OAuth Routes
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');

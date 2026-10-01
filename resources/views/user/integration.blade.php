@@ -68,7 +68,7 @@
                         <div class="flex items-center gap-2">
                             <h3 class="font-semibold text-lg">Cekat AI Chatbot for WordPress</h3>
                             <span
-                                class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">v1.0.0</span>
+                                class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">v1.0.1</span>
                         </div>
                         <p class="text-sm text-muted-foreground mt-1">Plugin WordPress resmi untuk integrasi chatbot dengan
                             mudah</p>
@@ -128,11 +128,11 @@
             {{-- No Widgets --}}
             <div class="bg-card text-card-foreground p-12 rounded-xl border shadow-sm text-center">
                 <i class="fa-solid fa-robot text-6xl text-muted-foreground mb-4"></i>
-                <h3 class="font-semibold text-lg mb-2">Belum Ada Chatbot</h3>
-                <p class="text-muted-foreground mb-4">Buat chatbot terlebih dahulu untuk mendapatkan kode embed</p>
-                <a href="{{ route('chatbots.create') }}"
+                <h3 class="font-semibold text-lg mb-2">Belum Ada Channel</h3>
+                <p class="text-muted-foreground mb-4">Buat channel terlebih dahulu untuk mendapatkan kode embed</p>
+                <a href="{{ route('channels.create') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg">
-                    <i class="fa-solid fa-plus"></i> Buat Chatbot
+                    <i class="fa-solid fa-plus"></i> Buat Channel
                 </a>
             </div>
         @endif
@@ -161,7 +161,7 @@
                                                         widgetId: '${slug}'
                                                     };
                                                 <\/script>
-                                                <script src="${baseUrl}/widget/widget.min.js?v=20260206-p1" async><\/script>`;
+                                                <script src="${baseUrl}/widget/widget.min.js?v=20260930-p6" async><\/script>`;
 
                 document.getElementById('embed-code').textContent = currentCode;
             }

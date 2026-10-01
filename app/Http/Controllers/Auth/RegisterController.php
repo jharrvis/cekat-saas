@@ -29,8 +29,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'user',
-            'plan_tier' => 'starter', // Default plan
-            'monthly_message_quota' => 100,
+            'plan_id' => app(\App\Services\Billing\PlanLimitService::class)->defaultPlan()?->id,
             'monthly_message_used' => 0,
         ]);
 
@@ -51,6 +50,18 @@ class RegisterController extends Controller
         // Log the user in
         Auth::login($user);
 
-        return redirect()->route('dashboard')->with('success', 'Welcome to Cekat! Your account has been created successfully.');
+        // Send the OTP verification code (login is allowed; the dashboard
+        // shows a blocking verify modal until the code is entered)
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send verification code', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Pendaftaran berhasil! Kami mengirim kode verifikasi 6 digit ke email Anda.');
     }
 }

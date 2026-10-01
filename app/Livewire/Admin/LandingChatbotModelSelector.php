@@ -17,7 +17,7 @@ class LandingChatbotModelSelector extends Component
     {
         $this->widget = $widget;
         $settings = $widget->settings ?? [];
-        $this->selectedModel = $settings['model'] ?? 'openai/gpt-4o-mini';
+        $this->selectedModel = $settings['model'] ?? config('services.openrouter.default_model');
     }
 
     public function selectModel($modelId)

@@ -13,3 +13,6 @@ Schedule::command('quota:reset')->monthlyOn(1, '00:00');
 
 // Check plan expiry daily at 8 AM (send reminders + auto-downgrade)
 Schedule::command('plans:check-expiry')->dailyAt('08:00');
+
+// Enforce per-plan chat retention (plans.chat_history_days 7/30/90)
+Schedule::command('chat:purge')->dailyAt('03:30');

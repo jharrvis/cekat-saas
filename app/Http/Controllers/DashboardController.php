@@ -87,13 +87,13 @@ class DashboardController extends Controller
         $widgets = $user->widgets()->withCount('chatSessions')->get();
 
         // Usage quota from plan
-        $plan = $user->plan;
-        $quotaLimit = $plan ? ($plan->max_messages_per_month ?? 100) : 100;
-        $usedMessages = $user->monthly_message_used ?? 0;
+        $usage = app(\App\Services\Billing\PlanLimitService::class)->usage($user, 'monthly_messages');
+        $quotaLimit = $usage['limit'];
+        $usedMessages = $usage['used'];
         $usagePercent = $quotaLimit > 0
             ? round(($usedMessages / $quotaLimit) * 100)
             : 0;
-        $quotaRemaining = max(0, $quotaLimit - $usedMessages);
+        $quotaRemaining = $usage['remaining'];
 
         // Warning levels
         $quotaWarningLevel = 'normal';
@@ -259,30 +259,36 @@ class DashboardController extends Controller
      */
     private function getPeakHours($widgetIds)
     {
+        // DB-portable: avoid MySQL-only HOUR() so this works on sqlite (tests)
+        // and MariaDB alike; only the timestamp column is loaded.
         $sessions = ChatSession::whereIn('widget_id', $widgetIds)
-            ->select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
-            ->groupBy('hour')
-            ->orderBy('count', 'desc')
-            ->limit(24)
+            ->select('created_at')
             ->get();
 
         if ($sessions->isEmpty()) {
             return [
                 'peak_hour' => null,
+                'peak_formatted' => '-',
                 'peak_count' => 0,
                 'hours' => [],
             ];
         }
 
+        $hourCounts = [];
+        foreach ($sessions as $session) {
+            $hour = (int) $session->created_at->format('G');
+            $hourCounts[$hour] = ($hourCounts[$hour] ?? 0) + 1;
+        }
+        arsort($hourCounts);
+
         // Get top 3 busiest hours
-        $topHours = $sessions->take(3)->map(function ($item) {
-            $hour = (int) $item->hour;
+        $topHours = collect($hourCounts)->take(3)->map(function ($count, $hour) {
             return [
                 'hour' => $hour,
                 'formatted' => str_pad($hour, 2, '0', STR_PAD_LEFT) . ':00',
-                'count' => $item->count,
+                'count' => $count,
             ];
-        })->toArray();
+        })->values()->all();
 
         return [
             'peak_hour' => $topHours[0]['hour'] ?? null,

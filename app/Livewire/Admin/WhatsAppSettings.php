@@ -82,6 +82,8 @@ class WhatsAppSettings extends Component
         $this->moduleEnabled = !$this->moduleEnabled;
         Setting::set('whatsapp_module_enabled', $this->moduleEnabled, 'boolean', 'whatsapp');
 
+        \App\Events\AdminSettingsChanged::dispatch('whatsapp', auth()->id(), ['whatsapp_module_enabled']);
+
         session()->flash('message', $this->moduleEnabled
             ? 'WhatsApp module enabled!'
             : 'WhatsApp module disabled!');
@@ -104,6 +106,14 @@ class WhatsAppSettings extends Component
         Setting::set('whatsapp_fallback_message', $this->fallbackMessage, 'string', 'whatsapp');
         Setting::set('whatsapp_auto_reply_enabled', $this->autoReplyEnabled, 'boolean', 'whatsapp');
         Setting::set('whatsapp_max_devices_per_user', $this->maxDevicesPerUser, 'number', 'whatsapp');
+
+        \App\Events\AdminSettingsChanged::dispatch('whatsapp', auth()->id(), [
+            'whatsapp_module_enabled',
+            'fonnte_account_token',
+            'whatsapp_fallback_message',
+            'whatsapp_auto_reply_enabled',
+            'whatsapp_max_devices_per_user',
+        ]);
 
         session()->flash('message', 'WhatsApp settings saved successfully!');
     }

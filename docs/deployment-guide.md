@@ -120,15 +120,17 @@ SESSION_DRIVER=database
 CACHE_DRIVER=file
 QUEUE_CONNECTION=database
 
-# Mail (Gmail SMTP)
+# Mail (Brevo SMTP relay - username = SMTP login, password = SMTP key, bukan API key)
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
+MAIL_HOST=smtp-relay.brevo.com
 MAIL_PORT=587
-MAIL_USERNAME=your-email@gmail.com
-MAIL_PASSWORD=your-app-password
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@cekat.biz.id
+MAIL_USERNAME=your-smtp-login@smtp-brevo.com
+MAIL_PASSWORD=your-smtp-key
+MAIL_FROM_ADDRESS=no-reply@cekat.biz.id
 MAIL_FROM_NAME="Cekat.ai"
+# Notifikasi sistem (pendaftar baru, perubahan setting admin)
+ADMIN_NOTIFY_EMAIL=info@example.com
 
 # Midtrans
 MIDTRANS_SERVER_KEY=your-server-key
@@ -298,15 +300,15 @@ crontab -e
 
 ---
 
-## 11. Konfigurasi Email (Gmail SMTP)
+## 11. Konfigurasi Email (Brevo SMTP)
 
-### Buat App Password Gmail:
-1. Buka https://myaccount.google.com/security
-2. Aktifkan **2-Step Verification** jika belum
-3. Klik **App passwords**
-4. Pilih **Mail** → **Other (Custom name)** → "Cekat.ai"
-5. Copy password yang dihasilkan (16 karakter)
-6. Masukkan ke `.env` sebagai `MAIL_PASSWORD`
+### Buat kredensial Brevo:
+1. Login ke https://app.brevo.com → **Settings** → **SMTP & API**
+2. Tab **SMTP** → **Generate a new SMTP key** (simpan segera, hanya tampil sekali)
+3. Catat **SMTP login** (alamat di tab SMTP, mis. `xxxxx@smtp-brevo.com`) → `MAIL_USERNAME`
+4. SMTP key → `MAIL_PASSWORD` (bukan API key — API key diawali `xkeysib-`)
+5. Tab **Senders** → tambahkan & verifikasi pengirim `no-reply@cekat.biz.id` → `MAIL_FROM_ADDRESS`
+6. Set `ADMIN_NOTIFY_EMAIL` untuk notifikasi sistem
 
 ### Test Email:
 ```bash

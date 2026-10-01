@@ -1,25 +1,37 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cekat.biz.id - Custom AI Chatbot for Your Data</title>
-
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-
-    <!-- Tailwind CSS -->
+    <title>Cekat.biz.id | AI Chatbot Kustom untuk Data Anda</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Memuat Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Memuat React, ReactDOM, Babel (untuk JSX in-browser), dan React Flow -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Kompatibilitas: build UMD @xyflow/react membutuhkan global `jsxRuntime` (react/jsx-runtime) -->
+    <script>
+        window.jsxRuntime = {
+            Fragment: React.Fragment,
+            jsx: function (type, props, key) {
+                return React.createElement(type, key === undefined ? props : Object.assign({}, props, { key: key }));
+            },
+            jsxs: function (type, props, key) {
+                return window.jsxRuntime.jsx(type, props, key);
+            }
+        };
+    </script>
+    <!-- React Flow CSS & JS UMD -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xyflow/react@12.3.6/dist/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@xyflow/react@12.3.6/dist/umd/index.js"></script>
 
     <script>
         tailwind.config = {
-            darkMode: 'class',
+            darkMode: 'class', // Mendukung toggle manual
             theme: {
                 extend: {
                     fontFamily: {
@@ -27,466 +39,1073 @@
                     },
                     colors: {
                         brand: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            300: '#cbd5e1',
-                            400: '#94a3b8',
-                            500: '#64748b',
-                            600: '#475569',
-                            700: '#334155',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                            950: '#020617',
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                        'icon-bounce': 'iconBounce 2s infinite',
+                        'icon-wiggle': 'iconWiggle 1s ease-in-out infinite',
+                        'icon-pulse': 'iconPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(15px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
-                        primary: '#0f172a', // Zinc 900
-                        accent: '#2563eb',  // Blue 600
+                        iconBounce: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15%)' },
+                        },
+                        iconWiggle: {
+                            '0%, 100%': { transform: 'rotate(-5deg)' },
+                            '50%': { transform: 'rotate(5deg)' },
+                        },
+                        iconPulse: {
+                            '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                            '50%': { opacity: .7, transform: 'scale(0.9)' },
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        .hero-pattern {
-            background-color: #ffffff;
-            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
-            background-size: 24px 24px;
+        body {
+            font-family: 'Inter', sans-serif;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569; 
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+        
+        /* Utility untuk ukuran Lucide Icons yang konsisten */
+        .lucide {
+            width: 1.25em;
+            height: 1.25em;
+            stroke-width: 2;
+        }
+
+        .rag-flow-shell {
+            height: 460px;
+            min-height: 460px;
+        }
+
+        .rag-flow-stage {
+            position: relative;
+            overflow: hidden;
+            --rag-fade-bg: #020617;
+        }
+
+        .rag-flow-stage::before,
+        .rag-flow-stage::after {
+            content: '';
+            display: none;
+            position: absolute;
+            top: -1px;
+            bottom: -1px;
+            z-index: 7;
+            width: clamp(110px, 18vw, 280px);
+            pointer-events: none;
+        }
+
+        .rag-flow-stage::before {
+            left: 0;
+            background: linear-gradient(
+                90deg,
+                var(--rag-fade-bg) 0%,
+                color-mix(in srgb, var(--rag-fade-bg) 98%, transparent) 18%,
+                color-mix(in srgb, var(--rag-fade-bg) 84%, transparent) 38%,
+                color-mix(in srgb, var(--rag-fade-bg) 52%, transparent) 62%,
+                color-mix(in srgb, var(--rag-fade-bg) 20%, transparent) 82%,
+                transparent 100%
+            );
+        }
+
+        .rag-flow-stage::after {
+            right: 0;
+            background: linear-gradient(
+                270deg,
+                var(--rag-fade-bg) 0%,
+                color-mix(in srgb, var(--rag-fade-bg) 98%, transparent) 18%,
+                color-mix(in srgb, var(--rag-fade-bg) 84%, transparent) 38%,
+                color-mix(in srgb, var(--rag-fade-bg) 52%, transparent) 62%,
+                color-mix(in srgb, var(--rag-fade-bg) 20%, transparent) 82%,
+                transparent 100%
+            );
+        }
+
+        .rag-node {
+            width: 275px;
+            min-height: 195px;
+            border-radius: 18px;
+            border: 1px solid rgba(51, 65, 85, 0.9);
+            background: linear-gradient(155deg, rgba(15, 23, 42, 0.97), rgba(2, 6, 23, 0.99));
+            color: #e2e8f0;
+            box-shadow: 0 20px 60px rgba(2, 6, 23, 0.6);
+            padding: 15px;
+            transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 500ms ease, box-shadow 500ms ease, opacity 500ms ease;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(12px);
+        }
+
+        .rag-node.is-active {
+            transform: scale(1.06);
+            border-color: var(--node-accent, #14b8a6);
+            box-shadow: 0 25px 70px rgba(20, 184, 166, 0.22), 0 0 0 1px color-mix(in srgb, var(--node-accent, #14b8a6) 75%, transparent);
+        }
+
+        .rag-node.is-complete {
+            border-color: rgba(45, 212, 191, 0.45);
+            box-shadow: 0 15px 45px rgba(2, 6, 23, 0.5);
+        }
+
+        .rag-node-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+        }
+
+        .rag-node-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: color-mix(in srgb, var(--node-accent, #14b8a6) 18%, transparent);
+            color: var(--node-accent, #14b8a6);
+            flex: 0 0 auto;
+            font-size: 15px;
+            font-weight: 700;
+            border: 1px solid color-mix(in srgb, var(--node-accent, #14b8a6) 35%, transparent);
+        }
+
+        .rag-node-title {
+            font-size: 13px;
+            line-height: 1.25;
+            font-weight: 800;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rag-node-subtitle {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+        }
+
+        .rag-input-box {
+            border: 1px solid rgba(71, 85, 105, 0.9);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.95);
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #cbd5e1;
+            min-height: 68px;
+            line-height: 1.45;
+            position: relative;
+            transition: border-color 300ms ease, box-shadow 300ms ease;
+        }
+
+        .rag-input-box.is-clicked {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18), 0 4px 16px rgba(56, 189, 248, 0.1);
+        }
+
+        .rag-send-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #38bdf8;
+            color: #0f172a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 200ms ease, background-color 200ms ease;
+        }
+
+        .rag-send-btn.is-active {
+            transform: scale(0.92);
+            background: #0284c7;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+        }
+
+        .rag-caret::after {
+            content: '|';
+            color: #38bdf8;
+            animation: blink 1s step-end infinite;
+            font-weight: 700;
+        }
+
+        .rag-kb-list {
+            display: grid;
+            gap: 8px;
+            position: relative;
+        }
+
+        .rag-kb-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            border: 1px solid rgba(51, 65, 85, 0.85);
+            border-radius: 10px;
+            padding: 7px 9px;
+            font-size: 11px;
+            color: #cbd5e1;
+            background: rgba(15, 23, 42, 0.7);
+            opacity: 0.42;
+            transform: translateY(4px);
+            transition: opacity 350ms ease, transform 350ms ease, border-color 350ms ease, box-shadow 350ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rag-kb-item.is-found {
+            opacity: 1;
+            transform: translateY(0);
+            border-color: rgba(20, 184, 166, 0.75);
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: 0 4px 18px rgba(20, 184, 166, 0.15);
+        }
+
+        .rag-kb-item.is-dimmed {
+            opacity: 0.28;
+            filter: grayscale(0.5);
+        }
+
+        .rag-kb-highlight {
+            background: rgba(20, 184, 166, 0.2);
+            color: #5eead4;
+            border-radius: 4px;
+            padding: 1px 4px;
+            font-weight: 600;
+            animation: highlightGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes highlightGlow {
+            0% { background: rgba(20, 184, 166, 0.15); color: #5eead4; }
+            100% { background: rgba(20, 184, 166, 0.35); color: #ccfbf1; text-shadow: 0 0 8px rgba(45, 212, 191, 0.5); }
+        }
+
+        .rag-scanner-sweep {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #2dd4bf 50%, transparent);
+            box-shadow: 0 0 10px #2dd4bf, 0 0 20px #14b8a6;
+            z-index: 5;
+            pointer-events: none;
+            animation: scanRadar 1.8s ease-in-out infinite;
+        }
+
+        @keyframes scanRadar {
+            0% { top: 0; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .rag-reasoning-step {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.6);
+            font-size: 10.5px;
+            color: #94a3b8;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            transition: all 300ms ease;
+        }
+
+        .rag-reasoning-step.is-done {
+            background: rgba(168, 85, 247, 0.12);
+            border-color: rgba(168, 85, 247, 0.4);
+            color: #e9d5ff;
+        }
+
+        .rag-output-bubble {
+            border-radius: 14px 14px 14px 4px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 10px 12px;
+            color: #d1fae5;
+            font-size: 11.5px;
+            line-height: 1.45;
+            min-height: 74px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
+        }
+
+        .rag-flow-cursor {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 30;
+            width: 28px;
+            height: 28px;
+            color: #f8fafc;
+            filter: drop-shadow(0 10px 18px rgba(2, 6, 23, 0.75));
+            transform: translate3d(var(--cursor-x, 112px), var(--cursor-y, 194px), 0);
+            transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease;
+            pointer-events: none;
+        }
+
+        .rag-flow-cursor::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            border: 2px solid #38bdf8;
+            opacity: 0;
+            transform: scale(0.3);
+        }
+
+        .rag-flow-cursor.is-clicking::after {
+            animation: ragClickRing 750ms ease-out;
+        }
+
+        @keyframes ragClickRing {
+            0% { opacity: 1; transform: scale(0.3); border-color: #38bdf8; }
+            100% { opacity: 0; transform: scale(3.2); border-color: #0284c7; }
+        }
+
+        .react-flow__edge-path.rag-edge-active,
+        .rag-edge-active .react-flow__edge-path {
+            filter: drop-shadow(0 0 9px currentColor);
+            stroke-dasharray: 8 6;
+            animation: ragEdgeMove 1200ms linear infinite;
+        }
+
+        @keyframes ragEdgeMove {
+            to { stroke-dashoffset: -28; }
+        }
+
+        .rag-flow-canvas {
+            background: #020617;
+            -webkit-mask-image: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(0, 0, 0, 0.2) 6%,
+                #000 18%,
+                #000 82%,
+                rgba(0, 0, 0, 0.2) 94%,
+                transparent 100%
+            );
+            mask-image: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(0, 0, 0, 0.2) 6%,
+                #000 18%,
+                #000 82%,
+                rgba(0, 0, 0, 0.2) 94%,
+                transparent 100%
+            );
+        }
+
+        html:not(.dark) #alur-rag {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 46%, #ffffff 100%);
+        }
+
+        html:not(.dark) .rag-flow-shell,
+        html:not(.dark) .rag-flow-canvas {
+            background: transparent;
+        }
+
+        html:not(.dark) .rag-flow-stage {
+            --rag-fade-bg: #f8fafc;
+        }
+
+        html:not(.dark) .rag-node {
+            border-color: rgba(203, 213, 225, 0.95);
+            background: linear-gradient(155deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.98));
+            color: #334155;
+            box-shadow: 0 18px 52px rgba(15, 23, 42, 0.12);
+        }
+
+        html:not(.dark) .rag-node.is-active {
+            border-color: var(--node-accent, #14b8a6);
+            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.14), 0 0 0 1px color-mix(in srgb, var(--node-accent, #14b8a6) 50%, transparent);
+        }
+
+        html:not(.dark) .rag-node.is-complete {
+            border-color: rgba(20, 184, 166, 0.35);
+            box-shadow: 0 14px 40px rgba(15, 23, 42, 0.1);
+        }
+
+        html:not(.dark) .rag-node-header {
+            border-bottom-color: rgba(203, 213, 225, 0.9);
+        }
+
+        html:not(.dark) .rag-node-title {
+            color: #0f172a;
+        }
+
+        html:not(.dark) .rag-node-subtitle {
+            color: #64748b;
+        }
+
+        html:not(.dark) .rag-input-box {
+            border-color: rgba(203, 213, 225, 0.95);
+            background: rgba(255, 255, 255, 0.96);
+            color: #334155;
+        }
+
+        html:not(.dark) .rag-kb-item {
+            border-color: rgba(203, 213, 225, 0.9);
+            background: rgba(255, 255, 255, 0.74);
+            color: #475569;
+        }
+
+        html:not(.dark) .rag-kb-item.is-found {
+            border-color: rgba(20, 184, 166, 0.65);
+            background: rgba(240, 253, 250, 0.92);
+            box-shadow: 0 8px 24px rgba(20, 184, 166, 0.12);
+        }
+
+        html:not(.dark) .rag-kb-highlight {
+            background: rgba(20, 184, 166, 0.14);
+            color: #0f766e;
+        }
+
+        html:not(.dark) .rag-scanner-sweep {
+            background: linear-gradient(90deg, transparent, #0d9488 50%, transparent);
+            box-shadow: 0 0 10px rgba(13, 148, 136, 0.55), 0 0 20px rgba(20, 184, 166, 0.35);
+        }
+
+        html:not(.dark) .rag-reasoning-step {
+            background: rgba(248, 250, 252, 0.86);
+            border-color: rgba(203, 213, 225, 0.9);
+            color: #64748b;
+        }
+
+        html:not(.dark) .rag-reasoning-step.is-done {
+            background: rgba(168, 85, 247, 0.1);
+            border-color: rgba(168, 85, 247, 0.3);
+            color: #6b21a8;
+        }
+
+        html:not(.dark) .rag-output-bubble {
+            background: rgba(236, 253, 245, 0.92);
+            border-color: rgba(16, 185, 129, 0.38);
+            color: #065f46;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
+        }
+
+        html:not(.dark) .rag-flow-cursor {
+            color: #0f172a;
+            filter: drop-shadow(0 10px 16px rgba(15, 23, 42, 0.24));
+        }
+
+        html:not(.dark) .rag-node .text-slate-200,
+        html:not(.dark) .rag-node .text-emerald-100 {
+            color: #334155 !important;
+        }
+
+        html:not(.dark) .rag-node .text-slate-400,
+        html:not(.dark) .rag-node .text-slate-500 {
+            color: #64748b !important;
+        }
+
+        html:not(.dark) .rag-node .text-slate-600 {
+            color: #94a3b8 !important;
+        }
+
+        html:not(.dark) .rag-node .bg-slate-900\/90,
+        html:not(.dark) .rag-node .bg-slate-900\/80 {
+            background-color: rgba(255, 255, 255, 0.82) !important;
+        }
+
+        html:not(.dark) .rag-node .bg-slate-800 {
+            background-color: #e2e8f0 !important;
+        }
+
+        html:not(.dark) .rag-node .border-slate-800,
+        html:not(.dark) .rag-node .border-slate-700\/50,
+        html:not(.dark) .rag-node .border-slate-700\/60 {
+            border-color: rgba(203, 213, 225, 0.9) !important;
+        }
+
+        html:not(.dark) .rag-node .bg-slate-500 {
+            background-color: #94a3b8 !important;
+        }
+
+        @media (max-width: 768px) {
+            .rag-flow-shell {
+                height: 420px;
+                min-height: 420px;
+            }
+
+            .rag-flow-stage {
+                margin-left: -1rem;
+                margin-right: -1rem;
+            }
+
+            .rag-flow-stage::before,
+            .rag-flow-stage::after {
+                width: 96px;
+            }
+
+            .rag-flow-canvas {
+                -webkit-mask-image: linear-gradient(
+                    90deg,
+                    transparent 0%,
+                    rgba(0, 0, 0, 0.18) 8%,
+                    #000 26%,
+                    #000 74%,
+                    rgba(0, 0, 0, 0.18) 92%,
+                    transparent 100%
+                );
+                mask-image: linear-gradient(
+                    90deg,
+                    transparent 0%,
+                    rgba(0, 0, 0, 0.18) 8%,
+                    #000 26%,
+                    #000 74%,
+                    rgba(0, 0, 0, 0.18) 92%,
+                    transparent 100%
+                );
+            }
+
+            .rag-node {
+                width: 245px;
+                min-height: 185px;
+                padding: 12px;
+            }
+
+            .rag-flow-cursor {
+                width: 24px;
+                height: 24px;
+            }
         }
     </style>
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+            // Update ikon tema dengan delay singkat agar transisi terlihat
+            setTimeout(() => {
+                updateThemeIcons();
+            }, 10);
+        }
+
+        function updateThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark');
+            document.querySelectorAll('.theme-icon-dark').forEach(el => el.style.display = isDark ? 'block' : 'none');
+            document.querySelectorAll('.theme-icon-light').forEach(el => el.style.display = isDark ? 'none' : 'block');
+        }
+    </script>
 </head>
+<body class="bg-gray-50 text-gray-900 dark:bg-slate-950 dark:text-gray-100 antialiased selection:bg-brand-500 selection:text-white transition-colors duration-300 relative overflow-x-hidden">
 
-<body class="bg-white text-slate-900 font-sans antialiased selection:bg-slate-200 selection:text-slate-900">
+    <!-- Background Elements (Clean Grid) -->
+    <div class="fixed inset-0 z-[-1] pointer-events-none">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] dark:bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)]"></div>
+        <div class="absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-brand-50/50 to-transparent dark:from-brand-950/20 dark:to-transparent"></div>
+    </div>
 
-    <!-- NAVBAR -->
-    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100" x-data="{ open: false }">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <!-- Logo -->
-            <a href="#" class="flex items-center gap-2 font-bold text-xl tracking-tight text-slate-900">
-                <div class="w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center text-sm">
-                    <i class="fa-solid fa-bolt"></i>
+    <nav class="fixed w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="/" class="flex items-center gap-2 cursor-pointer group">
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center transition-transform group-hover:scale-105 group-hover:animate-icon-wiggle">
+                        <i data-lucide="bot" class="text-white w-5 h-5"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-slate-900 dark:text-white">Cekat<span class="text-brand-600 dark:text-brand-400">.biz.id</span></span>
+                </a>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:block">
+                    <div class="flex items-baseline space-x-6">
+                        <a href="#fitur" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">Fitur</a>
+                        <a href="#cara-kerja" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">Cara Kerja</a>
+                        <a href="#harga" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">Harga</a>
+                    </div>
                 </div>
-                Cekat<span class="text-slate-400 font-normal">.biz.id</span>
-            </a>
 
-            <!-- Desktop Links -->
-            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-                <a href="#features" class="hover:text-slate-900 transition">Fitur</a>
-                <a href="playground.html" class="hover:text-slate-900 transition">Demo</a>
-                <a href="#pricing" class="hover:text-slate-900 transition">Harga</a>
+                <div class="hidden md:flex items-center gap-4">
+                    <!-- Theme Toggle Button -->
+                    <button onclick="toggleTheme()" class="group text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors focus:outline-none">
+                        <div class="theme-icon-dark hidden group-hover:text-brand-400 group-hover:animate-icon-pulse"><i data-lucide="moon" class="w-4 h-4"></i></div>
+                        <div class="theme-icon-light block group-hover:text-brand-600 group-hover:animate-icon-pulse"><i data-lucide="sun" class="w-4 h-4"></i></div>
+                    </button>
+                    
+                    @auth
+                        <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition-colors group flex items-center gap-2">
+                            Dashboard
+                            <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                        </a>
+                    @else
+                        <a href="/login" class="text-gray-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white font-medium text-sm transition-colors">Masuk</a>
+                        <a href="/register" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition-colors group flex items-center gap-2">
+                            Buat Bot Anda
+                            <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                        </a>
+                    @endauth
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center gap-2">
+                    <button onclick="toggleTheme()" class="text-gray-500 dark:text-gray-400 p-2 focus:outline-none">
+                        <div class="theme-icon-dark hidden"><i data-lucide="moon" class="w-5 h-5"></i></div>
+                        <div class="theme-icon-light block"><i data-lucide="sun" class="w-5 h-5"></i></div>
+                    </button>
+                    <button type="button" class="text-gray-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white focus:outline-none p-2" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
             </div>
-
-            <!-- CTA -->
-            <div class="hidden md:flex items-center gap-4">
-                @auth
-                    <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}"
-                        class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition shadow-sm hover:shadow-md">
-                        <i class="fa-solid fa-gauge mr-2"></i>Dashboard
-                    </a>
-                @else
-                    <a href="/login" class="text-sm font-medium text-slate-600 hover:text-slate-900">Sign in</a>
-                    <a href="/register"
-                        class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition shadow-sm hover:shadow-md">
-                        Buat Chatbot <i class="fa-solid fa-arrow-right ml-1 text-xs text-slate-400"></i>
-                    </a>
-                @endauth
-            </div>
-
-            <!-- Mobile Menu Button -->
-            <button @click="open = !open" class="md:hidden text-slate-600">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
         </div>
 
         <!-- Mobile Menu -->
-        <div x-show="open" class="md:hidden bg-white border-t border-slate-100 p-4 space-y-4 shadow-lg">
-            <a href="#features" class="block text-slate-600 font-medium">Fitur</a>
-            <a href="#demo" class="block text-slate-600 font-medium">Demo</a>
-            <a href="#pricing" class="block text-slate-600 font-medium">Harga</a>
-            <div class="pt-4 border-t border-slate-100 flex flex-col gap-3">
-                @auth
-                    <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}"
-                        class="bg-slate-900 text-white py-2 rounded-lg text-center font-medium">
-                        <i class="fa-solid fa-gauge mr-2"></i>Dashboard
-                    </a>
-                @else
-                    <a href="/login" class="text-center py-2 text-slate-600 font-medium">Sign in</a>
-                    <a href="/register" class="bg-slate-900 text-white py-2 rounded-lg text-center font-medium">Buat
-                        Chatbot</a>
-                @endauth
+        <div class="md:hidden hidden bg-white dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800" id="mobile-menu">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <a href="#fitur" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">Fitur</a>
+                <a href="#cara-kerja" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">Cara Kerja</a>
+                <a href="#harga" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">Harga</a>
+                <div class="pt-4 flex flex-col gap-3 border-t border-gray-100 dark:border-slate-800">
+                    @auth
+                        <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="text-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-2 rounded-md text-base font-medium flex items-center justify-center gap-2">
+                            Dashboard <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    @else
+                        <a href="/login" class="text-center text-gray-600 dark:text-gray-300 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-base font-medium">Masuk</a>
+                        <a href="/register" class="text-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-2 rounded-md text-base font-medium flex items-center justify-center gap-2">
+                            Buat Bot Anda <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    @endauth
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- HERO SECTION -->
-    <section class="pt-32 pb-20 relative overflow-hidden hero-pattern">
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white pointer-events-none">
-        </div>
-
-        <div class="max-w-5xl mx-auto px-6 text-center relative z-10">
-            <div
-                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-medium text-slate-600 mb-8 animate-fade-in-up">
-                <span class="flex h-2 w-2 rounded-full bg-green-500"></span>
-                Sekarang Support GPT-4o
-            </div>
-
-            <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-tight">
-                Custom ChatGPT untuk <br class="hidden md:block" />
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-500">Data Bisnis
-                    Anda</span>
-            </h1>
-
-            <p class="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-                Bangun chatbot AI yang terlatih dengan data Anda. Upload PDF atau crawl website, dan biarkan AI menjawab
-                pertanyaan pelanggan 24/7.
-            </p>
-
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-                <a href="#"
-                    class="w-full sm:w-auto bg-slate-900 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200">
-                    Coba Gratis Sekarang
-                </a>
-                <a href="playground.html"
-                    class="w-full sm:w-auto bg-white text-slate-700 border border-slate-200 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-slate-50 transition">
-                    Lihat Demo
-                </a>
-            </div>
-
-            <!-- HERO IMAGE / MOCKUP -->
-            <div class="relative max-w-4xl mx-auto rounded-2xl border border-slate-200 shadow-2xl bg-white p-2">
-                <div class="bg-slate-50 rounded-xl overflow-hidden aspect-[16/9] md:aspect-[21/9] relative flex">
-                    <!-- Sidebar Mockup -->
-                    <div class="hidden md:flex w-64 border-r border-slate-200 bg-white flex-col p-4">
-                        <div class="h-8 w-8 bg-slate-900 rounded mb-6"></div>
-                        <div class="space-y-3">
-                            <div class="h-2 w-20 bg-slate-200 rounded"></div>
-                            <div class="h-2 w-32 bg-slate-100 rounded"></div>
-                            <div class="h-2 w-24 bg-slate-100 rounded"></div>
-                        </div>
+    <section class="pt-32 pb-16 lg:pt-40 lg:pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
+                
+                <!-- Hero Text -->
+                <div class="lg:col-span-6 text-center lg:text-left mb-12 lg:mb-0 opacity-0 animate-fade-in-up">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400 border border-brand-100 dark:border-brand-800/50 text-sm font-medium mb-6">
+                        <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                        Didukung oleh GPT-4 & RAG
                     </div>
-                    <!-- Chat Area Mockup (Typewriter & Smooth) -->
-                    <div class="flex-1 flex flex-col bg-white relative rounded-r-xl overflow-hidden" x-data="{
-                        messages: [],
-                        isTyping: false,
-                        
-                        async typeMessage(role, fullText) {
-                            this.isTyping = true;
-                            await this.wait(role === 'user' ? 800 : 1500); 
-                            this.isTyping = false;
-
-                            const msgIndex = this.messages.push({ role: role, text: '', show: true }) - 1;
-                            
-                            const chunkSpeed = 30; 
-                            for (let i = 0; i < fullText.length; i++) {
-                                this.messages[msgIndex].text += fullText.charAt(i);
-                                this.scrollToBottom();
-                                await this.wait(chunkSpeed + Math.random() * 20);
-                            }
-                        },
-
-                        async startDemo() {
-                            await this.wait(1000);
-                            
-                            // 1. AI Greeting (Agentic: Proactive Sales)
-                            await this.typeMessage('ai', 'Halo! 👋 Lagi cari solusi CS otomatis buat bisnis Kakak? Kebetulan kita lagi ada promo **Diskon 50%** khusus hari ini lho! 🤩');
-                            
-                            // 2. User Question
-                            await this.wait(2000);
-                            await this.typeMessage('user', 'Wah serius? Emang fiturnya apa aja kak?');
-                            
-                            // 3. AI Response
-                            await this.wait(1000);
-                            await this.typeMessage('ai', 'Lengkap banget! Udah support **GPT-4o**, bisa baca PDF/Website, dan aktif jualan kayak aku gini. Mau diamankan slot promonya Kak?');
-
-                            // 4. User Follow-up
-                            await this.wait(2000);
-                            await this.typeMessage('user', 'Boleh deh. Caranya gimana?');
-
-                            // 5. AI Response (Agentic: Data Collection)
-                            await this.wait(1000);
-                            await this.typeMessage('ai', 'Gampang! Cukup ketik **Nama** & **Email** Kakak di sini. Nanti Chika buatin akun & kirim vouchernya langsung via email. 🚀');
-                        },
-
-                        scrollToBottom() {
-                            this.$nextTick(() => {
-                                const container = this.$refs.chatContainer;
-                                container.scrollTop = container.scrollHeight;
-                            });
-                        },
-
-                        wait(ms) {
-                            return new Promise(resolve => setTimeout(resolve, ms));
-                        }
-                    }" x-init="startDemo()">
-
-                        <!-- Chat Header -->
-                        <div
-                            class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-                            <div class="flex items-center gap-3">
-                                <div class="relative">
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center border-2 border-white shadow-sm">
-                                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Chika&backgroundColor=c7d2fe"
-                                            alt="Chika" class="w-full h-full rounded-full">
-                                    </div>
-                                    <div
-                                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full">
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-slate-900 text-sm">Chika (CS Support)</div>
-                                    <div class="text-xs text-slate-500 flex items-center gap-1">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span> Online
-                                    </div>
-                                </div>
-                            </div>
-                            <button class="text-slate-400 hover:text-slate-600 transition">
-                                <i class="fa-solid fa-ellipsis-vertical"></i>
-                            </button>
-                        </div>
-
-                        <!-- Messages Container -->
-                        <div x-ref="chatContainer"
-                            class="flex-1 p-6 space-y-6 overflow-y-auto max-h-[350px] scroll-smooth bg-slate-50/50">
-
-                            <template x-for="(msg, index) in messages" :key="index">
-                                <div x-show="msg.show" x-transition:enter="transition ease-out duration-300"
-                                    x-transition:enter-start="opacity-0 translate-y-4"
-                                    x-transition:enter-end="opacity-100 translate-y-0" class="flex gap-3"
-                                    :class="msg.role === 'user' ? 'flex-row-reverse' : ''">
-
-                                    <!-- Avatar (Small for chat) -->
-                                    <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden border border-slate-100 shadow-sm"
-                                        :class="msg.role === 'ai' ? 'bg-indigo-100' : 'bg-slate-200'">
-                                        <template x-if="msg.role === 'ai'">
-                                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Chika&backgroundColor=c7d2fe"
-                                                class="w-full h-full">
-                                        </template>
-                                        <template x-if="msg.role === 'user'">
-                                            <i class="fa-solid fa-user text-slate-500 text-xs"></i>
-                                        </template>
-                                    </div>
-
-                                    <!-- Bubble -->
-                                    <div class="px-4 py-3 rounded-2xl max-w-[85%] shadow-sm text-sm leading-relaxed"
-                                        :class="msg.role === 'ai' ? 'bg-white border border-slate-100 rounded-tl-none text-slate-700' : 'bg-slate-900 rounded-tr-none text-white'">
-                                        <p x-text="msg.text"></p>
-                                    </div>
-                                </div>
-                            </template>
-
-                            <!-- Typing Indicator -->
-                            <div x-show="isTyping" x-transition:enter="transition ease-out duration-200"
-                                x-transition:enter-start="opacity-0 scale-90"
-                                x-transition:enter-end="opacity-100 scale-100" class="flex gap-3">
-                                <div
-                                    class="w-8 h-8 rounded-full bg-indigo-100 flex-shrink-0 overflow-hidden border border-slate-100 shadow-sm">
-                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Chika&backgroundColor=c7d2fe"
-                                        class="w-full h-full">
-                                </div>
-                                <div
-                                    class="bg-white border border-slate-100 px-4 py-3 rounded-2xl rounded-tl-none flex items-center gap-1.5 shadow-sm">
-                                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
-                                        style="animation-delay: 0s"></div>
-                                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
-                                        style="animation-delay: 0.15s"></div>
-                                    <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
-                                        style="animation-delay: 0.3s"></div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <!-- Input Mockup -->
-                        <div class="p-4 border-t border-slate-100 bg-white">
-                            <div
-                                class="bg-slate-50 border border-slate-200 rounded-full h-12 w-full flex items-center px-5 text-slate-400 text-sm justify-between shadow-inner">
-                                <span x-show="!isTyping">Ketik pesan...</span>
-                                <span x-show="isTyping && messages.length % 2 !== 0"
-                                    class="text-slate-300 italic text-xs">User sedang mengetik...</span>
-                                <i class="fa-solid fa-paper-plane text-slate-300"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Floating Card 1 (Relocated) -->
-                <div
-                    class="absolute -left-6 bottom-10 bg-white p-4 rounded-xl shadow-xl border border-slate-100 w-64 hidden lg:block animate-pulse">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600"><i
-                                class="fa-solid fa-database"></i></div>
-                        <div>
-                            <div class="text-sm font-bold text-slate-800">Knowledge Base</div>
-                            <div class="text-xs text-slate-400">Syncing with PDF...</div>
-                        </div>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                        <div class="bg-blue-600 h-1.5 rounded-full animate-progress-indeterminate"></div>
-                    </div>
-                </div>
-            </div>
-
-            <style>
-                @keyframes progress-indeterminate {
-                    0% {
-                        width: 0%;
-                        margin-left: 0%;
-                    }
-
-                    50% {
-                        width: 70%;
-                        margin-left: 30%;
-                    }
-
-                    100% {
-                        width: 0%;
-                        margin-left: 100%;
-                    }
-                }
-
-                .animate-progress-indeterminate {
-                    animation: progress-indeterminate 2s infinite linear;
-                }
-            </style>
-        </div>
-    </section>
-
-    <!-- LOGOS -->
-    <section class="py-10 border-y border-slate-50">
-        <div class="max-w-7xl mx-auto px-6 text-center">
-            <p class="text-sm text-slate-500 font-medium mb-8">DIPERCAYA OLEH TIM INOVATIF</p>
-            <div
-                class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                <i class="fa-brands fa-google text-2xl"></i>
-                <i class="fa-brands fa-aws text-2xl"></i>
-                <i class="fa-brands fa-microsoft text-2xl"></i>
-                <i class="fa-brands fa-spotify text-2xl"></i>
-                <i class="fa-brands fa-airbnb text-2xl"></i>
-            </div>
-        </div>
-    </section>
-
-    <!-- FEATURES GRID -->
-    <section id="features" class="py-24 bg-slate-50">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Chatbot Pintar dalam hitungan menit</h2>
-                <p class="text-lg text-slate-600">Tanpa coding. Tanpa setup server yang rumit. Fokus pada bisnis Anda.
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="glass-card p-8 rounded-2xl hover:shadow-lg transition duration-300">
-                    <div
-                        class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-xl mb-6">
-                        <i class="fa-solid fa-database"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Multi Data Source</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        Import data dari berbagai sumber: Upload PDF, text file, docx, atau cukup masukkan link website
-                        Anda untuk di-crawl otomatis.
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-white leading-[1.1]">
+                        Ubah Data Anda Menjadi <br class="hidden lg:block"/>
+                        <span class="text-brand-600 dark:text-brand-400">AI Chatbot Cerdas</span>
+                    </h1>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                        Unggah dokumen, tautan website, atau basis pengetahuan Anda. Kami akan melatih asisten AI kustom yang memahami bisnis Anda sepenuhnya untuk melayani pelanggan 24/7.
                     </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        @auth
+                            <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="group bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                                Mulai Gratis <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        @else
+                            <a href="/register" class="group bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                                Mulai Gratis <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                            </a>
+                        @endauth
+                        <a href="#cara-kerja" class="group bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-sm">
+                            <i data-lucide="play" class="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-brand-500 transition-colors"></i> Lihat Demo
+                        </a>
+                    </div>
+                    <div class="mt-8 flex items-center justify-center lg:justify-start gap-6 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500"></i> Tanpa perlu coding
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500"></i> Mudah disematkan
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Interactive Chat Simulation -->
+                <div class="lg:col-span-6 relative lg:pl-10 opacity-0 animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="relative rounded-xl bg-white dark:bg-slate-900 overflow-hidden shadow-xl border border-gray-200 dark:border-slate-800 flex flex-col h-[400px]">
+                        <!-- Chat Header -->
+                        <div class="bg-gray-50 dark:bg-slate-950 px-5 py-4 border-b border-gray-200 dark:border-slate-800 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/50 flex items-center justify-center text-brand-600 dark:text-brand-400 relative">
+                                <i data-lucide="bot" class="w-5 h-5 animate-icon-wiggle"></i>
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-900 dark:text-white text-sm">Asisten AI Cekat</h3>
+                                <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                    Sedang membalas...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Body -->
+                        <div class="p-5 flex-1 overflow-y-auto flex flex-col gap-5 bg-white dark:bg-slate-900 scroll-smooth" id="chat-simulation">
+                            <!-- Initial Bot Message -->
+                            <div class="flex gap-3 max-w-[85%]">
+                                <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/50 flex-shrink-0 flex items-center justify-center mt-1 text-brand-600 dark:text-brand-400">
+                                    <i data-lucide="bot" class="w-4 h-4"></i>
+                                </div>
+                                <div class="bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 p-3.5 rounded-2xl rounded-tl-none text-sm border border-gray-200 dark:border-slate-700">
+                                    Halo! Saya telah dilatih menggunakan dokumentasi Cekat. Ada yang bisa saya bantu terkait pembuatan AI kustom Anda hari ini?
+                                </div>
+                            </div>
+                            <!-- Pesan dinamis akan dimuat oleh JS -->
+                        </div>
+
+                        <!-- Chat Input -->
+                        <div class="p-4 bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800">
+                            <div class="relative group">
+                                <input type="text" id="hero-chat-input" aria-label="Tanyakan sesuatu" placeholder="Tanyakan sesuatu..." class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg py-2.5 pl-4 pr-12 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm" disabled>
+                                <button class="absolute right-2 top-1.5 w-8 h-8 bg-brand-600 rounded-md flex items-center justify-center text-white opacity-50 cursor-not-allowed transition-colors">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Clean Floating Badge -->
+                    <div class="absolute -bottom-5 -left-5 bg-white dark:bg-slate-800 p-3 rounded-lg flex items-center gap-3 shadow-lg border border-gray-200 dark:border-slate-700 group cursor-default">
+                        <div class="w-10 h-10 bg-emerald-50 dark:bg-emerald-500/10 rounded-md flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-500/20 transition-colors">
+                            <i data-lucide="file-text" class="w-5 h-5 group-hover:animate-icon-bounce"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Dilatih menggunakan</p>
+                            <p class="text-sm font-bold text-slate-900 dark:text-white">1,240+ Dokumen</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="py-10 border-y border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-6 tracking-widest uppercase">Mendukung otomatisasi untuk tim inovatif</p>
+            <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-300">
+                <div class="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-300 group"><i data-lucide="cloud" class="w-6 h-6 group-hover:text-blue-500 transition-colors"></i> CloudServe</div>
+                <div class="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-300 group"><i data-lucide="hash" class="w-6 h-6 group-hover:text-purple-500 transition-colors"></i> TeamSync</div>
+                <div class="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-300 group"><i data-lucide="credit-card" class="w-6 h-6 group-hover:text-indigo-500 transition-colors"></i> PayFlow</div>
+                <div class="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-300 group"><i data-lucide="code-2" class="w-6 h-6 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"></i> CodeForge</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="fitur" class="py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">Mengapa Memilih Cekat</h2>
+                <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">Semua yang Anda butuhkan untuk membangun agen AI cerdas</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">Kami menyederhanakan proses kompleks integrasi LLM. Cukup hubungkan data Anda, sesuaikan tampilannya, dan terapkan.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                <!-- Feature 1 -->
+                <div class="group bg-white dark:bg-slate-900 p-8 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-500/20 transition-colors">
+                        <i data-lucide="database" class="w-6 h-6 group-hover:animate-icon-bounce"></i>
+                    </div>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Integrasi Multi-Sumber</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Unggah PDF, dokumen Word, teks, atau cukup salin tautan URL. Kami akan mengekstrak dan memproses data untuk melatih model Anda.</p>
                 </div>
 
                 <!-- Feature 2 -->
-                <div class="glass-card p-8 rounded-2xl hover:shadow-lg transition duration-300">
-                    <div
-                        class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 text-xl mb-6">
-                        <i class="fa-solid fa-paintbrush"></i>
+                <div class="group bg-white dark:bg-slate-900 p-8 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-lg bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center mb-6 text-brand-600 dark:text-brand-400 group-hover:bg-brand-100 dark:group-hover:bg-brand-500/20 transition-colors">
+                        <i data-lucide="wand-2" class="w-6 h-6 group-hover:animate-icon-wiggle"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Custom Branding</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        Sesuaikan tampilan widget dengan warna brand Anda. Upload logo custom, ubah pesan pembuka, dan
-                        hilangkan watermark.
-                    </p>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Prompting Lanjutan</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Kendalikan persona bot Anda. Berikan instruksi untuk bertindak sebagai agen CS, tenaga penjualan, atau pemandu teknis.</p>
                 </div>
 
                 <!-- Feature 3 -->
-                <div class="glass-card p-8 rounded-2xl hover:shadow-lg transition duration-300">
-                    <div
-                        class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 text-xl mb-6">
-                        <i class="fa-solid fa-code"></i>
+                <div class="group bg-white dark:bg-slate-900 p-8 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-lg bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center mb-6 text-purple-600 dark:text-purple-400 group-hover:bg-purple-100 dark:group-hover:bg-purple-500/20 transition-colors">
+                        <i data-lucide="code" class="w-6 h-6 group-hover:animate-icon-pulse"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-900 mb-3">Mudah Di-embed</h3>
-                    <p class="text-slate-600 leading-relaxed">
-                        Cukup copy-paste satu baris kode script ke website Anda (WordPress, Shopify, Webflow, dll) dan
-                        chatbot langsung aktif.
-                    </p>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Mudah Disematkan</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Salin dan tempel satu baris kode JavaScript untuk menambahkan widget obrolan ke WordPress, Shopify, atau situs web kustom apa pun.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="group bg-white dark:bg-slate-900 p-8 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-lg bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center mb-6 text-orange-600 dark:text-orange-400 group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 transition-colors">
+                        <i data-lucide="line-chart" class="w-6 h-6 group-hover:animate-icon-bounce"></i>
+                    </div>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Dasbor Analitik</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Pantau pertanyaan pengguna Anda. Lacak tingkat penyelesaian, pertanyaan umum, dan identifikasi celah dalam dokumentasi Anda dengan mudah.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="group bg-white dark:bg-slate-900 p-8 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-lg bg-pink-50 dark:bg-pink-500/10 flex items-center justify-center mb-6 text-pink-600 dark:text-pink-400 group-hover:bg-pink-100 dark:group-hover:bg-pink-500/20 transition-colors">
+                        <i data-lucide="globe" class="w-6 h-6 group-hover:animate-spin"></i>
+                    </div>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Dukungan Multi-Bahasa</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Berikan dukungan secara global. AI kami secara otomatis mendeteksi bahasa pengguna dan membalas secara akurat di lebih dari 90 bahasa.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="group bg-white dark:bg-slate-900 p-8 rounded-xl border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 text-slate-600 dark:text-slate-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
+                        <i data-lucide="shield-check" class="w-6 h-6 group-hover:animate-icon-pulse"></i>
+                    </div>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Keamanan Kelas Perusahaan</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Data Anda tetap milik Anda. Kami menggunakan database vektor terisolasi dan tidak pernah melatih model publik menggunakan data pribadi Anda.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- HOW IT WORKS -->
-    <section class="py-24 bg-white overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col md:flex-row items-center gap-16">
-                <div class="md:w-1/2">
-                    <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Latih AI dengan Brand Voice Anda</h2>
-                    <p class="text-lg text-slate-600 mb-8 leading-relaxed">
-                        Bukan sekadar chatbot biasa. Anda bisa memberikan instruksi spesifik ("System Prompt") agar AI
-                        menjawab dengan gaya bahasa yang santai, formal, atau persuasif sesuai persona brand Anda.
-                    </p>
-
+    <section id="cara-kerja" class="py-20 lg:py-28 bg-gray-100/50 dark:bg-slate-900/30 border-y border-gray-200 dark:border-slate-800 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:flex lg:items-center lg:justify-between gap-16">
+                
+                <div class="lg:w-1/2 mb-12 lg:mb-0">
+                    <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">Proses Sederhana</h2>
+                    <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">Dari data mentah menjadi chatbot dalam hitungan menit.</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-lg mb-10">Platform kami menangani alur kerja RAG (Retrieval-Augmented Generation) yang kompleks untuk Anda tanpa perlu menulis baris kode.</p>
+                    
                     <div class="space-y-4">
-                        <div class="flex items-start gap-4">
-                            <div
-                                class="mt-1 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                1</div>
+                        <!-- Step 1 Tab -->
+                        <div id="step-tab-1" onclick="switchStep(1)" class="cursor-pointer flex gap-4 p-5 rounded-xl border border-brand-500 bg-white dark:bg-slate-900 shadow-md transition-all group">
+                            <div id="step-num-1" class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm transition-colors">1</div>
                             <div>
-                                <h4 class="font-bold text-slate-900">Upload Dokumen</h4>
-                                <p class="text-slate-600 text-sm">PDF, Docx, CSV, atau URL Website.</p>
+                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white transition-colors">Hubungkan Pengetahuan Anda</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Unggah berkas (PDF, DOCX) atau berikan URL website. Sistem kami akan mengekstrak informasi ke dalam format vektor.</p>
                             </div>
                         </div>
-                        <div class="flex items-start gap-4">
-                            <div
-                                class="mt-1 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                2</div>
+
+                        <!-- Step 2 Tab -->
+                        <div id="step-tab-2" onclick="switchStep(2)" class="cursor-pointer flex gap-4 p-5 rounded-xl border border-transparent hover:bg-white/50 dark:hover:bg-slate-900/50 transition-all group">
+                            <div id="step-num-2" class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-gray-300 dark:border-slate-700 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold text-sm transition-colors group-hover:border-brand-500 group-hover:text-brand-500">2</div>
                             <div>
-                                <h4 class="font-bold text-slate-900">Kustomisasi Prompt</h4>
-                                <p class="text-slate-600 text-sm">"Kamu adalah CS yang ramah. Jawab dalam Bahasa
-                                    Indonesia..."</p>
+                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Sesuaikan Tampilan & Aturan</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Atur warna merek, avatar bot, salam pembuka, serta instruksi perilaku spesifik agar sesuai dengan persona brand.</p>
                             </div>
                         </div>
-                        <div class="flex items-start gap-4">
-                            <div
-                                class="mt-1 w-6 h-6 bg-slate-900 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                3</div>
+
+                        <!-- Step 3 Tab -->
+                        <div id="step-tab-3" onclick="switchStep(3)" class="cursor-pointer flex gap-4 p-5 rounded-xl border border-transparent hover:bg-white/50 dark:hover:bg-slate-900/50 transition-all group">
+                            <div id="step-num-3" class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-gray-300 dark:border-slate-700 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold text-sm transition-colors group-hover:border-brand-500 group-hover:text-brand-500">3</div>
                             <div>
-                                <h4 class="font-bold text-slate-900">Deploy</h4>
-                                <p class="text-slate-600 text-sm">Pasang widget di website atau integrasi ke API.</p>
+                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Sematkan dan Bagikan</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Dapatkan kode widget obrolan mengambang, atau tautan publik unik untuk langsung dibagikan dengan audiens Anda.</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="md:w-1/2 relative">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl opacity-10 transform rotate-3 scale-105">
-                    </div>
-                    <div class="bg-slate-900 p-8 rounded-3xl relative shadow-2xl border border-slate-800">
-                        <div class="flex gap-2 mb-6">
-                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <div class="lg:w-1/2 relative select-none">
+                    <!-- Dashboard Mockup Frame -->
+                    <div class="bg-white dark:bg-slate-950 rounded-xl border border-gray-200 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col h-[450px]">
+                        <!-- Mac header -->
+                        <div class="bg-gray-100 dark:bg-slate-900 px-4 py-3 flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 relative z-20">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-emerald-400"></div>
+                            <div class="mx-auto text-xs text-gray-500 font-medium font-mono flex items-center gap-1">
+                                <i data-lucide="shield-check" class="w-3 h-3"></i> cekat.biz.id/dasbor
+                            </div>
                         </div>
-                        <div class="space-y-4 font-mono text-sm">
-                            <div class="text-slate-400">// System Prompt</div>
-                            <div class="text-purple-400">const<span class="text-white"> persona</span> = <span
-                                    class="text-green-400">"Customer Service Specialist"</span>;</div>
-                            <div class="text-purple-400">const<span class="text-white"> tone</span> = <span
-                                    class="text-green-400">"Friendly, Helpful, and Professional"</span>;</div>
-                            <div class="text-purple-400">const<span class="text-white"> knowledge</span> = <span
-                                    class="text-blue-400">[...uploadedDocs]</span>;</div>
-                            <div class="text-slate-500 pt-2">/* AI siap menjawab pertanyaan user berdasarkan data di
-                                atas tanpa halusinasi. */</div>
+                        
+                        <!-- Interactive Canvas -->
+                        <div class="relative flex-1 bg-white dark:bg-slate-950 overflow-hidden" id="animation-canvas">
+                            
+                            <!-- Fake Cursor -->
+                            <div id="demo-cursor" class="absolute z-[60] text-slate-900 dark:text-white transition-all duration-[600ms] ease-in-out pointer-events-none opacity-0 drop-shadow-md" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                <i data-lucide="mouse-pointer-2" class="w-6 h-6 fill-white dark:fill-slate-900 -rotate-12"></i>
+                                <div id="cursor-click-effect" class="absolute top-0 left-0 w-6 h-6 bg-brand-500 rounded-full opacity-0 scale-0 transition-all duration-300 -z-10"></div>
+                            </div>
+
+                            <!-- View 1: Upload (Visible by default) -->
+                            <div id="view-1" class="absolute inset-0 p-6 flex flex-col transition-opacity duration-300 opacity-100 z-10">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h5 class="font-bold text-slate-900 dark:text-white flex items-center gap-2"><i data-lucide="database" class="w-4 h-4 text-brand-500"></i> Sumber Data</h5>
+                                </div>
+                                <div class="relative flex-1 flex items-center justify-center">
+                                    <!-- Draggable Mock File -->
+                                    <div id="drag-file" class="absolute bg-white dark:bg-slate-800 px-4 py-3 rounded-lg shadow-xl border border-gray-200 dark:border-slate-700 flex items-center gap-3 transition-all duration-[600ms] ease-in-out z-50 opacity-0 scale-90" style="top: -20px; left: -20px;">
+                                        <div class="p-2 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-md"><i data-lucide="file-text" class="w-5 h-5"></i></div>
+                                        <div>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">panduan_produk.pdf</div>
+                                            <div class="text-xs text-gray-500">2.4 MB</div>
+                                        </div>
+                                    </div>
+                                    <!-- Dropzone -->
+                                    <div id="dropzone" class="w-full h-full border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center bg-gray-50/50 dark:bg-slate-900/50 transition-colors duration-300">
+                                        <div id="dropzone-content" class="text-center transition-opacity duration-300">
+                                            <div class="w-12 h-12 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm text-gray-400">
+                                                <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+                                            </div>
+                                            <p class="text-sm font-medium text-slate-900 dark:text-white">Tarik & Lepas file Anda ke sini</p>
+                                            <p class="text-xs text-gray-500 mt-1">Mendukung PDF, DOCX, CSV</p>
+                                        </div>
+                                        <!-- Uploading State -->
+                                        <div id="upload-state" class="absolute inset-0 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                                            <i data-lucide="loader-2" class="w-8 h-8 text-brand-500 animate-spin mb-4"></i>
+                                            <p id="upload-text" class="text-sm font-medium text-slate-900 dark:text-white">Mengekstrak Vektor...</p>
+                                            <div class="w-48 h-2 bg-gray-200 dark:bg-slate-800 rounded-full mt-3 overflow-hidden">
+                                                <div id="upload-progress" class="h-full bg-brand-500 w-0 transition-all duration-[2000ms] ease-out"></div>
+                                            </div>
+                                        </div>
+                                        <!-- Success State -->
+                                        <div id="success-state" class="absolute inset-0 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                                            <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mb-3">
+                                                <i data-lucide="check" class="w-6 h-6"></i>
+                                            </div>
+                                            <p class="text-sm font-medium text-slate-900 dark:text-white">Data Berhasil Dilatih!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- View 2: Customize (Hidden by default) -->
+                            <div id="view-2" class="absolute inset-0 p-6 flex transition-opacity duration-300 opacity-0 pointer-events-none z-10 gap-6">
+                                <!-- Settings Panel -->
+                                <div class="w-1/2 flex flex-col space-y-5">
+                                    <h5 class="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-2"><i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i> Kustomisasi</h5>
+                                    
+                                    <div>
+                                        <label for="mock-input-name" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Nama Bot</label>
+                                        <div class="relative">
+                                            <input type="text" id="mock-input-name" value="Bot Bawaan" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-md py-2 px-3 text-sm text-slate-900 dark:text-white focus:outline-none pointer-events-none" readonly>
+                                            <div id="input-cursor-name" class="absolute top-2.5 left-[85px] w-0.5 h-4 bg-brand-500 animate-pulse hidden"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <p class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Warna Tema</p>
+                                        <div class="flex gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-slate-900 border-2 border-transparent relative"><i data-lucide="check" class="absolute inset-0 m-auto w-4 h-4 text-white"></i></div>
+                                            <div id="color-target-purple" class="w-8 h-8 rounded-full bg-purple-600 border-2 border-transparent"></div>
+                                            <div class="w-8 h-8 rounded-full bg-blue-600 border-2 border-transparent"></div>
+                                            <div class="w-8 h-8 rounded-full bg-rose-600 border-2 border-transparent"></div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <p class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Pesan Pembuka</p>
+                                        <div class="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-md p-2 text-xs text-gray-600 dark:text-gray-300 h-16 pointer-events-none">
+                                            <span id="mock-greeting-text">Hai! Ada yang bisa dibantu?</span><span id="input-cursor-greeting" class="w-0.5 h-3 bg-brand-500 inline-block align-middle ml-0.5 hidden animate-pulse"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Preview Panel -->
+                                <div class="w-1/2 border-l border-gray-200 dark:border-slate-800 pl-6 flex flex-col justify-end">
+                                    <div class="border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-md flex-col flex h-[280px]">
+                                        <div id="mock-chat-header" class="bg-slate-900 px-3 py-2.5 flex items-center gap-2 transition-colors duration-500">
+                                            <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white"><i data-lucide="bot" class="w-3 h-3"></i></div>
+                                            <span id="mock-chat-title" class="text-white text-xs font-medium">Bot Bawaan</span>
+                                        </div>
+                                        <div class="flex-1 bg-gray-50 dark:bg-slate-900/50 p-3 flex flex-col gap-2">
+                                            <div class="bg-gray-200 dark:bg-slate-800 p-2.5 rounded-lg rounded-tl-none w-[85%]">
+                                                <p id="mock-chat-greeting" class="text-[10px] text-gray-700 dark:text-gray-300">Hai! Ada yang bisa dibantu?</p>
+                                            </div>
+                                        </div>
+                                        <div class="p-2 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+                                            <div class="h-6 bg-gray-100 dark:bg-slate-900 rounded-md w-full border border-gray-200 dark:border-slate-800"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- View 3: Embed (Hidden by default) -->
+                            <div id="view-3" class="absolute inset-0 p-6 flex flex-col items-center justify-center transition-opacity duration-300 opacity-0 pointer-events-none z-10">
+                                <div class="w-full max-w-sm">
+                                    <div class="text-center mb-6">
+                                        <div class="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                            <i data-lucide="code" class="w-6 h-6"></i>
+                                        </div>
+                                        <h5 class="font-bold text-slate-900 dark:text-white">Tambahkan ke Website Anda</h5>
+                                        <p class="text-xs text-gray-500 mt-1">Salin kode ini dan tempel di dalam tag &lt;head&gt;.</p>
+                                    </div>
+                                    
+                                    <div class="relative group">
+                                        <div class="absolute inset-0 bg-gradient-to-r from-brand-500 to-blue-500 rounded-lg blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                                        <div class="relative bg-slate-900 rounded-lg border border-slate-700 p-4 font-mono text-[10px] text-emerald-400 overflow-hidden shadow-2xl">
+                                            <div class="flex items-center gap-1.5 mb-2 border-b border-slate-700 pb-2">
+                                                <div class="w-2 h-2 rounded-full bg-slate-700"></div>
+                                                <div class="w-2 h-2 rounded-full bg-slate-700"></div>
+                                                <div class="w-2 h-2 rounded-full bg-slate-700"></div>
+                                                <span class="text-slate-500 ml-2">index.html</span>
+                                            </div>
+                                            <code>&lt;script src="https://cekat.biz.id/widget/widget.js"&gt;&lt;/script&gt;<br>
+                                            &lt;script&gt;<br>
+                                            &nbsp;&nbsp;window.CSAIConfig = { widgetId: 'bot_xyz987' };<br>
+                                            &lt;/script&gt;</code>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6 flex justify-center">
+                                        <button id="mock-copy-btn" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-900 dark:text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-all w-40 justify-center">
+                                            <i data-lucide="copy" class="w-4 h-4" id="copy-icon"></i> <span id="copy-text">Salin Kode</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -494,128 +1113,1158 @@
         </div>
     </section>
 
-    <!-- PRICING -->
-    <section id="pricing" class="py-24 bg-slate-50 border-t border-slate-200">
-        <div class="max-w-7xl mx-auto px-6">
+    <section id="alur-rag" class="py-16 lg:py-20 relative overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-8 relative z-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-700 dark:bg-brand-400/10 dark:text-brand-300 border border-brand-100 dark:border-transparent text-sm font-medium mb-4">
+                    <i data-lucide="workflow" class="w-4 h-4"></i> Teknologi Di Balik Cekat
+                </div>
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-slate-900 dark:text-white">Bagaimana Alur RAG Bekerja Secara Real-Time</h2>
+                <p class="text-slate-600 dark:text-slate-300 text-lg">Lihat bagaimana Cekat memahami pertanyaan pelanggan, menemukan informasi paling relevan dari data bisnis Anda, lalu menyusun jawaban akurat yang siap dikirim secara otomatis.</p>
+            </div>
+
+            <!-- Flowchart Container dengan React Flow (Seamless & Clean) -->
+            <div class="rag-flow-stage relative w-full overflow-hidden">
+                <div id="react-flow-root" class="rag-flow-shell w-full overflow-hidden bg-transparent"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="harga" class="py-20 lg:py-28 bg-gray-50/50 dark:bg-slate-900/30 border-t border-gray-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Harga Simpel & Transparan</h2>
-                <p class="text-lg text-slate-600">Mulai gratis, upgrade saat bisnis Anda tumbuh.</p>
+                <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">Harga</h2>
+                <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">Harga yang sederhana dan transparan</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">Mulai secara gratis, tingkatkan paket saat Anda membutuhkan lebih banyak kekuatan dan kapasitas.</p>
             </div>
 
-            <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <!-- Free Tier -->
-                <div
-                    class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition">
-                    <div class="text-xl font-bold text-slate-900 mb-2">Hobby</div>
-                    <div class="flex items-baseline gap-1 mb-6">
-                        <span class="text-4xl font-bold text-slate-900">Rp 0</span>
-                        <span class="text-slate-500">/bulan</span>
+            <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                @forelse ($plans as $plan)
+                    @php
+                        $isPopular = $plan->slug === 'pro';
+                        $priceLabel = $plan->price > 0
+                            ? 'Rp' . number_format((float) $plan->price, 0, ',', '.')
+                            : 'Rp0';
+                        $periodLabel = $plan->billing_period === 'yearly' ? '/tahun' : '/bulan';
+                        $taglines = [
+                            'starter' => 'Sempurna untuk pengujian dan proyek pribadi berskala kecil.',
+                            'pro' => 'Untuk bisnis berkembang yang membutuhkan dukungan andal.',
+                            'business' => 'Batas kustom dan dukungan khusus untuk skala besar.',
+                        ];
+                        $tagline = $taglines[$plan->slug] ?? ($plan->description ?: '');
+                        $planLimits = app(\App\Services\Billing\PlanLimitService::class);
+                        $planWidgets = $planLimits->limit($plan, 'total_channels');
+                        $bullets = [
+                            $planWidgets . ' ' . \Illuminate\Support\Str::plural('Chatbot', $planWidgets),
+                            number_format($planLimits->limit($plan, 'monthly_messages'), 0, ',', '.') . ' Pesan / bulan',
+                            $planLimits->limit($plan, 'knowledge_documents') . ' Dokumen & ' . $planLimits->limit($plan, 'faqs') . ' FAQ' . ($planWidgets > 1 ? ' per bot' : ''),
+                        ];
+                        if ($planWidgets === 1) {
+                            $bullets[] = 'Sematkan di 1 website';
+                        }
+                        $analytics = $planLimits->featureValue($plan, 'analytics');
+                        if ($analytics === 'basic') {
+                            $bullets[] = 'Analitik Dasar';
+                        } elseif ($analytics) {
+                            $bullets[] = 'Analitik Lanjutan';
+                        }
+                        if (! empty($planLimits->featureValue($plan, 'custom_branding'))) {
+                            $bullets[] = 'Hapus Merek Cekat';
+                        }
+                        if (! empty($planLimits->featureValue($plan, 'api_access'))) {
+                            $bullets[] = 'Akses API';
+                        }
+                        if (! empty($planLimits->featureValue($plan, 'priority_support'))) {
+                            $bullets[] = 'Dukungan Prioritas';
+                        }
+                    @endphp
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 {{ $isPopular ? 'border-2 border-brand-500 dark:border-brand-500 relative shadow-lg md:-translate-y-2 hover:shadow-xl transition-all' : 'border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow' }} flex flex-col">
+                        @if ($isPopular)
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-brand-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider animate-icon-pulse">
+                                Paling Populer
+                            </div>
+                        @endif
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2">{{ $plan->name }}</h4>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">{{ $tagline }}</p>
+                        <div class="mb-6 flex items-baseline gap-1">
+                            <span class="text-4xl font-bold text-slate-900 dark:text-white">{{ $priceLabel }}</span>
+                            <span class="text-gray-500 dark:text-gray-400 text-sm font-medium">{{ $periodLabel }}</span>
+                        </div>
+                        <ul class="space-y-4 mb-8 flex-grow">
+                            @foreach ($bullets as $bullet)
+                                <li class="flex items-start gap-3 text-sm text-gray-700 dark:text-gray-300">
+                                    <i data-lucide="check" class="w-4 h-4 text-brand-500 mt-0.5"></i> {{ $bullet }}
+                                </li>
+                            @endforeach
+                        </ul>
+                        @if ($plan->price <= 0)
+                            @auth
+                                <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Mulai Gratis</a>
+                            @else
+                                <a href="/register" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Mulai Gratis</a>
+                            @endauth
+                        @elseif ($loop->last)
+                            <a href="#kontak" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Hubungi Penjualan</a>
+                        @else
+                            @auth
+                                <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="w-full py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors font-medium text-sm flex justify-center items-center gap-2 group">
+                                    Berlangganan Sekarang <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                            @else
+                                <a href="/register" class="w-full py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors font-medium text-sm flex justify-center items-center gap-2 group">
+                                    Berlangganan Sekarang <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                </a>
+                            @endauth
+                        @endif
                     </div>
-                    <p class="text-slate-600 text-sm mb-6">Untuk project pribadi atau testing.</p>
-                    <a href="#"
-                        class="block w-full py-3 text-center border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition text-slate-700">Mulai
-                        Gratis</a>
-                    <ul class="mt-8 space-y-4 text-sm text-slate-600">
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> 1 Chatbot</li>
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> 30 Pesan/bulan</li>
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> 10 Halaman Dokumen</li>
-                    </ul>
-                </div>
-
-                <!-- Pro Tier (Popular) -->
-                <div
-                    class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl relative transform md:-translate-y-4">
-                    <div
-                        class="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
-                        POPULAR</div>
-                    <div class="text-xl font-bold text-white mb-2">Standard</div>
-                    <div class="flex items-baseline gap-1 mb-6">
-                        <span class="text-4xl font-bold text-white">Rp 199rb</span>
-                        <span class="text-slate-400">/bulan</span>
-                    </div>
-                    <p class="text-slate-400 text-sm mb-6">Untuk bisnis kecil & start-up.</p>
-                    <a href="#"
-                        class="block w-full py-3 text-center bg-blue-600 rounded-xl font-semibold hover:bg-blue-500 transition text-white shadow-lg">Free
-                        7-Day Trial</a>
-                    <ul class="mt-8 space-y-4 text-sm text-slate-300">
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-blue-400"></i> 2 Chatbot</li>
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-blue-400"></i> 2,000 Pesan/bulan</li>
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-blue-400"></i> 5 File PDF/Docx</li>
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-blue-400"></i> Remove "Powered By"</li>
-                    </ul>
-                </div>
-
-                <!-- Enterprise -->
-                <div
-                    class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:border-slate-300 transition">
-                    <div class="text-xl font-bold text-slate-900 mb-2">Unlimited</div>
-                    <div class="flex items-baseline gap-1 mb-6">
-                        <span class="text-4xl font-bold text-slate-900">Rp 499rb</span>
-                        <span class="text-slate-500">/bulan</span>
-                    </div>
-                    <p class="text-slate-600 text-sm mb-6">Untuk agensi & perusahaan besar.</p>
-                    <a href="#"
-                        class="block w-full py-3 text-center border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition text-slate-700">Hubungi
-                        Sales</a>
-                    <ul class="mt-8 space-y-4 text-sm text-slate-600">
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> 10 Chatbot</li>
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> Unlimited Pesan</li>
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> API Access</li>
-                        <li class="flex gap-3"><i class="fa-solid fa-check text-green-500"></i> Custom Domain</li>
-                    </ul>
-                </div>
+                @empty
+                    <p class="text-gray-600 dark:text-gray-400 md:col-span-3 text-center">Harga sedang tidak tersedia. Silakan hubungi kami untuk informasi paket.</p>
+                @endforelse
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="bg-white border-t border-slate-200 pt-16 pb-8">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-12 mb-12">
-                <div class="col-span-1 md:col-span-2">
-                    <a href="#" class="flex items-center gap-2 font-bold text-xl tracking-tight text-slate-900 mb-4">
-                        <div
-                            class="w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center text-sm">
-                            <i class="fa-solid fa-bolt"></i>
-                        </div>
-                        Cekat.biz.id
+    <section id="kontak" class="py-24 lg:py-32 relative border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
+        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-brand-500/10 dark:bg-brand-500/5 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="w-16 h-16 bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-sm">
+                <i data-lucide="rocket" class="w-8 h-8 animate-icon-pulse"></i>
+            </div>
+            
+            <h2 class="text-3xl md:text-5xl font-extrabold mb-6 text-slate-900 dark:text-white tracking-tight">
+                Siap mengotomatisasi layanan pelanggan Anda?
+            </h2>
+            
+            <p class="text-gray-600 dark:text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
+                Bergabunglah dengan ratusan bisnis lainnya. Buat akun dan bangun AI chatbot pertama Anda dalam waktu kurang dari 3 menit. <span class="font-semibold text-slate-900 dark:text-gray-300">Tanpa kartu kredit.</span>
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                @auth
+                    <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/30 group w-full sm:w-auto">
+                        Buka Dasbor
+                        <i data-lucide="arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1"></i>
                     </a>
-                    <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
-                        Platform no-code untuk membuat chatbot AI kustom menggunakan data bisnis Anda. Tingkatkan
-                        layanan pelanggan dalam hitungan menit.
+                @else
+                    <a href="/register" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/30 group w-full sm:w-auto">
+                        Buat Akun Gratis Sekarang
+                        <i data-lucide="arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1"></i>
+                    </a>
+                @endauth
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
+                <div class="col-span-2 lg:col-span-2">
+                    <div class="flex items-center gap-2 mb-4 group cursor-pointer">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center transition-transform group-hover:scale-105 group-hover:animate-icon-wiggle">
+                            <i data-lucide="bot" class="text-white w-5 h-5"></i>
+                        </div>
+                        <span class="font-bold text-xl tracking-tight text-slate-900 dark:text-white">Cekat<span class="text-brand-600 dark:text-brand-400">.biz.id</span></span>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-6 max-w-sm leading-relaxed">
+                        Memberdayakan bisnis untuk membuat asisten AI cerdas khusus yang dilatih menggunakan data kepemilikan mereka sendiri hanya dalam hitungan menit.
                     </p>
+                    <div class="flex space-x-4">
+                        <a href="#" aria-label="Twitter / X" class="text-gray-400 hover:text-blue-400 transition-colors group"><svg class="w-5 h-5 group-hover:animate-icon-bounce" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+                        <a href="#" aria-label="GitHub" class="text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors group"><svg class="w-5 h-5 group-hover:animate-icon-bounce" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+                        <a href="#" aria-label="LinkedIn" class="text-gray-400 hover:text-blue-600 transition-colors group"><svg class="w-5 h-5 group-hover:animate-icon-bounce" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.124 2.062 2.062 0 0 1 0 4.124zM7.119 20.452H3.554V9h3.565v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/></svg></a>
+                    </div>
                 </div>
+                
                 <div>
-                    <h4 class="font-bold text-slate-900 mb-4">Produk</h4>
-                    <ul class="space-y-2 text-sm text-slate-600">
-                        <li><a href="#" class="hover:text-blue-600">Fitur</a></li>
-                        <li><a href="#" class="hover:text-blue-600">Harga</a></li>
-                        <li><a href="#" class="hover:text-blue-600">Showcase</a></li>
-                        <li><a href="#" class="hover:text-blue-600">Changelog</a></li>
+                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Produk</h4>
+                    <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                        <li><a href="#fitur" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Fitur</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Integrasi</a></li>
+                        <li><a href="#harga" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Harga</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Pembaruan</a></li>
                     </ul>
                 </div>
+                
                 <div>
-                    <h4 class="font-bold text-slate-900 mb-4">Perusahaan</h4>
-                    <ul class="space-y-2 text-sm text-slate-600">
-                        <li><a href="#" class="hover:text-blue-600">Tentang Kami</a></li>
-                        <li><a href="#" class="hover:text-blue-600">Kontak</a></li>
-                        <li><a href="#" class="hover:text-blue-600">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-blue-600">Terms of Service</a></li>
+                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Sumber Daya</h4>
+                    <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Dokumentasi</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Referensi API</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Komunitas</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Legal</h4>
+                    <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Kebijakan Privasi</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Syarat Ketentuan</a></li>
+                        <li><a href="#" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Kebijakan Cookie</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="text-slate-500 text-sm">
-                    &copy; 2024 Cekat.biz.id. All rights reserved.
-                </div>
-                <div class="flex gap-6 text-slate-400">
-                    <a href="#" class="hover:text-slate-900"><i class="fa-brands fa-twitter"></i></a>
-                    <a href="#" class="hover:text-slate-900"><i class="fa-brands fa-github"></i></a>
-                    <a href="#" class="hover:text-slate-900"><i class="fa-brands fa-instagram"></i></a>
+            
+            <div class="border-t border-gray-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-500 dark:text-gray-400 text-sm">© 2026 Cekat.biz.id. Seluruh hak cipta dilindungi.</p>
+                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium">
+                    <span>Status:</span> <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Semua sistem beroperasi</span>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script>
+        lucide.createIcons();
+        updateThemeIcons();
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 10) {
+                nav.classList.add('shadow-md');
+            } else {
+                nav.classList.remove('shadow-md');
+            }
+        });
+
+        // Chat Simulation
+        const chatContainer = document.getElementById('chat-simulation');
+        const conversationSequence = [
+            { type: 'user', text: 'Apakah AI ini bisa membaca manual PDF perusahaan kami?' },
+            { type: 'bot', text: 'Tentu! Anda bisa mengunggah file PDF, DOCX, TXT, atau CSV. Saya akan memprosesnya secara otomatis dan menjawab pertanyaan pelanggan murni berdasarkan isi dokumen Anda.' },
+            { type: 'user', text: 'Bagaimana cara memasangnya di website saya?' },
+            { type: 'bot', text: 'Sangat mudah. Anda hanya perlu menyalin satu baris kode JavaScript yang kami sediakan ke dalam tag <head> website Anda. Widget obrolan akan langsung aktif!' }
+        ];
+
+        let sequenceIndex = 0;
+
+        function createMessageElement(type, text, isTyping = false) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex gap-3 max-w-[85%] opacity-0 transform translate-y-4 transition-all duration-300 ${type === 'user' ? 'ml-auto flex-row-reverse' : ''}`;
+            
+            let avatar = '';
+            if (type === 'bot') {
+                avatar = `
+                <div class="w-8 h-8 rounded-full bg-brand-100 dark:bg-brand-900/50 flex-shrink-0 flex items-center justify-center mt-1 text-brand-600 dark:text-brand-400">
+                    <i data-lucide="bot" class="w-4 h-4"></i>
+                </div>`;
+            }
+
+            const bubbleClass = type === 'user' 
+                ? 'bg-slate-900 dark:bg-brand-600 text-white p-3.5 rounded-2xl rounded-tr-none text-sm shadow-sm'
+                : 'bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 p-3.5 rounded-2xl rounded-tl-none text-sm border border-gray-200 dark:border-slate-700 shadow-sm';
+
+            const content = isTyping 
+                ? `<span class="flex gap-1 items-center h-5"><span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span><span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span><span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></span></span>`
+                : text;
+
+            wrapper.innerHTML = `
+                ${avatar}
+                <div class="${bubbleClass}" id="msg-${Date.now()}">
+                    ${content}
+                </div>
+            `;
+            return wrapper;
+        }
+
+        function runChatSimulation() {
+            if (sequenceIndex >= conversationSequence.length) return;
+            const currentMsg = conversationSequence[sequenceIndex];
+            
+            setTimeout(() => {
+                if(currentMsg.type === 'user') {
+                    const msgEl = createMessageElement('user', currentMsg.text);
+                    chatContainer.appendChild(msgEl);
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        msgEl.classList.remove('opacity-0', 'translate-y-4');
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }, 50);
+                    sequenceIndex++;
+                    runChatSimulation();
+                } else {
+                    const typingEl = createMessageElement('bot', '', true);
+                    chatContainer.appendChild(typingEl);
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        typingEl.classList.remove('opacity-0', 'translate-y-4');
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }, 50);
+
+                    const typingDuration = Math.min(1500 + (currentMsg.text.length * 20), 3000);
+                    setTimeout(() => {
+                        const bubble = typingEl.querySelector('div[id^="msg-"]');
+                        bubble.innerHTML = '';
+                        bubble.classList.add('typing-cursor');
+                        
+                        let charIndex = 0;
+                        const typeInterval = setInterval(() => {
+                            bubble.innerHTML = currentMsg.text.substring(0, charIndex);
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                            charIndex++;
+                            
+                            if (charIndex > currentMsg.text.length) {
+                                clearInterval(typeInterval);
+                                bubble.classList.remove('typing-cursor');
+                                sequenceIndex++;
+                                runChatSimulation();
+                            }
+                        }, 25);
+                    }, typingDuration);
+                }
+            }, 1000); 
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(runChatSimulation, 1500);
+            switchStep(1);
+        });
+
+        const sleep = ms => new Promise(r => {
+            let t = setTimeout(r, ms);
+            activeTimeouts.push(t);
+        });
+
+        let activeTimeouts = [];
+        let currentStep = 1;
+
+        function clearAllTimeouts() {
+            activeTimeouts.forEach(clearTimeout);
+            activeTimeouts = [];
+        }
+
+        async function switchStep(step) {
+            currentStep = step;
+            clearAllTimeouts();
+            
+            for (let i = 1; i <= 3; i++) {
+                const tab = document.getElementById(`step-tab-${i}`);
+                const num = document.getElementById(`step-num-${i}`);
+                const view = document.getElementById(`view-${i}`);
+                
+                if (i === step) {
+                    tab.classList.remove('border-transparent', 'hover:bg-white/50', 'dark:hover:bg-slate-900/50');
+                    tab.classList.add('border-brand-500', 'bg-white', 'dark:bg-slate-900', 'shadow-md');
+                    num.classList.remove('border-2', 'border-gray-300', 'dark:border-slate-700', 'text-gray-500', 'dark:text-gray-400', 'bg-transparent');
+                    num.classList.add('bg-brand-600', 'text-white', 'border-brand-600');
+                    view.classList.remove('opacity-0', 'pointer-events-none');
+                    view.classList.add('opacity-100');
+                } else {
+                    tab.classList.add('border-transparent', 'hover:bg-white/50', 'dark:hover:bg-slate-900/50');
+                    tab.classList.remove('border-brand-500', 'bg-white', 'dark:bg-slate-900', 'shadow-md');
+                    num.classList.add('border-2', 'border-gray-300', 'dark:border-slate-700', 'text-gray-500', 'dark:text-gray-400', 'bg-transparent');
+                    num.classList.remove('bg-brand-600', 'text-white', 'border-brand-600');
+                    view.classList.add('opacity-0', 'pointer-events-none');
+                    view.classList.remove('opacity-100');
+                }
+            }
+
+            const cursor = document.getElementById('demo-cursor');
+            cursor.style.opacity = '0';
+            await sleep(300);
+
+            if (step === 1) await runAnimStep1();
+            if (step === 2) await runAnimStep2();
+            if (step === 3) await runAnimStep3();
+        }
+
+        async function triggerClickEffect(cursorEl) {
+            const effect = document.getElementById('cursor-click-effect');
+            effect.classList.remove('opacity-0', 'scale-0');
+            effect.classList.add('opacity-50', 'scale-150');
+            await sleep(200);
+            effect.classList.remove('opacity-50', 'scale-150');
+            effect.classList.add('opacity-0', 'scale-0');
+        }
+
+        async function runAnimStep1() {
+            const cursor = document.getElementById('demo-cursor');
+            const file = document.getElementById('drag-file');
+            const dropzoneContent = document.getElementById('dropzone-content');
+            const uploadState = document.getElementById('upload-state');
+            const uploadProgress = document.getElementById('upload-progress');
+            const successState = document.getElementById('success-state');
+            const dropzone = document.getElementById('dropzone');
+
+            file.style.transform = 'translate(40px, 30px) scale(0.9)';
+            file.style.opacity = '0';
+            dropzoneContent.style.opacity = '1';
+            uploadState.style.opacity = '0';
+            successState.style.opacity = '0';
+            uploadProgress.style.width = '0%';
+            dropzone.classList.remove('border-brand-500', 'bg-brand-50/50', 'dark:bg-brand-900/20');
+            
+            await sleep(500);
+            cursor.style.opacity = '1';
+            cursor.style.transform = 'translate(100px, 150px)';
+            file.style.opacity = '1';
+            
+            await sleep(800);
+            cursor.style.transform = 'translate(120px, 45px)';
+            await sleep(700);
+            
+            await triggerClickEffect(cursor);
+            file.style.transform = 'translate(40px, 30px) scale(1.05)';
+            file.classList.add('shadow-2xl');
+            
+            await sleep(400);
+            cursor.style.transform = 'translate(250px, 200px)';
+            file.style.transform = 'translate(150px, 170px) scale(1.05)';
+            dropzone.classList.add('border-brand-500', 'bg-brand-50/50', 'dark:bg-brand-900/20');
+            
+            await sleep(800);
+            file.classList.remove('shadow-2xl');
+            file.style.transform = 'translate(150px, 170px) scale(0)';
+            file.style.opacity = '0';
+            
+            cursor.style.transform = 'translate(350px, 300px)';
+            cursor.style.opacity = '0';
+
+            dropzoneContent.style.opacity = '0';
+            await sleep(300);
+            uploadState.style.opacity = '1';
+            
+            await sleep(200);
+            uploadProgress.style.width = '100%';
+            
+            await sleep(2200);
+            uploadState.style.opacity = '0';
+            await sleep(300);
+            successState.style.opacity = '1';
+        }
+
+        async function runAnimStep2() {
+            const cursor = document.getElementById('demo-cursor');
+            const targetColorBtn = document.getElementById('color-target-purple');
+            const chatHeader = document.getElementById('mock-chat-header');
+            const inputName = document.getElementById('mock-input-name');
+            const chatTitle = document.getElementById('mock-chat-title');
+            const greetingText = document.getElementById('mock-greeting-text');
+            const chatGreeting = document.getElementById('mock-chat-greeting');
+            const cursorName = document.getElementById('input-cursor-name');
+            
+            chatHeader.className = 'bg-slate-900 px-3 py-2.5 flex items-center gap-2 transition-colors duration-500';
+            inputName.value = 'Bot Bawaan';
+            chatTitle.innerText = 'Bot Bawaan';
+            greetingText.innerText = 'Hai! Ada yang bisa dibantu?';
+            chatGreeting.innerText = 'Hai! Ada yang bisa dibantu?';
+            cursorName.classList.add('hidden');
+
+            await sleep(500);
+            cursor.style.opacity = '1';
+            cursor.style.transform = 'translate(300px, 300px)';
+
+            await sleep(600);
+            cursor.style.transform = 'translate(100px, 150px)';
+            await sleep(700);
+            await triggerClickEffect(cursor);
+            
+            targetColorBtn.innerHTML = '<i data-lucide="check" class="absolute inset-0 m-auto w-4 h-4 text-white"></i>';
+            targetColorBtn.previousElementSibling.innerHTML = '';
+            chatHeader.className = 'bg-purple-600 px-3 py-2.5 flex items-center gap-2 transition-colors duration-500';
+            lucide.createIcons();
+            
+            await sleep(800);
+            cursor.style.transform = 'translate(150px, 50px)';
+            await sleep(700);
+            await triggerClickEffect(cursor);
+            
+            cursorName.classList.remove('hidden');
+            cursor.style.transform = 'translate(200px, 100px)';
+            
+            await sleep(400);
+            const newName = "Asisten Cerdas";
+            inputName.value = "";
+            chatTitle.innerText = "";
+            for (let i = 0; i < newName.length; i++) {
+                if (currentStep !== 2) return;
+                inputName.value += newName[i];
+                chatTitle.innerText += newName[i];
+                cursorName.style.left = `${10 + (i * 7)}px`; 
+                await sleep(100);
+            }
+            cursorName.classList.add('hidden');
+            await sleep(1000);
+            cursor.style.opacity = '0';
+        }
+
+        async function runAnimStep3() {
+            const cursor = document.getElementById('demo-cursor');
+            const copyBtn = document.getElementById('mock-copy-btn');
+            const copyIcon = document.getElementById('copy-icon');
+            const copyText = document.getElementById('copy-text');
+
+            copyBtn.className = 'bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-900 dark:text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-all w-40 justify-center';
+            copyText.innerText = 'Salin Kode';
+            copyIcon.setAttribute('data-lucide', 'copy');
+            lucide.createIcons();
+
+            await sleep(800);
+            cursor.style.opacity = '1';
+            cursor.style.transform = 'translate(300px, 50px)';
+            
+            await sleep(600);
+            cursor.style.transform = 'translate(250px, 280px)';
+            
+            await sleep(700);
+            await triggerClickEffect(cursor);
+            
+            copyBtn.className = 'bg-emerald-500 border border-emerald-500 text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-all w-40 justify-center';
+            copyText.innerText = 'Tersalin!';
+            copyIcon.setAttribute('data-lucide', 'check');
+            lucide.createIcons();
+
+            await sleep(800);
+            cursor.style.transform = 'translate(300px, 400px)';
+            cursor.style.opacity = '0';
+        }
+
+        // ==========================================
+        // RAG INTERACTIVE SIMULATION & REACT FLOW
+        // ==========================================
+        const h = React.createElement;
+
+        const ragScenarios = {
+            whatsapp: {
+                id: 'whatsapp',
+                title: 'WhatsApp & Knowledge Base',
+                badge: 'Fitur Unggulan',
+                question: 'Apakah paket Pro bisa dipakai untuk WhatsApp dan data knowledge base internal?',
+                tokens: ['Paket Pro', 'WhatsApp API', 'Knowledge Base'],
+                vectorCoords: ['+0.381', '-0.912', '+0.047', '+0.814', '-0.259'],
+                latency: 14,
+                kbDocs: [
+                    {
+                        title: 'Integrasi WhatsApp Cloud API',
+                        snippet: 'Paket Pro mendukung direct koneksi WhatsApp Cloud API & webhook CS otomatis 24/7.',
+                        highlight: 'WhatsApp Cloud API & webhook CS',
+                        score: '98.4%',
+                        isMatch: true
+                    },
+                    {
+                        title: 'Multi-Format Knowledge Base',
+                        snippet: 'Unggah PDF/DOCX dokumen internal hingga 20 file per bot dengan isolasi data terenkripsi.',
+                        highlight: 'dokumen internal hingga 20 file per bot',
+                        score: '96.2%',
+                        isMatch: true
+                    },
+                    {
+                        title: 'Ketentuan SLA & Uptime Server',
+                        snippet: 'Jaminan uptime 99.9% untuk seluruh paket berbayar di cloud server Cekat.',
+                        highlight: '',
+                        score: '38.5%',
+                        isMatch: false
+                    }
+                ],
+                reasoning: [
+                    { title: 'Injeksi Konteks', detail: '2 potongan dokumen relevan disematkan ke prompt AI' },
+                    { title: 'Validasi Anti-Halusinasi', detail: '100% konsisten data bisnis (tanpa asumsi liar)' },
+                    { title: 'Sintesis Respon', detail: 'Formulasi jawaban ramah & siap dikirim ke user' }
+                ],
+                output: 'Ya, tentu! Paket Pro mendukung integrasi resmi WhatsApp Business serta sinkronisasi knowledge base dokumen internal perusahaan dengan keamanan data terisolasi.',
+                citation: 'Panduan_Integrasi_WhatsApp_v2.pdf (Bab 3)'
+            },
+            enterprise: {
+                id: 'enterprise',
+                title: 'Kapasitas Paket Business',
+                badge: 'Pricing & Skala',
+                question: 'Berapa kuota dokumen dan jumlah chatbot pada paket Business Cekat?',
+                tokens: ['Kuota Dokumen', 'Jumlah Chatbot', 'Paket Business'],
+                vectorCoords: ['+0.724', '+0.115', '-0.582', '+0.903', '+0.331'],
+                latency: 11,
+                kbDocs: [
+                    {
+                        title: 'Kapasitas Dokumen Business',
+                        snippet: 'Paket Business menyediakan hingga 100 dokumen & 999 FAQ per bot untuk 10 chatbot aktif.',
+                        highlight: '100 dokumen & 999 FAQ per bot',
+                        score: '99.1%',
+                        isMatch: true
+                    },
+                    {
+                        title: 'Akses API & Dedicated Instance',
+                        snippet: 'Akses REST API langsung, kuota token tinggi, dan opsi dedicated database vektor.',
+                        highlight: 'Akses REST API langsung',
+                        score: '94.8%',
+                        isMatch: true
+                    },
+                    {
+                        title: 'Paket Starter & Free Tier',
+                        snippet: 'Paket Starter gratis dibatasi 100 pesan & 3 dokumen per bulan untuk uji coba tim berskala kecil.',
+                        highlight: '',
+                        score: '31.2%',
+                        isMatch: false
+                    }
+                ],
+                reasoning: [
+                    { title: 'Injeksi Konteks', detail: 'Klausul kuota dokumen paket Business diekstrak' },
+                    { title: 'Validasi Anti-Halusinasi', detail: 'Angka 100 dokumen diverifikasi akurat dari tabel harga' },
+                    { title: 'Sintesis Respon', detail: 'Menyajikan jawaban transparan dan detail untuk prospek' }
+                ],
+                output: 'Paket Business menyediakan hingga 100 dokumen & 999 FAQ per bot untuk 10 chatbot, kuota 10.000 pesan/bulan, akses REST API penuh, dan dukungan prioritas.',
+                citation: 'Skema_Harga_Business.pdf #Halaman 4'
+            }
+        };
+
+        const ragSteps = [
+            {
+                id: 'input',
+                title: '1. Input Pengguna',
+                desc: 'Pertanyaan pelanggan diketik ke input box',
+                edge: null,
+                camera: { x: 138, y: 155, zoom: 1.25 },
+                mobileCamera: { x: 138, y: 155, zoom: 0.98 }
+            },
+            {
+                id: 'rag',
+                title: '2. Vector Pipeline',
+                desc: 'Tokenisasi & transformasi teks ke representasi vektor',
+                edge: 'input-rag',
+                camera: { x: 468, y: 155, zoom: 1.25 },
+                mobileCamera: { x: 468, y: 155, zoom: 0.98 }
+            },
+            {
+                id: 'kb',
+                title: '3. Knowledge Base',
+                desc: 'Pencarian semantik super cepat di database dokumen',
+                edge: 'rag-kb',
+                camera: { x: 798, y: 155, zoom: 1.2 },
+                mobileCamera: { x: 798, y: 155, zoom: 0.94 }
+            },
+            {
+                id: 'model',
+                title: '4. AI Reasoning',
+                desc: 'Injeksi konteks & validasi agar tidak ada halusinasi',
+                edge: 'kb-model',
+                camera: { x: 1128, y: 155, zoom: 1.2 },
+                mobileCamera: { x: 1128, y: 155, zoom: 0.94 }
+            },
+            {
+                id: 'output',
+                title: '5. Output Jawaban',
+                desc: 'Jawaban akurat siap dikirimkan ke pelanggan',
+                edge: 'model-output',
+                camera: { x: 1458, y: 155, zoom: 1.15 },
+                mobileCamera: { x: 1458, y: 155, zoom: 0.9 }
+            }
+        ];
+
+        function RagNode({ data }) {
+            const className = [
+                'rag-node',
+                data.active ? 'is-active' : '',
+                data.complete ? 'is-complete' : ''
+            ].join(' ');
+
+            const sc = data.scenario;
+
+            return h('div', { className, style: { '--node-accent': data.accent } },
+                h(ReactFlow.Handle, {
+                    type: 'target',
+                    position: ReactFlow.Position.Left,
+                    style: { opacity: 0 }
+                }),
+
+                // Node Header
+                h('div', { className: 'rag-node-header' },
+                    h('div', { className: 'rag-node-icon' }, data.icon),
+                    h('div', { className: 'flex-1' },
+                        h('div', { className: 'rag-node-title' },
+                            data.title,
+                            data.active && h('span', { className: 'w-2 h-2 rounded-full bg-cyan-400 animate-ping inline-block' })
+                        ),
+                        h('div', { className: 'rag-node-subtitle' }, data.subtitle)
+                    )
+                ),
+
+                // 1. INPUT NODE CONTENT
+                data.kind === 'input' && h('div', { className: 'space-y-2' },
+                    h('div', { className: 'rag-input-box ' + (data.active || data.complete ? 'is-clicked' : '') },
+                        h('div', { className: 'text-[11.5px] leading-relaxed text-slate-200' },
+                            h('span', null, data.typedText),
+                            data.active && !data.sendClicked && h('span', { className: 'rag-caret' })
+                        ),
+                        h('div', { className: 'flex items-center justify-between mt-2 pt-1 border-t border-slate-700/60' },
+                            h('span', { className: 'text-[9.5px] text-slate-400 font-mono flex items-center gap-1' },
+                                h('span', { className: 'w-1.5 h-1.5 rounded-full ' + (data.active ? 'bg-cyan-400 animate-pulse' : 'bg-slate-500') }),
+                                data.sendClicked ? 'Terkirim ↵' : (data.active ? 'Mengetik...' : 'Siap')
+                            ),
+                            h('div', {
+                                className: 'rag-send-btn ' + (data.sendClicked ? 'is-active' : '') + ' cursor-pointer',
+                                title: 'Kirim Pertanyaan'
+                            },
+                                h('svg', { className: 'w-3.5 h-3.5', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                                    h('path', { d: 'm22 2-7 20-4-9-9-4Z' }),
+                                    h('path', { d: 'M22 2 11 13' })
+                                )
+                            )
+                        )
+                    ),
+                    // Miniature Virtual Hand Cursor on Input Node
+                    data.active && h('div', {
+                        className: 'absolute pointer-events-none transition-all duration-700 z-20 ' + (data.cursorClicking ? 'is-clicking' : ''),
+                        style: {
+                            top: data.cursorPos ? `${data.cursorPos.y}px` : '45px',
+                            left: data.cursorPos ? `${data.cursorPos.x}px` : '30px'
+                        }
+                    },
+                        h('svg', { className: 'w-6 h-6 text-cyan-300 drop-shadow-md -rotate-12', viewBox: '0 0 24 24', fill: 'currentColor' },
+                            h('path', { d: 'M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.86a.5.5 0 0 0-.85.35Z' })
+                        )
+                    )
+                ),
+
+                // 2. RAG PIPELINE NODE CONTENT
+                data.kind === 'rag' && h('div', { className: 'space-y-2 text-xs' },
+                    h('div', { className: 'flex items-center justify-between rounded-lg bg-slate-900/90 border border-slate-800 p-2 text-[10.5px]' },
+                        h('span', { className: 'text-slate-400 font-medium' }, 'Latency Embedding:'),
+                        h('span', { className: 'text-teal-300 font-mono font-bold flex items-center gap-1' },
+                            h('span', { className: 'w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse' }),
+                            data.active || data.complete ? `${sc.latency} ms` : 'Standby'
+                        )
+                    ),
+                    h('div', { className: 'space-y-1' },
+                        h('div', { className: 'text-[9.5px] uppercase tracking-wider text-slate-400 font-semibold' }, 'Tokenisasi Kata Kunci:'),
+                        h('div', { className: 'flex flex-wrap gap-1' },
+                            sc.tokens.map((tok, i) =>
+                                h('span', {
+                                    key: tok,
+                                    className: 'px-1.5 py-0.5 rounded text-[10px] font-medium transition-all duration-300 ' +
+                                        (data.active || data.complete
+                                            ? 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
+                                            : 'bg-slate-800 text-slate-500 border border-slate-700/50')
+                                }, tok)
+                            )
+                        )
+                    ),
+                    h('div', { className: 'rounded-lg bg-slate-900/90 border border-slate-800 p-2 font-mono text-[9px] space-y-0.5' },
+                        h('div', { className: 'text-slate-400 flex justify-between' },
+                            h('span', null, 'Vector (1536-dim Float):'),
+                            h('span', { className: 'text-cyan-400' }, 'Cosine Sim')
+                        ),
+                        h('div', { className: 'text-cyan-300 tracking-tight overflow-hidden text-ellipsis whitespace-nowrap' },
+                            data.active || data.complete ? `[${sc.vectorCoords.join(', ')}...]` : '[0.000, 0.000, 0.000...]'
+                        )
+                    )
+                ),
+
+                // 3. KNOWLEDGE BASE NODE CONTENT
+                data.kind === 'kb' && h('div', { className: 'rag-kb-list' },
+                    data.active && h('div', { className: 'rag-scanner-sweep' }),
+                    h('div', { className: 'flex items-center justify-between text-[10px] text-slate-400 font-mono mb-0.5' },
+                        h('span', null, 'Semantic Index Scan:'),
+                        h('span', { className: 'font-bold ' + (data.active || data.complete ? 'text-teal-300' : 'text-slate-500') },
+                            data.active ? `${data.msCounter} ms` : (data.complete ? 'Selesai: 38 ms' : 'Menunggu')
+                        )
+                    ),
+                    sc.kbDocs.map((doc, idx) => {
+                        const isMatch = doc.isMatch && (data.active || data.complete);
+                        const isDimmed = !doc.isMatch && (data.active || data.complete);
+                        return h('div', {
+                            key: doc.title,
+                            className: 'rag-kb-item ' + (isMatch ? 'is-found' : '') + ' ' + (isDimmed ? 'is-dimmed' : ''),
+                            style: { transitionDelay: `${idx * 120}ms` }
+                        },
+                            h('div', { className: 'flex items-center justify-between gap-1' },
+                                h('span', { className: 'font-semibold text-slate-200 truncate flex items-center gap-1.5' },
+                                    h('span', { className: 'w-1.5 h-1.5 rounded-full flex-none ' + (isMatch ? 'bg-teal-400' : 'bg-slate-500') }),
+                                    doc.title
+                                ),
+                                h('span', {
+                                    className: 'text-[9.5px] px-1.5 py-0.2 rounded font-mono font-bold ' +
+                                        (isMatch ? 'bg-teal-500/25 text-teal-300 border border-teal-500/40' : 'text-slate-500')
+                                }, doc.score)
+                            ),
+                            h('div', { className: 'text-[9.5px] leading-tight text-slate-400 line-clamp-2' },
+                                isMatch && doc.highlight ?
+                                    h(React.Fragment, null,
+                                        doc.snippet.split(doc.highlight)[0],
+                                        h('span', { className: 'rag-kb-highlight' }, doc.highlight),
+                                        doc.snippet.split(doc.highlight)[1]
+                                    ) : doc.snippet
+                            )
+                        );
+                    })
+                ),
+
+                // 4. AI MODEL REASONING NODE CONTENT
+                data.kind === 'model' && h('div', { className: 'space-y-1.5 text-xs' },
+                    h('div', { className: 'flex items-center justify-between text-[10px] text-slate-400 font-mono mb-1' },
+                        h('span', null, 'Grounding Validation:'),
+                        h('span', { className: 'text-purple-300 font-bold' },
+                            data.active || data.complete ? 'Zero Hallucination' : 'Standby'
+                        )
+                    ),
+                    sc.reasoning.map((item, idx) => {
+                        const isDone = (data.active && data.reasoningStep >= idx) || data.complete;
+                        return h('div', {
+                            key: item.title,
+                            className: 'rag-reasoning-step ' + (isDone ? 'is-done' : '')
+                        },
+                            h('div', {
+                                className: 'w-4 h-4 rounded-full flex items-center justify-center flex-none ' +
+                                    (isDone ? 'bg-purple-500/30 text-purple-300' : 'bg-slate-800 text-slate-600')
+                            },
+                                isDone ? '✓' : '•'
+                            ),
+                            h('div', { className: 'flex-1 min-w-0' },
+                                h('div', { className: 'font-semibold text-[10px] text-slate-200 truncate' }, item.title),
+                                h('div', { className: 'text-[9px] text-slate-400 truncate' }, item.detail)
+                            )
+                        );
+                    }),
+                    h('div', { className: 'h-1.5 w-full bg-slate-800 rounded-full overflow-hidden mt-1' },
+                        h('div', {
+                            className: 'h-full bg-gradient-to-r from-purple-500 to-cyan-400 transition-all duration-700 rounded-full',
+                            style: {
+                                width: data.complete ? '100%' : (data.active ? `${(data.reasoningStep + 1) * 33}%` : '0%')
+                            }
+                        })
+                    )
+                ),
+
+                // 5. OUTPUT NODE CONTENT
+                data.kind === 'output' && h('div', { className: 'space-y-2' },
+                    h('div', { className: 'rag-output-bubble' },
+                        h('div', { className: 'text-[11px] leading-relaxed text-emerald-100' },
+                            data.active || data.complete ? data.streamedOutput : 'Menunggu sintesis reasoning...'
+                        ),
+                        (data.active || data.complete) && h('div', { className: 'mt-2 pt-1.5 border-t border-emerald-500/30 flex items-center justify-between text-[9px] text-emerald-300/80 font-mono' },
+                            h('span', { className: 'flex items-center gap-1' },
+                                h('span', { className: 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse' }),
+                                'Valid 100% Data Bisnis'
+                            ),
+                            h('span', null, 'Siap Kirim ↵')
+                        )
+                    ),
+                    (data.active || data.complete) && h('div', {
+                        className: 'flex items-center gap-1 text-[9.5px] text-slate-400 px-2 py-1 rounded-md bg-slate-900/80 border border-slate-800 font-mono truncate',
+                        title: sc.citation
+                    },
+                        h('svg', { className: 'w-3 h-3 text-cyan-400 flex-none', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 },
+                            h('path', { d: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z' }),
+                            h('polyline', { points: '14 2 14 8 20 8' })
+                        ),
+                        h('span', { className: 'truncate' }, sc.citation)
+                    )
+                ),
+
+                h(ReactFlow.Handle, {
+                    type: 'source',
+                    position: ReactFlow.Position.Right,
+                    style: { opacity: 0 }
+                })
+            );
+        }
+        function RagFlowCanvas() {
+            const reactFlowInstance = ReactFlow.useReactFlow();
+            const [scenarioKey, setScenarioKey] = React.useState('whatsapp');
+            const [stepIndex, setStepIndex] = React.useState(0);
+            const [typedText, setTypedText] = React.useState('');
+            const [sendClicked, setSendClicked] = React.useState(false);
+            const [cursorPos, setCursorPos] = React.useState({ x: 30, y: 35 });
+            const [cursorClicking, setCursorClicking] = React.useState(false);
+            const [msCounter, setMsCounter] = React.useState(0);
+            const [reasoningStep, setReasoningStep] = React.useState(0);
+            const [streamedOutput, setStreamedOutput] = React.useState('');
+            const [isMobileFlow, setIsMobileFlow] = React.useState(() => window.innerWidth < 768);
+            const [isDarkFlow, setIsDarkFlow] = React.useState(() => document.documentElement.classList.contains('dark'));
+
+            const currentScenario = ragScenarios[scenarioKey];
+            const activeStep = ragSteps[stepIndex];
+
+            // Mobile resize listener
+            React.useEffect(() => {
+                function handleResize() {
+                    setIsMobileFlow(window.innerWidth < 768);
+                }
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+
+            // Keep React Flow colors in sync with the page theme toggle.
+            React.useEffect(() => {
+                function syncTheme() {
+                    setIsDarkFlow(document.documentElement.classList.contains('dark'));
+                }
+
+                const observer = new MutationObserver(syncTheme);
+                observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+                syncTheme();
+                return () => observer.disconnect();
+            }, []);
+
+            // Smooth camera tracking
+            React.useEffect(() => {
+                const target = isMobileFlow ? activeStep.mobileCamera : activeStep.camera;
+                reactFlowInstance.setCenter(target.x, target.y, {
+                    zoom: target.zoom,
+                    duration: 1100
+                });
+            }, [activeStep.id, isMobileFlow, reactFlowInstance]);
+
+            // Step 0: Realistic Human Typing & Send Action
+            React.useEffect(() => {
+                if (stepIndex !== 0) return;
+
+                let isCancelled = false;
+                setTypedText('');
+                setSendClicked(false);
+                setCursorClicking(false);
+                setCursorPos({ x: 30, y: 35 });
+
+                const q = currentScenario.question;
+
+                // 1. Cursor smoothly enters input box
+                const t1 = setTimeout(() => {
+                    if (isCancelled) return;
+                    setCursorPos({ x: 80, y: 45 });
+                    setCursorClicking(true);
+
+                    // 2. Typing begins with human-like rhythm
+                    const t2 = setTimeout(() => {
+                        if (isCancelled) return;
+                        setCursorClicking(false);
+                        let charIdx = 0;
+
+                        const typeTimer = setInterval(() => {
+                            if (isCancelled) {
+                                clearInterval(typeTimer);
+                                return;
+                            }
+                            charIdx++;
+                            setTypedText(q.slice(0, charIdx));
+
+                            // When ~75% typed, cursor starts moving towards Send button
+                            if (charIdx > q.length * 0.75) {
+                                setCursorPos({ x: 232, y: 88 });
+                            }
+
+                            if (charIdx >= q.length) {
+                                clearInterval(typeTimer);
+
+                                // 3. Click the send button
+                                setTimeout(() => {
+                                    if (isCancelled) return;
+                                    setCursorPos({ x: 238, y: 88 });
+                                    setCursorClicking(true);
+                                    setSendClicked(true);
+
+                                    // Advance to step 1 (Vector Pipeline)
+                                    setTimeout(() => {
+                                        if (isCancelled) return;
+                                        setCursorClicking(false);
+                                        setStepIndex(1);
+                                    }, 850);
+                                }, 350);
+                            }
+                        }, 36);
+                    }, 350);
+                }, 500);
+
+                return () => {
+                    isCancelled = true;
+                    clearTimeout(t1);
+                };
+            }, [stepIndex, scenarioKey]);
+
+            // Step 1: Vector Pipeline
+            React.useEffect(() => {
+                if (stepIndex !== 1) return;
+                setTypedText(currentScenario.question);
+                setSendClicked(true);
+
+                const timer = setTimeout(() => {
+                    setStepIndex(2);
+                }, 2800);
+                return () => clearTimeout(timer);
+            }, [stepIndex, scenarioKey]);
+
+            // Step 2: Knowledge Base Live Millisecond Counter & Semantic Scan
+            React.useEffect(() => {
+                if (stepIndex !== 2) return;
+
+                let isCancelled = false;
+                setMsCounter(0);
+                const startTime = Date.now();
+                const targetMs = 38;
+                const duration = 1100;
+
+                const msInterval = setInterval(() => {
+                    if (isCancelled) {
+                        clearInterval(msInterval);
+                        return;
+                    }
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    setMsCounter(Math.floor(progress * targetMs));
+
+                    if (progress >= 1) {
+                        clearInterval(msInterval);
+                        setTimeout(() => {
+                            if (!isCancelled) setStepIndex(3);
+                        }, 1800);
+                    }
+                }, 35);
+
+                return () => {
+                    isCancelled = true;
+                    clearInterval(msInterval);
+                };
+            }, [stepIndex]);
+
+            // Step 3: AI Model Reasoning Steps
+            React.useEffect(() => {
+                if (stepIndex !== 3) return;
+
+                let isCancelled = false;
+                setReasoningStep(0);
+
+                const s1 = setTimeout(() => {
+                    if (!isCancelled) setReasoningStep(1);
+                }, 700);
+
+                const s2 = setTimeout(() => {
+                    if (!isCancelled) setReasoningStep(2);
+                }, 1500);
+
+                const s3 = setTimeout(() => {
+                    if (!isCancelled) setStepIndex(4);
+                }, 3000);
+
+                return () => {
+                    isCancelled = true;
+                    clearTimeout(s1);
+                    clearTimeout(s2);
+                    clearTimeout(s3);
+                };
+            }, [stepIndex]);
+
+            // Step 4: Output Streaming Typewriter & Auto-Alternate Scenarios
+            React.useEffect(() => {
+                if (stepIndex !== 4) return;
+
+                let isCancelled = false;
+                setStreamedOutput('');
+                const fullText = currentScenario.output;
+                let charIdx = 0;
+
+                const streamTimer = setInterval(() => {
+                    if (isCancelled) {
+                        clearInterval(streamTimer);
+                        return;
+                    }
+                    charIdx += 2;
+                    setStreamedOutput(fullText.slice(0, charIdx));
+
+                    if (charIdx >= fullText.length) {
+                        clearInterval(streamTimer);
+                        // Pause for reading, then alternate to the next scenario!
+                        setTimeout(() => {
+                            if (!isCancelled) {
+                                setScenarioKey(prev => prev === 'whatsapp' ? 'enterprise' : 'whatsapp');
+                                setStepIndex(0);
+                            }
+                        }, 3800);
+                    }
+                }, 28);
+
+                return () => {
+                    isCancelled = true;
+                    clearInterval(streamTimer);
+                };
+            }, [stepIndex, scenarioKey]);
+
+            // Node Definitions with clean horizontal layout
+            const baseNodes = [
+                { id: 'input', position: { x: 0, y: 50 }, kind: 'input', icon: 'IN', title: '1. Input Pengguna', subtitle: 'Pertanyaan Pelanggan', accent: '#38bdf8' },
+                { id: 'rag', position: { x: 330, y: 50 }, kind: 'rag', icon: 'VEC', title: '2. Vector Pipeline', subtitle: 'Embedding 1536-dim', accent: '#2dd4bf' },
+                { id: 'kb', position: { x: 660, y: 50 }, kind: 'kb', icon: 'KB', title: '3. Knowledge Base', subtitle: 'Pencarian Semantik', accent: '#10b981' },
+                { id: 'model', position: { x: 990, y: 50 }, kind: 'model', icon: 'AI', title: '4. Model Reasoning', subtitle: 'Zero-Hallucination', accent: '#a855f7' },
+                { id: 'output', position: { x: 1320, y: 50 }, kind: 'output', icon: 'OUT', title: '5. Output Respon', subtitle: 'Jawaban Terverifikasi', accent: '#14b8a6' }
+            ];
+
+            const nodes = baseNodes.map((node, index) => ({
+                id: node.id,
+                type: 'ragNode',
+                position: node.position,
+                draggable: false,
+                data: {
+                    ...node,
+                    scenario: currentScenario,
+                    typedText,
+                    sendClicked,
+                    cursorPos,
+                    cursorClicking,
+                    msCounter,
+                    reasoningStep,
+                    streamedOutput,
+                    active: node.id === activeStep.id,
+                    complete: index < stepIndex
+                }
+            }));
+
+            const edges = [
+                { id: 'input-rag', source: 'input', target: 'rag', color: '#38bdf8' },
+                { id: 'rag-kb', source: 'rag', target: 'kb', color: '#2dd4bf' },
+                { id: 'kb-model', source: 'kb', target: 'model', color: '#10b981' },
+                { id: 'model-output', source: 'model', target: 'output', color: '#a855f7' }
+            ].map((edge) => {
+                const isActive = edge.id === activeStep.edge;
+                return {
+                    id: edge.id,
+                    source: edge.source,
+                    target: edge.target,
+                    type: 'smoothstep',
+                    animated: isActive,
+                    className: isActive ? 'rag-edge-active' : '',
+                    style: {
+                        stroke: isActive ? edge.color : (isDarkFlow ? '#334155' : '#cbd5e1'),
+                        color: edge.color,
+                        strokeWidth: isActive ? 4 : 2,
+                        opacity: isActive ? 1 : (isDarkFlow ? 0.45 : 0.7)
+                    }
+                };
+            });
+
+            // Pure, seamless React Flow canvas with no borders or buttons
+            return h('div', { className: 'rag-flow-canvas relative h-full w-full overflow-hidden select-none' },
+                h(ReactFlow.ReactFlow, {
+                    nodes: nodes,
+                    edges: edges,
+                    nodeTypes: { ragNode: RagNode },
+                    nodesDraggable: false,
+                    nodesConnectable: false,
+                    elementsSelectable: false,
+                    panOnDrag: false,
+                    zoomOnScroll: false,
+                    zoomOnPinch: false,
+                    zoomOnDoubleClick: false,
+                    preventScrolling: false,
+                    minZoom: 0.65,
+                    maxZoom: 1.45,
+                    proOptions: { hideAttribution: true }
+                },
+                    h(ReactFlow.Background, { color: isDarkFlow ? '#1e293b' : '#cbd5e1', gap: 24, size: isDarkFlow ? 1.2 : 1.1 })
+                )
+            );
+        }
+
+        function RagFlowApp() {
+            return h(ReactFlow.ReactFlowProvider, null,
+                h(RagFlowCanvas)
+            );
+        }
+
+        const rootEl = document.getElementById('react-flow-root');
+        if (rootEl) {
+            const root = ReactDOM.createRoot(rootEl);
+            root.render(h(RagFlowApp));
+        }
+    </script>
 
     @php
         $landingWidget = \App\Models\Widget::where('slug', 'landing-page-default')->first();
@@ -648,5 +2297,4 @@
     </script>
     <script src="/widget/widget.js?v={{ time() }}"></script>
 </body>
-
 </html>

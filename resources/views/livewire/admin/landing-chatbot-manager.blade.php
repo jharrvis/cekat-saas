@@ -210,12 +210,12 @@
 
             {{-- Lead Collection Tab --}}
             <div x-show="activeTab === 'lead'" x-cloak>
-                @include('chatbots.tabs.lead', ['chatbot' => $widget])
+                @include('channels.tabs.lead', ['chatbot' => $widget])
             </div>
 
             {{-- Analytics Tab --}}
             <div x-show="activeTab === 'analytics'" x-cloak>
-                @include('chatbots.tabs.analytics', ['chatbot' => $widget])
+                @include('channels.tabs.analytics', ['chatbot' => $widget])
             </div>
 
 

@@ -38,7 +38,7 @@ class LandingChatbotManager extends Component
         $this->widget = $widget;
 
         $settings = $this->widget->settings ?? [];
-        $this->selectedModel = $settings['model'] ?? 'openai/gpt-4o-mini';
+        $this->selectedModel = $settings['model'] ?? config('services.openrouter.default_model');
         $this->widgetName = $this->widget->name;
         $this->greeting = $settings['greeting'] ?? 'Halo! 👋 Ada yang bisa saya bantu?';
         $this->primaryColor = $settings['primary_color'] ?? '#0f172a';

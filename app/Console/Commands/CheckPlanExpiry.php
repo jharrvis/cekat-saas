@@ -109,12 +109,8 @@ class CheckPlanExpiry extends Command
                 $this->error("Failed to send expiry email to {$user->email}: {$e->getMessage()}");
             }
 
-            // Downgrade to free plan
-            $user->update([
-                'plan_id' => $freePlan?->id,
-                'plan_expires_at' => null,
-                'monthly_message_used' => 0,
-            ]);
+            // Downgrade to free plan + deactivate all channels
+            \App\Services\Billing\PlanExpiryService::downgrade($user);
 
             $this->info("Downgraded {$user->email} from {$oldPlanName} to Free Plan.");
         }

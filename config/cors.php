@@ -15,7 +15,10 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    // api/* intentionally excluded: the widget API handles CORS per-widget
+    // in App\Http\Middleware\WidgetApiCors (a wildcard ACAO let any site
+    // read chat responses).
+    'paths' => ['sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CipherText;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,6 +43,52 @@ class ChatSession extends Model
         'is_lead' => 'boolean',
         'location_data' => 'array',
     ];
+
+    /**
+     * Visitor identity + AI summary are encrypted at rest (new rows);
+     * legacy plaintext rows are returned as-is and age out via chat:purge.
+     *
+     * NOTE: LIKE search on these columns only matches legacy rows.
+     */
+    public function getVisitorNameAttribute($value): ?string
+    {
+        return CipherText::decrypt($value);
+    }
+
+    public function setVisitorNameAttribute(?string $value): void
+    {
+        $this->attributes['visitor_name'] = CipherText::encrypt($value);
+    }
+
+    public function getVisitorEmailAttribute($value): ?string
+    {
+        return CipherText::decrypt($value);
+    }
+
+    public function setVisitorEmailAttribute(?string $value): void
+    {
+        $this->attributes['visitor_email'] = CipherText::encrypt($value);
+    }
+
+    public function getVisitorPhoneAttribute($value): ?string
+    {
+        return CipherText::decrypt($value);
+    }
+
+    public function setVisitorPhoneAttribute(?string $value): void
+    {
+        $this->attributes['visitor_phone'] = CipherText::encrypt($value);
+    }
+
+    public function getSummaryAttribute($value): ?string
+    {
+        return CipherText::decrypt($value);
+    }
+
+    public function setSummaryAttribute(?string $value): void
+    {
+        $this->attributes['summary'] = CipherText::encrypt($value);
+    }
 
     /**
      * Get the widget that owns the chat session.

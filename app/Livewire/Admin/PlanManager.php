@@ -23,12 +23,16 @@ class PlanManager extends Component
     public $max_documents = 3;
     public $max_file_size_mb = 5;
     public $max_faqs = 10;
+    public $chat_history_days = 7;
+    public $max_whatsapp_devices = 1;
     public $ai_tier = 'basic';
     public $features = [];
     public $is_active = true;
     public $sort_order = 0;
 
     public $availableFeatures = [
+        'leads' => 'Lead Collection',
+        'whatsapp' => 'WhatsApp Gateway',
         'custom_branding' => 'Custom Branding',
         'analytics' => 'Analytics',
         'priority_support' => 'Priority Support',
@@ -66,8 +70,12 @@ class PlanManager extends Component
         $this->max_documents = $plan->max_documents;
         $this->max_file_size_mb = $plan->max_file_size_mb;
         $this->max_faqs = $plan->max_faqs;
+        $this->chat_history_days = $plan->chat_history_days;
+        $this->max_whatsapp_devices = $plan->max_whatsapp_devices ?? 1;
         $this->ai_tier = $plan->ai_tier ?? 'basic';
         $this->features = $plan->features ?? [];
+        $this->features['leads'] = (bool) $plan->can_export_leads;
+        $this->features['whatsapp'] = (bool) $plan->can_use_whatsapp;
         $this->is_active = $plan->is_active;
         $this->sort_order = $plan->sort_order;
         $this->showForm = true;
@@ -84,7 +92,15 @@ class PlanManager extends Component
             'max_documents' => 'required|integer|min:0',
             'max_file_size_mb' => 'required|integer|min:1',
             'max_faqs' => 'required|integer|min:0',
+            'chat_history_days' => 'required|integer|min:0',
+            'max_whatsapp_devices' => 'required|integer|min:0',
+            'features' => 'array',
         ]);
+
+        $features = is_array($this->features) ? $this->features : [];
+        $canExportLeads = (bool) ($features['leads'] ?? false);
+        $canUseWhatsApp = (bool) ($features['whatsapp'] ?? false);
+        unset($features['leads'], $features['whatsapp']);
 
         $data = [
             'name' => $this->name,
@@ -97,8 +113,12 @@ class PlanManager extends Component
             'max_documents' => $this->max_documents,
             'max_file_size_mb' => $this->max_file_size_mb,
             'max_faqs' => $this->max_faqs,
+            'chat_history_days' => $this->chat_history_days,
+            'max_whatsapp_devices' => $this->max_whatsapp_devices,
+            'can_export_leads' => $canExportLeads,
+            'can_use_whatsapp' => $canUseWhatsApp,
             'ai_tier' => $this->ai_tier,
-            'features' => $this->features,
+            'features' => $features,
             'is_active' => $this->is_active,
             'sort_order' => $this->sort_order,
         ];
@@ -149,6 +169,8 @@ class PlanManager extends Component
         $this->max_documents = 3;
         $this->max_file_size_mb = 5;
         $this->max_faqs = 10;
+        $this->chat_history_days = 7;
+        $this->max_whatsapp_devices = 1;
         $this->ai_tier = 'basic';
         $this->features = [];
         $this->is_active = true;

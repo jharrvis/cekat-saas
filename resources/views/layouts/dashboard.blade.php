@@ -182,6 +182,8 @@
         </main>
     </div>
 
+    @include('layouts.partials.verify-modal')
+
     @livewireScripts
     @stack('scripts')
 </body>

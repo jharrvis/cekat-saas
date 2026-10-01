@@ -29,8 +29,22 @@ class GoogleController extends Controller
                 if (!$user->google_id) {
                     $user->update(['google_id' => $googleUser->getId()]);
                 }
+
+                // Unverified account (incl. legacy users) - email the OTP now
+                if (! $user->hasVerifiedEmail()
+                    && ! app(\App\Services\Auth\EmailOtpService::class)->hasLiveCode($user)) {
+                    try {
+                        $user->sendEmailVerificationNotification();
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Failed to send verification code', [
+                            'user_id' => $user->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
             } else {
-                // Create new user
+                // Create new user - email is NOT auto-verified: every new
+                // account must enter the OTP sent to their inbox
                 $user = User::create([
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
@@ -38,8 +52,7 @@ class GoogleController extends Controller
                     'avatar' => $googleUser->getAvatar(),
                     'password' => Hash::make(Str::random(32)), // Random password
                     'role' => 'user',
-                    'plan_tier' => 'starter',
-                    'monthly_message_quota' => 100,
+                    'plan_id' => app(\App\Services\Billing\PlanLimitService::class)->defaultPlan()?->id,
                     'monthly_message_used' => 0,
                 ]);
 
@@ -56,6 +69,15 @@ class GoogleController extends Controller
                     'persona_name' => 'AI Assistant',
                     'persona_tone' => 'friendly',
                 ]);
+
+                try {
+                    $user->sendEmailVerificationNotification();
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Failed to send verification code', [
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
 
             Auth::login($user);

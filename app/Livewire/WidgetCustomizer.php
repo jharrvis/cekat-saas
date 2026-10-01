@@ -81,22 +81,26 @@ class WidgetCustomizer extends Component
             $path = $this->avatarUpload->store('avatars', 'public');
             $this->avatarUrl = '/storage/' . $path;
             $this->avatarType = 'image';
+            // Reset so a later Save (e.g. after switching back to an icon)
+            // does not re-store the same file and force type=image again.
+            $this->avatarUpload = null;
         }
+
+        // Merge - never replace. Rebuilding the array from scratch used to wipe
+        // allowed_domains (domain restriction silently fail-opened), subtitle,
+        // placeholder, lead_* and webhook_* on every save.
+        $settings = $this->widget->settings ?? [];
+        $settings['color'] = $this->primaryColor;
+        $settings['greeting'] = $this->greeting;
+        $settings['position'] = $this->position;
+        $settings['avatar_type'] = $this->avatarType;
+        $settings['avatar_icon'] = $this->avatarIcon;
+        $settings['avatar_url'] = $this->avatarUrl;
+        $settings['model'] = $settings['model'] ?? config('services.openrouter.default_model');
 
         $this->widget->update([
             'name' => $this->name,
-            'settings' => [
-                'color' => $this->primaryColor,
-                'greeting' => $this->greeting,
-                'position' => $this->position,
-                'greeting' => $this->greeting,
-                'position' => $this->position,
-                'avatar_type' => $this->avatarType,
-                'avatar_icon' => $this->avatarIcon,
-                'avatar_url' => $this->avatarUrl,
-                // Model is handled separately in Model Selection tab
-                'model' => $this->widget->settings['model'] ?? 'nvidia/llama-3.1-nemotron-70b-instruct:free',
-            ],
+            'settings' => $settings,
         ]);
 
         $this->generateEmbedCode();
@@ -115,7 +119,7 @@ class WidgetCustomizer extends Component
     widgetId: '{$widgetSlug}'
   };
 </script>
-<script src="{$url}/widget/widget.min.js" async></script>
+<script src="{$url}/widget/widget.min.js?v=20260930-p6" async></script>
 HTML;
     }
 

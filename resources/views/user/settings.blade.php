@@ -40,7 +40,7 @@
                         <input type="email" name="email" value="{{ auth()->user()->email }}"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-muted"
                             disabled>
-                        <p class="text-xs text-muted-foreground mt-1">Email tidak dapat diubah</p>
+                        <p class="text-xs text-muted-foreground mt-1">Untuk mengubah email, gunakan bagian "Ganti Email" di bawah</p>
                     </div>
                 </div>
 
@@ -48,6 +48,41 @@
                     <button type="submit"
                         class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
                         Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {{-- Email Change Section --}}
+        <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
+            <h3 class="font-semibold text-lg mb-1">Ganti Email</h3>
+            <p class="text-sm text-muted-foreground mb-4">
+                Perubahan aktif setelah dikonfirmasi melalui link yang dikirim ke email baru.
+            </p>
+
+            @if(auth()->user()->pending_email)
+                <div class="mb-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-400 px-4 py-3 rounded-lg text-sm">
+                    Menunggu konfirmasi ke <strong>{{ auth()->user()->pending_email }}</strong>.
+                    Tidak menerima email? Kirim ulang dengan mengisi ulang email yang sama di bawah.
+                </div>
+            @endif
+
+            <form action="{{ route('settings.update-email') }}" method="POST" class="space-y-4">
+                @csrf
+                @method('PUT')
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email Baru</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@perusahaan.com"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit"
+                        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
+                        Kirim Link Konfirmasi
                     </button>
                 </div>
             </form>
@@ -97,7 +132,7 @@
                 <div>
                     <p class="font-semibold text-primary">{{ auth()->user()->plan->name ?? 'Free Plan' }}</p>
                     <p class="text-sm text-muted-foreground mt-1">
-                        {{ auth()->user()->monthly_message_used ?? 0 }} / {{ auth()->user()->monthly_message_quota ?? 100 }}
+                        {{ auth()->user()->monthly_message_used ?? 0 }} / {{ app(\App\Services\Billing\PlanLimitService::class)->limit(auth()->user(), 'monthly_messages') }}
                         pesan bulan ini
                     </p>
                 </div>

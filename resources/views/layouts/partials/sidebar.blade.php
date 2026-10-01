@@ -65,6 +65,13 @@
                     class="font-medium whitespace-nowrap transition-opacity duration-200">Plans</span>
             </a>
 
+            <a href="{{ route('admin.models') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.models') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
+                <i class="fa-solid fa-microchip w-5 text-center text-base shrink-0"></i>
+                <span x-show="!sidebarCollapsed"
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">AI Models & Tiers</span>
+            </a>
+
             <a href="{{ route('admin.billing') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.billing') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-file-invoice-dollar w-5 text-center text-base shrink-0"></i>
@@ -123,18 +130,17 @@
                     class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">NEW</span>
             </a>
 
-            <a href="{{ route('chatbots.index') }}"
-                class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('chatbots.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
+            <a href="{{ route('channels.index') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('channels.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-robot w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Chatbot Widget</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">Channels</span>
             </a>
 
             <a href="{{ route('chats.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('chats.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-comments w-5 text-center text-base shrink-0"></i>
-                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">Chat
-                    History</span>
+                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">Inbox</span>
             </a>
 
             <a href="{{ route('leads.index') }}"
@@ -142,6 +148,10 @@
                 <i class="fa-solid fa-user-plus w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
                     class="font-medium whitespace-nowrap transition-opacity duration-200">Leads</span>
+                @unless(auth()->user()->canUseLeads())
+                    <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
+                        title="Fitur ini tersedia di paket Pro ke atas"></i>
+                @endunless
             </a>
 
             @if(\App\Services\WhatsApp\WhatsAppManager::isEnabled())
@@ -150,6 +160,10 @@
                     <i class="fa-brands fa-whatsapp w-5 text-center text-base shrink-0"></i>
                     <span x-show="!sidebarCollapsed"
                         class="font-medium whitespace-nowrap transition-opacity duration-200">WhatsApp</span>
+                    @unless(auth()->user()->canUseWhatsApp())
+                        <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
+                            title="Fitur ini tersedia di paket Pro ke atas"></i>
+                    @endunless
                 </a>
             @endif
 
@@ -180,6 +194,17 @@
                 <span x-show="!sidebarCollapsed"
                     class="font-medium whitespace-nowrap transition-opacity duration-200">Integration</span>
             </a>
+
+            <a href="{{ route('api-keys.index') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('api-keys.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
+                <i class="fa-solid fa-key w-5 text-center text-base shrink-0"></i>
+                <span x-show="!sidebarCollapsed"
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">API Keys</span>
+                @unless(auth()->user()->canUseApi())
+                    <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
+                        title="Fitur ini tersedia di paket Pro ke atas"></i>
+                @endunless
+            </a>
         @endif
     </nav>
 
@@ -187,8 +212,9 @@
     <div class="p-4 border-t bg-muted/20">
         @php
             $user = auth()->user();
-            $plan = $user->plan;
-            $quota = $plan->max_messages_per_month ?? 100;
+            $planLimits = app(\App\Services\Billing\PlanLimitService::class);
+            $plan = $planLimits->planFor($user);
+            $quota = $planLimits->limit($plan, 'monthly_messages');
             $used = $user->monthly_message_used ?? 0;
             $percentage = $quota > 0 ? min(($used / $quota) * 100, 100) : 0;
 
@@ -248,6 +274,17 @@
             <p class="text-[10px] text-muted-foreground">
                 {{ number_format($used, 0, ',', '.') }} / {{ number_format($quota, 0, ',', '.') }} Messages
             </p>
+            @if($user->plan_expires_at && $plan && $plan->price > 0)
+                @php($daysLeft = (int) ceil(now()->diffInDays($user->plan_expires_at, false)))
+                <p class="text-[10px] mt-1 {{ $daysLeft <= 3 ? 'text-amber-600 font-semibold' : 'text-muted-foreground' }}">
+                    <i class="fa-regular fa-clock mr-1"></i>
+                    @if($daysLeft >= 0)
+                        Berlaku s/d {{ $user->plan_expires_at->format('d M Y') }} ({{ $daysLeft }} hari lagi)
+                    @else
+                        Berakhir {{ $user->plan_expires_at->format('d M Y') }}
+                    @endif
+                </p>
+            @endif
             @if($sidebarWarning !== 'normal')
                 <a href="{{ route('billing') }}"
                     class="block mt-2 text-center px-2 py-1 {{ $sidebarWarning === 'exceeded' ? 'bg-red-500 hover:bg-red-600' : 'bg-amber-500 hover:bg-amber-600' }} text-white text-xs rounded font-medium transition">

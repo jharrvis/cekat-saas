@@ -23,6 +23,7 @@ class Plan extends Model
         'chat_history_days',
         'can_export_leads',
         'can_use_whatsapp',
+        'max_whatsapp_devices',
         'allowed_models',
         'features',
         'ai_tier',
@@ -43,6 +44,7 @@ class Plan extends Model
         'max_file_size_mb' => 'integer',
         'max_faqs' => 'integer',
         'chat_history_days' => 'integer',
+        'max_whatsapp_devices' => 'integer',
         'sort_order' => 'integer',
     ];
 
@@ -59,7 +61,7 @@ class Plan extends Model
      */
     public function allowsModel(string $model): bool
     {
-        return in_array($model, $this->allowed_models ?? []);
+        return app(\App\Services\Billing\PlanLimitService::class)->allowsModel($this, $model);
     }
 
     /**
@@ -67,6 +69,6 @@ class Plan extends Model
      */
     public function hasFeature(string $feature): bool
     {
-        return ($this->features[$feature] ?? false) === true;
+        return app(\App\Services\Billing\PlanLimitService::class)->feature($this, $feature);
     }
 }

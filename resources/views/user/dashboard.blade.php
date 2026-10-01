@@ -87,10 +87,10 @@
                                         1
                                     @endif
                                 </div>
-                                <h4 class="font-semibold text-sm">Buat Chatbot</h4>
-                                <p class="text-xs text-muted-foreground mt-1">Buat chatbot pertama Anda</p>
+                                <h4 class="font-semibold text-sm">Buat Channel</h4>
+                                <p class="text-xs text-muted-foreground mt-1">Buat channel pertama Anda</p>
                                 @if($widgets->count() === 0)
-                                    <a href="{{ route('chatbots.create') }}" class="mt-2 text-xs text-primary hover:underline">
+                                    <a href="{{ route('channels.create') }}" class="mt-2 text-xs text-primary hover:underline">
                                         Mulai →
                                     </a>
                                 @endif
@@ -113,7 +113,7 @@
                                 <h4 class="font-semibold text-sm">Training AI</h4>
                                 <p class="text-xs text-muted-foreground mt-1">Tambahkan FAQ & pengetahuan</p>
                                 @if($widgets->count() > 0 && !$hasKnowledgeBase)
-                                    <a href="{{ route('chatbots.edit', $widgets->first()) }}#knowledge"
+                                    <a href="{{ route('channels.edit', $widgets->first()) }}#knowledge"
                                         class="mt-2 text-xs text-primary hover:underline">
                                         Mulai →
                                     </a>
@@ -129,7 +129,7 @@
                                 <h4 class="font-semibold text-sm">Pasang Widget</h4>
                                 <p class="text-xs text-muted-foreground mt-1">Copy kode ke website Anda</p>
                                 @if($widgets->count() > 0)
-                                    <a href="{{ route('chatbots.edit', $widgets->first()) }}#embed"
+                                    <a href="{{ route('channels.edit', $widgets->first()) }}#embed"
                                         class="mt-2 text-xs text-primary hover:underline">
                                         Lihat Kode →
                                     </a>
@@ -356,7 +356,8 @@
             @if(count($recentConversations) > 0)
                 <div class="space-y-4">
                     @foreach($recentConversations as $conv)
-                        <div class="p-4 border rounded-lg hover:bg-muted/30 transition">
+                        <a href="{{ route('chats.show', $conv['id']) }}"
+                           class="block p-4 border rounded-lg hover:bg-muted/30 hover:border-primary/40 transition" title="Buka detail percakapan">
                             {{-- Header Row --}}
                             <div class="flex items-start justify-between gap-2 mb-2">
                                 <div class="flex items-center gap-3">
@@ -431,7 +432,7 @@
                                     @endif
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
             @else
@@ -446,8 +447,8 @@
         {{-- Widgets Section --}}
         <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
             <div class="flex justify-between items-center mb-4">
-                <h4 class="font-semibold">Chatbot Anda</h4>
-                <a href="{{ route('chatbots.create') }}" class="text-sm text-primary hover:underline">
+                <h4 class="font-semibold">Channel Anda</h4>
+                <a href="{{ route('channels.create') }}" class="text-sm text-primary hover:underline">
                     <i class="fa-solid fa-plus mr-1"></i> Buat Baru
                 </a>
             </div>
@@ -455,7 +456,7 @@
             @if($widgets->count() > 0)
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach($widgets as $widget)
-                        <a href="{{ route('chatbots.edit', $widget) }}"
+                        <a href="{{ route('channels.edit', $widget) }}"
                             class="p-4 border rounded-lg hover:border-primary hover:bg-primary/5 transition group">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white"
@@ -478,10 +479,10 @@
             @else
                 <div class="text-center py-8">
                     <i class="fa-solid fa-robot text-4xl text-muted-foreground mb-4"></i>
-                    <p class="text-muted-foreground">Belum ada chatbot</p>
-                    <a href="{{ route('chatbots.create') }}"
+                    <p class="text-muted-foreground">Belum ada channel</p>
+                    <a href="{{ route('channels.create') }}"
                         class="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                        <i class="fa-solid fa-plus"></i> Buat Chatbot Pertama
+                        <i class="fa-solid fa-plus"></i> Buat Channel Pertama
                     </a>
                 </div>
             @endif

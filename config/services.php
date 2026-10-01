@@ -36,8 +36,10 @@ return [
     ],
 
     'openrouter' => [
-        'api_key' => env('OPENROUTER_API_KEY', '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'),
-        'default_model' => env('OPENROUTER_DEFAULT_MODEL', 'nvidia/llama-3.1-nemotron-70b-instruct:free'),
+        // Secret comes only from .env (OPENROUTER_API_KEY); never commit a key here.
+        'api_key' => env('OPENROUTER_API_KEY'),
+        'default_model' => env('OPENROUTER_DEFAULT_MODEL', 'openrouter/free'),
+        'fallback_model' => env('OPENROUTER_FALLBACK_MODEL', 'openrouter/free'),
     ],
 
     'google' => [

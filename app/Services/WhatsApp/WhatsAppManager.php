@@ -6,8 +6,8 @@ use App\Models\WhatsAppDevice;
 use App\Models\WhatsAppMessage;
 use App\Models\Widget;
 use App\Models\Setting;
+use App\Services\OpenRouterClient;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 
 /**
  * WhatsApp Module Manager
@@ -445,22 +445,16 @@ class WhatsAppManager
             ...$history
         ];
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . config('services.openrouter.api_key'),
-            'HTTP-Referer' => config('app.url'),
-            'X-Title' => 'Cekat SaaS WhatsApp',
-        ])->timeout(60)->post('https://openrouter.ai/api/v1/chat/completions', [
-                    'model' => $model,
-                    'messages' => $allMessages,
-                    'temperature' => 0.7,
-                    'max_tokens' => 1500,
-                ]);
-
-        $data = $response->json();
+        $data = OpenRouterClient::chatCompletion([
+            'model' => $model,
+            'messages' => $allMessages,
+            'temperature' => 0.7,
+            'max_tokens' => 1500,
+        ], 60, 'Cekat SaaS WhatsApp');
 
         return [
             'response' => $data['choices'][0]['message']['content'] ?? 'Maaf, tidak dapat memproses pesan.',
-            'model' => $model,
+            'model' => $data['model'] ?? $model,
             'tokens' => $data['usage']['total_tokens'] ?? 0,
         ];
     }
@@ -497,18 +491,14 @@ class WhatsAppManager
      */
     private function getModelForWidget(Widget $widget): string
     {
-        $defaultModel = 'nvidia/nemotron-3-nano-30b-a3b:free';
+        $defaultModel = config('services.openrouter.default_model');
 
         if (!$widget->user) {
             return $defaultModel;
         }
 
-        $plan = $widget->user->plan;
-        if (!$plan) {
-            return $defaultModel;
-        }
-
-        $aiTier = $plan->ai_tier ?? 'basic';
+        $limits = app(\App\Services\Billing\PlanLimitService::class);
+        $aiTier = $limits->aiTier($widget->user);
         $mappingData = Setting::get('ai_tier_mapping');
 
         if ($mappingData) {
@@ -518,11 +508,13 @@ class WhatsAppManager
             }
         }
 
+        // Semua tier memakai model gratis yang sama; OpenRouterClient akan
+        // otomatis fallback ke openrouter/free jika model ini gagal.
         $defaultMapping = [
-            'basic' => 'nvidia/nemotron-3-nano-30b-a3b:free',
-            'standard' => 'openai/gpt-4o-mini',
-            'advanced' => 'openai/gpt-4o-mini',
-            'premium' => 'openai/gpt-4o-mini',
+            'basic' => $defaultModel,
+            'standard' => $defaultModel,
+            'advanced' => $defaultModel,
+            'premium' => $defaultModel,
         ];
 
         return $defaultMapping[$aiTier] ?? $defaultModel;

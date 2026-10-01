@@ -106,10 +106,21 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
-                                <a href="{{ route('chats.show', $lead->id) }}"
-                                    class="px-3 py-1 text-sm bg-muted hover:bg-muted/80 rounded-lg transition">
-                                    <i class="fa-solid fa-comments mr-1"></i>View Chat
-                                </a>
+                                <div class="flex gap-2">
+                                    <a href="{{ route('chats.show', $lead->id) }}"
+                                        class="px-3 py-1 text-sm bg-muted hover:bg-muted/80 rounded-lg transition">
+                                        <i class="fa-solid fa-comments mr-1"></i>View Chat
+                                    </a>
+                                    <form action="{{ route('leads.destroy', $lead->id) }}" method="POST"
+                                        onsubmit="return confirm('Hapus lead & percakapan ini permanen? Tindakan ini tidak bisa dibatalkan.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="px-3 py-1 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition">
+                                            <i class="fa-solid fa-trash mr-1"></i>Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

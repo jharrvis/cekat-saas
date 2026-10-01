@@ -1,7 +1,6 @@
 {{-- AI Tier Card Component --}}
 @php
-    $userPlan = Auth::user()->plan;
-    $currentTier = $userPlan ? ($userPlan->ai_tier ?? 'basic') : 'basic';
+    $currentTier = app(\App\Services\Billing\PlanLimitService::class)->aiTier(Auth::user());
 
     $tiers = [
         'basic' => [
