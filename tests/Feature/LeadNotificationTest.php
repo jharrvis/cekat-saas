@@ -322,5 +322,94 @@ class LeadNotificationTest extends TestCase
                 && str_contains($html, 'billing langganan');
         });
     }
+
+    public function test_custom_channel_notification_email_receives_the_lead(): void
+    {
+        Mail::fake();
+
+        [$owner, $widget, $session] = $this->makeStack(true);
+        $widget->update(['settings' => [
+            'lead_email_notif_enabled' => true,
+            'lead_email_notif' => 'tim-leads@example.com',
+            'lead_email_new_lead' => true,
+        ]]);
+
+        event(new LeadCaptured(
+            $widget->slug,
+            ['name', 'email'],
+            $session->visitor_uuid,
+            ['name' => 'Budi Santoso', 'email' => 'budi@example.com'],
+        ));
+
+        Mail::assertSent(NewLead::class, fn ($m) => $m->hasTo('tim-leads@example.com') && ! $m->hasTo($owner->email));
+    }
+
+    public function test_disabled_channel_notif_falls_back_to_owner_email(): void
+    {
+        Mail::fake();
+
+        [$owner, $widget, $session] = $this->makeStack(true);
+        $widget->update(['settings' => [
+            'lead_email_notif_enabled' => false,
+            'lead_email_notif' => 'tim@example.com',
+        ]]);
+
+        event(new LeadCaptured(
+            $widget->slug,
+            ['name'],
+            $session->visitor_uuid,
+            ['name' => 'Naomi'],
+        ));
+
+        Mail::assertSent(NewLead::class, fn ($m) => $m->hasTo($owner->email) && ! $m->hasTo('tim@example.com'));
+    }
+
+    public function test_new_lead_toggle_off_sends_no_email_but_lead_is_kept(): void
+    {
+        Mail::fake();
+
+        [, $widget, $session] = $this->makeStack(true);
+        $widget->update(['settings' => [
+            'lead_email_notif_enabled' => true,
+            'lead_email_notif' => 'tim@example.com',
+            'lead_email_new_lead' => false,
+        ]]);
+
+        event(new LeadCaptured(
+            $widget->slug,
+            ['name'],
+            $session->visitor_uuid,
+            ['name' => 'Tidak Dikirim'],
+        ));
+
+        $this->assertTrue($session->fresh()->is_lead);
+        Mail::assertNotSent(NewLead::class);
+    }
+
+    public function test_lead_notif_email_is_required_when_toggle_enabled(): void
+    {
+        [$owner, $widget] = $this->makeStack(true);
+
+        // Toggle on + empty email -> validation error, nothing saved.
+        $this->actingAs($owner)
+            ->put(route('channels.update', $widget->id), ['tab' => 'lead', 'lead_email_notif_enabled' => '1'])
+            ->assertSessionHasErrors('lead_email_notif');
+
+        // Toggle on + valid email -> saved on the widget.
+        $this->actingAs($owner)
+            ->put(route('channels.update', $widget->id), [
+                'tab' => 'lead',
+                'lead_email_notif_enabled' => '1',
+                'lead_email_notif' => 'tim@example.com',
+                'lead_email_new_lead' => '1',
+            ])
+            ->assertSessionDoesntHaveErrors()
+            ->assertRedirect();
+
+        $settings = $widget->refresh()->settings;
+        $this->assertTrue($settings['lead_email_notif_enabled']);
+        $this->assertSame('tim@example.com', $settings['lead_email_notif']);
+        $this->assertTrue($settings['lead_email_new_lead']);
+    }
 }
 

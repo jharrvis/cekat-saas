@@ -396,6 +396,14 @@ Route::middleware(['auth', 'is.admin', 'verified'])->prefix('admin')->group(func
             $settings['lead_form_require_email'] = request()->has('lead_form_require_email');
             $settings['lead_form_require_phone'] = request()->has('lead_form_require_phone');
 
+            // Email notification per channel (no FormRequest on this admin
+            // route; the listener falls back to the owner email when the
+            // stored address is empty or invalid).
+            $notifEnabled = request()->has('lead_email_notif_enabled');
+            $settings['lead_email_notif_enabled'] = $notifEnabled;
+            $settings['lead_email_notif'] = trim((string) request('lead_email_notif', ''));
+            $settings['lead_email_new_lead'] = $notifEnabled ? request()->has('lead_email_new_lead') : true;
+
             $widget->update(['settings' => $settings]);
         }
         return redirect()->back()->with('success', 'Lead collection settings saved!');

@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * Persists a captured lead onto its chat session (so it shows up in
- * Lead Collection) and emails the widget owner for follow-up.
- * Logs never contain lead PII.
+ * Lead Collection) and emails the widget owner for follow-up - or the
+ * channel's dedicated notification address when configured in the
+ * Lead tab. Logs never contain lead PII.
  */
 class SendLeadNotification
 {
@@ -69,8 +70,26 @@ class SendLeadNotification
             return;
         }
 
-        $send = function () use ($owner, $widget, $session, $e) {
-            Mail::to($owner->email)->send(new NewLead($owner, $widget, $session, $e->lead));
+        // Per-channel email notification (Lead tab). Opt-out checkbox is
+        // only stored when the toggle is on; off = legacy owner email.
+        $settings = (array) $widget->settings;
+
+        if (! ($settings['lead_email_new_lead'] ?? true)) {
+            return;
+        }
+
+        $recipient = $owner->email;
+
+        if (! empty($settings['lead_email_notif_enabled'])) {
+            $custom = trim((string) ($settings['lead_email_notif'] ?? ''));
+
+            if ($custom !== '' && filter_var($custom, FILTER_VALIDATE_EMAIL)) {
+                $recipient = $custom;
+            }
+        }
+
+        $send = function () use ($recipient, $owner, $widget, $session, $e) {
+            Mail::to($recipient)->send(new NewLead($owner, $widget, $session, $e->lead));
         };
 
         // The owner expects the conversation summary inside the email.

@@ -144,6 +144,49 @@
                 </div>
             </div>
 
+            {{-- Email notification per channel --}}
+            <style>[x-cloak] { display: none !important; }</style>
+            <div class="bg-muted/30 rounded-xl p-6 mb-6 border"
+                 x-data="{ notifOn: {{ ($chatbot->settings['lead_email_notif_enabled'] ?? false) ? 'true' : 'false' }} }">
+                <div class="flex items-start gap-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="lead_email_notif_enabled" value="1"
+                                    x-model="notifOn"
+                                    {{ ($chatbot->settings['lead_email_notif_enabled'] ?? false) ? 'checked' : '' }}
+                                    class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
+                            <h4 class="font-semibold">Notifikasi Email Leads</h4>
+                            <span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Per Channel</span>
+                        </div>
+                        <p class="text-sm text-muted-foreground mb-4">
+                            Kirim notifikasi lead ke email khusus channel ini. Saat nonaktif (default), notifikasi dikirim ke email utama akun Anda.
+                        </p>
+
+                        <div x-show="notifOn" class="space-y-4">
+                            <div>
+                                <label class="text-sm block mb-2">Email tujuan <span class="text-red-500">*</span></label>
+                                <input type="email" name="lead_email_notif"
+                                    value="{{ $chatbot->settings['lead_email_notif'] ?? '' }}"
+                                    placeholder="tim@example.com"
+                                    class="w-full max-w-md px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                @error('lead_email_notif')
+                                    <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <label class="flex items-center gap-2 text-sm">
+                                <input type="checkbox" name="lead_email_new_lead" value="1"
+                                    {{ ($chatbot->settings['lead_email_new_lead'] ?? true) ? 'checked' : '' }}
+                                    class="rounded border-gray-300 text-primary focus:ring-primary">
+                                <span>Kirim notifikasi saat <strong>lead baru</strong> terdeteksi</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <button type="submit" class="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
                 <i class="fa-solid fa-save mr-2"></i> Simpan Pengaturan Lead
             </button>

@@ -20,6 +20,14 @@ class UpdateWidgetRequest extends FormRequest
         if ($this->input('ai_agent_id') === '') {
             $this->merge(['ai_agent_id' => null]);
         }
+
+        // The lead-notification email input stays in the form while its
+        // panel is hidden (toggle off) and submits ""; drop the empty key
+        // so the non-implicit `email` rule does not fail on it. When the
+        // toggle IS on, an empty value must keep failing required_if.
+        if (! $this->has('lead_email_notif_enabled') && trim((string) $this->input('lead_email_notif', '')) === '') {
+            $this->request->remove('lead_email_notif');
+        }
     }
 
     public function rules(): array
@@ -41,6 +49,7 @@ class UpdateWidgetRequest extends FormRequest
             // Lead tab
             'lead_trigger_after_message' => 'nullable|integer|min:1|max:50',
             'lead_trigger_keywords' => 'nullable|string|max:1000',
+            'lead_email_notif' => ['required_if:lead_email_notif_enabled,1', 'email', 'max:255'],
             // Webhook tab
             'webhook_url' => 'nullable|url|max:2000',
             'webhook_secret' => 'nullable|string|max:500',

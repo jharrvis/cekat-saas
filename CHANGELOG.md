@@ -43,6 +43,18 @@ Fitur baru: akses data (leads, sessions, widgets, stats) via API key utk integra
 
 **Test:** 1 test diperluas — suite 270 passed.
 
+### Notifikasi email lead per channel (tab Lead) (2026-10-01)
+
+**Permintaan:** tiap channel bisa punya email notifikasi sendiri utk lead baru — saat fitur diaktifkan user memasukkan email + config notifikasi lead baru; saat nonaktif, email tetap dikirim ke email utama akun (perilaku lama).
+
+**Implementasi** (semua key di JSON `settings` widget — tanpa migrasi):
+- **UI** kartu "Notifikasi Email Leads" di tab Lead (`channels/tabs/lead.blade.php`, juga tampil di admin landing-chatbot): toggle `lead_email_notif_enabled`, input `lead_email_notif` (muncul saat aktif, wajib & divalidasi email), checkbox `lead_email_new_lead` "Kirim notifikasi saat lead baru" (default on).
+- **`SendLeadNotification`**: penerima = email channel (aktif + alamat valid) selain itu email owner; `lead_email_new_lead` off → tanpa email (lead tetap tersimpan); alamat kosong/tidak valid → fallback defensif ke email owner.
+- **Penyimpanan:** branch lead `ChannelController::update()` + route admin `admin.landing-chatbot.update-lead` menulis 3 key; saat toggle off, `lead_email_new_lead` dipaksa `true` (legacy).
+- **Validasi:** `UpdateWidgetRequest` — `lead_email_notif` `required_if:lead_email_notif_enabled,1|email`; `prepareForValidation` membuang input kosong saat toggle off supaya rule `email` tak menolak field tersembunyi.
+
+**Test:** +4 (email khusus menerima lead, fallback owner bila nonaktif, checkbox off = tanpa email, validasi wajib-email saat aktif) — LeadNotificationTest 13 test, suite **274 passed / 1068 assertions**.
+
 ### Tabel chatbot dirender profesional (2026-09-30)
 
 **Masalah:** balasan AI berformat markdown table (`| Ukuran | Estimasi Harga |` + `|---|`) tampil mentah — pipe & garis pemisah berantakan di widget maupun inbox admin.
