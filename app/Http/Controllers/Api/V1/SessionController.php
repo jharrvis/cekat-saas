@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Services\Api\LeadQueryService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -18,8 +19,11 @@ class SessionController extends V1Controller
     {
         $query = $this->sessions->sessionsFor($request->user())->with('widget');
 
-        if ($widget = $request->integer('widget_id')) {
-            $query->where('widget_id', $widget);
+        if (($widgetId = $this->resolveWidgetId($request)) instanceof JsonResponse) {
+            return $widgetId;
+        }
+        if ($widgetId !== null) {
+            $query->where('widget_id', $widgetId);
         }
 
         if ($request->has('is_lead')) {

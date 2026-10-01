@@ -90,6 +90,39 @@ class ApiV1DataTest extends TestCase
         $this->assertSame('Rinto', $response->json('data.0.name'));
     }
 
+    public function test_widget_id_filter_accepts_numeric_id_and_slug_and_rejects_unknown(): void
+    {
+        $widgetA = $this->widgetFor($this->owner);
+        $widgetB = $this->widgetFor($this->owner);
+        $leadA = $this->sessionWithContact($widgetA, ['visitor_name' => 'Lead A']);
+        $this->sessionWithContact($widgetB, ['visitor_name' => 'Lead B']);
+
+        // Numeric ID filters correctly.
+        $res = $this->getJson('/api/v1/leads?widget_id=' . $widgetA->id, $this->auth());
+        $res->assertStatus(200);
+        $this->assertSame([$leadA->id], array_column($res->json('data'), 'id'));
+
+        // Slug (as returned in widget.slug) filters the same way.
+        $res = $this->getJson('/api/v1/leads?widget_id=' . $widgetA->slug, $this->auth());
+        $res->assertStatus(200);
+        $this->assertSame([$leadA->id], array_column($res->json('data'), 'id'));
+
+        // Unknown value must be a 400, never silently ignored.
+        $this->getJson('/api/v1/leads?widget_id=does-not-exist', $this->auth())
+            ->assertStatus(400)
+            ->assertJson(['error_code' => 'invalid_param']);
+
+        $this->getJson('/api/v1/sessions?widget_id=does-not-exist', $this->auth())
+            ->assertStatus(400)
+            ->assertJson(['error_code' => 'invalid_param']);
+
+        // Sessions endpoint accepts slug too.
+        $res = $this->getJson('/api/v1/sessions?widget_id=' . $widgetB->slug, $this->auth());
+        $res->assertStatus(200);
+        $this->assertCount(1, $res->json('data'));
+        $this->assertSame($widgetB->id, $res->json('data.0.widget.id'));
+    }
+
     public function test_leads_show_includes_summary_and_cross_user_returns_404(): void
     {
         $widget = $this->widgetFor($this->owner);

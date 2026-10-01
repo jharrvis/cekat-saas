@@ -72,7 +72,7 @@
                         <tr>
                             <td class="p-3 font-mono">GET</td>
                             <td class="p-3 font-mono">/api/v1/leads</td>
-                            <td class="p-3">Daftar leads (sesi dengan data kontak). Filter: <code>widget_id</code>, <code>search</code>, <code>since</code>, <code>until</code>, <code>cursor</code>, <code>limit</code></td>
+                            <td class="p-3">Daftar leads (sesi dengan data kontak). Filter: <code>widget_id</code> (ID numerik atau slug widget), <code>search</code>, <code>since</code>, <code>until</code>, <code>cursor</code>, <code>limit</code></td>
                         </tr>
                         <tr>
                             <td class="p-3 font-mono">GET</td>
@@ -82,7 +82,7 @@
                         <tr>
                             <td class="p-3 font-mono">GET</td>
                             <td class="p-3 font-mono">/api/v1/sessions</td>
-                            <td class="p-3">Semua sesi chat. Filter: <code>widget_id</code>, <code>is_lead</code>, <code>since</code>, <code>until</code></td>
+                            <td class="p-3">Semua sesi chat. Filter: <code>widget_id</code> (ID numerik atau slug widget), <code>is_lead</code>, <code>since</code>, <code>until</code></td>
                         </tr>
                         <tr>
                             <td class="p-3 font-mono">GET</td>
@@ -140,6 +140,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y">
+                        <tr><td class="p-3 font-mono">400</td><td class="p-3 font-mono">invalid_param</td><td class="p-3">Parameter query tidak valid (mis. widget_id bukan ID/slug yang dikenal)</td></tr>
                         <tr><td class="p-3 font-mono">401</td><td class="p-3 font-mono">unauthenticated</td><td class="p-3">Key tidak ada, salah, dicabut, atau kedaluwarsa</td></tr>
                         <tr><td class="p-3 font-mono">403</td><td class="p-3 font-mono">feature_locked</td><td class="p-3">Paket Anda belum memiliki akses API</td></tr>
                         <tr><td class="p-3 font-mono">403</td><td class="p-3 font-mono">account_suspended</td><td class="p-3">Akun tidak aktif</td></tr>

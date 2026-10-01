@@ -17,7 +17,7 @@ Fitur baru: akses data (leads, sessions, widgets, stats) via API key utk integra
 - `GET /api/v1/leads` (filter widget_id/search/since/until, cursor id-desc, limit 1-100 default 50), `GET /api/v1/leads/{id}` (+summary)
 - `GET /api/v1/sessions` (filter widget_id/is_lead/since/until), `GET /api/v1/sessions/{id}/messages`
 - `GET /api/v1/widgets`, `GET /api/v1/stats` (total/week/month/conversion_rate/total_sessions)
-- Kontrak `{data, meta:{per_page,next_cursor}}`; error `{error,error_code,message}` 401/403/404/429. PII minimasi: ip_address/user_agent tak diekspos; visitor_* ter-deskripsi via accessor.
+- Kontrak `{data, meta:{per_page,next_cursor}}`; error `{error,error_code,message}` 400/401/403/404/429. PII minimasi: ip_address/user_agent tak diekspos; visitor_* ter-deskripsi via accessor.
 
 **Service:** `App\Services\Api\LeadQueryService` (leadsFor/sessionsFor/statsFor/hasContact) — dipakai juga web `LeadController` (refactor, duplikasi query terhapus).
 
@@ -26,6 +26,14 @@ Fitur baru: akses data (leads, sessions, widgets, stats) via API key utk integra
 **Test:** +3 file / 23 test (`ApiKeyAuthTest`: 401/401 salah/revoked/expired/403 free/x-api-key/last_used/hash; `ApiV1DataTest`: scoping, 404 cross-user, decrypt messages, no-ip, cursor, date filter, stats; `ApiKeyManagementTest`: secret sekali, validasi nama, revoke efektif, 404 antar user, plan-lock). Suite **269 passed / 1037 assertions** (baseline 246/960).
 
 **Deploy note:** migrasi `2026_09_30_130000_create_api_keys_table`; cek plan Pro/Business prod punya `features.api_access` aktif (toggle di Admin → Plans).
+
+### API v1: filter `widget_id` terima slug, nilai tak valid → 400 (2026-10-01)
+
+**Masalah:** `?widget_id=widget-3-GAHVcXuv` (slug) di-cast `integer()` jadi 0 → filter dilewati diam-diam, API mengembalikan data campur semua widget.
+
+**Fix:** `V1Controller::resolveWidgetId()` — `widget_id` menerima ID numerik **atau** slug (di-resolve terhadap widget milik pemilik key); nilai yang bukan keduanya → **400 `invalid_param`** (bukan diabaikan). Berlaku di `GET /api/v1/leads` dan `GET /api/v1/sessions`. Docs (deskripsi filter + tabel error) ikut diperbarui.
+
+**Test:** +1 test (slug filter, numeric filter, 400 unknown slug di leads & sessions) — suite 270 passed.
 
 ### Tabel chatbot dirender profesional (2026-09-30)
 

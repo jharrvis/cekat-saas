@@ -47,6 +47,40 @@ abstract class V1Controller extends Controller
         ], 404);
     }
 
+    protected function invalidParam(string $field, string $hint): JsonResponse
+    {
+        return response()->json([
+            'error' => 'invalid_param',
+            'error_code' => 'invalid_param',
+            'message' => "Parameter {$field} tidak valid. {$hint}",
+        ], 400);
+    }
+
+    /**
+     * widget_id query filter: accepts a numeric widget ID or a widget slug
+     * (as returned in the `widget.slug` resource field). Returns null when
+     * the parameter is absent, an int when resolved, or a 400 JsonResponse
+     * when the value matches neither - never silently ignored.
+     */
+    protected function resolveWidgetId(Request $request): int|JsonResponse|null
+    {
+        $raw = trim((string) $request->query('widget_id', ''));
+        if ($raw === '') {
+            return null;
+        }
+
+        if (ctype_digit($raw)) {
+            return (int) $raw;
+        }
+
+        $widget = $request->user()->widgets()->where('slug', $raw)->first();
+        if (! $widget) {
+            return $this->invalidParam('widget_id', 'Harus ID numerik atau slug widget yang valid.');
+        }
+
+        return (int) $widget->id;
+    }
+
     /**
      * Common date-range filters (created_at) shared by leads/sessions.
      */
