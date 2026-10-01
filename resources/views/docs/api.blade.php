@@ -72,17 +72,17 @@
                         <tr>
                             <td class="p-3 font-mono">GET</td>
                             <td class="p-3 font-mono">/api/v1/leads</td>
-                            <td class="p-3">Daftar leads (sesi dengan data kontak). Filter: <code>widget_id</code> (ID numerik atau slug widget), <code>search</code>, <code>since</code>, <code>until</code>, <code>cursor</code>, <code>limit</code></td>
+                            <td class="p-3">Daftar leads (sesi dengan data kontak) - tiap item memuat data lengkap: kontak, summary AI, device, lokasi, IP, halaman &amp; referrer. Filter: <code>widget_id</code> (ID numerik atau slug widget), <code>search</code>, <code>since</code>, <code>until</code>, <code>cursor</code>, <code>limit</code></td>
                         </tr>
                         <tr>
                             <td class="p-3 font-mono">GET</td>
                             <td class="p-3 font-mono">/api/v1/leads/{id}</td>
-                            <td class="p-3">Detail satu lead termasuk summary AI</td>
+                            <td class="p-3">Detail satu lead - field sama dengan list, plus data sudah lengkap termasuk summary AI</td>
                         </tr>
                         <tr>
                             <td class="p-3 font-mono">GET</td>
                             <td class="p-3 font-mono">/api/v1/sessions</td>
-                            <td class="p-3">Semua sesi chat. Filter: <code>widget_id</code> (ID numerik atau slug widget), <code>is_lead</code>, <code>since</code>, <code>until</code></td>
+                            <td class="p-3">Semua sesi chat - tiap item memuat data lengkap (kontak, summary, device, lokasi, IP, halaman &amp; referrer). Filter: <code>widget_id</code> (ID numerik atau slug widget), <code>is_lead</code>, <code>since</code>, <code>until</code></td>
                         </tr>
                         <tr>
                             <td class="p-3 font-mono">GET</td>
@@ -120,8 +120,30 @@
       "email": "budi@example.com",
       "phone": "08123456789",
       "is_lead": true,
+      "is_converted": false,
+      "status": "ended",
+      "summary": "Budi menanyakan harga paket Pro dan cara integrasi ke CRM.",
+      "summary_generated_at": "2026-09-30T12:52:10+07:00",
+      "source_url": "https://example.com/pricing",
+      "referer_url": "https://google.com/search?q=harga+chatbot",
+      "ip_address": "203.0.113.42",
+      "device": {
+        "type": "desktop",
+        "label": "Chrome 153 · Windows",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ..."
+      },
+      "location": {
+        "country_code": "ID",
+        "country": "Indonesia",
+        "region": "Jakarta",
+        "city": "Jakarta",
+        "isp": "PT Telkom"
+      },
       "widget": { "id": 3, "slug": "widget-3-CPbqbm3C", "name": "Rahma Assistant" },
-      "created_at": "2026-09-30T12:51:00+07:00"
+      "started_at": "2026-09-30T12:44:11+07:00",
+      "ended_at": "2026-09-30T12:51:00+07:00",
+      "created_at": "2026-09-30T12:51:00+07:00",
+      "updated_at": "2026-09-30T12:52:10+07:00"
     }
   ],
   "meta": { "per_page": 50, "next_cursor": 460 }
@@ -160,8 +182,8 @@
             <h2 class="text-xl font-semibold border-b pb-2">Catatan Privasi</h2>
             <ul class="list-disc ml-6 mt-3 text-slate-700 space-y-1">
                 <li>API hanya mengembalikan data milik pemilik key (scope per user).</li>
-                <li>IP dan user-agent mentah pengunjung <strong>tidak</strong> diekspos.</li>
-                <li>Nama/email/phone ter-deskripsi otomatis (enkripsi at-rest).</li>
+                <li>Setiap lead/sesi memuat data lengkap milik Anda: kontak, summary AI, device (tipe + browser/OS), lokasi kasar (negara/kota/ISP), IP, halaman &amp; referrer.</li>
+                <li>Nama/email/phone/summary ter-deskripsi otomatis (enkripsi at-rest).</li>
             </ul>
         </section>
     </main>

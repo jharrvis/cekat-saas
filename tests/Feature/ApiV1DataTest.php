@@ -151,17 +151,38 @@ class ApiV1DataTest extends TestCase
     public function test_sessions_index_filters_by_is_lead_and_decodes_visitor_fields(): void
     {
         $widget = $this->widgetFor($this->owner);
-        $this->sessionWithContact($widget, ['visitor_name' => 'Nama Enkrip', 'is_lead' => true]);
+        $this->sessionWithContact($widget, [
+            'visitor_name' => 'Nama Enkrip',
+            'is_lead' => true,
+            'summary' => 'Customer tanya harga paket lalu cocok.',
+            'summary_generated_at' => now(),
+            'ip_address' => '203.0.113.99',
+            'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36',
+            'device_type' => 'desktop',
+            'location_data' => ['country_code' => 'ID', 'country' => 'Indonesia', 'region' => 'Jakarta', 'city' => 'Jakarta'],
+            'referer_url' => 'https://google.com/search?q=cek+harga',
+        ]);
         $this->sessionWithContact($widget);
 
         $response = $this->getJson('/api/v1/sessions?is_lead=1', $this->auth());
 
         $response->assertStatus(200);
         $this->assertCount(1, $response->json('data'));
-        $this->assertSame('Nama Enkrip', $response->json('data.0.name'));
-        // Raw connection metadata must never be exposed.
-        $this->assertArrayNotHasKey('ip_address', $response->json('data.0'));
-        $this->assertArrayNotHasKey('user_agent', $response->json('data.0'));
+        $row = $response->json('data.0');
+        $this->assertSame('Nama Enkrip', $row['name']);
+
+        // Full payload: summary, device, location, ip, referrer.
+        $this->assertSame('Customer tanya harga paket lalu cocok.', $row['summary']);
+        $this->assertNotNull($row['summary_generated_at']);
+        $this->assertSame('203.0.113.99', $row['ip_address']);
+        $this->assertSame('desktop', $row['device']['type']);
+        $this->assertStringContainsString('Chrome 153', $row['device']['label']);
+        $this->assertSame('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36', $row['device']['user_agent']);
+        $this->assertSame('Indonesia', $row['location']['country']);
+        $this->assertSame('Jakarta', $row['location']['city']);
+        $this->assertSame('https://google.com/search?q=cek+harga', $row['referer_url']);
+        $this->assertArrayHasKey('ended_at', $row);
+        $this->assertArrayHasKey('is_converted', $row);
     }
 
     public function test_session_messages_return_decrypted_content(): void

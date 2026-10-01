@@ -35,6 +35,14 @@ Fitur baru: akses data (leads, sessions, widgets, stats) via API key utk integra
 
 **Test:** +1 test (slug filter, numeric filter, 400 unknown slug di leads & sessions) — suite 270 passed.
 
+### API v1: payload leads/sessions keluar lengkap (2026-10-01)
+
+**Permintaan:** output `/api/v1/leads` & `/api/v1/sessions` harus memuat semua data — metadata lokasi, device, chat summary, dsb.
+
+**Isi resource (`V1Controller::sessionResource`) kini:** `summary` + `summary_generated_at` (di index juga, bukan hanya show), `is_converted`, `status`, `referer_url`, `ip_address`, `device:{type,label,user_agent}` (`VisitorGeo::describeAgent` → mis. "Chrome 153 · Windows"), `location:{country_code,country,region,city,isp}` (dari `location_data`), `ended_at`. Test lama "ip/user_agent tidak diekspos" dibalik jadi assert positif; docs (deskripsi endpoint, contoh payload, catatan privasi) diperbarui.
+
+**Test:** 1 test diperluas — suite 270 passed.
+
 ### Tabel chatbot dirender profesional (2026-09-30)
 
 **Masalah:** balasan AI berformat markdown table (`| Ukuran | Estimasi Harga |` + `|---|`) tampil mentah — pipe & garis pemisah berantakan di widget maupun inbox admin.

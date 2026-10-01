@@ -51,7 +51,7 @@ class LeadController extends V1Controller
         }
 
         return response()->json([
-            'data' => $this->sessionResource($session, withSummary: true),
+            'data' => $this->sessionResource($session),
         ]);
     }
 }

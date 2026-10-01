@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ChatSession;
+use App\Support\VisitorGeo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,8 +12,8 @@ use Illuminate\Http\Request;
 /**
  * Shared helpers for the public read API (/api/v1): cursor pagination
  * (id-descending, stable for new rows arriving), uniform 404s, and the
- * session/lead resource shape. PII minimization: raw ip_address and
- * user_agent are never exposed; visitor_* fields decrypt via accessors.
+ * full session/lead resource shape (contact, AI summary, device, coarse
+ * location, ip, page/referrer) - all owned by the key's user.
  */
 abstract class V1Controller extends Controller
 {
@@ -94,30 +95,36 @@ abstract class V1Controller extends Controller
         }
     }
 
-    protected function sessionResource(ChatSession $session, bool $withSummary = false): array
+    protected function sessionResource(ChatSession $session): array
     {
-        $data = [
+        return [
             'id' => $session->id,
             'name' => $session->visitor_name,
             'email' => $session->visitor_email,
             'phone' => $session->visitor_phone,
             'is_lead' => (bool) $session->is_lead,
+            'is_converted' => (bool) $session->is_converted,
             'status' => $session->status,
+            'summary' => $session->summary,
+            'summary_generated_at' => $session->summary_generated_at?->toIso8601String(),
             'source_url' => $session->source_url,
+            'referer_url' => $session->referer_url,
+            'ip_address' => $session->ip_address,
+            'device' => [
+                'type' => $session->device_type,
+                'label' => VisitorGeo::describeAgent($session->user_agent),
+                'user_agent' => $session->user_agent,
+            ],
+            'location' => $session->location_data,
             'widget' => [
                 'id' => $session->widget_id,
                 'slug' => $session->widget?->slug,
                 'name' => $session->widget?->display_name ?: $session->widget?->name,
             ],
             'started_at' => $session->started_at?->toIso8601String(),
+            'ended_at' => $session->ended_at?->toIso8601String(),
             'created_at' => $session->created_at?->toIso8601String(),
             'updated_at' => $session->updated_at?->toIso8601String(),
         ];
-
-        if ($withSummary) {
-            $data['summary'] = $session->summary;
-        }
-
-        return $data;
     }
 }
