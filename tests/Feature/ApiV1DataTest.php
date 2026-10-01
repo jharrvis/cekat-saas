@@ -93,11 +93,11 @@ class ApiV1DataTest extends TestCase
     public function test_leads_show_includes_summary_and_cross_user_returns_404(): void
     {
         $widget = $this->widgetFor($this->owner);
-        $lead = $this->sessionWithContact($widget, ['visitor_name' => 'Julian', 'summary' => 'Ringkasan tes']);
+        $lead = $this->sessionWithContact($widget, ['visitor_name' => 'Budi Santoso', 'summary' => 'Ringkasan tes']);
 
         $this->getJson('/api/v1/leads/' . $lead->id, $this->auth())
             ->assertStatus(200)
-            ->assertJsonPath('data.name', 'Julian')
+            ->assertJsonPath('data.name', 'Budi Santoso')
             ->assertJsonPath('data.summary', 'Ringkasan tes');
 
         $otherPlan = Plan::create(['name' => 'Other2', 'slug' => 'other2-api', 'max_messages_per_month' => 10, 'features' => ['api_access' => true]]);

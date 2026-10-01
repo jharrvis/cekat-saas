@@ -116,9 +116,9 @@
   "data": [
     {
       "id": 465,
-      "name": "Julian H",
-      "email": "julian@example.com",
-      "phone": "+6285326483431",
+      "name": "Budi Santoso",
+      "email": "budi@example.com",
+      "phone": "08123456789",
       "is_lead": true,
       "widget": { "id": 3, "slug": "widget-3-CPbqbm3C", "name": "Rahma Assistant" },
       "created_at": "2026-09-30T12:51:00+07:00"
