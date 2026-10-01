@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             '/api/payment/notification', // Midtrans webhook
             '/api/widget/*', // Widget config API
             '/api/whatsapp/webhook/*', // Fonnte WhatsApp webhook
+            '/api/v1/*', // Public read API (bearer API key, no session/CSRF)
         ]);
 
         // Middleware aliases
@@ -27,11 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'user.status' => \App\Http\Middleware\CheckUserStatus::class,
             'is.admin' => \App\Http\Middleware\IsAdmin::class,
             'plan.feature' => \App\Http\Middleware\PlanFeatureGate::class,
+            'api.key' => \App\Http\Middleware\ApiKeyAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (ThrottleRequestsException $e, Request $request) {
-            if ($request->is('api/chat') || $request->is('api/widget/*')) {
+            if ($request->is('api/chat') || $request->is('api/widget/*') || $request->is('api/v1/*')) {
                 return response()->json([
                     'success' => false,
                     'error' => 'rate_limited',

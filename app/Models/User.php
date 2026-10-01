@@ -68,6 +68,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Personal API keys for the public read API (/api/v1).
+     */
+    public function apiKeys()
+    {
+        return $this->hasMany(ApiKey::class);
+    }
+
+    /**
      * Get the user's plan.
      */
     public function plan()
@@ -120,6 +128,19 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return app(\App\Services\Billing\PlanLimitService::class)->feature($this, 'leads');
+    }
+
+    /**
+     * Whether the user can use the public read API with an API key
+     * (gated by the plan's api_access feature flag).
+     */
+    public function canUseApi(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return app(\App\Services\Billing\PlanLimitService::class)->feature($this, 'api_access');
     }
 
     /**

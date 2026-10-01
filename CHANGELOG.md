@@ -5,6 +5,28 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/).
 
 ## [Unreleased] — Branch `feature/business-workflow-ui-ux-robustness` (2026-09-27)
 
+### Public API v1 + manajemen API key (2026-10-01)
+
+Fitur baru: akses data (leads, sessions, widgets, stats) via API key utk integrasi server-to-server (CRM, Zapier, warehouse).
+
+**Skema:** tabel `api_keys` (user_id, name, key_prefix, key_hash sha256, last_used_at, expires_at, revoked_at) — secret `ck_live_` + 44 char **hanya ditampilkan sekali** saat create, tidak pernah disimpan plain. Relasi `User::apiKeys`.
+
+**Autentikasi:** `App\Http\Middleware\ApiKeyAuth` (alias `api.key`) — `Authorization: Bearer` / `X-API-Key`, lookup by prefix + `hash_equals`, tolak revoked/expired, 403 `feature_locked` bila plan tanpa `api_access` (`User::canUseApi()`), 403 `account_suspended`, `last_used_at` update ≤1/menit. CSRF exempt `/api/v1/*`, alias terdaftar, throttle 429 JSON (`api/v1/*` di handler `ThrottleRequestsException`), `RateLimiter::for('api-key')` 120/menit per key (fallback IP).
+
+**Endpoint** (`routes/web.php` grup `api/v1`, middleware `['api.key','throttle:api-key']`, tanpa CORS — server-to-server):
+- `GET /api/v1/leads` (filter widget_id/search/since/until, cursor id-desc, limit 1-100 default 50), `GET /api/v1/leads/{id}` (+summary)
+- `GET /api/v1/sessions` (filter widget_id/is_lead/since/until), `GET /api/v1/sessions/{id}/messages`
+- `GET /api/v1/widgets`, `GET /api/v1/stats` (total/week/month/conversion_rate/total_sessions)
+- Kontrak `{data, meta:{per_page,next_cursor}}`; error `{error,error_code,message}` 401/403/404/429. PII minimasi: ip_address/user_agent tak diekspos; visitor_* ter-deskripsi via accessor.
+
+**Service:** `App\Services\Api\LeadQueryService` (leadsFor/sessionsFor/statsFor/hasContact) — dipakai juga web `LeadController` (refactor, duplikasi query terhapus).
+
+**UI:** route `/settings/api-keys` (`plan.feature:api_access` — Free lihat `user.plan-locked`), `ApiKeyController` (index/store/destroy; store re-check `canUseApi`, destroy ownership 404), view `user/api-keys.blade.php` (secret sekali + copy, list status Aktif/Dicabut/Kedaluwarsa, quick-start curl), sidebar "API Keys" dgn lock icon. Docs: `/docs/api` (`docs/api.blade.php` — auth, endpoints, pagination, errors, privasi).
+
+**Test:** +3 file / 23 test (`ApiKeyAuthTest`: 401/401 salah/revoked/expired/403 free/x-api-key/last_used/hash; `ApiV1DataTest`: scoping, 404 cross-user, decrypt messages, no-ip, cursor, date filter, stats; `ApiKeyManagementTest`: secret sekali, validasi nama, revoke efektif, 404 antar user, plan-lock). Suite **269 passed / 1037 assertions** (baseline 246/960).
+
+**Deploy note:** migrasi `2026_09_30_130000_create_api_keys_table`; cek plan Pro/Business prod punya `features.api_access` aktif (toggle di Admin → Plans).
+
 ### Tabel chatbot dirender profesional (2026-09-30)
 
 **Masalah:** balasan AI berformat markdown table (`| Ukuran | Estimasi Harga |` + `|---|`) tampil mentah — pipe & garis pemisah berantakan di widget maupun inbox admin.

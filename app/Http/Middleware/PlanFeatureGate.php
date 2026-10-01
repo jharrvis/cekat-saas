@@ -24,6 +24,11 @@ class PlanFeatureGate
             'name' => 'WhatsApp Gateway',
             'description' => 'WhatsApp Gateway hanya tersedia untuk paket Pro ke atas. Upgrade paket Anda untuk menghubungkan nomor WhatsApp bisnis Anda.',
         ],
+        'api_access' => [
+            'route' => 'api-keys.index',
+            'name' => 'API Access',
+            'description' => 'API key untuk mengambil data leads, riwayat chat, dan statistik secara programatik tersedia untuk paket Pro ke atas. Upgrade paket Anda untuk membuat API key.',
+        ],
     ];
 
     public function handle(Request $request, Closure $next, string $feature): Response

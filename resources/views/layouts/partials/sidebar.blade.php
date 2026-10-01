@@ -194,6 +194,17 @@
                 <span x-show="!sidebarCollapsed"
                     class="font-medium whitespace-nowrap transition-opacity duration-200">Integration</span>
             </a>
+
+            <a href="{{ route('api-keys.index') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('api-keys.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
+                <i class="fa-solid fa-key w-5 text-center text-base shrink-0"></i>
+                <span x-show="!sidebarCollapsed"
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">API Keys</span>
+                @unless(auth()->user()->canUseApi())
+                    <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
+                        title="Fitur ini tersedia di paket Pro ke atas"></i>
+                @endunless
+            </a>
         @endif
     </nav>
 

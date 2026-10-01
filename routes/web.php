@@ -17,6 +17,9 @@ Route::get('/', function () {
 Route::get('/docs/webhooks', function () {
     return view('docs.webhooks');
 })->name('docs.webhooks');
+Route::get('/docs/api', function () {
+    return view('docs.api');
+})->name('docs.api');
 
 // API Routes
 Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->group(function () {
@@ -188,6 +191,18 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
     })->middleware('throttle:chat');
 });
 
+// Public read API v1 - server-to-server, bearer API key (no session, no
+// CORS: this is NOT a browser endpoint). Auth in ApiKeyAuth (alias
+// api.key) binds the key's owner; throttle keys on the API key id.
+Route::prefix('api/v1')->middleware(['api.key', 'throttle:api-key'])->group(function () {
+    Route::get('/leads', [App\Http\Controllers\Api\V1\LeadController::class, 'index']);
+    Route::get('/leads/{id}', [App\Http\Controllers\Api\V1\LeadController::class, 'show']);
+    Route::get('/sessions', [App\Http\Controllers\Api\V1\SessionController::class, 'index']);
+    Route::get('/sessions/{id}/messages', [App\Http\Controllers\Api\V1\SessionController::class, 'messages']);
+    Route::get('/widgets', [App\Http\Controllers\Api\V1\WidgetController::class, 'index']);
+    Route::get('/stats', [App\Http\Controllers\Api\V1\StatsController::class, 'index']);
+});
+
 // Suspended/Banned Account Info Page
 Route::get('/account/suspended', function () {
     $user = auth()->user();
@@ -266,6 +281,17 @@ Route::middleware(['auth', 'user.status'])->group(function () {
         $widgets = auth()->user()->widgets()->get();
         return view('user.integration', compact('widgets'));
     })->name('integration');
+
+    // API Keys - manage personal keys for the public read API (/api/v1)
+    Route::get('/settings/api-keys', [\App\Http\Controllers\ApiKeyController::class, 'index'])
+        ->middleware('plan.feature:api_access')
+        ->name('api-keys.index');
+    Route::post('/settings/api-keys', [\App\Http\Controllers\ApiKeyController::class, 'store'])
+        ->middleware('plan.feature:api_access')
+        ->name('api-keys.store');
+    Route::delete('/settings/api-keys/{key}', [\App\Http\Controllers\ApiKeyController::class, 'destroy'])
+        ->middleware('plan.feature:api_access')
+        ->name('api-keys.destroy');
 
     // Chat History
     Route::get('/chats', [App\Http\Controllers\ChatHistoryController::class, 'index'])->name('chats.index');

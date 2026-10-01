@@ -43,5 +43,15 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(120)->by($ip),
             ];
         });
+
+        // Public read API (/api/v1): keyed on the authenticated API key so
+        // one noisy integration cannot exhaust another's quota. Unauthenticated
+        // attempts (rejected by ApiKeyAuth before this runs) fall back to IP.
+        RateLimiter::for('api-key', function (Request $request) {
+            $apiKey = $request->attributes->get('apiKey');
+            $id = $apiKey?->id ?? 'ip:' . HttpClientIp::get($request);
+
+            return Limit::perMinute(120)->by('api-key:' . $id);
+        });
     }
 }
