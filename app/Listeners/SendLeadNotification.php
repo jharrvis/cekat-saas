@@ -8,8 +8,8 @@ use App\Mail\NewLead;
 use App\Models\ChatSession;
 use App\Models\User;
 use App\Models\Widget;
+use App\Services\Email\EmailSender;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Persists a captured lead onto its chat session (so it shows up in
@@ -89,7 +89,10 @@ class SendLeadNotification
         }
 
         $send = function () use ($recipient, $owner, $widget, $session, $e) {
-            Mail::to($recipient)->send(new NewLead($owner, $widget, $session, $e->lead));
+            EmailSender::send($recipient, new NewLead($owner, $widget, $session, $e->lead), 'new-lead', [
+                'user_id' => $owner->id,
+                'widget_id' => $widget->id,
+            ]);
         };
 
         // The owner expects the conversation summary inside the email.

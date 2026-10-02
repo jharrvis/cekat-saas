@@ -6,8 +6,8 @@ use App\Mail\PlanExpired;
 use App\Mail\PlanExpiringReminder;
 use App\Models\Plan;
 use App\Models\User;
+use App\Services\Email\EmailSender;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
 
 class CheckPlanExpiry extends Command
 {
@@ -72,7 +72,7 @@ class CheckPlanExpiry extends Command
 
         foreach ($users as $user) {
             try {
-                Mail::to($user->email)->send(new PlanExpiringReminder($user, $daysLeft));
+                EmailSender::send($user->email, new PlanExpiringReminder($user, $daysLeft), 'plan-expiring', ['user_id' => $user->id]);
                 $this->info("Sent {$daysLeft}-day reminder to: {$user->email}");
             } catch (\Exception $e) {
                 $this->error("Failed to send reminder to {$user->email}: {$e->getMessage()}");
@@ -103,7 +103,7 @@ class CheckPlanExpiry extends Command
 
             try {
                 // Send expired notification
-                Mail::to($user->email)->send(new PlanExpired($user, $oldPlanName));
+                EmailSender::send($user->email, new PlanExpired($user, $oldPlanName), 'plan-expired', ['user_id' => $user->id]);
                 $this->info("Sent expiry notification to: {$user->email}");
             } catch (\Exception $e) {
                 $this->error("Failed to send expiry email to {$user->email}: {$e->getMessage()}");

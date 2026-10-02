@@ -7,9 +7,9 @@ use App\Models\Plan;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use App\Mail\AccountSuspended;
+use App\Services\Email\EmailSender;
 
 class UserManager extends Component
 {
@@ -209,7 +209,7 @@ class UserManager extends Component
 
         // Send suspended email notification
         try {
-            Mail::to($user->email)->send(new AccountSuspended($user, 'suspended', $this->suspendReason));
+            EmailSender::send($user->email, new AccountSuspended($user, 'suspended', $this->suspendReason), 'account-suspended', ['user_id' => $user->id]);
         } catch (\Exception $e) {
             \Log::error('Failed to send suspend email', ['error' => $e->getMessage()]);
         }
@@ -234,7 +234,7 @@ class UserManager extends Component
 
         // Send banned email notification
         try {
-            Mail::to($user->email)->send(new AccountSuspended($user, 'banned'));
+            EmailSender::send($user->email, new AccountSuspended($user, 'banned'), 'account-suspended', ['user_id' => $user->id]);
         } catch (\Exception $e) {
             \Log::error('Failed to send ban email', ['error' => $e->getMessage()]);
         }

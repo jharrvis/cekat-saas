@@ -213,8 +213,12 @@ class PaymentController extends Controller
 
         // Send payment success email
         try {
-            \Illuminate\Support\Facades\Mail::to($user->email)
-                ->send(new \App\Mail\PaymentSuccess($user, $transaction));
+            \App\Services\Email\EmailSender::send(
+                $user->email,
+                new \App\Mail\PaymentSuccess($user, $transaction),
+                'payment',
+                ['user_id' => $user->id, 'transaction_id' => $transaction->id]
+            );
         } catch (\Exception $e) {
             Log::error('Failed to send payment success email', ['error' => $e->getMessage()]);
         }

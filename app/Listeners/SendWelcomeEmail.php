@@ -3,9 +3,9 @@
 namespace App\Listeners;
 
 use App\Mail\WelcomeUser;
+use App\Services\Email\EmailSender;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Sends the welcome email the moment an account's email is verified
@@ -16,7 +16,9 @@ class SendWelcomeEmail
     public function handle(Verified $e): void
     {
         try {
-            Mail::to($e->user->email)->send(new WelcomeUser($e->user));
+            EmailSender::send($e->user->email, new WelcomeUser($e->user), 'welcome', [
+                'user_id' => $e->user->id,
+            ]);
         } catch (\Throwable $ex) {
             Log::error('Failed to send welcome email', [
                 'user_id' => $e->user->id,

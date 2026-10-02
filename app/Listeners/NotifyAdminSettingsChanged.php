@@ -5,8 +5,8 @@ namespace App\Listeners;
 use App\Events\AdminSettingsChanged;
 use App\Mail\AdminSettingsChangedNotice;
 use App\Models\User;
+use App\Services\Email\EmailSender;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Emails ADMIN_NOTIFY_EMAIL (fallback: first admin) whenever an admin
@@ -24,11 +24,11 @@ class NotifyAdminSettingsChanged
         }
 
         try {
-            Mail::to($to)->send(new AdminSettingsChangedNotice(
+            EmailSender::send($to, new AdminSettingsChangedNotice(
                 $e->userId ? User::find($e->userId) : null,
                 $e->group,
                 $e->keys,
-            ));
+            ), 'admin-settings', ['user_id' => $e->userId]);
         } catch (\Throwable $ex) {
             Log::error('Failed to send admin settings change notice', [
                 'group' => $e->group,

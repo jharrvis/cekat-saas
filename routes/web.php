@@ -258,8 +258,12 @@ Route::middleware(['auth', 'user.status'])->group(function () {
         auth()->user()->update(['password' => Hash::make($request->validated()['password'])]);
 
         try {
-            \Illuminate\Support\Facades\Mail::to(auth()->user()->email)
-                ->send(new \App\Mail\PasswordChanged(auth()->user(), request()->ip()));
+            \App\Services\Email\EmailSender::send(
+                auth()->user()->email,
+                new \App\Mail\PasswordChanged(auth()->user(), request()->ip()),
+                'password-changed',
+                ['user_id' => auth()->id()]
+            );
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Failed to send password changed alert', [
                 'user_id' => auth()->id(),
@@ -418,6 +422,11 @@ Route::middleware(['auth', 'is.admin', 'verified'])->prefix('admin')->group(func
     Route::get('/models', function () {
         return view('admin.models');
     })->name('admin.models');
+
+    // Email Center: mail log, newsletter, pengumuman, template
+    Route::get('/email-center', function () {
+        return view('admin.email-center');
+    })->name('admin.email-center');
 
     Route::get('/settings', \App\Livewire\Admin\SystemSettings::class)->name('admin.settings');
     Route::get('/billing', \App\Livewire\Admin\BillingMonitoring::class)->name('admin.billing');

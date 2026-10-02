@@ -55,6 +55,22 @@ Fitur baru: akses data (leads, sessions, widgets, stats) via API key utk integra
 
 **Test:** +4 (email khusus menerima lead, fallback owner bila nonaktif, checkbox off = tanpa email, validasi wajib-email saat aktif) — LeadNotificationTest 13 test, suite **274 passed / 1068 assertions**.
 
+### Email Center — menu admin (log email, newsletter, pengumuman, template) (2026-10-02)
+
+**Permintaan:** menu baru untuk memantau semua email yang terkirim ke user (notifikasi, pengumuman, OTP, dll) sekaligus membuat template email, newsletter, dan email pengumuman.
+
+**Menu:** sidebar ADMIN → **Email Center** (`/admin/email-center`, admin-only), 1 halaman 4 tab:
+
+1. **Log Email** — semua email keluar aplikasi tercatat di tabel baru `email_logs`: waktu, kategori (label per jenis email: OTP, welcome, lead, payment, plan, dsb), penerima, subjek, status sent/failed, error, preview isi email (iframe sandbox). Filter kategori/status/search + drill-down per kampanye. Stat hari ini.
+2. **Newsletter** & **3. Pengumuman** — kampanye massal (`email_campaigns`, type `newsletter|announcement`): komposisi (bisa muat dari template), segment penerima (terverifikasi ✓/status/plan/role — default: user aktif terverifikasi) dengan hitung estimasi live, pratinjau, kirim uji ke admin, tombol Kirim/Hentikan/Lanjutkan + progress bar. Snapshot penerima di-freeze saat mulai; pengiriman **chunk ±15 email/menit** oleh command `campaigns:send` (scheduled `everyMinute`, tahan browser tertutup); stop→lanjut pakai cursor yang sama (tanpa duplikat).
+4. **Template** — CRUD template (`email_templates`) dengan token `{{name}}` `{{email}}` `{{app_name}}` `{{login_url}}` `{{plan}}` `{{date}}`, pratinjau iframe, kirim uji. Konten dari DB **tidak pernah dikompile Blade** (hanya str_replace token → anti code injection), di-wrap ke view tetap `emails/campaign.blade.php` memakai komponen `x-emails.layout`.
+
+**Kerangka pengiriman:** wrapper baru `App\Services\Email\EmailSender::send($to, $mailable, $category, $meta)` menggantikan **semua 16 `Mail::to()->send()`** (4 listener, SettingsController ×3, password change/reset, Payment, OTP `User::sendEmailVerificationNotification`, UserManager suspend/ban ×2, CheckPlanExpiry ×2, routes/web.php) — setiap kirim (sukses/gagal) jadi baris `email_logs` dengan kategori; exception tetap di-rethrow agar perilaku error per call site tidak berubah. Mailable/campaign pakai `App\Mail\CampaignEmail`.
+
+**Housekeeping:** command `email:prune` (schedule harian 03:45) hapus log >90 hari (body email menyimpan PII lead/OTP). Tabel baru: `email_templates`, `email_campaigns`, `email_logs` (3 migrasi; tanpa perubahan tabel lama).
+
+**Test:** +13 (`EmailCenterTest`: akses admin-only, log sukses/gagal, CRUD template + validasi + preview token + test send, segment snapshot→chunked send, segment kosong gagal mulai, stop/resume tanpa duplikat, pemisahan tipe, filter log, prune) — suite **287 passed / 1144 assertions**.
+
 ### Tabel chatbot dirender profesional (2026-09-30)
 
 **Masalah:** balasan AI berformat markdown table (`| Ukuran | Estimasi Harga |` + `|---|`) tampil mentah — pipe & garis pemisah berantakan di widget maupun inbox admin.

@@ -115,7 +115,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $code = app(\App\Services\Auth\EmailOtpService::class)->generate($this);
 
-        \Illuminate\Support\Facades\Mail::to($this->email)->send(new \App\Mail\EmailOtp($this, $code));
+        \App\Services\Email\EmailSender::send($this->email, new \App\Mail\EmailOtp($this, $code), 'otp', [
+            'user_id' => $this->id,
+        ]);
     }
 
     /**

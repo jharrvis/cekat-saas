@@ -7,9 +7,9 @@ use App\Mail\EmailChangeConfirm;
 use App\Mail\EmailChangeDone;
 use App\Mail\EmailChangeRequestAlert;
 use App\Models\User;
+use App\Services\Email\EmailSender;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 
 class SettingsController extends Controller
@@ -27,8 +27,8 @@ class SettingsController extends Controller
         $user->update(['pending_email' => $newEmail]);
 
         try {
-            Mail::to($newEmail)->send(new EmailChangeConfirm($user, $oldEmail, $newEmail));
-            Mail::to($oldEmail)->send(new EmailChangeRequestAlert($user, $oldEmail, $newEmail));
+            EmailSender::send($newEmail, new EmailChangeConfirm($user, $oldEmail, $newEmail), 'email-change-confirm', ['user_id' => $user->id]);
+            EmailSender::send($oldEmail, new EmailChangeRequestAlert($user, $oldEmail, $newEmail), 'email-change-request', ['user_id' => $user->id]);
         } catch (\Throwable $e) {
             Log::error('Failed to send email change confirmation', [
                 'user_id' => $user->id,
@@ -80,7 +80,7 @@ class SettingsController extends Controller
         ]);
 
         try {
-            Mail::to($oldEmail)->send(new EmailChangeDone($user, $oldEmail, $pending));
+            EmailSender::send($oldEmail, new EmailChangeDone($user, $oldEmail, $pending), 'email-change-done', ['user_id' => $user->id]);
         } catch (\Throwable $e) {
             Log::error('Failed to send email change done alert', [
                 'user_id' => $user->id,

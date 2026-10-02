@@ -4,9 +4,9 @@ namespace App\Listeners;
 
 use App\Mail\AdminNewSignup;
 use App\Models\User;
+use App\Services\Email\EmailSender;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Tells ADMIN_NOTIFY_EMAIL (fallback: first admin) about each newly
@@ -30,7 +30,9 @@ class NotifyAdminNewSignup
         }
 
         try {
-            Mail::to($to)->send(new AdminNewSignup($e->user));
+            EmailSender::send($to, new AdminNewSignup($e->user), 'admin-signup', [
+                'user_id' => $e->user->id,
+            ]);
         } catch (\Throwable $ex) {
             Log::error('Failed to send new signup notice', [
                 'user_id' => $e->user->id,

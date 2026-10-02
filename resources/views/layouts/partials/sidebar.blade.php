@@ -100,6 +100,13 @@
                     class="font-medium whitespace-nowrap transition-opacity duration-200">WhatsApp</span>
             </a>
 
+            <a href="{{ route('admin.email-center') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.email-center') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
+                <i class="fa-solid fa-envelope w-5 text-center text-base shrink-0"></i>
+                <span x-show="!sidebarCollapsed"
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">Email Center</span>
+            </a>
+
             <a href="{{ route('admin.settings') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.settings') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-cog w-5 text-center text-base shrink-0"></i>

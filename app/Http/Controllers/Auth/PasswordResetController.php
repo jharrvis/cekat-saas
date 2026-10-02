@@ -51,8 +51,12 @@ class PasswordResetController extends Controller
                 $user->save();
 
                 try {
-                    \Illuminate\Support\Facades\Mail::to($user->email)
-                        ->send(new \App\Mail\PasswordChanged($user, $request->ip(), 'Tautan Reset Password'));
+                    \App\Services\Email\EmailSender::send(
+                        $user->email,
+                        new \App\Mail\PasswordChanged($user, $request->ip(), 'Tautan Reset Password'),
+                        'password-changed',
+                        ['user_id' => $user->id]
+                    );
                 } catch (\Throwable $e) {
                     \Illuminate\Support\Facades\Log::error('Failed to send password reset alert', [
                         'user_id' => $user->id,
