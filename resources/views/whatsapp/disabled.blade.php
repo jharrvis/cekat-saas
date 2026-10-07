@@ -1,5 +1,7 @@
 @extends('layouts.dashboard')
 
+@section('title', 'WhatsApp Tidak Tersedia')
+
 @section('content')
     <div class="max-w-2xl mx-auto py-12 text-center">
         <div class="bg-card rounded-xl border shadow-sm p-12">

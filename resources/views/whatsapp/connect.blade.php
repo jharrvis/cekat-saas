@@ -1,5 +1,7 @@
 @extends('layouts.dashboard')
 
+@section('title', 'Hubungkan WhatsApp')
+
 @section('content')
     <div class="max-w-2xl mx-auto">
         {{-- Back Button --}}
