@@ -14,6 +14,7 @@ use InvalidArgumentException;
 class PlanLimitService
 {
     public const LIMITS = [
+        'total_agents' => 'max_agents',
         'total_channels' => 'max_widgets',
         'active_channels' => 'max_widgets',
         'monthly_messages' => 'max_messages_per_month',
@@ -43,6 +44,7 @@ class PlanLimitService
         'slug' => 'free',
         'price' => 0,
         'max_widgets' => 1,
+        'max_agents' => 1,
         'max_messages_per_month' => 100,
         'max_documents' => 3,
         'max_file_size_mb' => 5,
@@ -232,6 +234,10 @@ class PlanLimitService
 
         if ($key === 'active_channels') {
             return (int) $user->widgets()->where('status', 'active')->count();
+        }
+
+        if ($key === 'total_agents') {
+            return (int) $user->aiAgents()->count();
         }
 
         if ($key === 'total_channels') {
