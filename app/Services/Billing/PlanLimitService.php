@@ -190,6 +190,24 @@ class PlanLimitService
         throw new InvalidArgumentException("Unknown plan ability [{$ability}].");
     }
 
+    /**
+     * The single user-facing message for a plan-limit denial (T-05):
+     * "Paket {plan} Anda terbatas {limit} {unit}. Tingkatkan paket untuk menambah."
+     * Rendered via the plan-limit-alert component from the 'plan_limit_error'
+     * flash key. Locale is pinned to 'id' until the app default locale
+     * becomes Indonesian (T-12).
+     */
+    public function limitMessage(User $user, string $ability): string
+    {
+        $plan = $this->planFor($user);
+
+        return (string) __('plans.limit_reached', [
+            'plan' => $plan->name ?? 'Free',
+            'limit' => $this->limit($plan, $ability),
+            'unit' => (string) __('plans.unit_' . $ability, [], 'id'),
+        ], 'id');
+    }
+
     public function usage(User $user, string $key, array $context = []): array
     {
         if (! array_key_exists($key, self::LIMITS)) {

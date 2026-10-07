@@ -335,7 +335,7 @@ class KnowledgeBaseEditor extends Component
         ]);
 
         if (! $check['allowed']) {
-            session()->flash('error', 'FAQ limit of your plan (' . $check['limit'] . ') reached. Delete an FAQ or upgrade your plan.');
+            session()->flash('plan_limit_error', app(PlanLimitService::class)->limitMessage($user, 'faqs'));
             return false;
         }
 
@@ -355,7 +355,7 @@ class KnowledgeBaseEditor extends Component
         ]);
 
         if (! $check['allowed']) {
-            session()->flash('error', 'Document limit of your plan (' . $check['limit'] . ') reached. Delete a document or upgrade your plan.');
+            session()->flash('plan_limit_error', app(PlanLimitService::class)->limitMessage($user, 'knowledge_documents'));
             return false;
         }
 

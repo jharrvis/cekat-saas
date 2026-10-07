@@ -193,6 +193,7 @@
 
         <!-- PAGE CONTENT -->
         <main class="flex-1 p-6 overflow-y-auto">
+            <x-plan-limit-alert />
             @yield('content')
         </main>
     </div>

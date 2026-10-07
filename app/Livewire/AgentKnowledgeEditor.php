@@ -336,7 +336,7 @@ class AgentKnowledgeEditor extends Component
         ]);
 
         if (! $check['allowed']) {
-            session()->flash('error', 'Batas FAQ paket Anda (' . $check['limit'] . ') tercapai. Hapus FAQ lain atau upgrade paket.');
+            session()->flash('plan_limit_error', app(PlanLimitService::class)->limitMessage($user, 'faqs'));
             return false;
         }
 
@@ -356,7 +356,7 @@ class AgentKnowledgeEditor extends Component
         ]);
 
         if (! $check['allowed']) {
-            session()->flash('error', 'Batas dokumen paket Anda (' . $check['limit'] . ') tercapai. Hapus dokumen lain atau upgrade paket.');
+            session()->flash('plan_limit_error', app(PlanLimitService::class)->limitMessage($user, 'knowledge_documents'));
             return false;
         }
 

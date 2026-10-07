@@ -132,7 +132,7 @@ class PlanExpiryTest extends TestCase
         // Second activation is blocked by the plan limit
         $this->actingAs($user)->from('/channels')->post("/channels/{$w2->id}/activate")
             ->assertRedirect(route('channels.index'))
-            ->assertSessionHas('error');
+            ->assertSessionHas('plan_limit_error');
         $this->assertSame('inactive', $w2->fresh()->status);
     }
 }

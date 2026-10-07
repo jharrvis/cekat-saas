@@ -33,7 +33,7 @@ class ChannelController extends Controller
         // Check plan limits
         if (! $this->limits->check($user, 'total_channels', ['used' => $user->widgets()->count()])['allowed']) {
             return redirect()->route('channels.index')
-                ->with('error', 'You have reached your plan limit. Upgrade to create more channels.');
+                ->with('plan_limit_error', $this->limits->limitMessage($user, 'total_channels'));
         }
 
         // Get user's AI Agents
@@ -51,7 +51,7 @@ class ChannelController extends Controller
         // Check plan limits again
         if (! $this->limits->check($user, 'total_channels', ['used' => $user->widgets()->count()])['allowed']) {
             return redirect()->route('channels.index')
-                ->with('error', 'You have reached your plan limit.');
+                ->with('plan_limit_error', $this->limits->limitMessage($user, 'total_channels'));
         }
 
         // The linked agent's ownership is enforced by StoreWidgetRequest.
@@ -196,7 +196,7 @@ class ChannelController extends Controller
         // Plan limit: activating a channel cannot exceed the plan's active channel limit
         if ($newStatus === 'active' && $chatbot->status !== 'active') {
             if ($error = $this->guardActiveLimit($chatbot)) {
-                return redirect()->back()->with('error', $error);
+                return redirect()->back()->with('plan_limit_error', $error);
             }
         }
 
@@ -245,7 +245,7 @@ class ChannelController extends Controller
         }
 
         if ($error = $this->guardActiveLimit($chatbot)) {
-            return redirect()->route('channels.index')->with('error', $error);
+            return redirect()->route('channels.index')->with('plan_limit_error', $error);
         }
 
         $chatbot->update(['status' => 'active', 'is_active' => true]);
@@ -270,8 +270,7 @@ class ChannelController extends Controller
             ->count();
 
         if ($otherActive >= $maxActive) {
-            return 'Paket ' . ($plan->name ?? 'Free') . " hanya mendukung {$maxActive} channel aktif. "
-                . 'Nonaktifkan channel lain terlebih dahulu atau upgrade paket Anda.';
+            return $this->limits->limitMessage($user, 'active_channels');
         }
 
         return null;
