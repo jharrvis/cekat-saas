@@ -23,6 +23,10 @@ class PlanLimitRegressionTest extends TestCase
         'app/Services/Billing/PlanLimitService.php',
         // Reads no plan columns; 'ai_tier' appears only as a log payload label.
         'app/Services/Chat/ModelResolver.php',
+        // T-16: the plans:audit anti-drift guard reads plan columns BY DESIGN
+        // (it compares them against the canonical invariants); it enforces
+        // nothing and never gates a user action.
+        'app/Console/Commands/PlansAudit.php',
     ];
 
     private function scan(array $dirs, string $pattern): array
