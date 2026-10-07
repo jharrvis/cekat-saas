@@ -92,7 +92,7 @@
             <p>Perubahan material pada kebijakan ini akan kami umumkan melalui situs atau email. Penggunaan layanan setelah perubahan berlaku berarti Anda menyetujui kebijakan yang diperbarui.</p>
 
             <h2>7. Kontak</h2>
-            <p>Pertanyaan seputar privasi: <a href="mailto:support@cekat.ai">support@cekat.ai</a>.</p>
+            <p>Pertanyaan seputar privasi: <a href="mailto:support@cekat.biz.id">support@cekat.biz.id</a>.</p>
         </article>
     </main>
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akun {{ $type === 'banned' ? 'Diblokir' : 'Ditangguhkan' }} - Cekat.ai</title>
+    <title>Akun {{ $type === 'banned' ? 'Diblokir' : 'Ditangguhkan' }} - Cekat.biz.id</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -25,7 +25,7 @@
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                     <p class="text-sm text-red-700">
                         <i class="fa-solid fa-exclamation-triangle mr-2"></i>
-                        Anda tidak dapat lagi menggunakan layanan Cekat.ai.
+                        Anda tidak dapat lagi menggunakan layanan Cekat.biz.id.
                     </p>
                 </div>
             @else
@@ -55,7 +55,7 @@
             @endif
 
             <div class="space-y-3">
-                <a href="mailto:support@cekat.ai"
+                <a href="mailto:support@cekat.biz.id"
                     class="block w-full bg-gray-900 text-white py-3 rounded-lg hover:bg-gray-800 transition">
                     <i class="fa-solid fa-envelope mr-2"></i>Hubungi Support
                 </a>
@@ -70,7 +70,7 @@
         </div>
 
         <p class="text-center text-gray-500 text-sm mt-6">
-            &copy; {{ date('Y') }} Cekat.ai - All rights reserved.
+            &copy; {{ date('Y') }} Cekat.biz.id - All rights reserved.
         </p>
     </div>
 </body>

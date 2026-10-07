@@ -1,4 +1,4 @@
-# 🚀 Panduan Deploy Cekat.ai ke Production Server
+# 🚀 Panduan Deploy Cekat.biz.id ke Production Server
 
 **Domain:** cekat.biz.id  
 **Control Panel:** HestiaCP  
@@ -101,7 +101,7 @@ nano .env
 ```
 
 ```env
-APP_NAME="Cekat.ai"
+APP_NAME="Cekat.biz.id"
 APP_ENV=production
 APP_KEY=base64:xxxxxxxxxxxxxxxxxxxxx
 APP_DEBUG=false
@@ -128,7 +128,7 @@ MAIL_ENCRYPTION=tls
 MAIL_USERNAME=your-smtp-login@smtp-brevo.com
 MAIL_PASSWORD=your-smtp-key
 MAIL_FROM_ADDRESS=no-reply@cekat.biz.id
-MAIL_FROM_NAME="Cekat.ai"
+MAIL_FROM_NAME="Cekat.biz.id"
 # Notifikasi sistem (pendaftar baru, perubahan setting admin)
 ADMIN_NOTIFY_EMAIL=info@example.com
 
@@ -338,7 +338,7 @@ php artisan tinker
 
 1. Buka https://console.cloud.google.com
 2. Klik **Select a project** → **New Project**
-3. Nama project: `Cekat.ai`
+3. Nama project: `Cekat.biz.id`
 4. Klik **Create**
 
 ### Langkah 2: Aktifkan Google+ API
@@ -352,13 +352,13 @@ php artisan tinker
 1. **APIs & Services** → **Credentials** → **Create Credentials** → **OAuth client ID**
 2. Jika diminta, konfigurasi **OAuth consent screen** terlebih dahulu:
    - **User Type**: External
-   - **App name**: Cekat.ai
+   - **App name**: Cekat.biz.id
    - **User support email**: your-email@gmail.com
    - **Developer contact**: your-email@gmail.com
    - Klik **Save and Continue** sampai selesai
 3. Kembali ke **Credentials** → **Create Credentials** → **OAuth client ID**
 4. **Application type**: Web application
-5. **Name**: Cekat.ai Web Client
+5. **Name**: Cekat.biz.id Web Client
 6. **Authorized JavaScript origins**:
    ```
    https://cekat.biz.id

@@ -94,7 +94,7 @@
             <p>Syarat ini diatur oleh hukum Republik Indonesia. Perselisihan diselesaikan pertama-tama melalui musyawarah.</p>
 
             <h2>9. Kontak</h2>
-            <p>Pertanyaan seputar syarat ini: <a href="mailto:support@cekat.ai">support@cekat.ai</a>.</p>
+            <p>Pertanyaan seputar syarat ini: <a href="mailto:support@cekat.biz.id">support@cekat.biz.id</a>.</p>
         </article>
     </main>
 

@@ -25,7 +25,7 @@
     </div>
 
     <p style="font-size:13px;line-height:1.65;color:#71717a;margin:0;">
-        Butuh bantuan? Hubungi kami di <a href="mailto:support@cekat.ai"
-            style="color:#18181b;text-decoration:underline;">support@cekat.ai</a>
+        Butuh bantuan? Hubungi kami di <a href="mailto:support@cekat.biz.id"
+            style="color:#18181b;text-decoration:underline;">support@cekat.biz.id</a>
     </p>
 </x-emails.layout>

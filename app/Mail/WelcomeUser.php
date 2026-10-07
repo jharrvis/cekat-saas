@@ -29,7 +29,7 @@ class WelcomeUser extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🎉 Selamat Datang di Cekat.ai!',
+            subject: '🎉 Selamat Datang di Cekat.biz.id!',
         );
     }
 

@@ -48,6 +48,6 @@
     </p>
 
     <div style="margin:28px 0 6px;">
-        <x-emails.button href="mailto:support@cekat.ai">Hubungi Support</x-emails.button>
+        <x-emails.button href="mailto:support@cekat.biz.id">Hubungi Support</x-emails.button>
     </div>
 </x-emails.layout>

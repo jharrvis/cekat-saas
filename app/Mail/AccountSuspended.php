@@ -33,8 +33,8 @@ class AccountSuspended extends Mailable
     public function envelope(): Envelope
     {
         $subject = $this->type === 'banned'
-            ? '🚫 Akun Anda Telah Diblokir - Cekat.ai'
-            : '⚠️ Akun Anda Ditangguhkan - Cekat.ai';
+            ? '🚫 Akun Anda Telah Diblokir - Cekat.biz.id'
+            : '⚠️ Akun Anda Ditangguhkan - Cekat.biz.id';
 
         return new Envelope(
             subject: $subject,

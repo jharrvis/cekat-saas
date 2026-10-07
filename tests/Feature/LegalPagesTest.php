@@ -43,7 +43,7 @@ class LegalPagesTest extends TestCase
         $response->assertSee('/docs/api');
         // The sales CTA anchor target exists and carries a contact address.
         $response->assertSee('id="kontak"', false);
-        $response->assertSee('support@cekat.ai');
+        $response->assertSee('support@cekat.biz.id');
         $response->assertSee('Hubungi Penjualan');
     }
 }

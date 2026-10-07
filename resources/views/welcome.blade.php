@@ -1259,7 +1259,7 @@
 
             <p class="mt-10 text-gray-600 dark:text-gray-400">
                 Butuh bantuan atau ingin bertanya soal paket untuk tim Anda? Hubungi kami di
-                <a href="mailto:support@cekat.ai" class="font-semibold text-brand-600 dark:text-brand-400 hover:underline">support@cekat.ai</a>
+                <a href="mailto:support@cekat.biz.id" class="font-semibold text-brand-600 dark:text-brand-400 hover:underline">support@cekat.biz.id</a>
                 — tim kami membalas pada jam kerja.
             </p>
         </div>
