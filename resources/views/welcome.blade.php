@@ -749,7 +749,7 @@
                 <div class="lg:col-span-6 text-center lg:text-left mb-12 lg:mb-0 opacity-0 animate-fade-in-up">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400 border border-brand-100 dark:border-brand-800/50 text-sm font-medium mb-6">
                         <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-                        Didukung oleh GPT-4 & RAG
+                        Didukung Teknologi RAG & AI Generatif
                     </div>
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-white leading-[1.1]">
                         Ubah Data Anda Menjadi <br class="hidden lg:block"/>

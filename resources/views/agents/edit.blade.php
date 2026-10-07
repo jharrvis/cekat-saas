@@ -360,7 +360,6 @@
 
                 {{-- TAB: Lanjutan --}}
                 <div x-show="tab === 'lanjutan'" role="tabpanel" class="max-w-2xl space-y-6" x-cloak>
-                    @include('agents.partials.ai-tier-card')
 
                     <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-5">
                         <h3 class="font-semibold text-red-700 dark:text-red-400 mb-4">Danger Zone</h3>
