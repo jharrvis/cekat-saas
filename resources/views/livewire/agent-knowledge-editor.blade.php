@@ -1,5 +1,6 @@
 <div x-data="{ activeTab: 'company' }">
     {{-- Success/Error Messages --}}
+    <x-plan-limit-alert />
     @if (session()->has('message'))
         <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
             <i class="fa-solid fa-check-circle mr-2"></i>{{ session('message') }}

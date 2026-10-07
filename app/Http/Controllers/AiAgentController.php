@@ -49,10 +49,8 @@ class AiAgentController extends Controller
         $user = Auth::user();
         $check = $this->limits->check($user, 'total_agents');
         if (! $check['allowed']) {
-            $plan = $this->limits->planFor($user);
-
             return redirect()->route('agents.index')
-                ->with('error', "Paket {$plan->name} Anda terbatas {$check['limit']} agen. Tingkatkan paket untuk menambah.");
+                ->with('plan_limit_error', $this->limits->limitMessage($user, 'total_agents'));
         }
 
         $agent = Auth::user()->aiAgents()->create($request->validated());

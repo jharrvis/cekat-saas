@@ -25,7 +25,7 @@ class CreateChatbot extends Component
 
         $limits = app(\App\Services\Billing\PlanLimitService::class);
         if (! $limits->check($user, 'total_channels', ['used' => $user->widgets()->count()])['allowed']) {
-            session()->flash('error', 'You have reached your plan limit. Upgrade to create more channels.');
+            session()->flash('plan_limit_error', $limits->limitMessage($user, 'total_channels'));
             return;
         }
 

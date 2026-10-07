@@ -62,7 +62,7 @@ class PlanLimitEnforcementTest extends TestCase
             ->get(route('channels.create'))
             ->assertRedirect(route('channels.index'));
 
-        $response->assertSessionHas('error');
+        $response->assertSessionHas('plan_limit_error');
     }
 
     public function test_store_channel_beyond_plan_limit_is_rejected(): void
@@ -74,7 +74,7 @@ class PlanLimitEnforcementTest extends TestCase
             ->post(route('channels.store'), ['display_name' => 'Baru'])
             ->assertRedirect(route('channels.index'));
 
-        $response->assertSessionHas('error');
+        $response->assertSessionHas('plan_limit_error');
         $this->assertDatabaseCount('widgets', 1);
     }
 
@@ -88,7 +88,7 @@ class PlanLimitEnforcementTest extends TestCase
             ->post(route('channels.activate', $draft->id))
             ->assertRedirect(route('channels.index'));
 
-        $response->assertSessionHas('error');
+        $response->assertSessionHas('plan_limit_error');
         $this->assertSame('draft', $draft->fresh()->status);
     }
 
@@ -101,7 +101,7 @@ class PlanLimitEnforcementTest extends TestCase
             ->get(route('channels.create'))
             ->assertRedirect(route('channels.index'));
 
-        $response->assertSessionHas('error');
+        $response->assertSessionHas('plan_limit_error');
         $this->assertSame('draft', $draft->fresh()->status);
         $this->assertDatabaseCount('widgets', 1);
     }
@@ -128,7 +128,7 @@ class PlanLimitEnforcementTest extends TestCase
             'phone_number' => '08123456789',
         ]);
 
-        $response->assertSessionHas('error');
+        $response->assertSessionHas('plan_limit_error');
         $this->assertSame(1, WhatsAppDevice::where('user_id', $user->id)->count());
     }
 
@@ -211,7 +211,7 @@ class PlanLimitEnforcementTest extends TestCase
             ->call('addFaq');
 
         $this->assertSame(1, $kb->faqs()->count());
-        $component->assertSee('FAQ limit of your plan');
+        $component->assertSee('Anda terbatas 1 FAQ');
     }
 
     public function test_document_upload_is_rejected_beyond_plan_count(): void
@@ -237,7 +237,7 @@ class PlanLimitEnforcementTest extends TestCase
             ->call('uploadFile');
 
         $this->assertSame(1, KnowledgeDocument::count());
-        $component->assertSee('Document limit of your plan');
+        $component->assertSee('Anda terbatas 1 dokumen');
     }
 
     public function test_document_upload_is_rejected_beyond_plan_file_size(): void

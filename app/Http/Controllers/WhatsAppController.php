@@ -65,7 +65,7 @@ class WhatsAppController extends Controller
         ]);
 
         if (! $check['allowed']) {
-            return back()->with('error', "Anda sudah mencapai batas maksimum {$check['limit']} device.");
+            return back()->with('plan_limit_error', app(\App\Services\Billing\PlanLimitService::class)->limitMessage($user, 'whatsapp_devices'));
         }
 
         // Normalize phone number to include country code

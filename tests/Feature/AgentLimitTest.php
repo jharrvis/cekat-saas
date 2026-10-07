@@ -60,7 +60,7 @@ class AgentLimitTest extends TestCase
             ->post(route('agents.store'), $this->agentPayload('Agen Kedua'));
 
         $response->assertRedirect(route('agents.index'));
-        $response->assertSessionHas('error');
+        $response->assertSessionHas('plan_limit_error');
         $this->assertSame(1, $user->aiAgents()->count());
     }
 
@@ -78,7 +78,7 @@ class AgentLimitTest extends TestCase
 
         $this->actingAs($user)
             ->post(route('agents.store'), $this->agentPayload('Agen Empat'))
-            ->assertSessionHas('error');
+            ->assertSessionHas('plan_limit_error');
 
         $this->assertSame(3, $user->aiAgents()->count());
     }
