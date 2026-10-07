@@ -237,7 +237,7 @@
                         </span>
                     </button>
                 </form>
-                <p class="text-xs text-muted-foreground mt-2">Format: PDF, DOCX, TXT (max 10MB)</p>
+                <p class="text-xs text-muted-foreground mt-2">Format: PDF, DOCX, TXT (maks {{ $maxFileSizeMb }}MB sesuai paket Anda)</p>
             </div>
 
 

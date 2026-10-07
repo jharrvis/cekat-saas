@@ -1000,7 +1000,7 @@
                                                 <i data-lucide="upload-cloud" class="w-6 h-6"></i>
                                             </div>
                                             <p class="text-sm font-medium text-slate-900 dark:text-white">Tarik & Lepas file Anda ke sini</p>
-                                            <p class="text-xs text-gray-500 mt-1">Mendukung PDF, DOCX, CSV</p>
+                                            <p class="text-xs text-gray-500 mt-1">Mendukung PDF, DOCX, TXT</p>
                                         </div>
                                         <!-- Uploading State -->
                                         <div id="upload-state" class="absolute inset-0 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
@@ -1332,7 +1332,7 @@
         const chatContainer = document.getElementById('chat-simulation');
         const conversationSequence = [
             { type: 'user', text: 'Apakah AI ini bisa membaca manual PDF perusahaan kami?' },
-            { type: 'bot', text: 'Tentu! Anda bisa mengunggah file PDF, DOCX, TXT, atau CSV. Saya akan memprosesnya secara otomatis dan menjawab pertanyaan pelanggan murni berdasarkan isi dokumen Anda.' },
+            { type: 'bot', text: 'Tentu! Anda bisa mengunggah file PDF, DOCX, TXT, atau menempelkan tautan website. Saya akan memprosesnya secara otomatis dan menjawab pertanyaan pelanggan murni berdasarkan isi dokumen Anda.' },
             { type: 'user', text: 'Bagaimana cara memasangnya di website saya?' },
             { type: 'bot', text: 'Sangat mudah. Anda hanya perlu menyalin satu baris kode JavaScript yang kami sediakan ke dalam tag <head> website Anda. Widget obrolan akan langsung aktif!' }
         ];

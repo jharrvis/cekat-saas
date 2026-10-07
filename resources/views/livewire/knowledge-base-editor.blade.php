@@ -57,7 +57,7 @@
                         <label class="block text-sm font-medium mb-2">Company Name *</label>
                         <input type="text" wire:model="company_name"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            placeholder="e.g., Cekat.biz.id">
+                            placeholder="cth: Toko Kopi Senja">
                         @error('company_name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
@@ -153,7 +153,7 @@
                         <span wire:loading wire:target="uploadFile"><i
                                 class="fa-solid fa-spinner fa-spin mr-2"></i>Processing...</span>
                     </button>
-                    <p class="text-xs text-muted-foreground mt-2">Format: PDF, DOCX, TXT (max 10MB)</p>
+                    <p class="text-xs text-muted-foreground mt-2">Format: PDF, DOCX, TXT (maks {{ $maxFileSizeMb }}MB sesuai paket Anda)</p>
                 </div>
 
                 {{-- Website URL --}}
