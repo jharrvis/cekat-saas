@@ -326,6 +326,7 @@ Route::middleware(['auth', 'user.status'])->group(function () {
 
     // Payment Routes (Midtrans)
     Route::post('/billing/pay/{plan}', [App\Http\Controllers\PaymentController::class, 'createTransaction'])->name('billing.pay');
+    Route::get('/billing/transactions/{transaction}/status', [App\Http\Controllers\PaymentController::class, 'transactionStatus'])->name('billing.transaction.status');
     Route::get('/payment/finish', [App\Http\Controllers\PaymentController::class, 'finish'])->name('payment.finish');
 });
 

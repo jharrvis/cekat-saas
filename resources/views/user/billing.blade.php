@@ -163,7 +163,7 @@
                                         @if($tx->status === 'success')
                                             <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">Sukses</span>
                                         @elseif($tx->status === 'pending')
-                                            <span class="px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-700">Pending</span>
+                                            <span class="px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-700" data-pending-tx="{{ $tx->id }}">Pending</span>
                                         @elseif($tx->status === 'expired')
                                             <span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">Expired</span>
                                         @else
@@ -355,5 +355,30 @@
                 }
             });
         }
+
+        // T-03: while any transaction is pending, poll its status so the page
+        // reflects webhook-driven activation without a manual reload.
+        (function pollPendingTransactions() {
+            var marker = document.querySelector('[data-pending-tx]');
+            if (!marker) return;
+
+            var txId = marker.getAttribute('data-pending-tx');
+            var attempts = 0;
+
+            var timer = setInterval(function () {
+                attempts++;
+                if (attempts > 40) { clearInterval(timer); return; }
+
+                fetch('/billing/transactions/' + txId + '/status', { headers: { 'Accept': 'application/json' } })
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (data) {
+                        if (data && data.status !== 'pending') {
+                            clearInterval(timer);
+                            window.location.reload();
+                        }
+                    })
+                    .catch(function () { /* transient errors are ignored; next tick retries */ });
+            }, 5000);
+        })();
     </script>
 @endsection
