@@ -199,10 +199,12 @@ class PaymentController extends Controller
             && $user->plan_expires_at->isFuture();
         $base = $renewing ? $user->plan_expires_at : now();
 
+        // NOTE: monthly_message_used is intentionally NOT reset here (T-04).
+        // Upgrading mid-cycle must not hand out a fresh quota; the counter is
+        // reset only by the monthly schedule (ResetMonthlyQuota command).
         $user->update([
             'plan_id' => $plan->id,
             'plan_expires_at' => $base->copy()->addMonth(), // 1 month subscription
-            'monthly_message_used' => 0, // Reset quota
         ]);
 
         // Update transaction status
