@@ -59,6 +59,7 @@ class GoogleController extends Controller
                 // Create default widget
                 $widget = $user->widgets()->create([
                     'name' => $user->name . "'s Widget",
+                    'display_name' => $user->name . "'s Widget",
                     'slug' => 'widget-' . $user->id . '-' . Str::random(8),
                     'is_active' => true,
                 ]);

@@ -35,7 +35,10 @@ class UpdateWidgetRequest extends FormRequest
         return [
             'tab' => 'nullable|string',
             // General tab
-            'display_name' => 'nullable|max:255',
+            // The channel name is mandatory on the general tab (T-06); other
+            // tabs do not submit it and keep it optional. Mirrors the
+            // controller's tab default ('general' when absent).
+            'display_name' => [Rule::requiredIf(fn () => $this->input('tab', 'general') === 'general'), 'string', 'max:255'],
             'description' => 'nullable|max:500',
             'allowed_domains' => 'nullable|string',
             'status' => 'nullable|string|max:50',

@@ -39,7 +39,7 @@
                         Chatbot Name *
                         <x-help-tooltip text="The internal name for this chatbot, visible only to you." />
                     </label>
-                    <input type="text" name="display_name" value="{{ $chatbot->display_name }}"
+                    <input type="text" name="display_name" value="{{ old('display_name', $chatbot->display_name ?? $chatbot->name) }}"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         placeholder="e.g., Customer Support Bot" required>
                     @error('display_name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
