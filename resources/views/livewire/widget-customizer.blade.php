@@ -206,8 +206,8 @@
                         {{-- Input --}}
                         <div class="p-3 bg-white border-t">
                             <div class="flex gap-2">
-                                <input type="text" placeholder="Type a message..."
-                                    class="flex-1 px-3 py-2 border rounded-full text-sm" disabled>
+                                <input type="text" placeholder="Klik di sini untuk mencoba widget…" readonly onclick="testWidget()"
+                                    class="flex-1 px-3 py-2 border rounded-full text-sm cursor-pointer bg-slate-50" title="Buka widget uji coba">
                                 <button class="w-10 h-10 rounded-full flex items-center justify-center text-white"
                                     style="background: {{ $primaryColor }}">
                                     <i class="fa-solid fa-paper-plane"></i>
@@ -235,6 +235,7 @@
             if (!widgetLoaded) {
                 // Load widget config
                 window.CSAIConfig = {
+                    preview: true,
                     widgetId: '{{ $widget->slug }}',
                     apiUrl: '{{ config("app.url") }}/api/chat',
                     position: '{{ $position }}',

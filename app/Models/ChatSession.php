@@ -33,6 +33,7 @@ class ChatSession extends Model
         'location_data',
         'referer_url',
         'is_lead',
+        'is_preview',
     ];
 
     protected $casts = [
@@ -41,8 +42,18 @@ class ChatSession extends Model
         'summary_generated_at' => 'datetime',
         'is_converted' => 'boolean',
         'is_lead' => 'boolean',
+        'is_preview' => 'boolean',
         'location_data' => 'array',
     ];
+
+    /**
+     * T-07: only real visitor sessions (exclude owner test/preview sessions)
+     * for customer-facing history, stats, and lead surfaces.
+     */
+    public function scopeReal($query)
+    {
+        return $query->where('is_preview', false);
+    }
 
     /**
      * Visitor identity + AI summary are encrypted at rest (new rows);
