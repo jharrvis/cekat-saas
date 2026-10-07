@@ -18,10 +18,12 @@
                 <h1 class="text-2xl font-bold text-slate-900 mb-2 text-center">Reset Password</h1>
                 <p class="text-slate-600 mb-8 text-center">Enter your new password</p>
 
-                <form method="POST" action="{{ route('password.update') }}">
+                <form method="POST" action="{{ route('password.update') }}" novalidate>
                     @csrf
                     <input type="hidden" name="token" value="{{ $token }}">
                     <input type="hidden" name="email" value="{{ $email }}">
+
+                    <x-auth-error-summary />
 
                     <div class="mb-4">
                         <label for="password" class="block text-sm font-medium text-slate-700 mb-2">New Password</label>
@@ -36,7 +38,10 @@
                         <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-2">Confirm
                             Password</label>
                         <input id="password_confirmation" type="password" name="password_confirmation" required
-                            class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password_confirmation') border-red-500 @enderror">
+                        @error('password_confirmation')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <button type="submit"
