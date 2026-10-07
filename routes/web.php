@@ -208,6 +208,10 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
 });
 
 // Public read API v1 - server-to-server, bearer API key (no session, no
+// T-09: /api-keys is the URL users naturally type (the settings page lives
+// deeper). Permanent redirect; the target enforces auth itself.
+Route::redirect('/api-keys', '/settings/api-keys', 301);
+
 // CORS: this is NOT a browser endpoint). Auth in ApiKeyAuth (alias
 // api.key) binds the key's owner; throttle keys on the API key id.
 Route::prefix('api/v1')->middleware(['api.key', 'throttle:api-key'])->group(function () {
