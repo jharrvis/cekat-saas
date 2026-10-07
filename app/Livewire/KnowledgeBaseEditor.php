@@ -59,6 +59,7 @@ class KnowledgeBaseEditor extends Component
         if (!$this->widget) {
             $this->widget = auth()->user()->widgets()->create([
                 'name' => 'My Widget',
+                'display_name' => 'My Widget',
                 'slug' => 'widget-' . auth()->id(),
                 'is_active' => true,
             ]);
