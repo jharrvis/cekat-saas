@@ -135,7 +135,12 @@ class EmailVerificationTest extends TestCase
             ->assertSee('modal@test.id', false)
             // x-data param MUST be a quoted string - unquoted '{ idle }' is a
             // JS variable reference (ReferenceError) that kills the component.
-            ->assertSee("verifyOtpModal('idle')", false);
+            ->assertSee("verifyOtpModal('idle')", false)
+            // live countdown UI: resend chip (RESEND_DELAY) + expiry line (TTL)
+            ->assertSee('kirim ulang dalam', false)
+            ->assertSee('Kode berlaku', false)
+            // 6-digit segmented input (auto-submit) keeps its original id
+            ->assertSee('id="otp-code"', false);
     }
 
     public function test_login_emails_the_otp_to_unverified_user(): void

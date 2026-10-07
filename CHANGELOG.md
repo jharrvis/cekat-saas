@@ -71,6 +71,18 @@ Fitur baru: akses data (leads, sessions, widgets, stats) via API key utk integra
 
 **Test:** +13 (`EmailCenterTest`: akses admin-only, log sukses/gagal, CRUD template + validasi + preview token + test send, segment snapshot→chunked send, segment kosong gagal mulai, stop/resume tanpa duplikat, pemisahan tipe, filter log, prune) — suite **287 passed / 1144 assertions**.
 
+### Redesign popup verifikasi email — countdown live + input 6 digit (2026-10-02)
+
+**Permintaan:** popup OTP verifikasi terasa generik (header gradien emerald, emoji 🔐, satu kotak input, timer resend berupa teks kecil) — didesain ulang lebih profesional & modern selaras tema landing page (teal brand), dengan **hitung mundur live**. Durasi **tetap**: resend 60 dtk, masa berlaku kode 5 mnt (tampil sebagai countdown, tidak diubah).
+
+**Desain (`layouts/partials/verify-modal.blade.php`, markup+Alpine):**
+- **Tema teal brand:** palet `brand` 50–950 (sama dengan landing: `#14b8a6`/`#0d9488`) ditambahkan ke inline `tailwind.config` di `layouts/dashboard.blade.php` — sebelumnya dashboard hanya punya token HSL. Kartu putih + garis aksen gradien `brand-500→cyan-400`, ikon SVG perisai-centang (ganti emoji) di chip `bg-brand-500/10`, email penerima di chip mono, banner error/success ikut token (success kini teal, bukan emerald).
+- **Input 6 kotak terpisah** (segmented, `id="otp-code"` di kotak pertama): auto-advance saat mengetik, Backspace mundur + kosongkan, panah kiri/kanan, **paste 6 digit tersebar otomatis**, digit ke-enang auto-submit, tombol Verifikasi aktif hanya saat lengkap (hidden input `name="code"` diisi gabungan digit), tombol "Memeriksa…" kini benar-benar hidup (state `submitting` sebelumnya mati) + spinner SVG.
+- **Countdown live dua baris:** chip resend `Kode terkirim — kirim ulang dalam 00:45` (mm:ss) + bar progres yang menyusut tiap dtk, tampil selama masa cooldown lalu otomatis berubah jadi tombol **Kirim Ulang Kode**; garis `Kode berlaku 04:32` (sisa TTL dari kode di cache, akurat meski kode sudah tua) → saat habis jadi peringatan amber "Kode kedaluwarsa" + resend langsung bebas. Durasi di-inject sebagai **global JS** (`window.OTP_RESEND_DELAY`/`OTP_TTL`/`OTP_INITIAL_EXPIRY` dari konstanta `EmailOtpService::RESEND_DELAY`/`TTL`) — **bukan argumen `verifyOtpModal()`** agar kontrak test `verifyOtpModal('idle')` utuh.
+- **Method baru `EmailOtpService::remaining()`** — detik sisa kode di cache (0 bila tak ada/kedaluwarsa) → countdown expiry awal akurat saat reload halaman. `[x-cloak]` lokal cegah chip & tombol resend berkedip sebelum Alpine inisialisasi. Resend manual tetap POST native (full reload → flash `otp_success` tampil); auto-send awal tetap fetch.
+
+**Test:** `EmailVerificationTest` diperkaya +3 assert (chip `kirim ulang dalam`, garis `Kode berlaku`, `id="otp-code"`), kontrak lama dipertahankan persis — suite **287 passed / 1147 assertions**.
+
 ### Tabel chatbot dirender profesional (2026-09-30)
 
 **Masalah:** balasan AI berformat markdown table (`| Ukuran | Estimasi Harga |` + `|---|`) tampil mentah — pipe & garis pemisah berantakan di widget maupun inbox admin.

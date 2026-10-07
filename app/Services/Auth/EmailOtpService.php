@@ -53,6 +53,21 @@ class EmailOtpService
     }
 
     /**
+     * Seconds left until the current code expires (0 when absent or
+     * already expired) - drives the live expiry countdown in the modal.
+     */
+    public function remaining(User $user): int
+    {
+        $data = Cache::get($this->key($user));
+
+        if (! $data) {
+            return 0;
+        }
+
+        return max(0, ($data['expires_at'] ?? 0) - now()->getTimestamp());
+    }
+
+    /**
      * Validate a submitted code. Wrong/expired codes burn an attempt;
      * the code is invalidated after MAX_ATTEMPTS or on success.
      */
