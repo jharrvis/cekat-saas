@@ -20,6 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'locale',
         'pending_email',
         'email_verified_at',
         'password',

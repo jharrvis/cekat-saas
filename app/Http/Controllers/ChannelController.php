@@ -79,7 +79,7 @@ class ChannelController extends Controller
         }
 
         return redirect()->route('channels.edit', $widget->id)
-            ->with('success', 'Chatbot created successfully! Now configure your chatbot.');
+            ->with('success', __('channels.created'));
     }
 
     public function edit($chatbotId, $tab = 'general')
@@ -112,7 +112,7 @@ class ChannelController extends Controller
                 $settings['model'] = $inputSettings['model'];
                 $chatbot->update(['settings' => $settings]);
 
-                return redirect()->back()->with('success', 'Model LLM berhasil dipilih!');
+                return redirect()->back()->with('success', __('channels.model_selected'));
             }
         }
 
@@ -147,7 +147,7 @@ class ChannelController extends Controller
 
             $chatbot->update(['settings' => $settings]);
 
-            return redirect()->back()->with('success', 'Lead collection settings saved!');
+            return redirect()->back()->with('success', __('channels.lead_settings_saved'));
         }
 
         // Handle Allowed Domains settings (dedicated tab)
@@ -157,7 +157,7 @@ class ChannelController extends Controller
             $settings['allowed_domains'] = $validated['allowed_domains'] ?? null;
             $chatbot->update(['settings' => $settings]);
 
-            return redirect()->back()->with('success', 'Domain yang diizinkan berhasil disimpan!');
+            return redirect()->back()->with('success', __('channels.domains_saved'));
         }
 
         // Handle Webhook settings
@@ -168,7 +168,7 @@ class ChannelController extends Controller
 
             $chatbot->update(['settings' => $settings]);
 
-            return redirect()->back()->with('success', 'Webhook settings saved!');
+            return redirect()->back()->with('success', __('channels.webhook_saved'));
         }
 
         // Default: General tab (input validated by UpdateWidgetRequest,
@@ -214,11 +214,11 @@ class ChannelController extends Controller
                 $agentName = auth()->user()->aiAgents()->find($newAgentId)->name ?? 'Unknown';
                 return redirect()->back()->with('success', "Widget berhasil dihubungkan ke AI Agent \"{$agentName}\"!");
             } else {
-                return redirect()->back()->with('success', 'Widget sekarang menggunakan Knowledge Base sendiri.');
+                return redirect()->back()->with('success', __('channels.own_kb'));
             }
         }
 
-        return redirect()->back()->with('success', 'Chatbot updated successfully!');
+        return redirect()->back()->with('success', __('channels.updated'));
     }
 
 
@@ -229,7 +229,7 @@ class ChannelController extends Controller
         $chatbot->delete();
 
         return redirect()->route('channels.index')
-            ->with('success', 'Chatbot deleted successfully!');
+            ->with('success', __('channels.deleted'));
     }
 
     /**
@@ -241,7 +241,7 @@ class ChannelController extends Controller
         Gate::authorize('update', $chatbot);
 
         if ($chatbot->status === 'active') {
-            return redirect()->route('channels.index')->with('success', 'Channel sudah aktif.');
+            return redirect()->route('channels.index')->with('success', __('channels.already_active'));
         }
 
         if ($error = $this->guardActiveLimit($chatbot)) {
@@ -251,7 +251,7 @@ class ChannelController extends Controller
         $chatbot->update(['status' => 'active', 'is_active' => true]);
 
         return redirect()->route('channels.index')
-            ->with('success', 'Channel "' . ($chatbot->display_name ?? $chatbot->name) . '" berhasil diaktifkan!');
+            ->with('success', __('channels.activated', ['name' => $chatbot->display_name ?? $chatbot->name]));
     }
 
     /**
@@ -286,7 +286,7 @@ class ChannelController extends Controller
         Gate::authorize('update', $chatbot);
 
         if (!$chatbot->ai_agent_id) {
-            return redirect()->back()->with('error', 'Widget tidak terhubung ke AI Agent.');
+            return redirect()->back()->with('error', __('channels.agent_not_linked'));
         }
 
         // Unlink AI Agent
@@ -302,7 +302,7 @@ class ChannelController extends Controller
         }
 
         return redirect()->route('channels.edit.tab', [$chatbot->id, 'knowledge'])
-            ->with('success', 'Koneksi AI Agent berhasil diputus. Widget sekarang memiliki Knowledge Base sendiri.');
+            ->with('success', __('channels.agent_unlinked'));
     }
 }
 

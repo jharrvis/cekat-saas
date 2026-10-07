@@ -89,7 +89,7 @@ class SettingsController extends Controller
         }
 
         return redirect()->route('settings')
-            ->with('success', 'Email berhasil diubah menjadi ' . $user->email . '.');
+            ->with('success', __('settings.email_changed', ['email' => $user->email]));
     }
 
     /**

@@ -62,7 +62,7 @@ class ChatOrchestrator
             if (! file_exists($kbPath)) {
                 return [
                     'status' => 404,
-                    'body' => ['success' => false, 'error' => 'Widget not found', 'error_code' => 'widget_not_found'],
+                    'body' => ['success' => false, 'error' => __('api.widget_not_found'), 'error_code' => 'widget_not_found'],
                 ];
             }
             $kb = json_decode(file_get_contents($kbPath), true);
@@ -71,7 +71,7 @@ class ChatOrchestrator
             if (($widget->status ?? 'active') !== 'active' || ! $widget->is_active) {
                 return [
                     'status' => 404,
-                    'body' => ['success' => false, 'error' => 'Widget is not active', 'error_code' => 'widget_inactive'],
+                    'body' => ['success' => false, 'error' => __('api.widget_inactive'), 'error_code' => 'widget_inactive'],
                 ];
             }
 
@@ -82,7 +82,7 @@ class ChatOrchestrator
 
                 return [
                     'status' => 403,
-                    'body' => ['success' => false, 'error' => 'Domain not allowed', 'error_code' => 'domain_blocked'],
+                    'body' => ['success' => false, 'error' => __('api.domain_blocked'), 'error_code' => 'domain_blocked'],
                 ];
             }
 

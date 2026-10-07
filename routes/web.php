@@ -53,14 +53,30 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
 
         $settings = $widget->settings ?? [];
 
+        // T-12: default widget strings follow the widget OWNER's language
+        // preference; explicit per-widget settings always win.
+        $ownerLocale = $widget->user?->locale ?: 'id';
+        $t = fn (string $key) => __($key, [], $ownerLocale);
+
         return response()->json([
             'widgetId' => $widget->slug,
             'title' => $widget->name,
-            'subtitle' => $settings['subtitle'] ?? 'Online • Reply cepat',
-            'greeting' => $settings['greeting'] ?? 'Halo! 👋 Ada yang bisa saya bantu?',
+            'subtitle' => $settings['subtitle'] ?? $t('widget.subtitle_online'),
+            'greeting' => $settings['greeting'] ?? $t('widget.greeting_default'),
             'primaryColor' => $settings['color'] ?? '#6366f1',
             'position' => $settings['position'] ?? 'bottom-right',
-            'placeholder' => $settings['placeholder'] ?? 'Ketik pesan...',
+            'placeholder' => $settings['placeholder'] ?? $t('widget.placeholder'),
+            // Localized chrome strings for the embed script (T-12 step 7).
+            'i18n' => [
+                'poweredBy' => $t('widget.powered_by'),
+                'typing' => $t('widget.typing'),
+                'offline' => $t('widget.offline'),
+                'prechatTitle' => $t('widget.prechat_title'),
+                'prechatName' => $t('widget.prechat_name'),
+                'prechatEmail' => $t('widget.prechat_email'),
+                'prechatPhone' => $t('widget.prechat_phone'),
+                'prechatSubmit' => $t('widget.prechat_submit'),
+            ],
             'avatarType' => $settings['avatar_type'] ?? 'icon',
             'avatarIcon' => $settings['avatar_icon'] ?? 'robot',
             'avatarUrl' => $settings['avatar_url'] ?? '',
@@ -251,7 +267,7 @@ Route::middleware(['auth', 'user.status'])->group(function () {
 
     Route::put('/settings/profile', function (App\Http\Requests\UpdateProfileRequest $request) {
         auth()->user()->update($request->validated());
-        return back()->with('success', 'Profil berhasil diperbarui!');
+        return back()->with('success', __('settings.profile_updated'));
     })->name('settings.update-profile');
 
     Route::put('/settings/password', function (App\Http\Requests\UpdatePasswordRequest $request) {

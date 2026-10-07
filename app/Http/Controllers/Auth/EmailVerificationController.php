@@ -57,7 +57,7 @@ class EmailVerificationController extends Controller
         event(new Verified($user));
 
         return redirect()->route('dashboard')
-            ->with('success', 'Email berhasil diverifikasi! Selamat datang di Cekat.');
+            ->with('success', __('auth.verified'));
     }
 
     /**

@@ -42,6 +42,18 @@
                             disabled>
                         <p class="text-xs text-muted-foreground mt-1">Untuk mengubah email, gunakan bagian "Ganti Email" di bawah</p>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">{{ __('settings.language') }}</label>
+                        <select name="locale"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                            @foreach(\App\Http\Middleware\SetLocale::availableLocales() as $code)
+                                <option value="{{ $code }}" @selected(auth()->user()->locale === $code)>
+                                    {{ $code === 'id' ? 'Bahasa Indonesia' : ($code === 'en' ? 'English' : strtoupper($code)) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-muted-foreground mt-1">{{ __('settings.language_hint') }}</p>
+                    </div>
                 </div>
 
                 <div class="flex justify-end">

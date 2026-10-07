@@ -24,6 +24,8 @@ class PaymentSuccess extends Mailable
     {
         $this->user = $user;
         $this->transaction = $transaction;
+        // T-12: render in the recipient's language.
+        $this->locale = $user->locale ?? 'id';
     }
 
     /**
@@ -32,7 +34,7 @@ class PaymentSuccess extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '✅ Pembayaran Berhasil - Cekat.ai',
+            subject: '✅ ' . __('emails.payment_subject', ['plan' => $this->transaction->plan->name ?? ''], $this->user->locale ?? 'id'),
         );
     }
 

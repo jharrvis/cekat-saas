@@ -55,7 +55,7 @@ class WhatsAppController extends Controller
     public function create(StoreWhatsAppDeviceRequest $request)
     {
         if (!WhatsAppManager::isReady()) {
-            return back()->with('error', 'WhatsApp module is not available.');
+            return back()->with('error', __('whatsapp.module_unavailable'));
         }
 
         // Check user's plan device limit (PlanLimitService -> plans.max_whatsapp_devices)
@@ -84,7 +84,7 @@ class WhatsAppController extends Controller
             );
 
             return redirect()->route('whatsapp.connect', $device->id)
-                ->with('success', 'Device berhasil dibuat. Silakan scan QR code untuk menghubungkan.');
+                ->with('success', __('whatsapp.device_created'));
 
         } catch (\Exception $e) {
             Log::error('Failed to create WhatsApp device', [
@@ -92,7 +92,7 @@ class WhatsAppController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Gagal membuat device: ' . $e->getMessage());
+            return back()->with('error', __('whatsapp.device_create_failed', ['message' => $e->getMessage()]));
         }
     }
 
@@ -105,7 +105,7 @@ class WhatsAppController extends Controller
 
         if (!WhatsAppManager::isReady()) {
             return redirect()->route('whatsapp.index')
-                ->with('error', 'WhatsApp module is not available.');
+                ->with('error', __('whatsapp.module_unavailable'));
         }
 
         return view('whatsapp.connect', [
@@ -171,7 +171,7 @@ class WhatsAppController extends Controller
     {
         $device->update($request->validated());
 
-        return back()->with('success', 'Device berhasil diperbarui.');
+        return back()->with('success', __('whatsapp.device_updated'));
     }
 
     /**
@@ -190,10 +190,10 @@ class WhatsAppController extends Controller
                 'disconnected_at' => now(),
             ]);
 
-            return back()->with('success', 'Device berhasil di-disconnect.');
+            return back()->with('success', __('whatsapp.device_disconnected'));
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal disconnect: ' . $e->getMessage());
+            return back()->with('error', __('whatsapp.device_disconnect_failed', ['message' => $e->getMessage()]));
         }
     }
 
@@ -207,10 +207,10 @@ class WhatsAppController extends Controller
         try {
             $this->manager->deleteDevice($device);
             return redirect()->route('whatsapp.index')
-                ->with('success', 'Device berhasil dihapus.');
+                ->with('success', __('whatsapp.device_deleted'));
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menghapus device: ' . $e->getMessage());
+            return back()->with('error', __('whatsapp.device_delete_failed', ['message' => $e->getMessage()]));
         }
     }
 

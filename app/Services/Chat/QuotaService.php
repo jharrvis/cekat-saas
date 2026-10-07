@@ -28,14 +28,14 @@ class QuotaService
         if (! $user) {
             return [
                 'status' => 404,
-                'body' => ['success' => false, 'error' => 'Widget owner not found', 'error_code' => 'owner_missing'],
+                'body' => ['success' => false, 'error' => __('api.owner_missing'), 'error_code' => 'owner_missing'],
             ];
         }
 
         if (in_array($user->status, ['suspended', 'banned'], true)) {
             return [
                 'status' => 403,
-                'body' => ['success' => false, 'error' => 'Widget temporarily unavailable', 'error_code' => 'account_suspended'],
+                'body' => ['success' => false, 'error' => __('api.account_suspended'), 'error_code' => 'account_suspended'],
             ];
         }
 

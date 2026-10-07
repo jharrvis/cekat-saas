@@ -61,7 +61,7 @@
             </div>
             <div class="bg-card rounded-xl p-4 border">
                 <div class="text-muted-foreground text-sm">Avg. Messages/Chat</div>
-                <div class="text-2xl font-bold">{{ number_format($stats['avg_messages'], 1) }}</div>
+                <div class="text-2xl font-bold">{{ \App\Support\Format::decimal($stats['avg_messages'], 1) }}</div>
             </div>
         </div>
 

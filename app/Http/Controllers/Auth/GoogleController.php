@@ -82,10 +82,10 @@ class GoogleController extends Controller
 
             Auth::login($user);
 
-            return redirect()->route('dashboard')->with('success', 'Welcome back!');
+            return redirect()->route('dashboard')->with('success', __('auth.google_welcome'));
 
         } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Failed to login with Google. Please try again.');
+            return redirect()->route('login')->with('error', __('auth.google_failed'));
         }
     }
 }

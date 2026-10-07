@@ -15,8 +15,8 @@
                     </a>
                 </div>
 
-                <h1 class="text-2xl font-bold text-slate-900 mb-2 text-center">Reset Password</h1>
-                <p class="text-slate-600 mb-8 text-center">Enter your new password</p>
+                <h1 class="text-2xl font-bold text-slate-900 mb-2 text-center">{{ __('auth.reset_title') }}</h1>
+                <p class="text-slate-600 mb-8 text-center">{{ __('auth.reset_intro') }}</p>
 
                 <form method="POST" action="{{ route('password.update') }}" novalidate>
                     @csrf
@@ -26,7 +26,7 @@
                     <x-auth-error-summary />
 
                     <div class="mb-4">
-                        <label for="password" class="block text-sm font-medium text-slate-700 mb-2">New Password</label>
+                        <label for="password" class="block text-sm font-medium text-slate-700 mb-2">{{ __('auth.new_password') }}</label>
                         <input id="password" type="password" name="password" required
                             class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password') border-red-500 @enderror">
                         @error('password')
@@ -35,8 +35,7 @@
                     </div>
 
                     <div class="mb-6">
-                        <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-2">Confirm
-                            Password</label>
+                        <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-2">{{ __('auth.confirm_password') }}</label>
                         <input id="password_confirmation" type="password" name="password_confirmation" required
                             class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('password_confirmation') border-red-500 @enderror">
                         @error('password_confirmation')
@@ -46,7 +45,7 @@
 
                     <button type="submit"
                         class="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 transition">
-                        Reset Password
+                        {{ __('auth.reset_submit') }}
                     </button>
                 </form>
             </div>
