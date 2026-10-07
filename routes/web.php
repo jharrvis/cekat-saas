@@ -29,6 +29,10 @@ Route::get('/syarat-ketentuan', function () {
     return view('legal.terms');
 })->name('legal.terms');
 
+// Quick language switch (header switcher): persists to users.locale for
+// signed-in users, to the session for guests.
+Route::post('/locale', [\App\Http\Controllers\LocaleController::class, 'update'])->name('locale.switch');
+
 // API Routes
 Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->group(function () {
     // CORS preflight (the middleware answers it before the controller)

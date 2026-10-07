@@ -686,6 +686,9 @@
                 </div>
 
                 <div class="hidden md:flex items-center gap-4">
+                    <!-- Language Switcher -->
+                    <x-locale-switcher variant="landing" />
+
                     <!-- Theme Toggle Button -->
                     <button onclick="toggleTheme()" class="group text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors focus:outline-none">
                         <div class="theme-icon-dark hidden group-hover:text-brand-400 group-hover:animate-icon-pulse"><i data-lucide="moon" class="w-4 h-4"></i></div>
@@ -725,6 +728,16 @@
                 <a href="#fitur" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">{{ __('docs.s.fitur') }}</a>
                 <a href="#cara-kerja" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">{{ __('docs.s.cara_kerja') }}</a>
                 <a href="#harga" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">{{ __('docs.s.harga') }}</a>
+                <div class="flex items-center gap-2 py-2">
+                    <span class="text-gray-500 dark:text-gray-400 text-sm">{{ __('settings.language') }}:</span>
+                    @foreach (\App\Http\Middleware\SetLocale::availableLocales() as $code)
+                        <form method="POST" action="{{ route('locale.switch') }}">
+                            @csrf
+                            <input type="hidden" name="locale" value="{{ $code }}">
+                            <button type="submit" class="px-2.5 py-1 rounded-md text-sm font-semibold border {{ app()->getLocale() === $code ? 'bg-brand-600 text-white border-brand-600' : 'border-gray-300 dark:border-slate-700 text-gray-600 dark:text-gray-300' }}">{{ strtoupper($code) }}</button>
+                        </form>
+                    @endforeach
+                </div>
                 <div class="pt-4 flex flex-col gap-3 border-t border-gray-100 dark:border-slate-800">
                     @auth
                         <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="text-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-2 rounded-md text-base font-medium flex items-center justify-center gap-2">

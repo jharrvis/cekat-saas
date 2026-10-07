@@ -17,6 +17,9 @@
     </div>
 
     <div class="flex items-center gap-2">
+        <!-- Language Switcher -->
+        <x-locale-switcher />
+
         <!-- Dark Mode Toggle -->
         <button @click="toggleDarkMode()"
             class="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full transition-colors w-9 h-9 flex items-center justify-center">
