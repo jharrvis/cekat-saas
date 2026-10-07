@@ -75,6 +75,11 @@
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
+                            <label class="block text-sm font-medium mb-2">Max Agents *</label>
+                            <input type="number" wire:model="max_agents" min="1"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                        </div>
+                        <div>
                             <label class="block text-sm font-medium mb-2">Max Messages/Month *</label>
                             <input type="number" wire:model="max_messages_per_month" min="1"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
@@ -214,6 +219,10 @@
                         <div class="flex justify-between">
                             <span class="text-muted-foreground">Widgets:</span>
                             <span class="font-medium">{{ $plan['max_widgets'] }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-muted-foreground">Agents:</span>
+                            <span class="font-medium">{{ $plan['max_agents'] ?? 1 }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-muted-foreground">Messages:</span>

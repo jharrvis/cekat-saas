@@ -19,6 +19,7 @@ class PlanManager extends Component
     public $price = 0;
     public $billing_period = 'monthly';
     public $max_widgets = 1;
+    public $max_agents = 1;
     public $max_messages_per_month = 100;
     public $max_documents = 3;
     public $max_file_size_mb = 5;
@@ -66,6 +67,7 @@ class PlanManager extends Component
         $this->price = $plan->price;
         $this->billing_period = $plan->billing_period;
         $this->max_widgets = $plan->max_widgets;
+        $this->max_agents = $plan->max_agents ?? 1;
         $this->max_messages_per_month = $plan->max_messages_per_month;
         $this->max_documents = $plan->max_documents;
         $this->max_file_size_mb = $plan->max_file_size_mb;
@@ -88,6 +90,7 @@ class PlanManager extends Component
             'slug' => 'required|max:255|unique:plans,slug,' . ($this->plan_id ?? 'NULL'),
             'price' => 'required|numeric|min:0',
             'max_widgets' => 'required|integer|min:1',
+            'max_agents' => 'required|integer|min:1',
             'max_messages_per_month' => 'required|integer|min:1',
             'max_documents' => 'required|integer|min:0',
             'max_file_size_mb' => 'required|integer|min:1',
@@ -109,6 +112,7 @@ class PlanManager extends Component
             'price' => $this->price,
             'billing_period' => $this->billing_period,
             'max_widgets' => $this->max_widgets,
+            'max_agents' => $this->max_agents,
             'max_messages_per_month' => $this->max_messages_per_month,
             'max_documents' => $this->max_documents,
             'max_file_size_mb' => $this->max_file_size_mb,
@@ -165,6 +169,7 @@ class PlanManager extends Component
         $this->price = 0;
         $this->billing_period = 'monthly';
         $this->max_widgets = 1;
+        $this->max_agents = 1;
         $this->max_messages_per_month = 100;
         $this->max_documents = 3;
         $this->max_file_size_mb = 5;

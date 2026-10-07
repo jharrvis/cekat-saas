@@ -5,11 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAiAgentRequest;
 use App\Http\Requests\UpdateAiAgentRequest;
 use App\Models\AiAgent;
+use App\Services\Billing\PlanLimitService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class AiAgentController extends Controller
 {
+    private PlanLimitService $limits;
+
+    public function __construct()
+    {
+        $this->limits = app(PlanLimitService::class);
+    }
+
     /**
      * Display a listing of the user's AI agents.
      */
@@ -37,6 +45,16 @@ class AiAgentController extends Controller
      */
     public function store(StoreAiAgentRequest $request)
     {
+        // Plan limit: an account may not own more agents than its plan allows (T-02).
+        $user = Auth::user();
+        $check = $this->limits->check($user, 'total_agents');
+        if (! $check['allowed']) {
+            $plan = $this->limits->planFor($user);
+
+            return redirect()->route('agents.index')
+                ->with('error', "Paket {$plan->name} Anda terbatas {$check['limit']} agen. Tingkatkan paket untuk menambah.");
+        }
+
         $agent = Auth::user()->aiAgents()->create($request->validated());
 
         // Create knowledge base for the agent
