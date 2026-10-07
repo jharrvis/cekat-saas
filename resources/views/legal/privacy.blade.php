@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('legal.s.kebijakan_privasi_cekat_biz_id') }}</title>
+    <title>{{ __('legal.s.kebijakan_privasi_biz_id') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,55 +49,106 @@
         </div>
     </nav>
 
-    <main class="flex-1 px-4 py-14">
-        <article class="max-w-3xl mx-auto prose prose-slate dark:prose-invert prose-headings:font-bold prose-a:text-brand-600">
-            <h1>{{ __('legal.s.kebijakan_privasi') }}</h1>
-            <p class="text-sm text-gray-500">{{ __('legal.s.terakhir_diperbarui_7_oktober_2026') }}</p>
+    <main class="flex-1 px-4 py-12">
+        <div class="max-w-5xl mx-auto">
+            <header class="mb-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ __('legal.s.kebijakan_privasi') }}</h1>
+                <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-gray-400">
+                    <span>{{ __('legal.s.terakhir_diperbarui') }}</span>
+                    <span aria-hidden="true">•</span>
+                    <span>{{ __('legal.s.versi_dokumen') }}</span>
+                    <span aria-hidden="true">•</span>
+                    <span>{{ __('legal.s.dokumen_pendamping') }}: <a href="{{ route('legal.terms') }}" class="text-brand-600 dark:text-brand-400 hover:underline">{{ __('legal.s.syarat_ketentuan') }}</a></span>
+                </div>
+                <p class="mt-5 text-gray-600 dark:text-gray-300 leading-relaxed">{{ __('legal.s.priv_intro') }}</p>
+            </header>
 
-            <p>{{ __('legal.s.kebijakan_ini_menjelaskan_data_apa_yang_dikumpul') }}</p>
+            <div class="lg:grid lg:grid-cols-[240px_1fr] lg:gap-10">
+                <aside class="mb-8 lg:mb-0">
+                    <div class="lg:sticky lg:top-8 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-5">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">{{ __('legal.s.daftar_isi') }}</h2>
+                        <ul class="text-sm text-gray-600 dark:text-gray-300">
+                        <li><a href="#pasal-1" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_1_title') }}</a></li>
+                        <li><a href="#pasal-2" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_2_title') }}</a></li>
+                        <li><a href="#pasal-3" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_3_title') }}</a></li>
+                        <li><a href="#pasal-4" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_4_title') }}</a></li>
+                        <li><a href="#pasal-5" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_5_title') }}</a></li>
+                        <li><a href="#pasal-6" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_6_title') }}</a></li>
+                        <li><a href="#pasal-7" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_7_title') }}</a></li>
+                        <li><a href="#pasal-8" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_8_title') }}</a></li>
+                        <li><a href="#pasal-9" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_9_title') }}</a></li>
+                        <li><a href="#pasal-10" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_10_title') }}</a></li>
+                        <li><a href="#pasal-11" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_11_title') }}</a></li>
+                        <li><a href="#pasal-12" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_12_title') }}</a></li>
+                        <li><a href="#pasal-13" class="block py-1 hover:text-brand-600 dark:hover:text-brand-400">{{ __('legal.s.priv_13_title') }}</a></li>
+                        </ul>
+                    </div>
+                </aside>
 
-            <h2>{{ __('legal.s.1_data_yang_kami_kumpulkan') }}</h2>
-            <ul>
-                <li><strong>{{ __('legal.s.data_akun') }}</strong> {{ __('legal.s.nama_alamat_email_dan_kata_sandi_tersimpan_dalam') }}</li>
-                <li><strong>{{ __('legal.s.konten_yang_anda_kelola') }}</strong> {{ __('legal.s.informasi_bisnis_faq_dan_dokumen_yang_anda_ungga') }}</li>
-                <li><strong>{{ __('legal.s.percakapan_pengunjung') }}</strong> {{ __('legal.s.pesan_yang_dikirim_pengunjung_melalui_widget_cha') }}</li>
-                <li><strong>{{ __('legal.s.data_prospek_lead') }}</strong> {{ __('legal.s.nama_email_atau_nomor_telepon_yang_diisi_pengunj') }}</li>
-                <li><strong>{{ __('legal.s.data_transaksi') }}</strong> {{ __('legal.s.riwayat_pembayaran_dan_status_paket_anda_pemrose') }}</li>
-                <li><strong>{{ __('legal.s.log_email') }}</strong> {{ __('legal.s.setiap_email_yang_dikirim_sistem_misalnya_kode_v') }}</li>
-            </ul>
-
-            <h2>{{ __('legal.s.2_bagaimana_data_digunakan') }}</h2>
-            <ul>
-                <li>{{ __('legal.s.menjalankan_layanan_menghasilkan_jawaban_chatbot') }}</li>
-                <li>{{ __('legal.s.mengirim_email_transaksional_verifikasi_akun_atu') }}</li>
-                <li>{{ __('legal.s.keamanan_dan_pencegahan_penyalahgunaan_termasuk') }}</li>
-            </ul>
-            <p>{{ __('legal.s.kami_tidak_menjual_data_pribadi_anda') }}</p>
-
-            <h2>{{ __('legal.s.3_pihak_ketiga_yang_memproses_data') }}</h2>
-            <ul>
-                <li><strong>{{ __('legal.s.penyedia_layanan_ai') }}</strong> {{ __('legal.s.pesan_percakapan_diproses_untuk_menghasilkan_jaw') }}</li>
-                <li><strong>Midtrans</strong> {{ __('legal.s.memproses_pembayaran_paket_berlangganan') }}</li>
-                <li><strong>Fonnte</strong> {{ __('legal.s.menghubungkan_nomor_whatsapp_anda_bila_anda_meng') }}</li>
-                <li><strong>{{ __('legal.s.penyedia_email') }}</strong> {{ __('legal.s.mengirim_email_transaksional_atas_nama_cekat') }}</li>
-            </ul>
-
-            <h2>{{ __('legal.s.4_penyimpanan_dan_keamanan') }}</h2>
-            <p>{{ __('legal.s.data_disimpan_selama_akun_anda_aktif_atau_selama') }}</p>
-
-            <h2>{{ __('legal.s.5_hak_anda') }}</h2>
-            <p>{{ __('legal.s.anda_dapat_meminta_akses_perbaikan_atau_penghapu') }}</p>
-
-            <h2>{{ __('legal.s.6_perubahan_kebijakan') }}</h2>
-            <p>{{ __('legal.s.perubahan_material_pada_kebijakan_ini_akan_kami') }}</p>
-
-            <h2>{{ __('legal.s.7_kontak') }}</h2>
-            <p>{{ __('legal.s.pertanyaan_seputar_privasi') }} <a href="mailto:support@cekat.biz.id">support@cekat.biz.id</a>.</p>
-        </article>
+                <article class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-6 md:p-9 text-gray-700 dark:text-gray-300 leading-relaxed [&_p]:mt-2 [&_.legal-list_ul]:list-disc [&_.legal-list_ul]:pl-5 [&_.legal-list_li]:mt-1.5">
+                <section id="pasal-1" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_1_title') }}</h2>
+                    <p>{{ __('legal.s.priv_1_body') }}</p>
+                </section>
+                <section id="pasal-2" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_2_title') }}</h2>
+                    <div class="legal-list">{!! __('legal.s.priv_2_list') !!}</div>
+                </section>
+                <section id="pasal-3" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_3_title') }}</h2>
+                    <div class="legal-list">{!! __('legal.s.priv_3_list') !!}</div>
+                </section>
+                <section id="pasal-4" class="scroll-mt-24 mt-10">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_4_title') }}</h2>
+                    <div class="legal-list">{!! __('legal.s.priv_4_list') !!}</div>
+                    <p class="mt-3">{{ __('legal.s.priv_4_body') }}</p>
+                </section>
+                <section id="pasal-5" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_5_title') }}</h2>
+                    <p>{{ __('legal.s.priv_5_body') }}</p>
+                </section>
+                <section id="pasal-6" class="scroll-mt-24 mt-10">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_6_title') }}</h2>
+                    <p>{{ __('legal.s.priv_6_body') }}</p>
+                    <div class="legal-list mt-2">{!! __('legal.s.priv_6_list') !!}</div>
+                </section>
+                <section id="pasal-7" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_7_title') }}</h2>
+                    <p>{{ __('legal.s.priv_7_body') }}</p>
+                </section>
+                <section id="pasal-8" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_8_title') }}</h2>
+                    <p>{{ __('legal.s.priv_8_body') }}</p>
+                </section>
+                <section id="pasal-9" class="scroll-mt-24 mt-10">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_9_title') }}</h2>
+                    <div class="legal-list">{!! __('legal.s.priv_9_list') !!}</div>
+                    <p class="mt-3">{{ __('legal.s.priv_9_body') }}</p>
+                </section>
+                <section id="pasal-10" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_10_title') }}</h2>
+                    <p>{{ __('legal.s.priv_10_body') }}</p>
+                </section>
+                <section id="pasal-11" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_11_title') }}</h2>
+                    <p>{{ __('legal.s.priv_11_body') }}</p>
+                </section>
+                <section id="pasal-12" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_12_title') }}</h2>
+                    <p>{{ __('legal.s.priv_12_body') }}</p>
+                </section>
+                <section id="pasal-13" class="scroll-mt-24 mt-10 first:mt-0">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">{{ __('legal.s.priv_13_title') }}</h2>
+                    <p>{{ __('legal.s.priv_13_body') }}</p>
+                    <p class="mt-2 font-medium">{{ __('legal.s.priv_kontak') }}</p>
+                </section>
+                </article>
+            </div>
+        </div>
     </main>
 
     <footer class="py-6 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-slate-800">
-        &copy; {{ date('Y') }} Cekat.biz.id — <a href="{{ route('legal.terms') }}" class="hover:text-brand-600">{{ __('legal.s.syarat_amp_ketentuan') }}</a>
+        &copy; {{ date('Y') }} Cekat.biz.id — <a href="{{ route('legal.terms') }}" class="hover:text-brand-600">{{ __('legal.s.syarat_ketentuan') }}</a>
     </footer>
 
     <script>lucide.createIcons();</script>
