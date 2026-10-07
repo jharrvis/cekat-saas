@@ -296,6 +296,14 @@
                     </div>
                 @endforeach
             </div>
+
+            {{-- T-11: transparency note until the Midtrans merchant display
+                 name is aligned with the Cekat brand (owner action in the
+                 Midtrans dashboard). Matches what buyers see in Snap today. --}}
+            <p class="mt-4 text-xs text-muted-foreground flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved"></i>
+                Pembayaran diproses dengan aman oleh Midtrans atas nama MCImedia.
+            </p>
         </div>
     </div>
 
