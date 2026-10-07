@@ -72,17 +72,23 @@ class WidgetStatusGateTest extends TestCase
         $this->getJson("/api/widget/{$widget->slug}/config")
             ->assertOk()
             ->assertJsonPath('widgetId', $widget->slug)
-            ->assertJsonPath('model', config('services.openrouter.default_model'));
+            // T-21 masking: the public config payload never carries the model.
+            ->assertJsonMissingPath('model');
     }
 
-    public function test_config_endpoint_exposes_widget_model_override(): void
+    public function test_config_endpoint_hides_widget_model_override(): void
     {
+        // Renamed under the T-21 owner masking policy: a per-widget model
+        // override in settings stays server-side and must not leak into
+        // the public config payload (previously asserted exposed).
         $widget = $this->makeWidget('active');
         $widget->update(['settings' => ['model' => 'openai/gpt-4o-mini']]);
 
-        $this->getJson("/api/widget/{$widget->slug}/config")
+        $response = $this->getJson("/api/widget/{$widget->slug}/config")
             ->assertOk()
-            ->assertJsonPath('model', 'openai/gpt-4o-mini');
+            ->assertJsonMissingPath('model');
+
+        $this->assertStringNotContainsString('gpt-4o-mini', $response->getContent());
     }
 
     public function test_chat_endpoint_rejects_inactive_widget(): void

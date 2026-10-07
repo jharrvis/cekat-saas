@@ -56,6 +56,26 @@ class ModelMaskingTest extends TestCase
         $this->assertStringNotContainsString('nemotron', $response->getContent());
     }
 
+    public function test_widget_config_endpoint_exposes_no_model(): void
+    {
+        $plan = Plan::create(['name' => 'Starter', 'slug' => 'starter', 'max_messages_per_month' => 100, 'ai_tier' => 'basic']);
+        $user = User::create([
+            'name' => 'Owner', 'email' => 'cfg-' . uniqid() . '@test.id', 'password' => 'secret123',
+            'email_verified_at' => now(), 'plan_id' => $plan->id,
+        ]);
+        Widget::create([
+            'user_id' => $user->id, 'name' => 'Widget Cfg', 'slug' => 'w-cfg',
+            'is_active' => true, 'status' => 'active',
+            'settings' => ['model' => 'nvidia/nemotron-nano-9b-v2:free'],
+        ]);
+
+        $response = $this->getJson('/api/widget/w-cfg/config', ['Origin' => 'https://toko.test']);
+
+        $response->assertOk();
+        $response->assertJsonMissingPath('model');
+        $this->assertDoesNotMatchRegularExpression(self::FORBIDDEN, $response->getContent());
+    }
+
     public function test_landing_has_no_model_claims(): void
     {
         $response = $this->get('/');

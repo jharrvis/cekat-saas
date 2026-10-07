@@ -90,9 +90,9 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
             'avatarUrl' => $settings['avatar_url'] ?? '',
             'showBranding' => true,
             'allowedDomain' => $settings['allowed_domains'] ?? '',
-            // AI model this widget chats with (settings override, default
-            // falls back to the app-wide default model).
-            'model' => $settings['model'] ?? config('services.openrouter.default_model'),
+            // T-21 masking: the model identity is NEVER exposed in this
+            // public payload — the widget client does not use it and the
+            // server resolves the model itself from widget settings.
             // Pre-chat form (Strategy 3): widget shows it once per browser
             // before the visitor's first message.
             'leadForm' => [
