@@ -1,5 +1,7 @@
 @extends('layouts.dashboard')
 
+@section('title', 'WhatsApp')
+
 @section('content')
     <div class="space-y-6">
         {{-- Header --}}
