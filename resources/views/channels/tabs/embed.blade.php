@@ -44,19 +44,19 @@
             <button onclick="copyEmbedCode()" id="copy-btn"
                 class="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded text-xs transition flex items-center gap-1.5">
                 <i class="fa-solid fa-copy" id="copy-icon"></i>
-                <span id="copy-text">Copy</span>
+                <span id="copy-text">Salin</span>
             </button>
         </div>
 
         <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-lg text-sm border border-blue-100 dark:border-blue-800 flex gap-3">
             <i class="fa-solid fa-shield-halved mt-0.5 flex-shrink-0"></i>
             <div>
-                <p class="font-medium">Domain Security</p>
+                <p class="font-medium">Keamanan Domain</p>
                 <p class="mt-1 opacity-90">
-                    For security, make sure to add your website's domain to the "Allowed Domains" list in the
+                    Demi keamanan, pastikan domain situs Anda terdaftar di daftar "Allowed Domains" pada
                     <a href="{{ route('channels.edit.tab', [$chatbot->id, 'general']) }}"
-                        class="underline hover:text-blue-900 dark:hover:text-blue-100 font-medium">General tab</a>.
-                    Otherwise, the widget will not load on your website.
+                        class="underline hover:text-blue-900 dark:hover:text-blue-100 font-medium">tab Umum</a>.
+                    Jika tidak, widget tidak akan dimuat di situs Anda.
                 </p>
             </div>
         </div>
@@ -64,11 +64,11 @@
         <div class="mt-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 rounded-lg text-sm border border-green-100 dark:border-green-800 flex gap-3">
             <i class="fa-solid fa-lightbulb mt-0.5 flex-shrink-0"></i>
             <div>
-                <p class="font-medium mb-2">Quick Tips</p>
+                <p class="font-medium mb-2">Tips Cepat</p>
                 <ul class="space-y-1 opacity-90 list-disc list-inside">
-                    <li>The widget will automatically load on all pages where the code is installed</li>
-                    <li>You can customize the appearance in the <a href="{{ route('channels.edit.tab', [$chatbot->id, 'widget']) }}" class="underline hover:text-green-900 dark:hover:text-green-100 font-medium">Appearance tab</a></li>
-                    <li>Test your widget before deploying to production</li>
+                    <li>Widget otomatis dimuat di semua halaman tempat kode ini terpasang</li>
+                    <li>Anda dapat menyesuaikan tampilan di <a href="{{ route('channels.edit.tab', [$chatbot->id, 'widget']) }}" class="underline hover:text-green-900 dark:hover:text-green-100 font-medium">tab Tampilan</a></li>
+                    <li>Uji widget Anda sebelum dipasang di situs produksi</li>
                 </ul>
             </div>
         </div>

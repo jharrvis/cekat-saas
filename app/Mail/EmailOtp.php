@@ -20,12 +20,14 @@ class EmailOtp extends Mailable
     {
         $this->user = $user;
         $this->code = $code;
+        // T-12: render in the recipient's language.
+        $this->locale = $user->locale ?? 'id';
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Kode Verifikasi Email Anda - Cekat',
+            subject: __('emails.otp_subject', [], $this->user->locale ?? 'id'),
         );
     }
 

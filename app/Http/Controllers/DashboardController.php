@@ -167,12 +167,12 @@ class DashboardController extends Controller
                     $diffMinutes = $session->started_at->diffInMinutes($session->ended_at);
                     $duration = $diffMinutes < 60
                         ? $diffMinutes . ' menit'
-                        : round($diffMinutes / 60, 1) . ' jam';
+                        : \App\Support\Format::decimal($diffMinutes / 60, 1) . ' jam';
                 } elseif ($messages->count() > 1) {
                     $diffMinutes = $messages->first()->created_at->diffInMinutes($messages->last()->created_at);
                     $duration = $diffMinutes < 60
                         ? $diffMinutes . ' menit'
-                        : round($diffMinutes / 60, 1) . ' jam';
+                        : \App\Support\Format::decimal($diffMinutes / 60, 1) . ' jam';
                 }
 
                 // Determine status

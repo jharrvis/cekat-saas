@@ -27,7 +27,7 @@ class PaymentController extends Controller
 
         // Check if user already has this plan
         if ($user->plan_id == $plan->id) {
-            return back()->with('error', 'Anda sudah menggunakan plan ini.');
+            return back()->with('error', __('billing.already_on_plan'));
         }
 
         // Generate unique order ID

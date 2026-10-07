@@ -1304,7 +1304,7 @@
 
         <!-- Powered By -->
         ${config.showBranding ? `<div class="csai-powered">
-          Powered by <a href="https://cekat.biz.id" target="_blank">cekat.biz.id</a>
+          ${(config.i18n && config.i18n.poweredBy) ? config.i18n.poweredBy.replace(/\s*Cekat\s*$/, '') : 'Powered by'} <a href="https://cekat.biz.id" target="_blank">cekat.biz.id</a>
         </div>` : ''}
       </div>
     `;

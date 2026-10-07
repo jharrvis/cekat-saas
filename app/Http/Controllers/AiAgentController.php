@@ -139,7 +139,7 @@ class AiAgentController extends Controller
 
         // Check if agent has widgets
         if ($agent->widgets()->count() > 0) {
-            return back()->with('error', 'Tidak bisa menghapus agent yang masih digunakan oleh widget!');
+            return back()->with('error', __('agents.delete_blocked_in_use'));
         }
 
         $agent->delete();

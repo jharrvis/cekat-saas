@@ -63,6 +63,6 @@ class RegisterController extends Controller
         }
 
         return redirect()->route('dashboard')
-            ->with('success', 'Pendaftaran berhasil! Kami mengirim kode verifikasi 6 digit ke email Anda.');
+            ->with('success', __('auth.registered'));
     }
 }

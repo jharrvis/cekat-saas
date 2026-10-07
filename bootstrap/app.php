@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
+        // T-12: locale resolution runs for web pages and API routes alike.
+        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
+        $middleware->appendToGroup('api', \App\Http\Middleware\SetLocale::class);
+
         $middleware->validateCsrfTokens(except: [
             '/api/chat',
             '/api/payment/notification', // Midtrans webhook
@@ -38,7 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'success' => false,
                     'error' => 'rate_limited',
                     'error_code' => 'rate_limited',
-                    'message' => 'Terlalu banyak permintaan. Silakan tunggu sebentar lalu coba lagi.',
+                    'message' => __('api.rate_limited'),
                 ], 429, $e->getHeaders());
             }
         });
