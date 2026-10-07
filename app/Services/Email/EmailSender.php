@@ -55,7 +55,11 @@ class EmailSender
             'subject' => static::subjectOf($mailable),
             'status' => 'sent',
             'error' => null,
-            'body' => static::renderBody($mailable),
+            // T-14: OTP emails carry a live credential — never persist their
+            // body in the admin-visible email log. Subject/status stay logged.
+            'body' => $category === 'otp'
+                ? '[konten disamarkan — email OTP]'
+                : static::renderBody($mailable),
             'meta' => $meta ?: null,
             'campaign_id' => $campaignId,
         ]);
