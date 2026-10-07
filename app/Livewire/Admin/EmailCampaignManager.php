@@ -95,12 +95,12 @@ class EmailCampaignManager extends Component
         $campaign = EmailCampaign::find($id);
 
         if (! $campaign || $campaign->type !== $this->type) {
-            session()->flash('error', 'Kampanye tidak ditemukan.');
+            session()->flash('error', __('admin.s.campaign_not_found'));
             return;
         }
 
         if ($campaign->status !== 'draft') {
-            session()->flash('error', 'Hanya draft yang bisa diedit.');
+            session()->flash('error', __('admin.s.only_drafts_can_be_edited'));
             return;
         }
 
@@ -145,11 +145,11 @@ class EmailCampaignManager extends Component
 
         if ($this->isEditing) {
             EmailCampaign::whereKey($this->editingId)->update($payload);
-            $message = 'Draft berhasil diperbarui.';
+            $message = __('admin.s.draft_updated');
         } else {
             $payload['created_by'] = auth()->id();
             EmailCampaign::create($payload);
-            $message = 'Draft kampanye dibuat.';
+            $message = __('admin.s.draft_created');
         }
 
         $this->resetForm();
@@ -173,21 +173,21 @@ class EmailCampaignManager extends Component
         $campaign = EmailCampaign::find($id);
 
         if (! $campaign || $campaign->type !== $this->type) {
-            session()->flash('error', 'Kampanye tidak ditemukan.');
+            session()->flash('error', __('admin.s.campaign_not_found'));
             return;
         }
 
         if (! in_array($campaign->status, ['draft', 'stopped'], true)) {
-            session()->flash('error', 'Status kampanye tidak bisa dikirim.');
+            session()->flash('error', __('admin.s.campaign_status_cannot_be_sent'));
             return;
         }
 
         if (! app(CampaignSender::class)->start($campaign)) {
-            session()->flash('error', 'Segment tidak cocok dengan user mana pun. Ubah filter penerima.');
+            session()->flash('error', __('admin.s.segment_matches_no_users'));
             return;
         }
 
-        session()->flash('message', "Pengiriman {$this->typeLabel()} dimulai ke {$campaign->total_recipients} penerima.");
+        session()->flash('message', __('admin.s.sending_started', ['type' => $this->typeLabel(), 'count' => $campaign->total_recipients]));
     }
 
     public function stop(int $id): void
@@ -196,7 +196,7 @@ class EmailCampaignManager extends Component
 
         if ($campaign && $campaign->status === 'sending') {
             $campaign->update(['status' => 'stopped']);
-            session()->flash('message', 'Pengiriman dihentikan. Sisa penerima bisa dilanjutkan.');
+            session()->flash('message', __('admin.s.sending_stopped'));
         }
     }
 
@@ -206,7 +206,7 @@ class EmailCampaignManager extends Component
 
         if ($campaign && $campaign->type === $this->type) {
             $campaign->delete();
-            session()->flash('message', 'Kampanye dihapus.');
+            session()->flash('message', __('admin.s.campaign_deleted'));
         }
     }
 
@@ -237,7 +237,7 @@ class EmailCampaignManager extends Component
         $campaign = EmailCampaign::find($id);
 
         if (! $campaign || $campaign->type !== $this->type) {
-            session()->flash('error', 'Kampanye tidak ditemukan.');
+            session()->flash('error', __('admin.s.campaign_not_found'));
             return;
         }
 
@@ -250,9 +250,9 @@ class EmailCampaignManager extends Component
                 'campaign_id' => $campaign->id,
                 'user_id' => $user->id,
             ]);
-            session()->flash('message', "Email uji dikirim ke {$user->email}.");
+            session()->flash('message', __('admin.s.test_email_sent', ['email' => $user->email]));
         } catch (\Throwable $e) {
-            session()->flash('error', 'Email uji gagal dikirim: ' . $e->getMessage());
+            session()->flash('error', __('admin.s.test_email_failed', ['error' => $e->getMessage()]));
         }
     }
 

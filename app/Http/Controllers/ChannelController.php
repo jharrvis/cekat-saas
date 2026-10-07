@@ -212,7 +212,7 @@ class ChannelController extends Controller
         if ($oldAgentId !== $newAgentId) {
             if ($newAgentId) {
                 $agentName = auth()->user()->aiAgents()->find($newAgentId)->name ?? 'Unknown';
-                return redirect()->back()->with('success', "Widget berhasil dihubungkan ke AI Agent \"{$agentName}\"!");
+                return redirect()->back()->with('success', __('general.s.widget_linked_to_agent', ['name' => $agentName]));
             } else {
                 return redirect()->back()->with('success', __('channels.own_kb'));
             }

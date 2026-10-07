@@ -31,8 +31,8 @@
                         <path d="M9 12l2 2 4-4" />
                     </svg>
                 </div>
-                <h2 id="verify-otp-title" class="text-xl font-bold">Verifikasi Email Anda</h2>
-                <p class="mt-1.5 text-sm text-muted-foreground">Masukkan kode 6 digit yang kami kirim ke</p>
+                <h2 id="verify-otp-title" class="text-xl font-bold">{{ __('general.s.verifikasi_email_anda') }}</h2>
+                <p class="mt-1.5 text-sm text-muted-foreground">{{ __('general.s.masukkan_kode_6_digit_yang_kami_kirim_ke') }}</p>
                 <p class="mt-3 inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-muted px-3.5 py-1.5">
                     <i class="fa-solid fa-envelope text-xs text-brand-600 dark:text-brand-400"></i>
                     <span class="truncate text-xs font-semibold">{{ auth()->user()->email }}</span>
@@ -58,7 +58,7 @@
                     @submit.prevent="submit()">
                     @csrf
                     <label for="otp-code" class="mb-3 block text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        Masukkan Kode Verifikasi
+                        {{ __('general.s.masukkan_kode_verifikasi') }}
                     </label>
 
                     {{-- 6 segmented digit boxes: auto-advance, backspace back,
@@ -66,26 +66,26 @@
                     <div class="flex justify-between gap-2" @paste="onPaste($event)">
                         <input x-ref="otp0" id="otp-code" type="text" inputmode="numeric"
                             pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" required autofocus
-                            aria-label="Digit 1" @input="onInput($event, 0)" @keydown="onKeydown($event, 0)"
+                            aria-label="{{ __('general.s.digit_1') }}" @input="onInput($event, 0)" @keydown="onKeydown($event, 0)"
                             class="h-14 w-full rounded-xl border border-input bg-background text-center text-2xl font-bold caret-brand-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                         <input x-ref="otp1" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
-                            autocomplete="one-time-code" required aria-label="Digit 2"
+                            autocomplete="one-time-code" required aria-label="{{ __('general.s.digit_2') }}"
                             @input="onInput($event, 1)" @keydown="onKeydown($event, 1)"
                             class="h-14 w-full rounded-xl border border-input bg-background text-center text-2xl font-bold caret-brand-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                         <input x-ref="otp2" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
-                            autocomplete="one-time-code" required aria-label="Digit 3"
+                            autocomplete="one-time-code" required aria-label="{{ __('general.s.digit_3') }}"
                             @input="onInput($event, 2)" @keydown="onKeydown($event, 2)"
                             class="h-14 w-full rounded-xl border border-input bg-background text-center text-2xl font-bold caret-brand-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                         <input x-ref="otp3" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
-                            autocomplete="one-time-code" required aria-label="Digit 4"
+                            autocomplete="one-time-code" required aria-label="{{ __('general.s.digit_4') }}"
                             @input="onInput($event, 3)" @keydown="onKeydown($event, 3)"
                             class="h-14 w-full rounded-xl border border-input bg-background text-center text-2xl font-bold caret-brand-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                         <input x-ref="otp4" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
-                            autocomplete="one-time-code" required aria-label="Digit 5"
+                            autocomplete="one-time-code" required aria-label="{{ __('general.s.digit_5') }}"
                             @input="onInput($event, 4)" @keydown="onKeydown($event, 4)"
                             class="h-14 w-full rounded-xl border border-input bg-background text-center text-2xl font-bold caret-brand-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                         <input x-ref="otp5" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
-                            autocomplete="one-time-code" required aria-label="Digit 6"
+                            autocomplete="one-time-code" required aria-label="{{ __('general.s.digit_6') }}"
                             @input="onInput($event, 5)" @keydown="onKeydown($event, 5)"
                             class="h-14 w-full rounded-xl border border-input bg-background text-center text-2xl font-bold caret-brand-600 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
                     </div>
@@ -93,13 +93,13 @@
 
                     <button type="submit" :disabled="!complete || submitting"
                         class="mt-5 w-full rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500/40 disabled:cursor-not-allowed disabled:opacity-60">
-                        <span x-show="!submitting">Verifikasi Sekarang</span>
+                        <span x-show="!submitting">{{ __('general.s.verifikasi_sekarang') }}</span>
                         <span x-show="submitting" class="inline-flex items-center justify-center gap-2">
                             <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                             </svg>
-                            Memeriksa…
+                            {{ __('general.s.memeriksa') }}
                         </span>
                     </button>
                 </form>
@@ -107,11 +107,11 @@
                 {{-- live code-expiry countdown (EmailOtpService::TTL) --}}
                 <div class="mt-3 text-center text-xs">
                     <span x-show="expiry > 0 && !expired" class="text-muted-foreground">
-                        <i class="fa-regular fa-clock mr-1"></i>Kode berlaku
+                        <i class="fa-regular fa-clock mr-1"></i>{{ __('emails.s.kode_berlaku') }}
                         <span class="font-mono font-semibold tabular-nums" x-text="fmt(expiry)"></span>
                     </span>
                     <span x-show="expired" class="font-medium text-amber-600 dark:text-amber-400">
-                        Kode kedaluwarsa — klik Kirim Ulang Kode untuk kode baru.
+                        {{ __('general.s.kode_kedaluwarsa_klik_kirim_ulang_kode_untuk_kod') }}
                     </span>
                 </div>
 
@@ -120,7 +120,7 @@
                     <div class="flex items-center justify-between gap-3 rounded-xl border border-brand-500/40 bg-brand-500/10 px-4 py-3">
                         <span class="inline-flex items-center gap-2 text-sm font-medium text-brand-700 dark:text-brand-300">
                             <i class="fa-solid fa-rotate text-xs"></i>
-                            Kode terkirim — kirim ulang dalam
+                            {{ __('general.s.kode_terkirim_kirim_ulang_dalam') }}
                         </span>
                         <span class="font-mono text-sm font-bold tabular-nums text-brand-700 dark:text-brand-300"
                             x-text="fmt(countdown)"></span>
@@ -137,19 +137,19 @@
                     @csrf
                     <button type="submit" :disabled="resendState !== 'idle'"
                         class="w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60">
-                        <span x-show="resendState === 'idle'">Kirim Ulang Kode</span>
-                        <span x-show="resendState === 'sending'">Mengirim…</span>
+                        <span x-show="resendState === 'idle'">{{ __('general.s.kirim_ulang_kode') }}</span>
+                        <span x-show="resendState === 'sending'">{{ __('general.s.mengirim') }}</span>
                     </button>
                 </form>
 
                 <p class="mt-4 text-center text-xs text-muted-foreground">
-                    Tidak menerima email? Periksa folder <strong>spam</strong> bila tidak terlihat.
+                    {{ __('general.s.tidak_menerima_email_periksa_folder') }} <strong>{{ __('general.s.spam') }}</strong> {{ __('general.s.bila_tidak_terlihat') }}
                 </p>
 
                 <form method="POST" action="{{ route('logout') }}" class="mt-4 border-t border-border pt-4 text-center">
                     @csrf
                     <button type="submit" class="text-xs text-muted-foreground underline underline-offset-2 transition hover:text-foreground">
-                        Keluar dan daftar ulang dengan email lain
+                        {{ __('general.s.keluar_dan_daftar_ulang_dengan_email_lain') }}
                     </button>
                 </form>
             </div>

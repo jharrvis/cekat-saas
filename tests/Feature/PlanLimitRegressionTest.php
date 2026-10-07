@@ -27,6 +27,10 @@ class PlanLimitRegressionTest extends TestCase
         // (it compares them against the canonical invariants); it enforces
         // nothing and never gates a user action.
         'app/Console/Commands/PlansAudit.php',
+        // i18n sweep: 'ai_tier' appears only inside localization KEY names
+        // (admin.s.ai_tier, admin.s.save_ai_tier_mapping) in this admin
+        // tier-mapping view; it reads no plan columns.
+        'resources/views/livewire/admin/ai-tier-manager.blade.php',
     ];
 
     private function scan(array $dirs, string $pattern): array

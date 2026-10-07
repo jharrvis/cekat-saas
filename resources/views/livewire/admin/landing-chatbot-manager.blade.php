@@ -9,21 +9,18 @@
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h2 class="text-2xl font-bold">🏠 Landing Page Chatbot</h2>
-            <p class="text-muted-foreground">Manage the default chatbot for Cekat.biz.id website</p>
+            <h2 class="text-2xl font-bold">{{ __('admin.s.landing_page_chatbot') }}</h2>
+            <p class="text-muted-foreground">{{ __('admin.s.manage_the_default_chatbot_for_cekat_biz_id_webs') }}</p>
         </div>
         <span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
-            <i class="fa-solid fa-infinity mr-1"></i> Unlimited Quota
-        </span>
+            <i class="fa-solid fa-infinity mr-1"></i>{{ __('admin.s.unlimited_quota') }}</span>
     </div>
 
     {{-- Info Box --}}
     <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
         <p class="text-blue-800 text-sm">
             <i class="fa-solid fa-info-circle mr-2"></i>
-            <strong>Widget ini spesial:</strong> Admin dapat memilih LLM model langsung (tanpa batasan tier).
-            Tidak ada batasan quota untuk widget landing page.
-        </p>
+            <strong>{{ __('admin.s.widget_ini_spesial') }}</strong>{{ __('admin.s.admin_dapat_memilih_llm_model_langsung_tanpa_bat') }}</p>
     </div>
 
     {{-- Tabs --}}
@@ -32,36 +29,30 @@
             <button @click="activeTab = 'knowledge'"
                 :class="activeTab === 'knowledge' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                 class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                <i class="fa-solid fa-brain mr-2"></i> Knowledge Base
-            </button>
+                <i class="fa-solid fa-brain mr-2"></i>{{ __('agents.s.knowledge_base') }}</button>
             <button @click="activeTab = 'model'"
                 :class="activeTab === 'model' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                 class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                <i class="fa-solid fa-robot mr-2"></i> AI Model
-            </button>
+                <i class="fa-solid fa-robot mr-2"></i>{{ __('admin.s.ai_model') }}</button>
             <button @click="activeTab = 'widget'"
                 :class="activeTab === 'widget' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                 class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                <i class="fa-solid fa-paintbrush mr-2"></i> Widget Settings
-            </button>
+                <i class="fa-solid fa-paintbrush mr-2"></i>{{ __('docs.s.widget_settings') }}</button>
             <button @click="activeTab = 'lead'"
                 :class="activeTab === 'lead' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                 class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                <i class="fa-solid fa-user-plus mr-2"></i> Lead Collection
-            </button>
+                <i class="fa-solid fa-user-plus mr-2"></i>{{ __('emails.s.lead_collection') }}</button>
             <button @click="activeTab = 'analytics'"
                 :class="activeTab === 'analytics' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                 class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                <i class="fa-solid fa-chart-line mr-2"></i> Analytics
-            </button>
+                <i class="fa-solid fa-chart-line mr-2"></i>{{ __('admin.s.analytics') }}</button>
 
         </div>
 
         <div class="p-6">
             {{-- Knowledge Base Tab --}}
             <div x-show="activeTab === 'knowledge'" x-cloak>
-                @livewire('knowledge-base-editor', ['widgetId' => $widget->id])
-            </div>
+                @livewire('knowledge-base-editor', ['widgetId' => $widget->{{ __('agents.s.id') }}</div>
 
             {{-- AI Model Tab --}}
             <div x-show="activeTab === 'model'" x-cloak>
@@ -70,38 +61,38 @@
 
             {{-- Widget Settings Tab --}}
             <div x-show="activeTab === 'widget'" x-cloak>
-                <h3 class="text-lg font-bold mb-4">Widget Settings</h3>
+                <h3 class="text-lg font-bold mb-4">{{ __('docs.s.widget_settings') }}</h3>
 
                 <form wire:submit.prevent="saveSettings" class="space-y-4 max-w-xl">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Widget Name</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.widget_name') }}</label>
                         <input type="text" wire:model="widgetName"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                        <p class="text-xs text-muted-foreground mt-1">This appears in the chat header</p>
+                        <p class="text-xs text-muted-foreground mt-1">{{ __('admin.s.this_appears_in_the_chat_header') }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Subtitle</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.subtitle') }}</label>
                         <input type="text" wire:model="subtitle"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            placeholder="Online • Reply cepat">
+                            placeholder="{{ __('admin.s.online_reply_cepat') }}">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Greeting Message</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.greeting_message') }}</label>
                         <textarea wire:model="greeting" rows="2"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"></textarea>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Placeholder Text</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.placeholder_text') }}</label>
                         <input type="text" wire:model="placeholder"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            placeholder="Ketik pesan...">
+                            placeholder="{{ __('admin.s.ketik_pesan') }}">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Primary Color</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.primary_color') }}</label>
                         <div class="flex gap-2">
                             <input type="color" wire:model="primaryColor"
                                 class="w-12 h-10 border rounded cursor-pointer">
@@ -111,17 +102,17 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Position</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.position') }}</label>
                         <select wire:model="position"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                            <option value="bottom-right">Bottom Right</option>
-                            <option value="bottom-left">Bottom Left</option>
+                            <option value="bottom-right">{{ __('admin.s.bottom_right') }}</option>
+                            <option value="bottom-left">{{ __('admin.s.bottom_left') }}</option>
                         </select>
                     </div>
 
                     {{-- Avatar Settings --}}
                     <div class="border-t pt-4 mt-4">
-                        <label class="block text-sm font-medium mb-3">Avatar</label>
+                        <label class="block text-sm font-medium mb-3">{{ __('general.s.avatar') }}</label>
 
                         {{-- Current Avatar Preview --}}
                         <div class="flex items-center gap-4 mb-4">
@@ -155,7 +146,7 @@
 
                         {{-- Icon Selector --}}
                         <div class="mb-4">
-                            <p class="text-sm text-muted-foreground mb-2">Choose Icon:</p>
+                            <p class="text-sm text-muted-foreground mb-2">{{ __('admin.s.choose_icon') }}</p>
                             <div class="flex gap-2">
                                 @foreach(['robot', 'support', 'user'] as $icon)
                                     <button type="button" wire:click="selectAvatarIcon('{{ $icon }}')"
@@ -183,28 +174,24 @@
 
                         {{-- Upload Custom Avatar --}}
                         <div>
-                            <p class="text-sm text-muted-foreground mb-2">Or upload custom image:</p>
+                            <p class="text-sm text-muted-foreground mb-2">{{ __('admin.s.or_upload_custom_image') }}</p>
                             <div class="flex items-center gap-2">
                                 <input type="file" wire:model="avatarUpload" accept="image/*"
                                     class="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
                                 @if($avatarUpload)
                                     <button type="button" wire:click="uploadAvatar"
                                         class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">
-                                        <i class="fa-solid fa-upload mr-1"></i> Upload
-                                    </button>
+                                        <i class="fa-solid fa-upload mr-1"></i>{{ __('admin.s.upload') }}</button>
                                 @endif
                             </div>
                             @error('avatarUpload') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                            <div wire:loading wire:target="avatarUpload" class="text-sm text-muted-foreground mt-1">
-                                Uploading...
-                            </div>
+                            <div wire:loading wire:target="avatarUpload" class="text-sm text-muted-foreground mt-1">{{ __('admin.s.uploading') }}</div>
                         </div>
                     </div>
 
                     <button type="submit"
                         class="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition">
-                        <i class="fa-solid fa-save mr-2"></i> Save Settings
-                    </button>
+                        <i class="fa-solid fa-save mr-2"></i>{{ __('admin.s.save_settings') }}</button>
                 </form>
             </div>
 

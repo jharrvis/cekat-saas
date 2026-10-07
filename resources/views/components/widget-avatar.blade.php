@@ -35,7 +35,7 @@
 @endphp
 
 @if ($useImage)
-    <img src="{{ $url }}" alt="Avatar"
+    <img src="{{ $url }}" alt="{{ __('general.s.avatar') }}"
         class="{{ $className }}"
         style="width:{{ $size }};height:{{ $size }};object-fit:cover;border-radius:50%;">
 @else

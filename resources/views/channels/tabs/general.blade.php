@@ -1,7 +1,7 @@
 {{-- General Tab --}}
 <div x-data="{ showAiInfo: true }">
-    <h3 class="text-lg font-bold mb-4">General Information</h3>
-    <p class="text-muted-foreground mb-6">Basic settings for your chatbot widget</p>
+    <h3 class="text-lg font-bold mb-4">{{ __('channels.s.general_information') }}</h3>
+    <p class="text-muted-foreground mb-6">{{ __('channels.s.basic_settings_for_your_chatbot_widget') }}</p>
 
     {{-- AI Agent Linked Banner --}}
     @if($chatbot->ai_agent_id)
@@ -13,13 +13,13 @@
                         <i class="fa-solid fa-robot text-primary"></i>
                     </div>
                     <div>
-                        <p class="font-medium text-sm">Terhubung ke AI Agent</p>
+                        <p class="font-medium text-sm">{{ __('channels.s.terhubung_ke_ai_agent') }}</p>
                         <p class="text-muted-foreground text-xs">{{ $agent->name }} - Knowledge Base dan persona dikelola
-                            oleh AI Agent</p>
+                            oleh {{ __('channels.s.ai_agent') }}</p>
                     </div>
                 </div>
                 <a href="{{ route('agents.edit', $agent) }}" class="text-primary hover:underline text-sm">
-                    <i class="fa-solid fa-external-link-alt mr-1"></i>Kelola Agent
+                    <i class="fa-solid fa-external-link-alt mr-1"></i>{{ __('channels.s.kelola_agent') }}
                 </a>
             </div>
         </div>
@@ -36,37 +36,37 @@
                 {{-- Chatbot Name --}}
                 <div>
                     <label class="block text-sm font-medium mb-2 flex items-center">
-                        Chatbot Name *
+                        {{ __('channels.s.chatbot_name') }}
                         <x-help-tooltip text="The internal name for this chatbot, visible only to you." />
                     </label>
                     <input type="text" name="display_name" value="{{ old('display_name', $chatbot->display_name ?? $chatbot->name) }}"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        placeholder="e.g., Customer Support Bot" required>
+                        placeholder="{{ __('channels.s.e_g_customer_support_bot') }}" required>
                     @error('display_name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- Description --}}
                 <div>
                     <label class="block text-sm font-medium mb-2 flex items-center">
-                        Description
+                        {{ __('channels.s.description') }}
                         <x-help-tooltip text="A brief description to help you organize your channels." />
                     </label>
                     <textarea name="description" rows="2"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        placeholder="Brief description...">{{ $chatbot->description }}</textarea>
+                        placeholder="{{ __('channels.s.brief_description') }}">{{ $chatbot->description }}</textarea>
                 </div>
 
                 {{-- Status --}}
                 <div>
                     <label class="block text-sm font-medium mb-2 flex items-center">
-                        Status
+                        {{ __('channels.s.status') }}
                         <x-help-tooltip text="Controls whether the chatbot is publicly accessible." />
                     </label>
                     <select name="status"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                        <option value="draft" {{ $chatbot->status === 'draft' ? 'selected' : '' }}>🔒 Draft</option>
-                        <option value="active" {{ $chatbot->status === 'active' ? 'selected' : '' }}>✅ Active</option>
-                        <option value="inactive" {{ $chatbot->status === 'inactive' ? 'selected' : '' }}>⏸️ Inactive
+                        <option value="draft" {{ $chatbot->status === 'draft' ? 'selected' : '' }}>{{ __('channels.s.draft') }}</option>
+                        <option value="active" {{ $chatbot->status === 'active' ? 'selected' : '' }}>{{ __('channels.s.active_2') }}</option>
+                        <option value="inactive" {{ $chatbot->status === 'inactive' ? 'selected' : '' }}>{{ __('channels.s.inactive') }}
                         </option>
                     </select>
                 </div>
@@ -78,13 +78,13 @@
                 <div class="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-4">
                     <label class="block text-sm font-medium mb-2 flex items-center">
                         <i class="fa-solid fa-robot text-primary mr-2"></i>
-                        AI Agent
+                        {{ __('channels.s.ai_agent') }}
                         <x-help-tooltip
                             text="Pilih AI Agent untuk menggunakan knowledge base dan persona yang sudah ditraining. Satu AI Agent bisa dipakai di banyak widget." />
                     </label>
                     <select name="ai_agent_id"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-slate-800">
-                        <option value="">🚫 Tanpa AI Agent (Knowledge Base Sendiri)</option>
+                        <option value="">{{ __('channels.s.tanpa_ai_agent_knowledge_base_sendiri') }}</option>
                         @foreach($userAgents as $agent)
                             <option value="{{ $agent->id }}" {{ $chatbot->ai_agent_id == $agent->id ? 'selected' : '' }}>
                                 🤖 {{ $agent->name }}
@@ -96,12 +96,10 @@
                         @endforeach
                     </select>
                     <div class="mt-2 text-xs text-muted-foreground space-y-1">
-                        <p><i class="fa-solid fa-info-circle mr-1"></i> AI Agent menentukan personality, knowledge base,
-                            dan cara AI menjawab.</p>
+                        <p><i class="fa-solid fa-info-circle mr-1"></i> {{ __('channels.s.ai_agent_menentukan_personality_knowledge_base_d') }}</p>
                         @if($userAgents->isEmpty())
                             <p class="text-amber-600"><i class="fa-solid fa-plus mr-1"></i>
-                                <a href="{{ route('agents.create') }}" class="underline">Buat AI Agent baru</a> untuk
-                                berbagi knowledge base antar widget.
+                                <a href="{{ route('agents.create') }}" class="underline">{{ __('channels.s.buat_ai_agent_baru') }}</a> {{ __('channels.s.untuk_berbagi_knowledge_base_antar_widget_2') }}
                             </p>
                         @endif
                     </div>
@@ -110,16 +108,15 @@
                 {{-- Domain moved to the dedicated Domain tab --}}
                 <div class="bg-muted/40 border rounded-xl p-4 text-sm text-muted-foreground">
                     <i class="fa-solid fa-shield-halved mr-2"></i>
-                    Pengaturan domain pindah ke tab
-                    <a href="{{ route('channels.edit.tab', [$chatbot->id, 'domains']) }}" class="text-primary hover:underline font-medium">Domain</a>.
-                    Saat ini: <code class="bg-muted px-1 rounded">{{ $chatbot->settings['allowed_domains'] ?? 'semua domain diizinkan' }}</code>
+                    {{ __('channels.s.pengaturan_domain_pindah_ke_tab') }}
+                    <a href="{{ route('channels.edit.tab', [$chatbot->id, 'domains']) }}" class="text-primary hover:underline font-medium">{{ __('channels.s.domain') }}</a>{{ __('channels.s.saat_ini') }} <code class="bg-muted px-1 rounded">{{ $chatbot->settings['allowed_domains'] ?? 'semua domain diizinkan' }}</code>
                 </div>
 
                 {{-- Save Button --}}
                 <div class="pt-2">
                     <button type="submit"
                         class="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
-                        <i class="fa-solid fa-save mr-2"></i> Save Changes
+                        <i class="fa-solid fa-save mr-2"></i> {{ __('channels.s.save_changes') }}
                     </button>
                 </div>
             </form>

@@ -15,8 +15,8 @@
     <div class="space-y-6">
         {{-- Header --}}
         <div>
-            <h1 class="text-2xl font-bold">Billing & Subscription</h1>
-            <p class="text-muted-foreground">Kelola langganan dan pembayaran Anda</p>
+            <h1 class="text-2xl font-bold">{{ __('billing.s.billing_subscription') }}</h1>
+            <p class="text-muted-foreground">{{ __('billing.s.kelola_langganan_dan_pembayaran_anda') }}</p>
         </div>
 
         <div class="grid md:grid-cols-3 gap-6">
@@ -26,8 +26,8 @@
                 <div class="bg-card rounded-xl border p-6">
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <h3 class="text-lg font-semibold">Plan Saat Ini</h3>
-                            <p class="text-muted-foreground text-sm">Status langganan Anda</p>
+                            <h3 class="text-lg font-semibold">{{ __('billing.s.plan_saat_ini') }}</h3>
+                            <p class="text-muted-foreground text-sm">{{ __('billing.s.status_langganan_anda') }}</p>
                         </div>
                         @if($user->plan && $user->plan->price > 0)
                             @if($user->plan_expires_at && $user->plan_expires_at->isFuture())
@@ -37,13 +37,10 @@
                                 </span>
                             @else
                                 <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">
-                                    <i class="fa-solid fa-circle-xmark mr-1"></i>Kedaluwarsa
-                                </span>
+                                    <i class="fa-solid fa-circle-xmark mr-1"></i>{{ __('api.s.kedaluwarsa') }}</span>
                             @endif
                         @else
-                            <span class="px-3 py-1 text-sm rounded-full bg-muted text-muted-foreground">
-                                Free Plan
-                            </span>
+                            <span class="px-3 py-1 text-sm rounded-full bg-muted text-muted-foreground">{{ __('emails.s.free_plan') }}</span>
                         @endif
                     </div>
 
@@ -54,7 +51,7 @@
                         <div class="flex-1">
                             <h4 class="text-xl font-bold">{{ $user->plan->name ?? 'Free Plan' }}</h4>
                             <p class="text-sm text-muted-foreground">
-                                Rp {{ number_format($user->plan->price ?? 0, 0, ',', '.') }} / bulan
+                                Rp {{ number_format($user->plan->price ?? 0, 0, ',', '.') }} {{ __('billing.s.bulan') }}
                             </p>
                             @if($user->plan_expires_at)
                                 <p class="text-xs text-muted-foreground mt-1">
@@ -65,7 +62,7 @@
                             @endif
                         </div>
                         <a href="#plans" class="btn-primary">
-                            <i class="fa-solid fa-arrow-up mr-2"></i>Upgrade
+                            <i class="fa-solid fa-arrow-up mr-2"></i>{{ __('agents.s.upgrade') }}
                         </a>
                     </div>
 
@@ -89,7 +86,7 @@
 
                 {{-- Usage --}}
                 <div class="bg-card rounded-xl border p-6">
-                    <h3 class="text-lg font-semibold mb-4">Penggunaan Bulan Ini</h3>
+                    <h3 class="text-lg font-semibold mb-4">{{ __('billing.s.penggunaan_bulan_ini') }}</h3>
 
                     @php
                         $quota = app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'monthly_messages');
@@ -101,7 +98,7 @@
 
                     <div class="mb-4">
                         <div class="flex justify-between text-sm mb-2">
-                            <span>Pesan AI</span>
+                            <span>{{ __('billing.s.pesan_ai') }}</span>
                             <span
                                 class="{{ $isDanger ? 'text-red-500' : ($isWarning ? 'text-amber-500' : 'text-muted-foreground') }}">
                                 {{ number_format($used, 0, ',', '.') }} / {{ number_format($quota, 0, ',', '.') }}
@@ -115,8 +112,7 @@
 
                     @if($isDanger)
                         <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                            <i class="fa-solid fa-exclamation-triangle mr-2"></i>
-                            Kuota pesan Anda telah habis! Upgrade plan untuk melanjutkan.
+                            <i class="fa-solid fa-exclamation-triangle mr-2"></i>{{ __('billing.s.kuota_pesan_anda_telah_habis_upgrade_plan_untuk') }}
                         </div>
                     @elseif($isWarning)
                         <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
@@ -126,24 +122,23 @@
                     @endif
 
                     <p class="text-xs text-muted-foreground mt-4">
-                        <i class="fa-solid fa-info-circle mr-1"></i>
-                        Kuota akan reset pada tanggal 1 bulan depan
+                        <i class="fa-solid fa-info-circle mr-1"></i>{{ __('billing.s.kuota_akan_reset_pada_tanggal_1_bulan_depan') }}
                     </p>
                 </div>
 
                 {{-- Billing History --}}
                 <div class="bg-card rounded-xl border overflow-hidden">
                     <div class="p-4 border-b">
-                        <h3 class="text-lg font-semibold">Riwayat Pembayaran</h3>
+                        <h3 class="text-lg font-semibold">{{ __('billing.s.riwayat_pembayaran') }}</h3>
                     </div>
                     <table class="w-full">
                         <thead class="bg-muted/50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-sm font-medium">Tanggal</th>
-                                <th class="px-4 py-3 text-left text-sm font-medium">Deskripsi</th>
-                                <th class="px-4 py-3 text-left text-sm font-medium">Jumlah</th>
-                                <th class="px-4 py-3 text-left text-sm font-medium">Status</th>
-                                <th class="px-4 py-3 text-left text-sm font-medium">Aksi</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.tanggal') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium">{{ __('agents.s.deskripsi') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium">{{ __('billing.s.jumlah') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium">{{ __('channels.s.status') }}</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.aksi') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y">
@@ -157,20 +152,20 @@
                                     <td class="px-4 py-3 text-sm font-medium">Rp {{ number_format($tx->amount, 0, ',', '.') }}</td>
                                     <td class="px-4 py-3 text-sm">
                                         @if($tx->status === 'success')
-                                            <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">Sukses</span>
+                                            <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">{{ __('billing.s.sukses') }}</span>
                                         @elseif($tx->status === 'pending')
-                                            <span class="px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-700" data-pending-tx="{{ $tx->id }}">Pending</span>
+                                            <span class="px-2 py-1 rounded-full text-xs bg-amber-100 text-amber-700" data-pending-tx="{{ $tx->id }}">{{ __('admin.s.pending') }}</span>
                                         @elseif($tx->status === 'expired')
-                                            <span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">Expired</span>
+                                            <span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">{{ __('admin.s.expired') }}</span>
                                         @else
-                                            <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">Gagal</span>
+                                            <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">{{ __('admin.s.gagal') }}</span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-sm">
                                         @if($tx->status === 'pending' && $tx->snap_token)
                                             <button onclick="continuePay('{{ $tx->snap_token }}', '{{ $tx->order_id }}')"
                                                 class="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition">
-                                                <i class="fa-solid fa-credit-card mr-1"></i>Lanjutkan
+                                                <i class="fa-solid fa-credit-card mr-1"></i>{{ __('billing.s.lanjutkan') }}
                                             </button>
                                         @elseif($tx->status === 'success')
                                             <span class="text-green-600"><i class="fa-solid fa-check"></i></span>
@@ -183,7 +178,7 @@
                                 <tr>
                                     <td colspan="5" class="px-4 py-8 text-center text-muted-foreground">
                                         <i class="fa-solid fa-file-invoice text-4xl mb-4 block"></i>
-                                        <p>Belum ada riwayat pembayaran</p>
+                                        <p>{{ __('billing.s.belum_ada_riwayat_pembayaran') }}</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -196,24 +191,24 @@
             <div class="space-y-6">
                 {{-- Quick Actions --}}
                 <div class="bg-card rounded-xl border p-4">
-                    <h3 class="font-semibold mb-3">Quick Actions</h3>
+                    <h3 class="font-semibold mb-3">{{ __('admin.s.quick_actions') }}</h3>
                     <div class="space-y-2">
                         <a href="#" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition text-sm">
-                            <i class="fa-solid fa-credit-card w-5 mr-2"></i>Kelola Metode Bayar
+                            <i class="fa-solid fa-credit-card w-5 mr-2"></i>{{ __('billing.s.kelola_metode_bayar') }}
                         </a>
                         <a href="#" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition text-sm">
-                            <i class="fa-solid fa-receipt w-5 mr-2"></i>Download All Invoices
+                            <i class="fa-solid fa-receipt w-5 mr-2"></i>{{ __('billing.s.download_all_invoices') }}
                         </a>
                         <a href="#"
                             class="block w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition text-sm text-red-500">
-                            <i class="fa-solid fa-times-circle w-5 mr-2"></i>Cancel Subscription
+                            <i class="fa-solid fa-times-circle w-5 mr-2"></i>{{ __('billing.s.cancel_subscription') }}
                         </a>
                     </div>
                 </div>
 
                 {{-- Next Billing --}}
                 <div class="bg-card rounded-xl border p-4">
-                    <h3 class="font-semibold mb-3">Pembayaran Berikutnya</h3>
+                    <h3 class="font-semibold mb-3">{{ __('billing.s.pembayaran_berikutnya') }}</h3>
                     @if($user->plan && $user->plan->price > 0)
                         <div class="text-center py-4">
                             <p class="text-2xl font-bold">Rp {{ number_format($user->plan->price, 0, ',', '.') }}</p>
@@ -222,20 +217,16 @@
                             </p>
                         </div>
                     @else
-                        <p class="text-sm text-muted-foreground text-center py-4">
-                            Anda menggunakan Free Plan
-                        </p>
+                        <p class="text-sm text-muted-foreground text-center py-4">{{ __('billing.s.anda_menggunakan_free_plan') }}</p>
                     @endif
                 </div>
 
                 {{-- Support --}}
                 <div class="bg-card rounded-xl border p-4">
-                    <h3 class="font-semibold mb-3">Butuh Bantuan?</h3>
-                    <p class="text-sm text-muted-foreground mb-3">
-                        Ada pertanyaan tentang billing? Tim kami siap membantu.
-                    </p>
+                    <h3 class="font-semibold mb-3">{{ __('billing.s.butuh_bantuan') }}</h3>
+                    <p class="text-sm text-muted-foreground mb-3">{{ __('billing.s.ada_pertanyaan_tentang_billing_tim_kami_siap_mem') }}</p>
                     <a href="mailto:support@cekat.biz.id" class="btn-secondary w-full text-center">
-                        <i class="fa-solid fa-headset mr-2"></i>Hubungi Support
+                        <i class="fa-solid fa-headset mr-2"></i>{{ __('auth.s.hubungi_support') }}
                     </a>
                 </div>
             </div>
@@ -243,7 +234,7 @@
 
         {{-- Available Plans --}}
         <div id="plans" class="bg-card rounded-xl border p-6">
-            <h3 class="text-lg font-semibold mb-6 text-center">Upgrade Plan Anda</h3>
+            <h3 class="text-lg font-semibold mb-6 text-center">{{ __('billing.s.upgrade_plan_anda') }}</h3>
 
             <div class="grid md:grid-cols-{{ count($plans) }} gap-4">
                 @foreach($plans as $plan)
@@ -254,19 +245,17 @@
                     @endphp
                     <div class="relative p-4 border rounded-xl {{ $isPopular ? 'border-primary ring-2 ring-primary/20' : '' }} {{ $isCurrent ? 'bg-primary/5' : '' }}">
                         @if($isPopular)
-                            <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs rounded-full">
-                                Popular
-                            </div>
+                            <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-xs rounded-full">{{ __('billing.s.popular') }}</div>
                         @endif
                         @if($isCurrent)
                             <div class="absolute -top-3 right-2 px-3 py-1 bg-green-500 text-white text-xs rounded-full">
-                                <i class="fa-solid fa-check mr-1"></i>Current
+                                <i class="fa-solid fa-check mr-1"></i>{{ __('agents.s.current') }}
                             </div>
                         @endif
                         <h4 class="font-semibold text-lg mb-2">{{ $plan->name }}</h4>
                         <p class="text-2xl font-bold mb-4">
                             Rp {{ number_format($plan->price, 0, ',', '.') }}
-                            <span class="text-sm font-normal text-muted-foreground">/bulan</span>
+                            <span class="text-sm font-normal text-muted-foreground">{{ __('billing.s.bulan') }}</span>
                         </p>
                         <ul class="space-y-2 text-sm mb-4">
                             @php($planWidgetLimit = $planLimits->limit($plan, 'total_channels'))
@@ -276,16 +265,14 @@
                         </ul>
                         @if($isCurrent)
                             <button class="w-full py-2 rounded-lg text-sm bg-green-100 text-green-700 cursor-default" disabled>
-                                <i class="fa-solid fa-check mr-1"></i>Plan Aktif
+                                <i class="fa-solid fa-check mr-1"></i>{{ __('billing.s.plan_aktif') }}
                             </button>
                         @elseif($plan->price <= 0)
-                            <button class="w-full py-2 rounded-lg text-sm bg-muted text-muted-foreground cursor-default" disabled>
-                                Free Plan
-                            </button>
+                            <button class="w-full py-2 rounded-lg text-sm bg-muted text-muted-foreground cursor-default" disabled>{{ __('emails.s.free_plan') }}</button>
                         @else
                             <button onclick="payPlan({{ $plan->id }})" 
                                 class="w-full py-2 rounded-lg text-sm {{ $isPopular ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-muted hover:bg-muted/80' }} transition">
-                                <i class="fa-solid fa-credit-card mr-1"></i> Pilih & Bayar
+                                <i class="fa-solid fa-credit-card mr-1"></i> {{ __('billing.s.pilih_bayar') }}
                             </button>
                         @endif
                     </div>
@@ -297,7 +284,7 @@
                  Midtrans dashboard). Matches what buyers see in Snap today. --}}
             <p class="mt-4 text-xs text-muted-foreground flex items-center gap-2">
                 <i class="fa-solid fa-shield-halved"></i>
-                Pembayaran diproses dengan aman oleh Midtrans atas nama MCImedia.
+                {{ __('billing.s.pembayaran_diproses_dengan_aman_oleh_midtrans_at') }}
             </p>
         </div>
     </div>

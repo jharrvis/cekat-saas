@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Edit ' . $chatbot->display_name)
-@section('page-title', 'Edit Channel')
+@section('page-title', __('channels.s.edit_channel_title'))
 
 @section('content')
     <div>
@@ -20,7 +20,7 @@
                 </a>
                 <div>
                     <h2 class="text-2xl font-bold">{{ $chatbot->display_name }}</h2>
-                    <p class="text-muted-foreground">Kelola channel Web Widget</p>
+                    <p class="text-muted-foreground">{{ __('channels.s.kelola_channel_web_widget') }}</p>
                 </div>
             </div>
             <span
@@ -34,36 +34,36 @@
             <div class="border-b flex overflow-x-auto">
                 <a href="{{ route('channels.edit.tab', [$chatbot->id, 'general']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'general' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-info-circle mr-2"></i> Umum
+                    <i class="fa-solid fa-info-circle mr-2"></i> {{ __('channels.s.umum') }}
                 </a>
                 <a href="{{ route('channels.edit.tab', [$chatbot->id, 'knowledge']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'knowledge' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-brain mr-2"></i> Knowledge
+                    <i class="fa-solid fa-brain mr-2"></i> {{ __('agents.s.knowledge') }}
                 </a>
 
                 <a href="{{ route('channels.edit.tab', [$chatbot->id, 'widget']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'widget' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-paintbrush mr-2"></i> Tampilan
+                    <i class="fa-solid fa-paintbrush mr-2"></i> {{ __('channels.s.tampilan') }}
                 </a>
                 <a href="{{ route('channels.edit.tab', [$chatbot->id, 'lead']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'lead' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-user-plus mr-2"></i> Lead
+                    <i class="fa-solid fa-user-plus mr-2"></i> {{ __('channels.s.lead') }}
                 </a>
                 <a href="{{ route('channels.edit.tab', [$chatbot->id, 'domains']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'domains' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-shield-halved mr-2"></i> Domain
+                    <i class="fa-solid fa-shield-halved mr-2"></i> {{ __('channels.s.domain') }}
                 </a>
                 <a href="{{ route('channels.edit.tab', [$chatbot->id, 'embed']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'embed' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-code mr-2"></i> Embed
+                    <i class="fa-solid fa-code mr-2"></i> {{ __('channels.s.embed') }}
                 </a>
                 <a href="{{ route('channels.edit.tab', [$chatbot->id, 'webhook']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'webhook' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-plug mr-2"></i> Webhook
+                    <i class="fa-solid fa-plug mr-2"></i> {{ __('channels.s.webhook') }}
                 </a>
                 <a href="{{ route('channels.edit.tab', [$chatbot->id, 'analytics']) }}"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap {{ $tab === 'analytics' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30' }}">
-                    <i class="fa-solid fa-chart-line mr-2"></i> Analitik
+                    <i class="fa-solid fa-chart-line mr-2"></i> {{ __('channels.s.analitik') }}
                 </a>
             </div>
 

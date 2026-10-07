@@ -49,7 +49,7 @@ class ChatInbox extends Component
         $this->selectedSession = ChatSession::with(['widget', 'messages'])->find($sessionId);
         $this->messages = $this->selectedSession ? $this->selectedSession->messages()->orderBy('created_at', 'asc')->get()->toArray() : [];
 
-        session()->flash('message', 'Summary generated successfully!');
+        session()->flash('message', __('admin.s.summary_generated'));
     }
 
     public function updatedSearchTerm()

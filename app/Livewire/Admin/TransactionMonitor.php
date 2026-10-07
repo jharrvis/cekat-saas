@@ -69,7 +69,7 @@ class TransactionMonitor extends Component
         $transaction = Transaction::find($transactionId);
 
         if (!$transaction) {
-            session()->flash('error', 'Transaction not found');
+            session()->flash('error', __('admin.s.transaction_not_found'));
             return;
         }
 
@@ -110,14 +110,14 @@ class TransactionMonitor extends Component
                 $this->activatePlan($transaction);
             }
 
-            session()->flash('message', 'Status updated: ' . $newStatus);
+            session()->flash('message', __('admin.s.status_updated', ['status' => $newStatus]));
 
         } catch (\Exception $e) {
             // Handle 404 - transaction doesn't exist in Midtrans (user didn't complete payment)
             if (str_contains($e->getMessage(), '404') || str_contains($e->getMessage(), "doesn't exist")) {
-                session()->flash('error', 'Transaksi belum diproses di Midtrans. User mungkin belum menyelesaikan pembayaran.');
+                session()->flash('error', __('admin.s.transaction_not_processed_midtrans'));
             } else {
-                session()->flash('error', 'Failed to refresh: ' . $e->getMessage());
+                session()->flash('error', __('admin.s.failed_refresh', ['error' => $e->getMessage()]));
             }
         }
     }
@@ -127,7 +127,7 @@ class TransactionMonitor extends Component
         $transaction = Transaction::find($transactionId);
 
         if (!$transaction) {
-            session()->flash('error', 'Transaction not found');
+            session()->flash('error', __('admin.s.transaction_not_found'));
             return;
         }
 
@@ -138,7 +138,7 @@ class TransactionMonitor extends Component
 
         $this->activatePlan($transaction);
 
-        session()->flash('message', 'Transaction marked as success and plan activated.');
+        session()->flash('message', __('admin.s.transaction_marked_success'));
     }
 
     private function activatePlan(Transaction $transaction)

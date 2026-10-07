@@ -30,7 +30,7 @@ class EmailChangeConfirm extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Konfirmasi Perubahan Email - Cekat',
+            subject: __('settings.s.email_change_confirm_subject', [], $this->user->locale ?? 'id'),
         );
     }
 

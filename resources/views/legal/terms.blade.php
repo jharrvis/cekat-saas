@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Syarat &amp; Ketentuan — Cekat.biz.id</title>
+    <title>{{ __('legal.s.syarat_amp_ketentuan_cekat_biz_id') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,55 +51,55 @@
 
     <main class="flex-1 px-4 py-14">
         <article class="max-w-3xl mx-auto prose prose-slate dark:prose-invert prose-headings:font-bold prose-a:text-brand-600">
-            <h1>Syarat &amp; Ketentuan</h1>
-            <p class="text-sm text-gray-500">Terakhir diperbarui: 7 Oktober 2026</p>
+            <h1>{{ __('legal.s.syarat_amp_ketentuan') }}</h1>
+            <p class="text-sm text-gray-500">{{ __('legal.s.terakhir_diperbarui_7_oktober_2026') }}</p>
 
-            <p>Dengan membuat akun dan menggunakan Cekat.biz.id ("Cekat", "layanan"), Anda menyetujui syarat-syarat berikut.</p>
+            <p>{{ __('legal.s.dengan_membuat_akun_dan_menggunakan_cekat_biz_id') }}</p>
 
-            <h2>1. Layanan</h2>
-            <p>Cekat adalah layanan perangkat lunak (SaaS) yang menyediakan chatbot AI untuk situs web dan WhatsApp, yang menjawab berdasarkan basis pengetahuan yang Anda kelola. Jawaban dihasilkan secara otomatis oleh sistem AI dan dapat mengandung ketidakakuratan; Anda bertanggung jawab meninjau konten basis pengetahuan dan kesesuaian jawaban bagi pengunjung Anda.</p>
+            <h2>{{ __('legal.s.1_layanan') }}</h2>
+            <p>{{ __('legal.s.cekat_adalah_layanan_perangkat_lunak_saas_yang_m') }}</p>
 
-            <h2>2. Akun</h2>
+            <h2>{{ __('legal.s.2_akun') }}</h2>
             <ul>
-                <li>Anda wajib memberikan data pendaftaran yang benar dan menjaga kerahasiaan kata sandi.</li>
-                <li>Akun wajib diverifikasi melalui kode sekali pakai (OTP) yang dikirim ke email Anda.</li>
-                <li>Anda bertanggung jawab atas seluruh aktivitas yang terjadi melalui akun Anda.</li>
+                <li>{{ __('legal.s.anda_wajib_memberikan_data_pendaftaran_yang_bena') }}</li>
+                <li>{{ __('legal.s.akun_wajib_diverifikasi_melalui_kode_sekali_paka') }}</li>
+                <li>{{ __('legal.s.anda_bertanggung_jawab_atas_seluruh_aktivitas_ya') }}</li>
             </ul>
 
-            <h2>3. Paket, kuota, dan pembayaran</h2>
+            <h2>{{ __('legal.s.3_paket_kuota_dan_pembayaran') }}</h2>
             <ul>
-                <li>Fitur dan batas pemakaian mengikuti paket yang Anda pilih sebagaimana ditampilkan pada halaman harga, termasuk batas pesan bulanan, jumlah agen, channel, dan perangkat WhatsApp.</li>
-                <li>Pembayaran diproses melalui Midtrans. Paket aktif setelah pembayaran terkonfirmasi, untuk masa berlaku sesuai paket (satu bulan sejak aktivasi), dan dapat diperpanjang atau ditingkatkan kapan pun.</li>
-                <li>Kuota pesan diperbarui setiap siklus penagihan sesuai paket yang aktif.</li>
+                <li>{{ __('legal.s.fitur_dan_batas_pemakaian_mengikuti_paket_yang_a') }}</li>
+                <li>{{ __('legal.s.pembayaran_diproses_melalui_midtrans_paket_aktif') }}</li>
+                <li>{{ __('legal.s.kuota_pesan_diperbarui_setiap_siklus_penagihan_s') }}</li>
             </ul>
 
-            <h2>4. Penggunaan yang dilarang</h2>
+            <h2>{{ __('legal.s.4_penggunaan_yang_dilarang') }}</h2>
             <ul>
-                <li>Menggunakan layanan untuk spam, penipuan, atau konten yang melanggar hukum Republik Indonesia.</li>
-                <li>Mengunggah konten yang melanggar hak kekayaan intelektual atau privasi pihak lain.</li>
-                <li>Mencoba membongkar, mengotomatisasi penyalahgunaan, atau mengganggu keamanan layanan, termasuk memalsukan asal permintaan ke API publik.</li>
+                <li>{{ __('legal.s.menggunakan_layanan_untuk_spam_penipuan_atau_kon') }}</li>
+                <li>{{ __('legal.s.mengunggah_konten_yang_melanggar_hak_kekayaan_in') }}</li>
+                <li>{{ __('legal.s.mencoba_membongkar_mengotomatisasi_penyalahgunaa') }}</li>
             </ul>
-            <p>Pelanggaran dapat berakibat penangguhan atau penghentian akun.</p>
+            <p>{{ __('legal.s.pelanggaran_dapat_berakibat_penangguhan_atau_pen') }}</p>
 
-            <h2>5. Konten Anda</h2>
-            <p>Basis pengetahuan, dokumen, dan konfigurasi widget yang Anda buat tetap milik Anda. Anda memberi Cekat izin terbatas untuk memproses konten tersebut semata-mata untuk menjalankan layanan bagi Anda.</p>
+            <h2>{{ __('legal.s.5_konten_anda') }}</h2>
+            <p>{{ __('legal.s.basis_pengetahuan_dokumen_dan_konfigurasi_widget') }}</p>
 
-            <h2>6. Ketersediaan dan perubahan layanan</h2>
-            <p>Kami berupaya menjaga layanan tersedia, namun tidak menjamin layanan bebas gangguan. Fitur dapat berubah dengan pemberitahuan yang wajar melalui situs atau email.</p>
+            <h2>{{ __('legal.s.6_ketersediaan_dan_perubahan_layanan') }}</h2>
+            <p>{{ __('legal.s.kami_berupaya_menjaga_layanan_tersedia_namun_tid') }}</p>
 
-            <h2>7. Batasan tanggung jawab</h2>
-            <p>Sepanjang diizinkan hukum, tanggung jawab Cekat atas kerugian yang timbul dari penggunaan layanan dibatasi pada jumlah yang Anda bayarkan untuk layanan dalam 3 (tiga) bulan terakhir. Cekat tidak bertanggung jawab atas keputusan bisnis yang diambil berdasarkan jawaban otomatis chatbot.</p>
+            <h2>{{ __('legal.s.7_batasan_tanggung_jawab') }}</h2>
+            <p>{{ __('legal.s.sepanjang_diizinkan_hukum_tanggung_jawab_cekat_a') }}</p>
 
-            <h2>8. Hukum yang berlaku</h2>
-            <p>Syarat ini diatur oleh hukum Republik Indonesia. Perselisihan diselesaikan pertama-tama melalui musyawarah.</p>
+            <h2>{{ __('legal.s.8_hukum_yang_berlaku') }}</h2>
+            <p>{{ __('legal.s.syarat_ini_diatur_oleh_hukum_republik_indonesia') }}</p>
 
-            <h2>9. Kontak</h2>
-            <p>Pertanyaan seputar syarat ini: <a href="mailto:support@cekat.biz.id">support@cekat.biz.id</a>.</p>
+            <h2>{{ __('legal.s.9_kontak') }}</h2>
+            <p>{{ __('legal.s.pertanyaan_seputar_syarat_ini') }} <a href="mailto:support@cekat.biz.id">support@cekat.biz.id</a>.</p>
         </article>
     </main>
 
     <footer class="py-6 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-slate-800">
-        &copy; {{ date('Y') }} Cekat.biz.id — <a href="{{ route('legal.privacy') }}" class="hover:text-brand-600">Kebijakan Privasi</a>
+        &copy; {{ date('Y') }} Cekat.biz.id — <a href="{{ route('legal.privacy') }}" class="hover:text-brand-600">{{ __('legal.s.kebijakan_privasi') }}</a>
     </footer>
 
     <script>lucide.createIcons();</script>

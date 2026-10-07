@@ -31,19 +31,18 @@
                 <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                     <i class="fa-solid fa-lock text-primary text-xl"></i>
                 </div>
-                <h3 class="text-lg font-bold mb-1">Aktifkan Channel Anda</h3>
+                <h3 class="text-lg font-bold mb-1">{{ __('channels.s.aktifkan_channel_anda') }}</h3>
                 <p class="text-sm text-muted-foreground mb-4 max-w-xl mx-auto">
-                    Semua channel sedang nonaktif sehingga widget tidak tampil di website.
-                    Paket <strong>{{ $plan->name ?? 'Free' }}</strong> mendukung maksimal
+                    {{ __('channels.s.semua_channel_sedang_nonaktif_sehingga_widget_ti') }} <strong>{{ $plan->name ?? 'Free' }}</strong> {{ __('channels.s.mendukung_maksimal') }}
                     <strong>{{ app(\App\Services\Billing\PlanLimitService::class)->limit($plan, 'active_channels') }} channel aktif</strong>
                     @if(!app(\App\Services\Billing\PlanLimitService::class)->feature($plan, 'whatsapp'))
-                        dan <strong>tidak termasuk WhatsApp Gateway</strong>
+                        dan <strong>{{ __('channels.s.tidak_termasuk_whatsapp_gateway') }}</strong>
                     @endif
-                    — pilih salah satu channel lalu klik <em>Aktifkan</em>.
+                    — pilih salah satu channel lalu klik <em>{{ __('channels.s.aktifkan') }}</em>.
                 </p>
                 <a href="{{ route('billing') }}"
                     class="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition text-sm font-medium">
-                    <i class="fa-solid fa-rocket mr-2"></i> Upgrade Plan
+                    <i class="fa-solid fa-rocket mr-2"></i> {{ __('channels.s.upgrade_plan') }}
                 </a>
             </div>
         @endif
@@ -51,12 +50,12 @@
         {{-- Header --}}
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h2 class="text-2xl font-bold">Channels</h2>
-                <p class="text-muted-foreground">Kelola channel Web Widget Anda</p>
+                <h2 class="text-2xl font-bold">{{ __('agents.s.channels') }}</h2>
+                <p class="text-muted-foreground">{{ __('channels.s.kelola_channel_web_widget_anda') }}</p>
             </div>
             <a href="{{ route('channels.create') }}"
                 class="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
-                <i class="fa-solid fa-plus mr-2"></i> Buat Channel Baru
+                <i class="fa-solid fa-plus mr-2"></i> {{ __('agents.s.buat_channel_baru') }}
             </a>
         </div>
 
@@ -64,7 +63,7 @@
         <div class="grid md:grid-cols-3 gap-6 mb-6">
             <div class="bg-card rounded-xl shadow-sm border p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-muted-foreground text-sm">Total Channel</span>
+                    <span class="text-muted-foreground text-sm">{{ __('channels.s.total_channel') }}</span>
                     <i class="fa-solid fa-robot text-blue-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $chatbots->count() }}</p>
@@ -73,16 +72,16 @@
 
             <div class="bg-card rounded-xl shadow-sm border p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-muted-foreground text-sm">Channel Aktif</span>
+                    <span class="text-muted-foreground text-sm">{{ __('channels.s.channel_aktif') }}</span>
                     <i class="fa-solid fa-check-circle text-green-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $chatbots->where('status', 'active')->count() }}</p>
-                <p class="text-xs text-muted-foreground mt-1">Live on websites</p>
+                <p class="text-xs text-muted-foreground mt-1">{{ __('channels.s.live_on_websites') }}</p>
             </div>
 
             <div class="bg-card rounded-xl shadow-sm border p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-muted-foreground text-sm">Messages Used</span>
+                    <span class="text-muted-foreground text-sm">{{ __('channels.s.messages_used') }}</span>
                     <i class="fa-solid fa-message text-purple-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ auth()->user()->monthly_message_used ?? 0 }}</p>
@@ -99,19 +98,19 @@
                         <tr>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                Channel</th>
+                                {{ __('agents.s.channel') }}</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                Status</th>
+                                {{ __('channels.s.status') }}</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                FAQs</th>
+                                {{ __('agents.s.faqs') }}</th>
                             <th
                                 class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                Created</th>
+                                {{ __('channels.s.created') }}</th>
                             <th
                                 class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                Actions</th>
+                                {{ __('channels.s.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-border">
@@ -132,7 +131,7 @@
                                                     class="text-xs bg-muted px-1.5 py-0.5 rounded font-mono text-muted-foreground">{{ $chatbot->slug }}</code>
                                                 <button onclick="copyWidgetId('{{ $chatbot->slug }}')"
                                                     class="text-xs text-muted-foreground hover:text-primary transition p-1"
-                                                    title="Copy Widget ID">
+                                                    title="{{ __('channels.s.copy_widget_id') }}">
                                                     <i class="fa-regular fa-copy"></i>
                                                 </button>
                                             </div>
@@ -150,7 +149,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    {{ $chatbot->knowledgeBase?->faqs()->count() ?? 0 }} FAQs
+                                    {{ $chatbot->knowledgeBase?->faqs()->count() ?? 0 }} {{ __('agents.s.faqs') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                     {{ $chatbot->created_at->format('d M Y') }}
@@ -162,13 +161,13 @@
                                                 @csrf
                                                 <button type="submit"
                                                     class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg transition text-sm">
-                                                    <i class="fa-solid fa-play mr-1"></i> Aktifkan
+                                                    <i class="fa-solid fa-play mr-1"></i> {{ __('channels.s.aktifkan') }}
                                                 </button>
                                             </form>
                                         @endif
                                         <a href="{{ route('channels.edit', $chatbot->id) }}"
                                             class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg transition text-sm">
-                                            <i class="fa-solid fa-edit mr-1"></i> Edit
+                                            <i class="fa-solid fa-edit mr-1"></i> {{ __('agents.s.edit') }}
                                         </a>
                                         <form action="{{ route('channels.destroy', $chatbot->id) }}" method="POST"
                                             onsubmit="return confirm('Hapus channel ini?')">
@@ -186,11 +185,11 @@
                             <tr>
                                 <td colspan="5" class="px-6 py-12 text-center">
                                     <i class="fa-solid fa-robot text-6xl text-muted-foreground mb-4"></i>
-                                    <p class="text-lg font-medium mb-2">Belum ada channel</p>
-                                    <p class="text-muted-foreground mb-4">Buat channel pertama untuk memulai</p>
+                                    <p class="text-lg font-medium mb-2">{{ __('channels.s.belum_ada_channel') }}</p>
+                                    <p class="text-muted-foreground mb-4">{{ __('channels.s.buat_channel_pertama_untuk_memulai') }}</p>
                                     <a href="{{ route('channels.create') }}"
                                         class="inline-flex items-center bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition">
-                                        <i class="fa-solid fa-plus mr-2"></i> Buat Channel Pertama
+                                        <i class="fa-solid fa-plus mr-2"></i> {{ __('channels.s.buat_channel_pertama') }}
                                     </a>
                                 </td>
                             </tr>

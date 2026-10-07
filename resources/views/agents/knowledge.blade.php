@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Knowledge Base - ' . $agent->name)
-@section('page-title', 'Knowledge Base')
+@section('page-title', __('agents.s.knowledge_base'))
 
 @section('content')
     {{-- Compact Header with Back Button --}}
@@ -17,7 +17,7 @@
                     <i class="fa-solid fa-brain"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold">Knowledge Base</h1>
+                    <h1 class="text-xl font-bold">{{ __('agents.s.knowledge_base') }}</h1>
                     <p class="text-sm text-muted-foreground">{{ $agent->name }}</p>
                 </div>
             </div>

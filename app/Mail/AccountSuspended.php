@@ -33,8 +33,8 @@ class AccountSuspended extends Mailable
     public function envelope(): Envelope
     {
         $subject = $this->type === 'banned'
-            ? '🚫 Akun Anda Telah Diblokir - Cekat.biz.id'
-            : '⚠️ Akun Anda Ditangguhkan - Cekat.biz.id';
+            ? __('auth.s.account_blocked_subject', [], $this->user->locale ?? 'id')
+            : __('auth.s.account_suspended_subject', [], $this->user->locale ?? 'id');
 
         return new Envelope(
             subject: $subject,

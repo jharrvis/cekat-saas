@@ -98,7 +98,7 @@ class AgentKnowledgeEditor extends Component
             'custom_instructions' => $this->custom_instructions,
         ]);
 
-        session()->flash('message', 'Info perusahaan berhasil disimpan!');
+        session()->flash('message', __('livewire.s.flash_company_info_saved'));
     }
 
     // FAQ Methods
@@ -125,7 +125,7 @@ class AgentKnowledgeEditor extends Component
         $this->newFaqAnswer = '';
         $this->loadKnowledgeBase();
 
-        session()->flash('message', 'FAQ berhasil ditambahkan!');
+        session()->flash('message', __('livewire.s.flash_faq_added'));
     }
 
     public function editFaq($faqId)
@@ -158,7 +158,7 @@ class AgentKnowledgeEditor extends Component
         $this->editFaqAnswer = '';
         $this->loadKnowledgeBase();
 
-        session()->flash('message', 'FAQ berhasil diperbarui!');
+        session()->flash('message', __('livewire.s.flash_faq_updated'));
     }
 
     public function cancelEdit()
@@ -174,7 +174,7 @@ class AgentKnowledgeEditor extends Component
         if ($faq && $faq->knowledge_base_id === $this->knowledgeBase->id) {
             $faq->delete();
             $this->loadKnowledgeBase();
-            session()->flash('message', 'FAQ berhasil dihapus!');
+            session()->flash('message', __('livewire.s.flash_faq_deleted'));
         }
     }
 
@@ -249,9 +249,9 @@ class AgentKnowledgeEditor extends Component
             $this->uploadedFile = null;
             $this->loadKnowledgeBase();
 
-            session()->flash('message', 'File berhasil diupload dan diproses!');
+            session()->flash('message', __('livewire.s.flash_file_uploaded'));
         } catch (\Exception $e) {
-            session()->flash('error', 'Gagal mengupload file: ' . $e->getMessage());
+            session()->flash('error', __('livewire.s.flash_file_upload_failed') . $e->getMessage());
         }
 
         $this->isProcessing = false;
@@ -300,12 +300,12 @@ class AgentKnowledgeEditor extends Component
             $this->websiteUrl = '';
             $this->loadKnowledgeBase();
 
-            session()->flash('message', 'Website berhasil di-crawl!');
+            session()->flash('message', __('livewire.s.flash_website_crawled'));
         } catch (\Exception $e) {
             if (isset($document)) {
                 $document->update(['status' => 'failed', 'content' => substr($e->getMessage(), 0, 500)]);
             }
-            session()->flash('error', 'Gagal crawl website: ' . $e->getMessage());
+            session()->flash('error', __('livewire.s.flash_crawl_failed') . $e->getMessage());
         }
 
         $this->isProcessing = false;
@@ -324,7 +324,7 @@ class AgentKnowledgeEditor extends Component
             $document->delete();
             $this->loadKnowledgeBase();
 
-            session()->flash('message', 'Dokumen berhasil dihapus!');
+            session()->flash('message', __('livewire.s.flash_document_deleted'));
         }
     }
 

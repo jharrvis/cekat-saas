@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Tidak Ditemukan — Cekat.biz.id</title>
+    <title>{{ __('general.s.halaman_tidak_ditemukan_cekat_biz_id') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,20 +50,19 @@
                 <i data-lucide="search-x" class="w-10 h-10 text-brand-600 dark:text-brand-400"></i>
             </div>
             <p class="text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">404</p>
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">Halaman tidak ditemukan</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-3">{{ __('general.s.halaman_tidak_ditemukan') }}</h1>
             <p class="text-gray-600 dark:text-gray-300 mb-8">
-                Maaf, halaman yang Anda cari tidak ada atau sudah dipindahkan.
-                Periksa kembali alamatnya, atau jelajahi dari salah satu tautan di bawah ini.
+                {{ __('general.s.maaf_halaman_yang_anda_cari_tidak_ada_atau_sudah') }}
             </p>
             <div class="flex flex-wrap items-center justify-center gap-3">
                 <a href="/" class="px-5 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-semibold text-sm shadow-lg shadow-brand-500/25 transition">
-                    <i data-lucide="home" class="w-4 h-4 inline -mt-0.5 mr-1"></i> Ke Beranda
+                    <i data-lucide="home" class="w-4 h-4 inline -mt-0.5 mr-1"></i> {{ __('general.s.ke_beranda') }}
                 </a>
                 <a href="/#harga" class="px-5 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 hover:border-brand-500 text-slate-800 dark:text-slate-100 rounded-xl font-semibold text-sm transition">
-                    <i data-lucide="tags" class="w-4 h-4 inline -mt-0.5 mr-1"></i> Lihat Harga
+                    <i data-lucide="tags" class="w-4 h-4 inline -mt-0.5 mr-1"></i> {{ __('general.s.lihat_harga') }}
                 </a>
                 <a href="{{ route('api-keys.index') }}" class="px-5 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 hover:border-brand-500 text-slate-800 dark:text-slate-100 rounded-xl font-semibold text-sm transition">
-                    <i data-lucide="book-open" class="w-4 h-4 inline -mt-0.5 mr-1"></i> Dokumentasi API
+                    <i data-lucide="book-open" class="w-4 h-4 inline -mt-0.5 mr-1"></i> {{ __('general.s.dokumentasi_api') }}
                 </a>
             </div>
         </div>

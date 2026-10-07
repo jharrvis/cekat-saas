@@ -118,7 +118,7 @@ class KnowledgeBaseEditor extends Component
             'custom_instructions' => $this->custom_instructions,
         ]);
 
-        session()->flash('message', 'Company info saved successfully!');
+        session()->flash('message', __('livewire.s.flash_company_info_saved'));
     }
 
     // FAQ Methods
@@ -145,7 +145,7 @@ class KnowledgeBaseEditor extends Component
         $this->newFaqAnswer = '';
         $this->loadKnowledgeBase();
 
-        session()->flash('message', 'FAQ added successfully!');
+        session()->flash('message', __('livewire.s.flash_faq_added'));
     }
 
     public function editFaq($faqId)
@@ -174,7 +174,7 @@ class KnowledgeBaseEditor extends Component
         $this->editFaqAnswer = '';
         $this->loadKnowledgeBase();
 
-        session()->flash('message', 'FAQ updated successfully!');
+        session()->flash('message', __('livewire.s.flash_faq_updated'));
     }
 
     public function cancelEdit()
@@ -189,7 +189,7 @@ class KnowledgeBaseEditor extends Component
         KnowledgeFaq::find($faqId)->delete();
         $this->loadKnowledgeBase();
 
-        session()->flash('message', 'FAQ deleted successfully!');
+        session()->flash('message', __('livewire.s.flash_faq_deleted'));
     }
 
     public function moveFaqUp($faqId)
@@ -261,9 +261,9 @@ class KnowledgeBaseEditor extends Component
             $this->uploadedFile = null;
             $this->loadKnowledgeBase();
 
-            session()->flash('message', 'File uploaded and processed successfully!');
+            session()->flash('message', __('livewire.s.flash_file_uploaded'));
         } catch (\Exception $e) {
-            session()->flash('error', 'Failed to upload file: ' . $e->getMessage());
+            session()->flash('error', __('livewire.s.flash_file_upload_failed') . $e->getMessage());
         }
     }
 
@@ -304,12 +304,12 @@ class KnowledgeBaseEditor extends Component
             $this->websiteUrl = '';
             $this->loadKnowledgeBase();
 
-            session()->flash('message', 'Website crawled successfully!');
+            session()->flash('message', __('livewire.s.flash_website_crawled'));
         } catch (\Exception $e) {
             if (isset($document)) {
                 $document->update(['status' => 'failed']);
             }
-            session()->flash('error', 'Failed to crawl website: ' . $e->getMessage());
+            session()->flash('error', __('livewire.s.flash_crawl_failed') . $e->getMessage());
         }
     }
 
@@ -325,7 +325,7 @@ class KnowledgeBaseEditor extends Component
         $document->delete();
         $this->loadKnowledgeBase();
 
-        session()->flash('message', 'Document deleted successfully!');
+        session()->flash('message', __('livewire.s.flash_document_deleted'));
     }
 
     private function withinFaqLimit(): bool

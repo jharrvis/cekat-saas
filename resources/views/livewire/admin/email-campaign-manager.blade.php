@@ -29,7 +29,7 @@
 
     {{-- Search --}}
     <div class="bg-card rounded-xl border p-4 mb-6">
-        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari nama atau subjek..."
+        <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('admin.s.cari_nama_atau_subjek') }}"
             class="w-full md:w-96 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary/20">
     </div>
 
@@ -39,12 +39,12 @@
             <table class="w-full">
                 <thead class="bg-muted/50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-sm font-medium">Nama</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium">Subjek</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium">Status</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium">Progres</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium">Dibuat</th>
-                        <th class="px-4 py-3 text-left text-sm font-medium">Aksi</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.nama') }}</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.subjek') }}</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('channels.s.status') }}</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.progres') }}</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.dibuat') }}</th>
+                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.aksi') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y">
@@ -54,15 +54,15 @@
                             <td class="px-4 py-3 text-sm max-w-xs truncate" title="{{ $campaign->subject }}">{{ $campaign->subject }}</td>
                             <td class="px-4 py-3 text-sm">
                                 @if ($campaign->status === 'sent')
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">Terkirim</span>
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">{{ __('admin.s.terkirim') }}</span>
                                 @elseif ($campaign->status === 'sending')
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Mengirim</span>
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">{{ __('admin.s.mengirim') }}</span>
                                 @elseif ($campaign->status === 'stopped')
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Dihentikan</span>
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">{{ __('admin.s.dihentikan') }}</span>
                                 @elseif ($campaign->status === 'failed')
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Gagal</span>
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">{{ __('admin.s.gagal') }}</span>
                                 @else
-                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">Draft</span>
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">{{ __('admin.s.draft') }}</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-sm">
@@ -81,7 +81,7 @@
                                         @endif
                                     </div>
                                 @else
-                                    <span class="text-muted-foreground text-sm">&mdash;</span>
+                                    <span class="text-muted-foreground text-sm">{{ __('admin.s.mdash') }}</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-sm whitespace-nowrap">{{ $campaign->created_at->format('d/m/Y H:i') }}</td>
@@ -89,12 +89,10 @@
                                 <div class="flex items-center gap-3 flex-wrap">
                                     @if ($campaign->status === 'draft')
                                         <button wire:click="openEdit({{ $campaign->id }})" class="text-primary hover:underline">
-                                            <i class="fa-solid fa-pen mr-1"></i>Edit
-                                        </button>
+                                            <i class="fa-solid fa-pen mr-1"></i>{{ __('agents.s.edit') }}</button>
                                     @endif
                                     <button wire:click="sendTest({{ $campaign->id }})" class="text-slate-600 hover:underline">
-                                        <i class="fa-solid fa-paper-plane mr-1"></i>Uji
-                                    </button>
+                                        <i class="fa-solid fa-paper-plane mr-1"></i>{{ __('admin.s.uji') }}</button>
                                     @if (in_array($campaign->status, ['draft', 'stopped']))
                                         <button wire:click="start({{ $campaign->id }})"
                                             class="text-green-600 hover:underline font-medium">
@@ -102,8 +100,7 @@
                                         </button>
                                     @elseif ($campaign->status === 'sending')
                                         <button wire:click="stop({{ $campaign->id }})" class="text-amber-600 hover:underline">
-                                            <i class="fa-solid fa-stop mr-1"></i>Hentikan
-                                        </button>
+                                            <i class="fa-solid fa-stop mr-1"></i>{{ __('admin.s.hentikan') }}</button>
                                     @endif
                                     <button wire:click="delete({{ $campaign->id }})"
                                         wire:confirm="Hapus kampanye ini?"
@@ -141,15 +138,15 @@
                 <div class="p-6 space-y-4">
                     <div class="grid md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1">Nama Kampanye</label>
-                            <input type="text" wire:model="name" placeholder="mis. Update Oktober 2026"
+                            <label class="block text-sm font-medium mb-1">{{ __('admin.s.nama_kampanye') }}</label>
+                            <input type="text" wire:model="name" placeholder="{{ __('admin.s.mis_update_oktober_2026') }}"
                                 class="w-full px-3 py-2 border rounded-lg text-sm">
                             @error('name') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1">Muat dari Template</label>
+                            <label class="block text-sm font-medium mb-1">{{ __('admin.s.muat_dari_template') }}</label>
                             <select wire:change="loadTemplate($event.target.value)" class="w-full px-3 py-2 border rounded-lg text-sm">
-                                <option value="">— Pilih template (opsional) —</option>
+                                <option value="">{{ __('admin.s.pilih_template_opsional') }}</option>
                                 @foreach ($templates as $template)
                                     <option value="{{ $template->id }}">{{ $template->name }}</option>
                                 @endforeach
@@ -157,13 +154,13 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Subjek Email</label>
-                        <input type="text" wire:model="subject" placeholder="Subjek yang tampil di inbox"
+                        <label class="block text-sm font-medium mb-1">{{ __('admin.s.subjek_email') }}</label>
+                        <input type="text" wire:model="subject" placeholder="{{ __('admin.s.subjek_yang_tampil_di_inbox') }}"
                             class="w-full px-3 py-2 border rounded-lg text-sm">
                         @error('subject') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Isi Email (HTML)</label>
+                        <label class="block text-sm font-medium mb-1">{{ __('admin.s.isi_email_html') }}</label>
                         <textarea wire:model="body" rows="10"
                             placeholder="<p>Halo @{{name}}, ...</p>"
                             class="w-full px-3 py-2 border rounded-lg text-sm font-mono"></textarea>
@@ -172,47 +169,43 @@
 
                     {{-- Segment --}}
                     <div class="border rounded-xl p-4 space-y-3">
-                        <p class="text-sm font-semibold">Penerima</p>
+                        <p class="text-sm font-semibold">{{ __('admin.s.penerima') }}</p>
                         <label class="flex items-center gap-2 text-sm">
-                            <input type="checkbox" wire:model="segmentVerified" class="rounded">
-                            Hanya user yang sudah verifikasi email
-                        </label>
+                            <input type="checkbox" wire:model="segmentVerified" class="rounded">{{ __('admin.s.hanya_user_yang_sudah_verifikasi_email') }}</label>
                         <div class="grid md:grid-cols-3 gap-3">
                             <div>
-                                <label class="block text-xs text-muted-foreground mb-1">Status akun</label>
+                                <label class="block text-xs text-muted-foreground mb-1">{{ __('admin.s.status_akun') }}</label>
                                 <select wire:model="segmentStatus" class="w-full px-3 py-2 border rounded-lg text-sm">
-                                    <option value="active">Aktif (default)</option>
-                                    <option value="all">Semua status</option>
-                                    <option value="suspended">Suspended</option>
-                                    <option value="banned">Banned</option>
+                                    <option value="active">{{ __('admin.s.aktif_default') }}</option>
+                                    <option value="all">{{ __('admin.s.semua_status_2') }}</option>
+                                    <option value="suspended">{{ __('admin.s.suspended') }}</option>
+                                    <option value="banned">{{ __('admin.s.banned') }}</option>
                                 </select>
                                 @error('segmentStatus') <p class="text-red-600 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label class="block text-xs text-muted-foreground mb-1">Plan</label>
+                                <label class="block text-xs text-muted-foreground mb-1">{{ __('emails.s.plan') }}</label>
                                 <select wire:model="segmentPlanId" class="w-full px-3 py-2 border rounded-lg text-sm">
-                                    <option value="">Semua plan</option>
+                                    <option value="">{{ __('admin.s.semua_plan_2') }}</option>
                                     @foreach ($plans as $plan)
                                         <option value="{{ $plan->id }}">{{ $plan->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs text-muted-foreground mb-1">Role</label>
+                                <label class="block text-xs text-muted-foreground mb-1">{{ __('admin.s.role') }}</label>
                                 <select wire:model="segmentRole" class="w-full px-3 py-2 border rounded-lg text-sm">
-                                    <option value="user">User (default)</option>
-                                    <option value="">Semua role</option>
-                                    <option value="admin">Admin</option>
+                                    <option value="user">{{ __('admin.s.user_default') }}</option>
+                                    <option value="">{{ __('admin.s.semua_role_2') }}</option>
+                                    <option value="admin">{{ __('general.s.admin') }}</option>
                                 </select>
                             </div>
                         </div>
-                        <p class="text-sm">
-                            Estimasi penerima:
-                            <span class="font-bold {{ count($previewCount) > 0 ? 'text-green-600' : 'text-red-600' }}">
+                        <p class="text-sm">{{ __('admin.s.estimasi_penerima') }}<span class="font-bold {{ count($previewCount) > 0 ? 'text-green-600' : 'text-red-600' }}">
                                 {{ count($previewCount) }}
                             </span> user
                             @if ($segmentStatus === 'active')
-                                <span class="text-muted-foreground text-xs">(perlu verifikasi email & tidak suspended/banned)</span>
+                                <span class="text-muted-foreground text-xs">{{ __('admin.s.perlu_verifikasi_email_tidak_suspended_banned') }}</span>
                             @endif
                         </p>
                     </div>
@@ -228,12 +221,10 @@
                 <div class="flex justify-end gap-2 px-6 py-4 border-t">
                     <button wire:click="preview"
                         class="px-4 py-2 border rounded-lg text-sm font-medium hover:bg-muted transition">
-                        <i class="fa-solid fa-eye mr-2"></i>Pratinjau
-                    </button>
+                        <i class="fa-solid fa-eye mr-2"></i>{{ __('admin.s.pratinjau') }}</button>
                     <button wire:click="save"
                         class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition">
-                        <i class="fa-solid fa-save mr-2"></i>Simpan Draft
-                    </button>
+                        <i class="fa-solid fa-save mr-2"></i>{{ __('admin.s.simpan_draft') }}</button>
                 </div>
             </div>
         </div>
@@ -244,7 +235,7 @@
         <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" wire:click.self="closePreview">
             <div class="bg-card rounded-xl border w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
                 <div class="flex justify-between items-center px-6 py-4 border-b">
-                    <h3 class="text-lg font-bold">Pratinjau Email</h3>
+                    <h3 class="text-lg font-bold">{{ __('admin.s.pratinjau_email') }}</h3>
                     <button wire:click="closePreview" class="text-muted-foreground hover:text-foreground">
                         <i class="fa-solid fa-times"></i>
                     </button>

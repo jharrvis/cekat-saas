@@ -85,8 +85,8 @@ class WhatsAppSettings extends Component
         \App\Events\AdminSettingsChanged::dispatch('whatsapp', auth()->id(), ['whatsapp_module_enabled']);
 
         session()->flash('message', $this->moduleEnabled
-            ? 'WhatsApp module enabled!'
-            : 'WhatsApp module disabled!');
+            ? __('admin.s.whatsapp_module_enabled')
+            : __('admin.s.whatsapp_module_disabled'));
     }
 
     /**
@@ -115,7 +115,7 @@ class WhatsAppSettings extends Component
             'whatsapp_max_devices_per_user',
         ]);
 
-        session()->flash('message', 'WhatsApp settings saved successfully!');
+        session()->flash('message', __('admin.s.whatsapp_settings_saved'));
     }
 
     /**
@@ -167,12 +167,12 @@ class WhatsAppSettings extends Component
                 }
             }
 
-            session()->flash('message', "Synced {$synced} device(s) from Fonnte.");
+            session()->flash('message', __('admin.s.devices_synced', ['count' => $synced]));
             $this->loadStatistics();
             $this->loadDevices();
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Sync failed: ' . $e->getMessage());
+            session()->flash('error', __('admin.s.sync_failed', ['error' => $e->getMessage()]));
         }
     }
 
@@ -200,7 +200,7 @@ class WhatsAppSettings extends Component
             }
         }
 
-        session()->flash('message', "Disconnected {$disconnected} device(s).");
+        session()->flash('message', __('admin.s.devices_disconnected', ['count' => $disconnected]));
         $this->loadStatistics();
         $this->loadDevices();
     }
@@ -212,7 +212,7 @@ class WhatsAppSettings extends Component
     {
         $device = WhatsAppDevice::find($deviceId);
         if (!$device) {
-            session()->flash('error', 'Device not found.');
+            session()->flash('error', __('admin.s.device_not_found'));
             return;
         }
 
@@ -225,9 +225,9 @@ class WhatsAppSettings extends Component
                 'status' => 'disconnected',
                 'disconnected_at' => now(),
             ]);
-            session()->flash('message', "Device '{$device->device_name}' disconnected successfully.");
+            session()->flash('message', __('admin.s.device_disconnected', ['name' => $device->device_name]));
         } catch (\Exception $e) {
-            session()->flash('error', 'Failed to disconnect: ' . $e->getMessage());
+            session()->flash('error', __('admin.s.failed_disconnect', ['error' => $e->getMessage()]));
         }
 
         $this->loadStatistics();
@@ -241,16 +241,16 @@ class WhatsAppSettings extends Component
     {
         $device = WhatsAppDevice::find($deviceId);
         if (!$device) {
-            session()->flash('error', 'Device not found.');
+            session()->flash('error', __('admin.s.device_not_found'));
             return;
         }
 
         try {
             $manager = new WhatsAppManager();
             $manager->deleteDevice($device);
-            session()->flash('message', "Device '{$device->device_name}' deleted successfully.");
+            session()->flash('message', __('admin.s.device_deleted', ['name' => $device->device_name]));
         } catch (\Exception $e) {
-            session()->flash('error', 'Failed to delete: ' . $e->getMessage());
+            session()->flash('error', __('admin.s.failed_delete', ['error' => $e->getMessage()]));
         }
 
         $this->loadStatistics();

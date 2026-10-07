@@ -41,7 +41,7 @@
                         <td style="border-top:1px solid #e4e4e7;padding:20px 36px;">
                             <p
                                 style="margin:0;font-size:12px;line-height:1.7;color:#a1a1aa;text-align:center;">
-                                Anda menerima email ini karena ada aktivitas pada akun Cekat Anda.<br>
+                                {{ __('general.s.anda_menerima_email_ini_karena_ada_aktivitas_pad') }}<br>
                                 &copy; {{ date('Y') }} Cekat &middot; AI Customer Service Platform
                             </p>
                         </td>

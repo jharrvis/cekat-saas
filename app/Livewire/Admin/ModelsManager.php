@@ -91,10 +91,10 @@ class ModelsManager extends Component
 
         if ($this->editingModel) {
             LlmModel::find($this->editingModel)->update($data);
-            session()->flash('message', 'Model updated successfully!');
+            session()->flash('message', __('admin.s.model_updated'));
         } else {
             LlmModel::create($data);
-            session()->flash('message', 'Model added successfully!');
+            session()->flash('message', __('admin.s.model_added'));
         }
 
         $this->resetForm();
@@ -104,7 +104,7 @@ class ModelsManager extends Component
     public function delete($id)
     {
         LlmModel::find($id)?->delete();
-        session()->flash('message', 'Model deleted!');
+        session()->flash('message', __('admin.s.model_deleted'));
         $this->loadModels();
     }
 
@@ -169,17 +169,17 @@ class ModelsManager extends Component
                     }
                 }
 
-                $msg = "Imported {$imported} new models from OpenRouter!";
+                $msg = __('admin.s.models_imported', ['count' => $imported]);
                 if ($failed > 0) {
-                    $msg .= " ({$failed} rows skipped)";
+                    $msg .= __('admin.s.models_imported_skipped', ['count' => $failed]);
                 }
                 session()->flash('message', $msg);
                 $this->loadModels();
             } else {
-                session()->flash('error', 'Failed to fetch from OpenRouter API');
+                session()->flash('error', __('admin.s.failed_fetch_openrouter'));
             }
         } catch (\Exception $e) {
-            session()->flash('error', 'Error: ' . $e->getMessage());
+            session()->flash('error', __('admin.s.error_with_message', ['error' => $e->getMessage()]));
         }
     }
 
@@ -189,7 +189,7 @@ class ModelsManager extends Component
     public function fetchModelInfo()
     {
         if (empty($this->model_id)) {
-            session()->flash('error', 'Please enter Model ID first');
+            session()->flash('error', __('admin.s.enter_model_id_first'));
             return;
         }
 
@@ -215,15 +215,15 @@ class ModelsManager extends Component
                     $this->output_price = max(0, (float) ($found['pricing']['completion'] ?? 0) * 1000000);
                     $this->context_length = max(1024, (int) ($found['context_length'] ?? 4096));
 
-                    session()->flash('message', 'Model info fetched successfully!');
+                    session()->flash('message', __('admin.s.model_info_fetched'));
                 } else {
-                    session()->flash('error', 'Model not found in OpenRouter. Please check the Model ID.');
+                    session()->flash('error', __('admin.s.model_not_found_openrouter'));
                 }
             } else {
-                session()->flash('error', 'Failed to connect to OpenRouter API');
+                session()->flash('error', __('admin.s.failed_connect_openrouter'));
             }
         } catch (\Exception $e) {
-            session()->flash('error', 'Error fetching model: ' . $e->getMessage());
+            session()->flash('error', __('admin.s.error_fetching_model', ['error' => $e->getMessage()]));
         }
     }
 
@@ -235,14 +235,14 @@ class ModelsManager extends Component
         $testModelId = $modelId ?? $this->model_id;
 
         if (empty($testModelId)) {
-            session()->flash('error', 'No model ID to test');
+            session()->flash('error', __('admin.s.no_model_id_to_test'));
             return;
         }
 
         try {
             $apiKey = config('services.openrouter.api_key');
             if (empty($apiKey)) {
-                session()->flash('error', 'OpenRouter API key not configured');
+                session()->flash('error', __('admin.s.openrouter_key_not_configured'));
                 return;
             }
 
@@ -260,14 +260,14 @@ class ModelsManager extends Component
 
             if ($response->successful()) {
                 $result = $response->json();
-                $reply = $result['choices'][0]['message']['content'] ?? 'No response';
+                $reply = $result['choices'][0]['message']['content'] ?? __('admin.s.no_response');
                 session()->flash('test_result', [
                     'success' => true,
                     'model' => $testModelId,
                     'response' => $reply,
                 ]);
             } else {
-                $error = $response->json()['error']['message'] ?? 'Unknown error';
+                $error = $response->json()['error']['message'] ?? __('admin.s.unknown_error');
                 session()->flash('test_result', [
                     'success' => false,
                     'model' => $testModelId,

@@ -6,14 +6,14 @@
     <div class="space-y-6 max-w-4xl">
         {{-- Header --}}
         <div>
-            <h2 class="text-2xl font-bold tracking-tight">Integrasi Chatbot</h2>
-            <p class="text-muted-foreground mt-1">Pasang chatbot di website Anda dengan mudah</p>
+            <h2 class="text-2xl font-bold tracking-tight">{{ __('integration.s.integrasi_chatbot') }}</h2>
+            <p class="text-muted-foreground mt-1">{{ __('integration.s.pasang_chatbot_di_website_anda_dengan_mudah') }}</p>
         </div>
 
         @if($widgets->count() > 0)
             {{-- Widget Selector --}}
             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-                <h3 class="font-semibold text-lg mb-4">Pilih Chatbot</h3>
+                <h3 class="font-semibold text-lg mb-4">{{ __('integration.s.pilih_chatbot') }}</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach($widgets as $widget)
@@ -38,10 +38,10 @@
             {{-- Embed Code --}}
             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm" id="embed-section" style="display: none;">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-lg">Kode Embed untuk: <span id="widget-name" class="text-primary"></span></h3>
+                    <h3 class="font-semibold text-lg">{{ __('integration.s.kode_embed_untuk') }} <span id="widget-name" class="text-primary"></span></h3>
                     <button onclick="copyCode()"
                         class="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                        <i class="fa-solid fa-copy mr-1"></i> Salin Kode
+                        <i class="fa-solid fa-copy mr-1"></i> {{ __('integration.s.salin_kode') }}
                     </button>
                 </div>
 
@@ -66,22 +66,21 @@
                     </div>
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
-                            <h3 class="font-semibold text-lg">Cekat AI Chatbot for WordPress</h3>
+                            <h3 class="font-semibold text-lg">{{ __('integration.s.cekat_ai_chatbot_for_wordpress') }}</h3>
                             <span
                                 class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">v1.0.1</span>
                         </div>
-                        <p class="text-sm text-muted-foreground mt-1">Plugin WordPress resmi untuk integrasi chatbot dengan
-                            mudah</p>
+                        <p class="text-sm text-muted-foreground mt-1">{{ __('integration.s.plugin_wordpress_resmi_untuk_integrasi_chatbot_d') }}</p>
 
                         <div class="flex flex-wrap gap-2 mt-3">
                             <a href="{{ asset('downloads/cekat-ai-chatbot.zip') }}"
                                 class="inline-flex items-center px-4 py-2 bg-[#21759b] text-white rounded-lg hover:bg-[#1a5f7a] transition text-sm font-medium"
                                 download>
-                                <i class="fa-solid fa-download mr-2"></i>Download Plugin (.zip)
+                                <i class="fa-solid fa-download mr-2"></i>{{ __('integration.s.download_plugin_zip') }}
                             </a>
                             <a href="https://github.com/jharrvis/cekat-saas/tree/master/public/cekat-ai-chatbot" target="_blank"
                                 class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition text-sm">
-                                <i class="fa-brands fa-github mr-2"></i>View Source
+                                <i class="fa-brands fa-github mr-2"></i>{{ __('integration.s.view_source') }}
                             </a>
                         </div>
                     </div>
@@ -89,20 +88,20 @@
 
                 {{-- Installation Steps --}}
                 <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <p class="text-sm font-medium mb-2">Cara Install:</p>
+                    <p class="text-sm font-medium mb-2">{{ __('integration.s.cara_install') }}</p>
                     <ol class="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                        <li>Download dan extract file ZIP</li>
+                        <li>{{ __('integration.s.download_dan_extract_file_zip') }}</li>
                         <li>Upload folder <code class="bg-muted px-1 rounded">cekat-ai-chatbot</code> ke <code
                                 class="bg-muted px-1 rounded">/wp-content/plugins/</code></li>
-                        <li>Aktivasi plugin di WordPress Admin → Plugins</li>
-                        <li>Buka menu <strong>Cekat AI</strong> dan masukkan Widget ID Anda</li>
+                        <li>{{ __('integration.s.aktivasi_plugin_di_wordpress_admin_plugins') }}</li>
+                        <li>{{ __('integration.s.buka_menu') }} <strong>Cekat AI</strong> {{ __('integration.s.dan_masukkan_widget_id_anda') }}</li>
                     </ol>
                 </div>
             </div>
 
             {{-- Other Platforms --}}
             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-                <h3 class="font,semibold text-lg mb-4">Platform Lainnya</h3>
+                <h3 class="font,semibold text-lg mb-4">{{ __('integration.s.platform_lainnya') }}</h3>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="p-4 border rounded-lg text-center hover:border-primary transition cursor-pointer">
@@ -128,11 +127,11 @@
             {{-- No Widgets --}}
             <div class="bg-card text-card-foreground p-12 rounded-xl border shadow-sm text-center">
                 <i class="fa-solid fa-robot text-6xl text-muted-foreground mb-4"></i>
-                <h3 class="font-semibold text-lg mb-2">Belum Ada Channel</h3>
-                <p class="text-muted-foreground mb-4">Buat channel terlebih dahulu untuk mendapatkan kode embed</p>
+                <h3 class="font-semibold text-lg mb-2">{{ __('integration.s.belum_ada_channel') }}</h3>
+                <p class="text-muted-foreground mb-4">{{ __('integration.s.buat_channel_terlebih_dahulu_untuk_mendapatkan_k') }}</p>
                 <a href="{{ route('channels.create') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg">
-                    <i class="fa-solid fa-plus"></i> Buat Channel
+                    <i class="fa-solid fa-plus"></i> {{ __('channels.s.buat_channel') }}
                 </a>
             </div>
         @endif

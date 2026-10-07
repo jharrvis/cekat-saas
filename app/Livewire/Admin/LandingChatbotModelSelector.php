@@ -32,7 +32,7 @@ class LandingChatbotModelSelector extends Component
         $settings['model'] = $this->selectedModel;
         $this->widget->update(['settings' => $settings]);
 
-        session()->flash('model_saved', 'Model saved successfully!');
+        session()->flash('model_saved', __('admin.s.model_saved'));
     }
 
     public function testModel()
@@ -40,7 +40,7 @@ class LandingChatbotModelSelector extends Component
         if (empty($this->selectedModel)) {
             $this->testResult = [
                 'success' => false,
-                'error' => 'No model selected',
+                'error' => __('admin.s.no_model_selected'),
             ];
             return;
         }
@@ -50,7 +50,7 @@ class LandingChatbotModelSelector extends Component
             if (empty($apiKey)) {
                 $this->testResult = [
                     'success' => false,
-                    'error' => 'OpenRouter API key not configured',
+                    'error' => __('admin.s.openrouter_key_not_configured'),
                 ];
                 return;
             }

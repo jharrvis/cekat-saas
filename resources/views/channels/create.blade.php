@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Buat Channel')
-@section('page-title', 'Buat Channel Baru')
+@section('title', __('channels.s.buat_channel'))
+@section('page-title', __('agents.s.buat_channel_baru'))
 
 @section('content')
     <div class="max-w-2xl mx-auto">
@@ -11,8 +11,8 @@
                     <i class="fa-solid fa-arrow-left"></i>
                 </a>
                 <div>
-                    <h2 class="text-2xl font-bold">Buat Channel Baru</h2>
-                    <p class="text-muted-foreground">Beri nama dan deskripsi untuk channel Web Widget</p>
+                    <h2 class="text-2xl font-bold">{{ __('agents.s.buat_channel_baru') }}</h2>
+                    <p class="text-muted-foreground">{{ __('channels.s.beri_nama_dan_deskripsi_untuk_channel_web_widget') }}</p>
                 </div>
             </div>
 
@@ -26,25 +26,25 @@
                 @endif
 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Nama Channel *</label>
+                    <label class="block text-sm font-medium mb-2">{{ __('channels.s.nama_channel') }}</label>
                     <input type="text" name="display_name" value="{{ old('display_name') }}"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        placeholder="e.g., Customer Support Bot" required>
+                        placeholder="{{ __('channels.s.e_g_customer_support_bot') }}" required>
                     @error('display_name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Description (Optional)</label>
+                    <label class="block text-sm font-medium mb-2">{{ __('channels.s.description_optional') }}</label>
                     <textarea name="description" rows="3"
                         class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                        placeholder="Brief description of what this chatbot does...">{{ old('description') }}</textarea>
+                        placeholder="{{ __('channels.s.brief_description_of_what_this_chatbot_does') }}">{{ old('description') }}</textarea>
                     @error('description') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- AI Agent Selector --}}
                 <div class="border-t pt-6">
                     <label class="block text-sm font-medium mb-2">
-                        <i class="fa-solid fa-brain text-primary mr-1"></i> Hubungkan ke AI Agent
+                        <i class="fa-solid fa-brain text-primary mr-1"></i> {{ __('channels.s.hubungkan_ke_ai_agent') }}
                     </label>
                     
                     @if($aiAgents->count() > 0)
@@ -53,8 +53,8 @@
                                 <input type="radio" name="ai_agent_id" value="" {{ !old('ai_agent_id') ? 'checked' : '' }}
                                     class="w-4 h-4 text-primary focus:ring-primary">
                                 <div>
-                                    <span class="font-medium">Tanpa AI Agent</span>
-                                    <p class="text-xs text-muted-foreground">Widget akan memiliki knowledge base sendiri</p>
+                                    <span class="font-medium">{{ __('channels.s.tanpa_ai_agent') }}</span>
+                                    <p class="text-xs text-muted-foreground">{{ __('channels.s.widget_akan_memiliki_knowledge_base_sendiri') }}</p>
                                 </div>
                             </label>
                             
@@ -80,10 +80,10 @@
                         <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
                             <p class="text-sm text-amber-800 dark:text-amber-200">
                                 <i class="fa-solid fa-info-circle mr-1"></i>
-                                Belum ada AI Agent. 
+                                {{ __('channels.s.belum_ada_ai_agent') }} 
                                 <a href="{{ route('agents.create') }}" class="text-primary font-medium hover:underline">
-                                    Buat AI Agent dulu
-                                </a> untuk menggunakan satu brain di banyak widget.
+                                    {{ __('channels.s.buat_ai_agent_dulu') }}
+                                </a> {{ __('channels.s.untuk_menggunakan_satu_brain_di_banyak_widget') }}
                             </p>
                         </div>
                         <input type="hidden" name="ai_agent_id" value="">
@@ -93,19 +93,18 @@
                 <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                     <p class="text-sm text-blue-800 dark:text-blue-300">
                         <i class="fa-solid fa-lightbulb mr-2"></i>
-                        <strong>Tip:</strong> Dengan AI Agent, satu "otak" bisa dipakai banyak widget. 
-                        Training 1x, pakai di mana saja!
+                        <strong>{{ __('channels.s.tip') }}</strong> {{ __('channels.s.dengan_ai_agent_satu_otak_bisa_dipakai_banyak_wi') }}
                     </p>
                 </div>
 
                 <div class="flex gap-3 pt-4">
                     <button type="submit"
                         class="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
-                        <i class="fa-solid fa-plus mr-2"></i> Buat Channel
+                        <i class="fa-solid fa-plus mr-2"></i> {{ __('channels.s.buat_channel') }}
                     </button>
                     <a href="{{ route('channels.index') }}"
                         class="px-6 py-3 border rounded-lg hover:bg-muted/30 transition font-medium">
-                        Cancel
+                        {{ __('channels.s.cancel') }}
                     </a>
                 </div>
             </form>

@@ -31,7 +31,7 @@ class NewLead extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Lead Baru dari ' . $this->widget->name . ' - Cekat',
+            subject: __('chat.s.new_lead_subject', ['widget' => $this->widget->name], $this->user->locale ?? 'id'),
         );
     }
 

@@ -27,7 +27,7 @@ class PasswordChanged extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Password Akun Anda Diubah - Cekat',
+            subject: __('settings.s.password_changed_subject', [], $this->user->locale ?? 'id'),
         );
     }
 

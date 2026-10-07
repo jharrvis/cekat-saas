@@ -11,8 +11,8 @@
         }
         $tabs = [
             'log' => ['label' => 'Log Email', 'icon' => 'fa-solid fa-list'],
-            'newsletter' => ['label' => 'Newsletter', 'icon' => 'fa-solid fa-bullhorn'],
-            'pengumuman' => ['label' => 'Pengumuman', 'icon' => 'fa-solid fa-bell'],
+            'newsletter' => ['label' => __('admin.s.newsletter'), 'icon' => 'fa-solid fa-bullhorn'],
+            'pengumuman' => ['label' => __('admin.s.pengumuman'), 'icon' => 'fa-solid fa-bell'],
             'template' => ['label' => 'Template', 'icon' => 'fa-solid fa-file-lines'],
         ];
     @endphp

@@ -12,14 +12,12 @@
                         <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-bold text-red-800 dark:text-red-200 text-lg">⚠️ Kuota Pesan Habis!</h3>
-                        <p class="text-red-700 dark:text-red-300 mt-1">
-                            Chatbot Anda tidak akan merespon sampai kuota di-reset bulan depan atau Anda upgrade plan.
-                        </p>
+                        <h3 class="font-bold text-red-800 dark:text-red-200 text-lg">{{ __('general.s.kuota_pesan_habis') }}</h3>
+                        <p class="text-red-700 dark:text-red-300 mt-1">{{ __('general.s.chatbot_anda_tidak_akan_merespon_sampai_kuota_di') }}</p>
                         <div class="mt-3 flex gap-3">
                             <a href="{{ route('billing') }}"
                                 class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium">
-                                <i class="fa-solid fa-arrow-up mr-2"></i> Upgrade Sekarang
+                                <i class="fa-solid fa-arrow-up mr-2"></i> {{ __('emails.s.upgrade_sekarang') }}
                             </a>
                             <span class="text-sm text-red-600 dark:text-red-400 flex items-center">
                                 Reset otomatis: {{ now()->endOfMonth()->diffForHumans() }}
@@ -38,12 +36,11 @@
                         <h3 class="font-bold text-amber-800 dark:text-amber-200">🔥 Kuota Hampir Habis! ({{ $usagePercent }}%)
                         </h3>
                         <p class="text-amber-700 dark:text-amber-300 mt-1">
-                            Tersisa <strong>{{ number_format($quotaRemaining) }} pesan</strong>. Jika habis, chatbot tidak akan
-                            merespon.
+                            {{ __('general.s.tersisa') }} <strong>{{ number_format($quotaRemaining) }} pesan</strong>{{ __('general.s.jika_habis_chatbot_tidak_akan_merespon') }}
                         </p>
                         <a href="{{ route('billing') }}"
                             class="inline-flex items-center mt-2 text-amber-700 dark:text-amber-300 font-medium hover:underline">
-                            <i class="fa-solid fa-arrow-up mr-1"></i> Upgrade untuk kuota lebih besar
+                            <i class="fa-solid fa-arrow-up mr-1"></i> {{ __('general.s.upgrade_untuk_kuota_lebih_besar') }}
                         </a>
                     </div>
                 </div>
@@ -53,9 +50,9 @@
                 <div class="flex items-center gap-3">
                     <i class="fa-solid fa-info-circle text-yellow-600"></i>
                     <p class="text-yellow-800 dark:text-yellow-200 text-sm">
-                        <strong>Kuota {{ $usagePercent }}% terpakai</strong> - Tersisa {{ number_format($quotaRemaining) }}
+                        <strong>Kuota {{ $usagePercent }}% terpakai</strong> - {{ __('general.s.tersisa') }} {{ number_format($quotaRemaining) }}
                         pesan.
-                        <a href="{{ route('billing') }}" class="underline font-medium">Upgrade?</a>
+                        <a href="{{ route('billing') }}" class="underline font-medium">{{ __('general.s.upgrade') }}</a>
                     </p>
                 </div>
             </div>
@@ -70,10 +67,8 @@
                         <i class="fa-solid fa-rocket text-xl"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-bold text-lg">🚀 Quick Start Guide</h3>
-                        <p class="text-muted-foreground mt-1 mb-4">
-                            Ikuti langkah-langkah berikut untuk mengaktifkan AI chatbot Anda:
-                        </p>
+                        <h3 class="font-bold text-lg">{{ __('general.s.quick_start_guide') }}</h3>
+                        <p class="text-muted-foreground mt-1 mb-4">{{ __('general.s.ikuti_langkah_langkah_berikut_untuk_mengaktifkan') }}</p>
 
                         <div class="grid md:grid-cols-4 gap-4">
                             {{-- Step 1: T-15/F-17 — checked only when a widget is
@@ -91,12 +86,10 @@
                                         1
                                     @endif
                                 </div>
-                                <h4 class="font-semibold text-sm">Buat Channel</h4>
-                                <p class="text-xs text-muted-foreground mt-1">Hubungkan channel ke AI Agent Anda</p>
+                                <h4 class="font-semibold text-sm">{{ __('channels.s.buat_channel') }}</h4>
+                                <p class="text-xs text-muted-foreground mt-1">{{ __('general.s.hubungkan_channel_ke_ai_agent_anda') }}</p>
                                 @if(!$hasLinkedWidget)
-                                    <a href="{{ route('channels.index') }}" class="mt-2 text-xs text-primary hover:underline">
-                                        Hubungkan →
-                                    </a>
+                                    <a href="{{ route('channels.index') }}" class="mt-2 text-xs text-primary hover:underline">{{ __('general.s.hubungkan') }}</a>
                                 @endif
                             </div>
 
@@ -114,13 +107,11 @@
                                         2
                                     @endif
                                 </div>
-                                <h4 class="font-semibold text-sm">Training AI</h4>
-                                <p class="text-xs text-muted-foreground mt-1">Tambahkan FAQ & pengetahuan</p>
+                                <h4 class="font-semibold text-sm">{{ __('general.s.training_ai') }}</h4>
+                                <p class="text-xs text-muted-foreground mt-1">{{ __('general.s.tambahkan_faq_pengetahuan') }}</p>
                                 @if($widgets->count() > 0 && !$hasKnowledgeBase)
                                     <a href="{{ route('channels.edit', $widgets->first()) }}#knowledge"
-                                        class="mt-2 text-xs text-primary hover:underline">
-                                        Mulai →
-                                    </a>
+                                        class="mt-2 text-xs text-primary hover:underline">{{ __('general.s.mulai') }}</a>
                                 @endif
                             </div>
 
@@ -130,13 +121,11 @@
                                     class="w-8 h-8 rounded-full bg-muted text-white flex items-center justify-center text-sm font-bold mb-2">
                                     3
                                 </div>
-                                <h4 class="font-semibold text-sm">Pasang Widget</h4>
-                                <p class="text-xs text-muted-foreground mt-1">Copy kode ke website Anda</p>
+                                <h4 class="font-semibold text-sm">{{ __('general.s.pasang_widget') }}</h4>
+                                <p class="text-xs text-muted-foreground mt-1">{{ __('general.s.copy_kode_ke_website_anda') }}</p>
                                 @if($widgets->count() > 0)
                                     <a href="{{ route('channels.edit', $widgets->first()) }}#embed"
-                                        class="mt-2 text-xs text-primary hover:underline">
-                                        Lihat Kode →
-                                    </a>
+                                        class="mt-2 text-xs text-primary hover:underline">{{ __('general.s.lihat_kode') }}</a>
                                 @endif
                             </div>
 
@@ -151,20 +140,20 @@
                                         4
                                     @endif
                                 </div>
-                                <h4 class="font-semibold text-sm">Siap Digunakan!</h4>
-                                <p class="text-xs text-muted-foreground mt-1">Chatbot menjawab otomatis</p>
+                                <h4 class="font-semibold text-sm">{{ __('general.s.siap_digunakan') }}</h4>
+                                <p class="text-xs text-muted-foreground mt-1">{{ __('general.s.chatbot_menjawab_otomatis') }}</p>
                             </div>
                         </div>
 
                         <div class="mt-4 pt-4 border-t border-primary/20 flex items-center justify-between">
                             <p class="text-sm text-muted-foreground">
                                 <i class="fa-solid fa-lightbulb text-yellow-500 mr-1"></i>
-                                Butuh bantuan? <a href="#" class="text-primary hover:underline">Lihat tutorial video</a> atau <a
-                                    href="#" class="text-primary hover:underline">baca dokumentasi</a>
+                                {{ __('general.s.butuh_bantuan') }} <a href="#" class="text-primary hover:underline">{{ __('general.s.lihat_tutorial_video') }}</a> {{ __('general.s.atau') }} <a
+                                    href="#" class="text-primary hover:underline">{{ __('general.s.baca_dokumentasi') }}</a>
                             </p>
                             <button onclick="this.closest('.bg-gradient-to-r').style.display='none'"
                                 class="text-sm text-muted-foreground hover:text-foreground">
-                                <i class="fa-solid fa-times"></i> Tutup
+                                <i class="fa-solid fa-times"></i> {{ __('general.s.tutup') }}
                             </button>
                         </div>
                     </div>
@@ -175,7 +164,7 @@
         {{-- Welcome Header --}}
         <div>
             <h2 class="text-3xl font-bold tracking-tight">Halo, {{ $user->name }}! 👋</h2>
-            <p class="text-muted-foreground mt-1">Lihat performa chatbot Anda hari ini</p>
+            <p class="text-muted-foreground mt-1">{{ __('general.s.lihat_performa_chatbot_anda_hari_ini') }}</p>
         </div>
 
         {{-- Stats Cards --}}
@@ -184,7 +173,7 @@
             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-sm font-medium text-muted-foreground">Total Percakapan</p>
+                        <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.total_percakapan') }}</p>
                         <h3 class="text-2xl font-bold mt-2">{{ number_format($totalConversations) }}</h3>
                     </div>
                     <div class="p-2 bg-primary/10 text-primary rounded-lg">
@@ -202,7 +191,7 @@
             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-sm font-medium text-muted-foreground">Dijawab AI</p>
+                        <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.dijawab_ai') }}</p>
                         <h3 class="text-2xl font-bold mt-2">{{ number_format($totalAiMessages) }}</h3>
                     </div>
                     <div class="p-2 bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400 rounded-lg">
@@ -218,7 +207,7 @@
             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-sm font-medium text-muted-foreground">Total Lead</p>
+                        <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.total_lead') }}</p>
                         <h3 class="text-2xl font-bold mt-2">{{ number_format($totalLeads) }}</h3>
                     </div>
                     <div class="p-2 bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 rounded-lg">
@@ -247,7 +236,7 @@
             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm {{ $quotaBgColor }}">
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="text-sm font-medium text-muted-foreground">Kuota Pesan</p>
+                        <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.kuota_pesan') }}</p>
                         <h3 class="text-2xl font-bold mt-2">{{ number_format($usedMessages) }}</h3>
                     </div>
                     <div
@@ -274,7 +263,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {{-- Chart Area --}}
             <div class="lg:col-span-5 bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-                <h4 class="font-semibold mb-4">Aktivitas Chat 7 Hari Terakhir</h4>
+                <h4 class="font-semibold mb-4">{{ __('general.s.aktivitas_chat_7_hari_terakhir') }}</h4>
                 <div class="h-[250px] w-full">
                     <canvas id="chatChart"></canvas>
                 </div>
@@ -290,7 +279,7 @@
                 {{-- Peak Hours Card --}}
                 <div class="bg-card text-card-foreground p-5 rounded-xl border shadow-sm">
                     <h4 class="font-semibold mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-clock text-blue-500"></i> Jam Tersibuk
+                        <i class="fa-solid fa-clock text-blue-500"></i> {{ __('general.s.jam_tersibuk') }}
                     </h4>
                     @if(!empty($peakHours['hours']))
                         <div class="text-center mb-4">
@@ -315,7 +304,7 @@
                     @else
                         <div class="text-center py-4 text-muted-foreground">
                             <i class="fa-solid fa-clock text-2xl mb-2 opacity-50"></i>
-                            <p class="text-sm">Belum ada data</p>
+                            <p class="text-sm">{{ __('general.s.belum_ada_data') }}</p>
                         </div>
                     @endif
                 </div>
@@ -323,7 +312,7 @@
                 {{-- Hot Sessions Card --}}
                 <div class="bg-card text-card-foreground p-5 rounded-xl border shadow-sm">
                     <h4 class="font-semibold mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-fire text-orange-500"></i> Chat Terpanjang
+                        <i class="fa-solid fa-fire text-orange-500"></i> {{ __('general.s.chat_terpanjang') }}
                     </h4>
                     <div class="space-y-2">
                         @forelse($hotSessions as $session)
@@ -339,7 +328,7 @@
                                 </span>
                             </div>
                         @empty
-                            <p class="text-center text-muted-foreground text-sm py-4">Belum ada data</p>
+                            <p class="text-center text-muted-foreground text-sm py-4">{{ __('general.s.belum_ada_data') }}</p>
                         @endforelse
                     </div>
                 </div>
@@ -350,10 +339,10 @@
         <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
             <div class="flex justify-between items-center mb-4">
                 <h4 class="font-semibold flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Percakapan Terbaru
+                    <i class="fa-solid fa-clock-rotate-left text-blue-500"></i> {{ __('general.s.percakapan_terbaru') }}
                 </h4>
                 <a href="{{ route('chats.index') }}" class="text-sm text-primary hover:underline">
-                    Lihat Semua <i class="fa-solid fa-arrow-right ml-1"></i>
+                    {{ __('general.s.lihat_semua') }} <i class="fa-solid fa-arrow-right ml-1"></i>
                 </a>
             </div>
 
@@ -361,7 +350,7 @@
                 <div class="space-y-4">
                     @foreach($recentConversations as $conv)
                         <a href="{{ route('chats.show', $conv['id']) }}"
-                           class="block p-4 border rounded-lg hover:bg-muted/30 hover:border-primary/40 transition" title="Buka detail percakapan">
+                           class="block p-4 border rounded-lg hover:bg-muted/30 hover:border-primary/40 transition" title="{{ __('general.s.buka_detail_percakapan') }}">
                             {{-- Header Row --}}
                             <div class="flex items-start justify-between gap-2 mb-2">
                                 <div class="flex items-center gap-3">
@@ -442,8 +431,8 @@
             @else
                 <div class="text-center py-8 text-muted-foreground">
                     <i class="fa-solid fa-comments text-4xl mb-3 opacity-50"></i>
-                    <p>Belum ada percakapan</p>
-                    <p class="text-sm">Percakapan akan muncul setelah widget digunakan</p>
+                    <p>{{ __('chat.s.belum_ada_percakapan') }}</p>
+                    <p class="text-sm">{{ __('general.s.percakapan_akan_muncul_setelah_widget_digunakan') }}</p>
                 </div>
             @endif
         </div>
@@ -451,9 +440,9 @@
         {{-- Widgets Section --}}
         <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
             <div class="flex justify-between items-center mb-4">
-                <h4 class="font-semibold">Channel Anda</h4>
+                <h4 class="font-semibold">{{ __('general.s.channel_anda') }}</h4>
                 <a href="{{ route('channels.create') }}" class="text-sm text-primary hover:underline">
-                    <i class="fa-solid fa-plus mr-1"></i> Buat Baru
+                    <i class="fa-solid fa-plus mr-1"></i> {{ __('general.s.buat_baru') }}
                 </a>
             </div>
 
@@ -483,10 +472,10 @@
             @else
                 <div class="text-center py-8">
                     <i class="fa-solid fa-robot text-4xl text-muted-foreground mb-4"></i>
-                    <p class="text-muted-foreground">Belum ada channel</p>
+                    <p class="text-muted-foreground">{{ __('channels.s.belum_ada_channel') }}</p>
                     <a href="{{ route('channels.create') }}"
                         class="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                        <i class="fa-solid fa-plus"></i> Buat Channel Pertama
+                        <i class="fa-solid fa-plus"></i> {{ __('channels.s.buat_channel_pertama') }}
                     </a>
                 </div>
             @endif

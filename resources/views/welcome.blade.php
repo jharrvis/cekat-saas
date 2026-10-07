@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cekat.biz.id | AI Chatbot Kustom untuk Data Anda</title>
+    <title>{{ __('landing.s.cekat_biz_id_ai_chatbot_kustom_untuk_data_anda') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Memuat Lucide Icons -->
@@ -679,9 +679,9 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:block">
                     <div class="flex items-baseline space-x-6">
-                        <a href="#fitur" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">Fitur</a>
-                        <a href="#cara-kerja" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">Cara Kerja</a>
-                        <a href="#harga" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">Harga</a>
+                        <a href="#fitur" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">{{ __('docs.s.fitur') }}</a>
+                        <a href="#cara-kerja" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">{{ __('docs.s.cara_kerja') }}</a>
+                        <a href="#harga" class="hover:text-brand-600 dark:hover:text-brand-400 text-gray-600 dark:text-gray-300 px-3 py-2 text-sm font-medium transition-colors">{{ __('docs.s.harga') }}</a>
                     </div>
                 </div>
 
@@ -694,13 +694,13 @@
                     
                     @auth
                         <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition-colors group flex items-center gap-2">
-                            Dashboard
+                            {{ __('general.s.dashboard') }}
                             <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                         </a>
                     @else
-                        <a href="/login" class="text-gray-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white font-medium text-sm transition-colors">Masuk</a>
+                        <a href="/login" class="text-gray-600 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white font-medium text-sm transition-colors">{{ __('auth.s.masuk') }}</a>
                         <a href="/register" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition-colors group flex items-center gap-2">
-                            Buat Bot Anda
+                            {{ __('landing.s.buat_bot_anda') }}
                             <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                         </a>
                     @endauth
@@ -722,18 +722,18 @@
         <!-- Mobile Menu -->
         <div class="md:hidden hidden bg-white dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800" id="mobile-menu">
             <div class="px-4 pt-2 pb-4 space-y-1">
-                <a href="#fitur" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">Fitur</a>
-                <a href="#cara-kerja" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">Cara Kerja</a>
-                <a href="#harga" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">Harga</a>
+                <a href="#fitur" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">{{ __('docs.s.fitur') }}</a>
+                <a href="#cara-kerja" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">{{ __('docs.s.cara_kerja') }}</a>
+                <a href="#harga" class="text-gray-600 dark:text-gray-300 block py-2 text-base font-medium">{{ __('docs.s.harga') }}</a>
                 <div class="pt-4 flex flex-col gap-3 border-t border-gray-100 dark:border-slate-800">
                     @auth
                         <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="text-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-2 rounded-md text-base font-medium flex items-center justify-center gap-2">
-                            Dashboard <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            {{ __('general.s.dashboard') }} <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     @else
-                        <a href="/login" class="text-center text-gray-600 dark:text-gray-300 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-base font-medium">Masuk</a>
+                        <a href="/login" class="text-center text-gray-600 dark:text-gray-300 py-2 border border-gray-300 dark:border-slate-700 rounded-md text-base font-medium">{{ __('auth.s.masuk') }}</a>
                         <a href="/register" class="text-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-2 rounded-md text-base font-medium flex items-center justify-center gap-2">
-                            Buat Bot Anda <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            {{ __('landing.s.buat_bot_anda') }} <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     @endauth
                 </div>
@@ -749,35 +749,35 @@
                 <div class="lg:col-span-6 text-center lg:text-left mb-12 lg:mb-0 opacity-0 animate-fade-in-up">
                     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400 border border-brand-100 dark:border-brand-800/50 text-sm font-medium mb-6">
                         <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
-                        Didukung Teknologi RAG & AI Generatif
+                        {{ __('landing.s.didukung_teknologi_rag_ai_generatif') }}
                     </div>
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-slate-900 dark:text-white leading-[1.1]">
-                        Ubah Data Anda Menjadi <br class="hidden lg:block"/>
-                        <span class="text-brand-600 dark:text-brand-400">AI Chatbot Cerdas</span>
+                        {{ __('landing.s.ubah_data_anda_menjadi') }} <br class="hidden lg:block"/>
+                        <span class="text-brand-600 dark:text-brand-400">{{ __('landing.s.ai_chatbot_cerdas') }}</span>
                     </h1>
                     <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                        Unggah dokumen, tautan website, atau basis pengetahuan Anda. Kami akan melatih asisten AI kustom yang memahami bisnis Anda sepenuhnya untuk melayani pelanggan 24/7.
+                        {{ __('landing.s.unggah_dokumen_tautan_website_atau_basis_pengeta') }}
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                         @auth
                             <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="group bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
-                                Mulai Gratis <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                {{ __('landing.s.mulai_gratis') }} <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                             </a>
                         @else
                             <a href="/register" class="group bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
-                                Mulai Gratis <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                {{ __('landing.s.mulai_gratis') }} <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                             </a>
                         @endauth
                         <a href="#cara-kerja" class="group bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-gray-300 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-sm">
-                            <i data-lucide="play" class="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-brand-500 transition-colors"></i> Lihat Demo
+                            <i data-lucide="play" class="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-brand-500 transition-colors"></i> {{ __('landing.s.lihat_demo') }}
                         </a>
                     </div>
                     <div class="mt-8 flex items-center justify-center lg:justify-start gap-6 text-sm text-gray-500 dark:text-gray-400 font-medium">
                         <div class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500"></i> Tanpa perlu coding
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500"></i> {{ __('landing.s.tanpa_perlu_coding') }}
                         </div>
                         <div class="flex items-center gap-2">
-                            <i data-lucide="check" class="w-4 h-4 text-brand-500"></i> Mudah disematkan
+                            <i data-lucide="check" class="w-4 h-4 text-brand-500"></i> {{ __('landing.s.mudah_disematkan_2') }}
                         </div>
                     </div>
                 </div>
@@ -792,9 +792,9 @@
                                 <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
                             </div>
                             <div>
-                                <h3 class="font-semibold text-slate-900 dark:text-white text-sm">Asisten AI Cekat</h3>
+                                <h3 class="font-semibold text-slate-900 dark:text-white text-sm">{{ __('landing.s.asisten_ai_cekat') }}</h3>
                                 <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                    Sedang membalas...
+                                    {{ __('landing.s.sedang_membalas') }}
                                 </div>
                             </div>
                         </div>
@@ -807,7 +807,7 @@
                                     <i data-lucide="bot" class="w-4 h-4"></i>
                                 </div>
                                 <div class="bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-gray-200 p-3.5 rounded-2xl rounded-tl-none text-sm border border-gray-200 dark:border-slate-700">
-                                    Halo! Saya telah dilatih menggunakan dokumentasi Cekat. Ada yang bisa saya bantu terkait pembuatan AI kustom Anda hari ini?
+                                    {{ __('landing.s.halo_saya_telah_dilatih_menggunakan_dokumentasi') }}
                                 </div>
                             </div>
                             <!-- Pesan dinamis akan dimuat oleh JS -->
@@ -816,7 +816,7 @@
                         <!-- Chat Input -->
                         <div class="p-4 bg-gray-50 dark:bg-slate-950 border-t border-gray-200 dark:border-slate-800">
                             <div class="relative group">
-                                <input type="text" id="hero-chat-input" aria-label="Tanyakan sesuatu" placeholder="Tanyakan sesuatu..." class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg py-2.5 pl-4 pr-12 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm" disabled>
+                                <input type="text" id="hero-chat-input" aria-label="{{ __('landing.s.tanyakan_sesuatu') }}" placeholder="{{ __('landing.s.tanyakan_sesuatu_2') }}" class="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg py-2.5 pl-4 pr-12 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm" disabled>
                                 <button class="absolute right-2 top-1.5 w-8 h-8 bg-brand-600 rounded-md flex items-center justify-center text-white opacity-50 cursor-not-allowed transition-colors">
                                     <i data-lucide="send" class="w-4 h-4"></i>
                                 </button>
@@ -830,8 +830,8 @@
                             <i data-lucide="file-text" class="w-5 h-5 group-hover:animate-icon-bounce"></i>
                         </div>
                         <div>
-                            <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">Dilatih menggunakan</p>
-                            <p class="text-sm font-bold text-slate-900 dark:text-white">1,240+ Dokumen</p>
+                            <p class="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">{{ __('landing.s.dilatih_menggunakan') }}</p>
+                            <p class="text-sm font-bold text-slate-900 dark:text-white">{{ __('landing.s.1_240_dokumen') }}</p>
                         </div>
                     </div>
                 </div>
@@ -842,7 +842,7 @@
 
     <section class="py-10 border-y border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-6 tracking-widest uppercase">Mendukung otomatisasi untuk tim inovatif</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-6 tracking-widest uppercase">{{ __('landing.s.mendukung_otomatisasi_untuk_tim_inovatif') }}</p>
             <div class="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-300">
                 <div class="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-300 group"><i data-lucide="cloud" class="w-6 h-6 group-hover:text-blue-500 transition-colors"></i> CloudServe</div>
                 <div class="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-300 group"><i data-lucide="hash" class="w-6 h-6 group-hover:text-purple-500 transition-colors"></i> TeamSync</div>
@@ -855,9 +855,9 @@
     <section id="fitur" class="py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">Mengapa Memilih Cekat</h2>
-                <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">Semua yang Anda butuhkan untuk membangun agen AI cerdas</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-lg">Kami menyederhanakan proses kompleks integrasi LLM. Cukup hubungkan data Anda, sesuaikan tampilannya, dan terapkan.</p>
+                <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">{{ __('landing.s.mengapa_memilih_cekat') }}</h2>
+                <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">{{ __('landing.s.semua_yang_anda_butuhkan_untuk_membangun_agen_ai') }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">{{ __('landing.s.kami_menyederhanakan_proses_kompleks_integrasi_l') }}</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -866,8 +866,8 @@
                     <div class="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-500/20 transition-colors">
                         <i data-lucide="database" class="w-6 h-6 group-hover:animate-icon-bounce"></i>
                     </div>
-                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Integrasi Multi-Sumber</h4>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Unggah PDF, dokumen Word, teks, atau cukup salin tautan URL. Kami akan mengekstrak dan memproses data untuk melatih model Anda.</p>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">{{ __('landing.s.integrasi_multi_sumber') }}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.unggah_pdf_dokumen_word_teks_atau_cukup_salin_ta') }}</p>
                 </div>
 
                 <!-- Feature 2 -->
@@ -875,8 +875,8 @@
                     <div class="w-12 h-12 rounded-lg bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center mb-6 text-brand-600 dark:text-brand-400 group-hover:bg-brand-100 dark:group-hover:bg-brand-500/20 transition-colors">
                         <i data-lucide="wand-2" class="w-6 h-6 group-hover:animate-icon-wiggle"></i>
                     </div>
-                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Prompting Lanjutan</h4>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Kendalikan persona bot Anda. Berikan instruksi untuk bertindak sebagai agen CS, tenaga penjualan, atau pemandu teknis.</p>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">{{ __('landing.s.prompting_lanjutan') }}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.kendalikan_persona_bot_anda_berikan_instruksi_un') }}</p>
                 </div>
 
                 <!-- Feature 3 -->
@@ -884,8 +884,8 @@
                     <div class="w-12 h-12 rounded-lg bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center mb-6 text-purple-600 dark:text-purple-400 group-hover:bg-purple-100 dark:group-hover:bg-purple-500/20 transition-colors">
                         <i data-lucide="code" class="w-6 h-6 group-hover:animate-icon-pulse"></i>
                     </div>
-                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Mudah Disematkan</h4>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Salin dan tempel satu baris kode JavaScript untuk menambahkan widget obrolan ke WordPress, Shopify, atau situs web kustom apa pun.</p>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">{{ __('landing.s.mudah_disematkan') }}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.salin_dan_tempel_satu_baris_kode_javascript_untu') }}</p>
                 </div>
 
                 <!-- Feature 4 -->
@@ -893,8 +893,8 @@
                     <div class="w-12 h-12 rounded-lg bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center mb-6 text-orange-600 dark:text-orange-400 group-hover:bg-orange-100 dark:group-hover:bg-orange-500/20 transition-colors">
                         <i data-lucide="line-chart" class="w-6 h-6 group-hover:animate-icon-bounce"></i>
                     </div>
-                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Dasbor Analitik</h4>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Pantau pertanyaan pengguna Anda. Lacak tingkat penyelesaian, pertanyaan umum, dan identifikasi celah dalam dokumentasi Anda dengan mudah.</p>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">{{ __('landing.s.dasbor_analitik') }}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.pantau_pertanyaan_pengguna_anda_lacak_tingkat_pe') }}</p>
                 </div>
 
                 <!-- Feature 5 -->
@@ -902,8 +902,8 @@
                     <div class="w-12 h-12 rounded-lg bg-pink-50 dark:bg-pink-500/10 flex items-center justify-center mb-6 text-pink-600 dark:text-pink-400 group-hover:bg-pink-100 dark:group-hover:bg-pink-500/20 transition-colors">
                         <i data-lucide="globe" class="w-6 h-6 group-hover:animate-spin"></i>
                     </div>
-                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Dukungan Multi-Bahasa</h4>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Berikan dukungan secara global. AI kami secara otomatis mendeteksi bahasa pengguna dan membalas secara akurat di lebih dari 90 bahasa.</p>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">{{ __('landing.s.dukungan_multi_bahasa') }}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.berikan_dukungan_secara_global_ai_kami_secara_ot') }}</p>
                 </div>
 
                 <!-- Feature 6 -->
@@ -911,8 +911,8 @@
                     <div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 text-slate-600 dark:text-slate-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
                         <i data-lucide="shield-check" class="w-6 h-6 group-hover:animate-icon-pulse"></i>
                     </div>
-                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">Keamanan Kelas Perusahaan</h4>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Data Anda tetap milik Anda. Kami menggunakan database vektor terisolasi dan tidak pernah melatih model publik menggunakan data pribadi Anda.</p>
+                    <h4 class="text-lg font-bold mb-3 text-slate-900 dark:text-white">{{ __('landing.s.keamanan_kelas_perusahaan') }}</h4>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.data_anda_tetap_milik_anda_kami_menggunakan_data') }}</p>
                 </div>
             </div>
         </div>
@@ -923,17 +923,17 @@
             <div class="lg:flex lg:items-center lg:justify-between gap-16">
                 
                 <div class="lg:w-1/2 mb-12 lg:mb-0">
-                    <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">Proses Sederhana</h2>
-                    <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">Dari data mentah menjadi chatbot dalam hitungan menit.</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-lg mb-10">Platform kami menangani alur kerja RAG (Retrieval-Augmented Generation) yang kompleks untuk Anda tanpa perlu menulis baris kode.</p>
+                    <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">{{ __('landing.s.proses_sederhana') }}</h2>
+                    <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">{{ __('landing.s.dari_data_mentah_menjadi_chatbot_dalam_hitungan') }}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-lg mb-10">{{ __('landing.s.platform_kami_menangani_alur_kerja_rag_retrieval') }}</p>
                     
                     <div class="space-y-4">
                         <!-- Step 1 Tab -->
                         <div id="step-tab-1" onclick="switchStep(1)" class="cursor-pointer flex gap-4 p-5 rounded-xl border border-brand-500 bg-white dark:bg-slate-900 shadow-md transition-all group">
                             <div id="step-num-1" class="flex-shrink-0 w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-sm transition-colors">1</div>
                             <div>
-                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white transition-colors">Hubungkan Pengetahuan Anda</h4>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Unggah berkas (PDF, DOCX) atau berikan URL website. Sistem kami akan mengekstrak informasi ke dalam format vektor.</p>
+                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white transition-colors">{{ __('landing.s.hubungkan_pengetahuan_anda') }}</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.unggah_berkas_pdf_docx_atau_berikan_url_website') }}</p>
                             </div>
                         </div>
 
@@ -941,8 +941,8 @@
                         <div id="step-tab-2" onclick="switchStep(2)" class="cursor-pointer flex gap-4 p-5 rounded-xl border border-transparent hover:bg-white/50 dark:hover:bg-slate-900/50 transition-all group">
                             <div id="step-num-2" class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-gray-300 dark:border-slate-700 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold text-sm transition-colors group-hover:border-brand-500 group-hover:text-brand-500">2</div>
                             <div>
-                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Sesuaikan Tampilan & Aturan</h4>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Atur warna merek, avatar bot, salam pembuka, serta instruksi perilaku spesifik agar sesuai dengan persona brand.</p>
+                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{{ __('landing.s.sesuaikan_tampilan_aturan') }}</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.atur_warna_merek_avatar_bot_salam_pembuka_serta') }}</p>
                             </div>
                         </div>
 
@@ -950,8 +950,8 @@
                         <div id="step-tab-3" onclick="switchStep(3)" class="cursor-pointer flex gap-4 p-5 rounded-xl border border-transparent hover:bg-white/50 dark:hover:bg-slate-900/50 transition-all group">
                             <div id="step-num-3" class="flex-shrink-0 w-8 h-8 rounded-full border-2 border-gray-300 dark:border-slate-700 flex items-center justify-center text-gray-500 dark:text-gray-400 font-bold text-sm transition-colors group-hover:border-brand-500 group-hover:text-brand-500">3</div>
                             <div>
-                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Sematkan dan Bagikan</h4>
-                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Dapatkan kode widget obrolan mengambang, atau tautan publik unik untuk langsung dibagikan dengan audiens Anda.</p>
+                                <h4 class="text-lg font-bold mb-1 text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{{ __('landing.s.sematkan_dan_bagikan') }}</h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ __('landing.s.dapatkan_kode_widget_obrolan_mengambang_atau_tau') }}</p>
                             </div>
                         </div>
                     </div>
@@ -982,15 +982,15 @@
                             <!-- View 1: Upload (Visible by default) -->
                             <div id="view-1" class="absolute inset-0 p-6 flex flex-col transition-opacity duration-300 opacity-100 z-10">
                                 <div class="flex justify-between items-center mb-6">
-                                    <h5 class="font-bold text-slate-900 dark:text-white flex items-center gap-2"><i data-lucide="database" class="w-4 h-4 text-brand-500"></i> Sumber Data</h5>
+                                    <h5 class="font-bold text-slate-900 dark:text-white flex items-center gap-2"><i data-lucide="database" class="w-4 h-4 text-brand-500"></i> {{ __('landing.s.sumber_data') }}</h5>
                                 </div>
                                 <div class="relative flex-1 flex items-center justify-center">
                                     <!-- Draggable Mock File -->
                                     <div id="drag-file" class="absolute bg-white dark:bg-slate-800 px-4 py-3 rounded-lg shadow-xl border border-gray-200 dark:border-slate-700 flex items-center gap-3 transition-all duration-[600ms] ease-in-out z-50 opacity-0 scale-90" style="top: -20px; left: -20px;">
                                         <div class="p-2 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-md"><i data-lucide="file-text" class="w-5 h-5"></i></div>
                                         <div>
-                                            <div class="text-sm font-medium text-slate-900 dark:text-white">panduan_produk.pdf</div>
-                                            <div class="text-xs text-gray-500">2.4 MB</div>
+                                            <div class="text-sm font-medium text-slate-900 dark:text-white">{{ __('landing.s.panduan_produk_pdf') }}</div>
+                                            <div class="text-xs text-gray-500">{{ __('landing.s.2_4_mb') }}</div>
                                         </div>
                                     </div>
                                     <!-- Dropzone -->
@@ -999,13 +999,13 @@
                                             <div class="w-12 h-12 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm text-gray-400">
                                                 <i data-lucide="upload-cloud" class="w-6 h-6"></i>
                                             </div>
-                                            <p class="text-sm font-medium text-slate-900 dark:text-white">Tarik & Lepas file Anda ke sini</p>
-                                            <p class="text-xs text-gray-500 mt-1">Mendukung PDF, DOCX, TXT</p>
+                                            <p class="text-sm font-medium text-slate-900 dark:text-white">{{ __('landing.s.tarik_lepas_file_anda_ke_sini') }}</p>
+                                            <p class="text-xs text-gray-500 mt-1">{{ __('landing.s.mendukung_pdf_docx_txt') }}</p>
                                         </div>
                                         <!-- Uploading State -->
                                         <div id="upload-state" class="absolute inset-0 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
                                             <i data-lucide="loader-2" class="w-8 h-8 text-brand-500 animate-spin mb-4"></i>
-                                            <p id="upload-text" class="text-sm font-medium text-slate-900 dark:text-white">Mengekstrak Vektor...</p>
+                                            <p id="upload-text" class="text-sm font-medium text-slate-900 dark:text-white">{{ __('landing.s.mengekstrak_vektor') }}</p>
                                             <div class="w-48 h-2 bg-gray-200 dark:bg-slate-800 rounded-full mt-3 overflow-hidden">
                                                 <div id="upload-progress" class="h-full bg-brand-500 w-0 transition-all duration-[2000ms] ease-out"></div>
                                             </div>
@@ -1015,7 +1015,7 @@
                                             <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mb-3">
                                                 <i data-lucide="check" class="w-6 h-6"></i>
                                             </div>
-                                            <p class="text-sm font-medium text-slate-900 dark:text-white">Data Berhasil Dilatih!</p>
+                                            <p class="text-sm font-medium text-slate-900 dark:text-white">{{ __('landing.s.data_berhasil_dilatih') }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1025,10 +1025,10 @@
                             <div id="view-2" class="absolute inset-0 p-6 flex transition-opacity duration-300 opacity-0 pointer-events-none z-10 gap-6">
                                 <!-- Settings Panel -->
                                 <div class="w-1/2 flex flex-col space-y-5">
-                                    <h5 class="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-2"><i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i> Kustomisasi</h5>
+                                    <h5 class="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-2"><i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i> {{ __('landing.s.kustomisasi') }}</h5>
                                     
                                     <div>
-                                        <label for="mock-input-name" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Nama Bot</label>
+                                        <label for="mock-input-name" class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{ __('landing.s.nama_bot') }}</label>
                                         <div class="relative">
                                             <input type="text" id="mock-input-name" value="Bot Bawaan" class="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-md py-2 px-3 text-sm text-slate-900 dark:text-white focus:outline-none pointer-events-none" readonly>
                                             <div id="input-cursor-name" class="absolute top-2.5 left-[85px] w-0.5 h-4 bg-brand-500 animate-pulse hidden"></div>
@@ -1036,7 +1036,7 @@
                                     </div>
 
                                     <div>
-                                        <p class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Warna Tema</p>
+                                        <p class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{ __('landing.s.warna_tema') }}</p>
                                         <div class="flex gap-2">
                                             <div class="w-8 h-8 rounded-full bg-slate-900 border-2 border-transparent relative"><i data-lucide="check" class="absolute inset-0 m-auto w-4 h-4 text-white"></i></div>
                                             <div id="color-target-purple" class="w-8 h-8 rounded-full bg-purple-600 border-2 border-transparent"></div>
@@ -1046,9 +1046,9 @@
                                     </div>
 
                                     <div>
-                                        <p class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Pesan Pembuka</p>
+                                        <p class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{ __('landing.s.pesan_pembuka') }}</p>
                                         <div class="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-md p-2 text-xs text-gray-600 dark:text-gray-300 h-16 pointer-events-none">
-                                            <span id="mock-greeting-text">Hai! Ada yang bisa dibantu?</span><span id="input-cursor-greeting" class="w-0.5 h-3 bg-brand-500 inline-block align-middle ml-0.5 hidden animate-pulse"></span>
+                                            <span id="mock-greeting-text">{{ __('landing.s.hai_ada_yang_bisa_dibantu') }}</span><span id="input-cursor-greeting" class="w-0.5 h-3 bg-brand-500 inline-block align-middle ml-0.5 hidden animate-pulse"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -1058,11 +1058,11 @@
                                     <div class="border border-gray-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-md flex-col flex h-[280px]">
                                         <div id="mock-chat-header" class="bg-slate-900 px-3 py-2.5 flex items-center gap-2 transition-colors duration-500">
                                             <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-white"><i data-lucide="bot" class="w-3 h-3"></i></div>
-                                            <span id="mock-chat-title" class="text-white text-xs font-medium">Bot Bawaan</span>
+                                            <span id="mock-chat-title" class="text-white text-xs font-medium">{{ __('landing.s.bot_bawaan') }}</span>
                                         </div>
                                         <div class="flex-1 bg-gray-50 dark:bg-slate-900/50 p-3 flex flex-col gap-2">
                                             <div class="bg-gray-200 dark:bg-slate-800 p-2.5 rounded-lg rounded-tl-none w-[85%]">
-                                                <p id="mock-chat-greeting" class="text-[10px] text-gray-700 dark:text-gray-300">Hai! Ada yang bisa dibantu?</p>
+                                                <p id="mock-chat-greeting" class="text-[10px] text-gray-700 dark:text-gray-300">{{ __('landing.s.hai_ada_yang_bisa_dibantu') }}</p>
                                             </div>
                                         </div>
                                         <div class="p-2 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950">
@@ -1079,8 +1079,8 @@
                                         <div class="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
                                             <i data-lucide="code" class="w-6 h-6"></i>
                                         </div>
-                                        <h5 class="font-bold text-slate-900 dark:text-white">Tambahkan ke Website Anda</h5>
-                                        <p class="text-xs text-gray-500 mt-1">Salin kode ini dan tempel di dalam tag &lt;head&gt;.</p>
+                                        <h5 class="font-bold text-slate-900 dark:text-white">{{ __('landing.s.tambahkan_ke_website_anda') }}</h5>
+                                        <p class="text-xs text-gray-500 mt-1">{{ __('landing.s.salin_kode_ini_dan_tempel_di_dalam_tag_lt_head_g') }}</p>
                                     </div>
                                     
                                     <div class="relative group">
@@ -1090,7 +1090,7 @@
                                                 <div class="w-2 h-2 rounded-full bg-slate-700"></div>
                                                 <div class="w-2 h-2 rounded-full bg-slate-700"></div>
                                                 <div class="w-2 h-2 rounded-full bg-slate-700"></div>
-                                                <span class="text-slate-500 ml-2">index.html</span>
+                                                <span class="text-slate-500 ml-2">{{ __('landing.s.index_html') }}</span>
                                             </div>
                                             <code>&lt;script src="https://cekat.biz.id/widget/widget.js"&gt;&lt;/script&gt;<br>
                                             &lt;script&gt;<br>
@@ -1101,7 +1101,7 @@
 
                                     <div class="mt-6 flex justify-center">
                                         <button id="mock-copy-btn" class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-slate-900 dark:text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-all w-40 justify-center">
-                                            <i data-lucide="copy" class="w-4 h-4" id="copy-icon"></i> <span id="copy-text">Salin Kode</span>
+                                            <i data-lucide="copy" class="w-4 h-4" id="copy-icon"></i> <span id="copy-text">{{ __('integration.s.salin_kode') }}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -1117,10 +1117,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-8 relative z-10">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-700 dark:bg-brand-400/10 dark:text-brand-300 border border-brand-100 dark:border-transparent text-sm font-medium mb-4">
-                    <i data-lucide="workflow" class="w-4 h-4"></i> Teknologi Di Balik Cekat
+                    <i data-lucide="workflow" class="w-4 h-4"></i> {{ __('landing.s.teknologi_di_balik_cekat') }}
                 </div>
-                <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-slate-900 dark:text-white">Bagaimana Alur RAG Bekerja Secara Real-Time</h2>
-                <p class="text-slate-600 dark:text-slate-300 text-lg">Lihat bagaimana Cekat memahami pertanyaan pelanggan, menemukan informasi paling relevan dari data bisnis Anda, lalu menyusun jawaban akurat yang siap dikirim secara otomatis.</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-slate-900 dark:text-white">{{ __('landing.s.bagaimana_alur_rag_bekerja_secara_real_time') }}</h2>
+                <p class="text-slate-600 dark:text-slate-300 text-lg">{{ __('landing.s.lihat_bagaimana_cekat_memahami_pertanyaan_pelang') }}</p>
             </div>
 
             <!-- Flowchart Container dengan React Flow (Seamless & Clean) -->
@@ -1133,9 +1133,9 @@
     <section id="harga" class="py-20 lg:py-28 bg-gray-50/50 dark:bg-slate-900/30 border-t border-gray-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">Harga</h2>
-                <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">Harga yang sederhana dan transparan</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-lg">Mulai secara gratis, tingkatkan paket saat Anda membutuhkan lebih banyak kekuatan dan kapasitas.</p>
+                <h2 class="text-brand-600 dark:text-brand-400 font-bold tracking-wider uppercase text-xs mb-3">{{ __('docs.s.harga') }}</h2>
+                <h3 class="text-3xl md:text-4xl font-extrabold mb-6 text-slate-900 dark:text-white">{{ __('landing.s.harga_yang_sederhana_dan_transparan') }}</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-lg">{{ __('landing.s.mulai_secara_gratis_tingkatkan_paket_saat_anda_m') }}</p>
             </div>
 
             <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -1181,7 +1181,7 @@
                     <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 {{ $isPopular ? 'border-2 border-brand-500 dark:border-brand-500 relative shadow-lg md:-translate-y-2 hover:shadow-xl transition-all' : 'border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow' }} flex flex-col">
                         @if ($isPopular)
                             <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-brand-500 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider animate-icon-pulse">
-                                Paling Populer
+                                {{ __('landing.s.paling_populer') }}
                             </div>
                         @endif
                         <h4 class="text-xl font-bold text-slate-900 dark:text-white mb-2">{{ $plan->name }}</h4>
@@ -1199,26 +1199,26 @@
                         </ul>
                         @if ($plan->price <= 0)
                             @auth
-                                <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Mulai Gratis</a>
+                                <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">{{ __('landing.s.mulai_gratis') }}</a>
                             @else
-                                <a href="/register" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Mulai Gratis</a>
+                                <a href="/register" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">{{ __('landing.s.mulai_gratis') }}</a>
                             @endauth
                         @elseif ($loop->last)
-                            <a href="#kontak" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">Hubungi Penjualan</a>
+                            <a href="#kontak" class="block w-full text-center py-2.5 rounded-lg border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors font-medium text-sm">{{ __('landing.s.hubungi_penjualan') }}</a>
                         @else
                             @auth
                                 <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="w-full py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors font-medium text-sm flex justify-center items-center gap-2 group">
-                                    Berlangganan Sekarang <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                    {{ __('landing.s.berlangganan_sekarang') }} <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                                 </a>
                             @else
                                 <a href="/register" class="w-full py-2.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors font-medium text-sm flex justify-center items-center gap-2 group">
-                                    Berlangganan Sekarang <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                                    {{ __('landing.s.berlangganan_sekarang') }} <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
                                 </a>
                             @endauth
                         @endif
                     </div>
                 @empty
-                    <p class="text-gray-600 dark:text-gray-400 md:col-span-3 text-center">Harga sedang tidak tersedia. Silakan hubungi kami untuk informasi paket.</p>
+                    <p class="text-gray-600 dark:text-gray-400 md:col-span-3 text-center">{{ __('landing.s.harga_sedang_tidak_tersedia_silakan_hubungi_kami') }}</p>
                 @endforelse
             </div>
         </div>
@@ -1236,31 +1236,31 @@
             </div>
             
             <h2 class="text-3xl md:text-5xl font-extrabold mb-6 text-slate-900 dark:text-white tracking-tight">
-                Siap mengotomatisasi layanan pelanggan Anda?
+                {{ __('landing.s.siap_mengotomatisasi_layanan_pelanggan_anda') }}
             </h2>
             
             <p class="text-gray-600 dark:text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
-                Bergabunglah dengan ratusan bisnis lainnya. Buat akun dan bangun AI chatbot pertama Anda dalam waktu kurang dari 3 menit. <span class="font-semibold text-slate-900 dark:text-gray-300">Tanpa kartu kredit.</span>
+                {{ __('landing.s.bergabunglah_dengan_ratusan_bisnis_lainnya_buat') }} <span class="font-semibold text-slate-900 dark:text-gray-300">{{ __('landing.s.tanpa_kartu_kredit') }}</span>
             </p>
             
             <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 @auth
                     <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/30 group w-full sm:w-auto">
-                        Buka Dasbor
+                        {{ __('landing.s.buka_dasbor') }}
                         <i data-lucide="arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1"></i>
                     </a>
                 @else
                     <a href="/register" class="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/30 group w-full sm:w-auto">
-                        Buat Akun Gratis Sekarang
+                        {{ __('landing.s.buat_akun_gratis_sekarang') }}
                         <i data-lucide="arrow-right" class="w-5 h-5 transition-transform group-hover:translate-x-1"></i>
                     </a>
                 @endauth
             </div>
 
             <p class="mt-10 text-gray-600 dark:text-gray-400">
-                Butuh bantuan atau ingin bertanya soal paket untuk tim Anda? Hubungi kami di
+                {{ __('landing.s.butuh_bantuan_atau_ingin_bertanya_soal_paket_unt') }}
                 <a href="mailto:support@cekat.biz.id" class="font-semibold text-brand-600 dark:text-brand-400 hover:underline">support@cekat.biz.id</a>
-                — tim kami membalas pada jam kerja.
+                {{ __('landing.s.tim_kami_membalas_pada_jam_kerja') }}
             </p>
         </div>
     </section>
@@ -1276,40 +1276,40 @@
                         <span class="font-bold text-xl tracking-tight text-slate-900 dark:text-white">Cekat<span class="text-brand-600 dark:text-brand-400">.biz.id</span></span>
                     </div>
                     <p class="text-gray-600 dark:text-gray-400 text-sm mb-6 max-w-sm leading-relaxed">
-                        Memberdayakan bisnis untuk membuat asisten AI cerdas khusus yang dilatih menggunakan data kepemilikan mereka sendiri hanya dalam hitungan menit.
+                        {{ __('landing.s.memberdayakan_bisnis_untuk_membuat_asisten_ai_ce') }}
                     </p>
                 </div>
                 
                 <div>
-                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Produk</h4>
+                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">{{ __('landing.s.produk') }}</h4>
                     <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-                        <li><a href="#fitur" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Fitur</a></li>
-                        <li><a href="/channels" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Integrasi</a></li>
-                        <li><a href="#harga" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Harga</a></li>
+                        <li><a href="#fitur" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">{{ __('docs.s.fitur') }}</a></li>
+                        <li><a href="/channels" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">{{ __('general.s.integrasi') }}</a></li>
+                        <li><a href="#harga" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">{{ __('docs.s.harga') }}</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Sumber Daya</h4>
+                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">{{ __('landing.s.sumber_daya') }}</h4>
                     <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-                        <li><a href="/docs/api" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Dokumentasi</a></li>
-                        <li><a href="/docs/api" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Referensi API</a></li>
+                        <li><a href="/docs/api" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">{{ __('landing.s.dokumentasi') }}</a></li>
+                        <li><a href="/docs/api" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">{{ __('landing.s.referensi_api') }}</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">Legal</h4>
+                    <h4 class="text-slate-900 dark:text-white font-semibold mb-4 text-sm uppercase tracking-wider">{{ __('landing.s.legal') }}</h4>
                     <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
-                        <li><a href="{{ route('legal.privacy') }}" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Kebijakan Privasi</a></li>
-                        <li><a href="{{ route('legal.terms') }}" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Syarat Ketentuan</a></li>
+                        <li><a href="{{ route('legal.privacy') }}" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">{{ __('legal.s.kebijakan_privasi') }}</a></li>
+                        <li><a href="{{ route('legal.terms') }}" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">{{ __('landing.s.syarat_ketentuan') }}</a></li>
                     </ul>
                 </div>
             </div>
             
             <div class="border-t border-gray-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-gray-500 dark:text-gray-400 text-sm">© 2026 Cekat.biz.id. Seluruh hak cipta dilindungi.</p>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">{{ __('landing.s.2026_cekat_biz_id_seluruh_hak_cipta_dilindungi') }}</p>
                 <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 font-medium">
-                    <span>Status:</span> <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Semua sistem beroperasi</span>
+                    <span>{{ __('admin.s.status') }}</span> <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> {{ __('landing.s.semua_sistem_beroperasi') }}</span>
                 </div>
             </div>
         </div>

@@ -27,7 +27,7 @@ class EmailChangeRequestAlert extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Permintaan Perubahan Email Akun - Cekat',
+            subject: __('settings.s.email_change_request_subject', [], $this->user->locale ?? 'id'),
         );
     }
 

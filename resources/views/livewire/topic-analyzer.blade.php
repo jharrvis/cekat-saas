@@ -2,25 +2,21 @@
     {{-- Header --}}
     <div class="flex items-center justify-between mb-4">
         <h4 class="font-semibold flex items-center gap-2">
-            <span class="text-lg">🔥</span> Topik Terpopuler
-        </h4>
+            <span class="text-lg">🔥</span>{{ __('general.s.topik_terpopuler') }}</h4>
         <div class="flex items-center gap-2">
             @if($isPaidUser)
                 <button wire:click="summarize" wire:loading.attr="disabled"
                     class="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition disabled:opacity-50 flex items-center gap-1">
                     <span wire:loading.remove wire:target="summarize">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI Summarize
-                    </span>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>{{ __('livewire.s.ai_summarize') }}</span>
                     <span wire:loading wire:target="summarize">
-                        <i class="fa-solid fa-spinner fa-spin"></i> Loading...
-                    </span>
+                        <i class="fa-solid fa-spinner fa-spin"></i>{{ __('livewire.s.loading') }}</span>
                 </button>
             @else
                 <button onclick="window.location.href='{{ route('billing') }}'"
                     class="px-3 py-1.5 text-xs font-medium bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition flex items-center gap-1"
-                    title="Upgrade untuk AI Summarize">
-                    <i class="fa-solid fa-crown"></i> Upgrade
-                </button>
+                    title="{{ __('livewire.s.upgrade_untuk_ai_summarize') }}">
+                    <i class="fa-solid fa-crown"></i>{{ __('agents.s.upgrade') }}</button>
             @endif
         </div>
     </div>
@@ -31,9 +27,9 @@
             <i class="fa-solid fa-clock"></i>
             Terakhir update: {{ $lastUpdated->diffForHumans() }}
             @if(!$isPaidUser)
-                <span class="text-amber-600 ml-2">• Word frequency</span>
+                <span class="text-amber-600 ml-2">{{ __('livewire.s.word_frequency') }}</span>
             @else
-                <span class="text-green-600 ml-2">• AI-powered</span>
+                <span class="text-green-600 ml-2">{{ __('livewire.s.ai_powered') }}</span>
             @endif
         </p>
     @endif
@@ -78,8 +74,8 @@
         @empty
             <div class="text-center py-8 text-muted-foreground">
                 <i class="fa-solid fa-chart-bar text-3xl mb-2 opacity-50"></i>
-                <p class="text-sm">Belum ada data topik</p>
-                <p class="text-xs">Mulai percakapan untuk melihat topik</p>
+                <p class="text-sm">{{ __('livewire.s.belum_ada_data_topik') }}</p>
+                <p class="text-xs">{{ __('livewire.s.mulai_percakapan_untuk_melihat_topik') }}</p>
             </div>
         @endforelse
 
@@ -90,12 +86,8 @@
                 <div class="flex items-start gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mt-0.5"></i>
                     <div>
-                        <p class="text-xs font-medium text-amber-800 dark:text-amber-200">
-                            Ingin topik lebih detail?
-                        </p>
-                        <p class="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                            Upgrade untuk AI Summarize: "Berapa" → "Harga paket layanan"
-                        </p>
+                        <p class="text-xs font-medium text-amber-800 dark:text-amber-200">{{ __('livewire.s.ingin_topik_lebih_detail') }}</p>
+                        <p class="text-xs text-amber-700 dark:text-amber-300 mt-0.5">{{ __('livewire.s.upgrade_untuk_ai_summarize_berapa_harga_paket_la') }}</p>
                     </div>
                 </div>
             </div>

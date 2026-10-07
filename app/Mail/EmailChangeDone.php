@@ -27,7 +27,7 @@ class EmailChangeDone extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Email Akun Anda Berubah - Cekat',
+            subject: __('settings.s.email_change_done_subject', [], $this->user->locale ?? 'id'),
         );
     }
 

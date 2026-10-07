@@ -54,7 +54,7 @@ class ChatHistoryShowTest extends TestCase
             ->assertOk()
             ->assertSee('Session ID')
             ->assertSee('sess_MetaUuidExa')
-            ->assertSee('IP Address')
+            ->assertSee('Alamat IP')
             ->assertSee('203.0.113.42')
             ->assertSee('Browser')
             ->assertSee('Chrome')

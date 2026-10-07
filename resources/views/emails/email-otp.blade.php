@@ -1,11 +1,11 @@
-<x-emails.layout title="Kode Verifikasi" category="Verifikasi Email">
-    <x-emails.heading>Kode Verifikasi Email</x-emails.heading>
+<x-emails.layout title="{{ __('emails.s.kode_verifikasi') }}" category="Verifikasi Email">
+    <x-emails.heading>{{ __('emails.s.kode_verifikasi_email') }}</x-emails.heading>
 
     <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 6px;">
         Halo {{ $user->name }},
     </p>
     <p style="font-size:15px;line-height:1.65;color:#3f3f46;margin:0 0 24px;">
-        Masukkan kode berikut untuk memverifikasi email Anda:
+        {{ __('emails.s.masukkan_kode_berikut_untuk_memverifikasi_email') }}
     </p>
 
     <div style="text-align:center;margin:26px 0;">
@@ -14,9 +14,9 @@
     </div>
 
     <p style="font-size:13px;line-height:1.65;color:#71717a;margin:0 0 6px;">
-        Kode berlaku <strong>5 menit</strong>. Minta kode baru bila kedaluwarsa.
+        {{ __('emails.s.kode_berlaku') }} <strong>{{ __('emails.s.5_menit') }}</strong>{{ __('emails.s.minta_kode_baru_bila_kedaluwarsa') }}
     </p>
     <p style="font-size:13px;line-height:1.65;color:#71717a;margin:0;">
-        Tidak meminta kode ini? Abaikan email ini &mdash; akun Anda tidak akan berubah sampai kode dimasukkan.
+        {{ __('emails.s.tidak_meminta_kode_ini_abaikan_email_ini_mdash_a') }}
     </p>
 </x-emails.layout>

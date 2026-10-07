@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kebijakan Privasi — Cekat.biz.id</title>
+    <title>{{ __('legal.s.kebijakan_privasi_cekat_biz_id') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,53 +51,53 @@
 
     <main class="flex-1 px-4 py-14">
         <article class="max-w-3xl mx-auto prose prose-slate dark:prose-invert prose-headings:font-bold prose-a:text-brand-600">
-            <h1>Kebijakan Privasi</h1>
-            <p class="text-sm text-gray-500">Terakhir diperbarui: 7 Oktober 2026</p>
+            <h1>{{ __('legal.s.kebijakan_privasi') }}</h1>
+            <p class="text-sm text-gray-500">{{ __('legal.s.terakhir_diperbarui_7_oktober_2026') }}</p>
 
-            <p>Kebijakan ini menjelaskan data apa yang dikumpulkan Cekat.biz.id ("Cekat", "kami") saat Anda menggunakan layanan chatbot AI kami, bagaimana data itu digunakan, dan hak Anda atas data tersebut.</p>
+            <p>{{ __('legal.s.kebijakan_ini_menjelaskan_data_apa_yang_dikumpul') }}</p>
 
-            <h2>1. Data yang kami kumpulkan</h2>
+            <h2>{{ __('legal.s.1_data_yang_kami_kumpulkan') }}</h2>
             <ul>
-                <li><strong>Data akun.</strong> Nama, alamat email, dan kata sandi (tersimpan dalam bentuk hash) saat Anda mendaftar.</li>
-                <li><strong>Konten yang Anda kelola.</strong> Informasi bisnis, FAQ, dan dokumen yang Anda unggah ke basis pengetahuan (knowledge base) milik akun Anda.</li>
-                <li><strong>Percakapan pengunjung.</strong> Pesan yang dikirim pengunjung melalui widget chat di situs Anda, beserta data teknis seperti halaman asal, peramban, dan alamat IP — ditampilkan kepada Anda sebagai pemilik widget di Riwayat Chat.</li>
-                <li><strong>Data prospek (lead).</strong> Nama, email, atau nomor telepon yang diisi pengunjung melalui formulir pra-chat atau yang terdeteksi dari percakapan, bila fitur lead diaktifkan.</li>
-                <li><strong>Data transaksi.</strong> Riwayat pembayaran dan status paket Anda. Pemrosesan pembayaran dilakukan oleh penyedia pembayaran pihak ketiga; kami tidak menyimpan nomor kartu Anda.</li>
-                <li><strong>Log email.</strong> Setiap email yang dikirim sistem (misalnya kode verifikasi dan notifikasi) tercatat di log pengiriman untuk keperluan operasional dan audit administrator.</li>
+                <li><strong>{{ __('legal.s.data_akun') }}</strong> {{ __('legal.s.nama_alamat_email_dan_kata_sandi_tersimpan_dalam') }}</li>
+                <li><strong>{{ __('legal.s.konten_yang_anda_kelola') }}</strong> {{ __('legal.s.informasi_bisnis_faq_dan_dokumen_yang_anda_ungga') }}</li>
+                <li><strong>{{ __('legal.s.percakapan_pengunjung') }}</strong> {{ __('legal.s.pesan_yang_dikirim_pengunjung_melalui_widget_cha') }}</li>
+                <li><strong>{{ __('legal.s.data_prospek_lead') }}</strong> {{ __('legal.s.nama_email_atau_nomor_telepon_yang_diisi_pengunj') }}</li>
+                <li><strong>{{ __('legal.s.data_transaksi') }}</strong> {{ __('legal.s.riwayat_pembayaran_dan_status_paket_anda_pemrose') }}</li>
+                <li><strong>{{ __('legal.s.log_email') }}</strong> {{ __('legal.s.setiap_email_yang_dikirim_sistem_misalnya_kode_v') }}</li>
             </ul>
 
-            <h2>2. Bagaimana data digunakan</h2>
+            <h2>{{ __('legal.s.2_bagaimana_data_digunakan') }}</h2>
             <ul>
-                <li>Menjalankan layanan: menghasilkan jawaban chatbot dari basis pengetahuan Anda, menampilkan riwayat dan analitik, serta mengelola kuota paket.</li>
-                <li>Mengirim email transaksional (verifikasi akun, atur ulang kata sandi, bukti pembayaran, notifikasi lead).</li>
-                <li>Keamanan dan pencegahan penyalahgunaan, termasuk pembatasan domain widget dan verifikasi tanda tangan webhook pembayaran.</li>
+                <li>{{ __('legal.s.menjalankan_layanan_menghasilkan_jawaban_chatbot') }}</li>
+                <li>{{ __('legal.s.mengirim_email_transaksional_verifikasi_akun_atu') }}</li>
+                <li>{{ __('legal.s.keamanan_dan_pencegahan_penyalahgunaan_termasuk') }}</li>
             </ul>
-            <p>Kami tidak menjual data pribadi Anda.</p>
+            <p>{{ __('legal.s.kami_tidak_menjual_data_pribadi_anda') }}</p>
 
-            <h2>3. Pihak ketiga yang memproses data</h2>
+            <h2>{{ __('legal.s.3_pihak_ketiga_yang_memproses_data') }}</h2>
             <ul>
-                <li><strong>Penyedia layanan AI</strong> — pesan percakapan diproses untuk menghasilkan jawaban chatbot. Pemilihan penyedia dan model dikelola di sisi server oleh Cekat.</li>
-                <li><strong>Midtrans</strong> — memproses pembayaran paket berlangganan.</li>
-                <li><strong>Fonnte</strong> — menghubungkan nomor WhatsApp Anda bila Anda mengaktifkan channel WhatsApp.</li>
-                <li><strong>Penyedia email</strong> — mengirim email transaksional atas nama Cekat.</li>
+                <li><strong>{{ __('legal.s.penyedia_layanan_ai') }}</strong> {{ __('legal.s.pesan_percakapan_diproses_untuk_menghasilkan_jaw') }}</li>
+                <li><strong>Midtrans</strong> {{ __('legal.s.memproses_pembayaran_paket_berlangganan') }}</li>
+                <li><strong>Fonnte</strong> {{ __('legal.s.menghubungkan_nomor_whatsapp_anda_bila_anda_meng') }}</li>
+                <li><strong>{{ __('legal.s.penyedia_email') }}</strong> {{ __('legal.s.mengirim_email_transaksional_atas_nama_cekat') }}</li>
             </ul>
 
-            <h2>4. Penyimpanan dan keamanan</h2>
-            <p>Data disimpan selama akun Anda aktif atau selama diperlukan untuk menjalankan layanan. Kata sandi disimpan sebagai hash; kode verifikasi email bersifat sekali pakai dan berumur pendek; identitas pengunjung pada riwayat chat disimpan terenkripsi. Akses administratif ke data dibatasi untuk keperluan operasional.</p>
+            <h2>{{ __('legal.s.4_penyimpanan_dan_keamanan') }}</h2>
+            <p>{{ __('legal.s.data_disimpan_selama_akun_anda_aktif_atau_selama') }}</p>
 
-            <h2>5. Hak Anda</h2>
-            <p>Anda dapat meminta akses, perbaikan, atau penghapusan data akun Anda dengan menghubungi kami. Konten basis pengetahuan dan widget sepenuhnya milik Anda dan dapat Anda ubah atau hapus kapan pun dari dasbor.</p>
+            <h2>{{ __('legal.s.5_hak_anda') }}</h2>
+            <p>{{ __('legal.s.anda_dapat_meminta_akses_perbaikan_atau_penghapu') }}</p>
 
-            <h2>6. Perubahan kebijakan</h2>
-            <p>Perubahan material pada kebijakan ini akan kami umumkan melalui situs atau email. Penggunaan layanan setelah perubahan berlaku berarti Anda menyetujui kebijakan yang diperbarui.</p>
+            <h2>{{ __('legal.s.6_perubahan_kebijakan') }}</h2>
+            <p>{{ __('legal.s.perubahan_material_pada_kebijakan_ini_akan_kami') }}</p>
 
-            <h2>7. Kontak</h2>
-            <p>Pertanyaan seputar privasi: <a href="mailto:support@cekat.biz.id">support@cekat.biz.id</a>.</p>
+            <h2>{{ __('legal.s.7_kontak') }}</h2>
+            <p>{{ __('legal.s.pertanyaan_seputar_privasi') }} <a href="mailto:support@cekat.biz.id">support@cekat.biz.id</a>.</p>
         </article>
     </main>
 
     <footer class="py-6 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-slate-800">
-        &copy; {{ date('Y') }} Cekat.biz.id — <a href="{{ route('legal.terms') }}" class="hover:text-brand-600">Syarat &amp; Ketentuan</a>
+        &copy; {{ date('Y') }} Cekat.biz.id — <a href="{{ route('legal.terms') }}" class="hover:text-brand-600">{{ __('legal.s.syarat_amp_ketentuan') }}</a>
     </footer>
 
     <script>lucide.createIcons();</script>

@@ -51,3 +51,23 @@ Daftar migrasi string menghadap pengguna ke sistem lokalisasi Laravel
    (pertahankan semua kunci — `LocaleTest` akan gagal bila ada selisih).
 2. Bahasa otomatis muncul di pemilih Pengaturan dan dapat dipilih
    pengguna; API menghormatinya lewat `Accept-Language`.
+
+## Full sweep (October 2026, owner request)
+
+After the sidebar follow-up, ALL remaining hardcoded user-facing strings
+were moved to localization keys with real English translations, so the
+site is fully bilingual id/en:
+
+- 1,561 unique strings from the inventory (89 Blade files, text nodes +
+  placeholder/title/aria-label/alt attributes) now live under the `s`
+  sub-array of their domain lang files (admin, channels, whatsapp,
+  agents, livewire, landing, legal, docs, general, auth, settings,
+  billing, api, chat, integration, emails), plus ~180 PHP-side literals
+  (Livewire flashes, controller flashes, mail subjects honoring the
+  recipient's `users.locale`).
+- Key parity id/en is guarded by LocaleTest; SidebarLocalizationTest
+  renders the dashboard in both locales.
+- Remaining deliberate exceptions: code samples inside <pre>/<code>,
+  brand and proper nouns (WhatsApp, Midtrans, Cekat.biz.id), a handful
+  of JS confirm() dialogs and echo-embedded sentence fragments listed in
+  the sweep reports, and machine-contract API/webhook payload texts.

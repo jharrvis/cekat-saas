@@ -3,12 +3,12 @@
     <div class="w-96 bg-card rounded-xl border shadow-sm flex flex-col overflow-hidden">
         {{-- Search & Filter --}}
         <div class="p-4 border-b space-y-3">
-            <input type="text" wire:model.live.debounce.300ms="searchTerm" placeholder="Cari nama, email, atau ID..."
+            <input type="text" wire:model.live.debounce.300ms="searchTerm" placeholder="{{ __('admin.s.cari_nama_email_atau_id') }}"
                 class="w-full px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
             <select wire:model.live="statusFilter" class="w-full px-3 py-2 border rounded-lg text-sm">
-                <option value="all">Semua Status</option>
-                <option value="active">Active</option>
-                <option value="ended">Ended</option>
+                <option value="all">{{ __('admin.s.semua_status') }}</option>
+                <option value="active">{{ __('channels.s.active') }}</option>
+                <option value="ended">{{ __('admin.s.ended') }}</option>
             </select>
         </div>
 
@@ -42,7 +42,7 @@
             @empty
                 <div class="p-8 text-center text-muted-foreground">
                     <i class="fa-solid fa-inbox text-4xl mb-4"></i>
-                    <p>No chat sessions found</p>
+                    <p>{{ __('admin.s.no_chat_sessions_found') }}</p>
                 </div>
             @endforelse
         </div>
@@ -76,8 +76,7 @@
                     @if($selectedSession->status !== 'ended')
                         <button wire:click="closeSession({{ $selectedSession->id }})"
                             class="px-3 py-1.5 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition">
-                            <i class="fa-solid fa-times mr-1"></i> End Session
-                        </button>
+                            <i class="fa-solid fa-times mr-1"></i>{{ __('admin.s.end_session') }}</button>
                     @endif
                 </div>
             </div>
@@ -102,39 +101,36 @@
             <div class="p-4 border-t bg-blue-50/50">
                 <div class="flex justify-between items-start mb-2">
                     <h4 class="font-semibold text-sm">
-                        <i class="fa-solid fa-robot mr-1 text-primary"></i> AI Summary
-                    </h4>
+                        <i class="fa-solid fa-robot mr-1 text-primary"></i>{{ __('admin.s.ai_summary') }}</h4>
                     <button wire:click="generateSummary({{ $selectedSession->id }})" wire:loading.attr="disabled"
                         class="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition disabled:opacity-50">
                         <span wire:loading.remove wire:target="generateSummary">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Generate
-                        </span>
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>{{ __('channels.s.generate') }}</span>
                         <span wire:loading wire:target="generateSummary">
-                            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Processing...
-                        </span>
+                            <i class="fa-solid fa-spinner fa-spin mr-1"></i>{{ __('admin.s.processing') }}</span>
                     </button>
                 </div>
                 @if($selectedSession->summary)
                     <p class="text-sm text-muted-foreground">{{ $selectedSession->summary }}</p>
                 @else
-                    <p class="text-sm text-muted-foreground italic">No summary yet. Click "Generate" to create AI summary.</p>
+                    <p class="text-sm text-muted-foreground italic">{{ __('admin.s.no_summary_yet_click_generate_to_create_ai_summa') }}</p>
                 @endif
             </div>
 
             {{-- Session Metadata --}}
             <div class="p-3 border-t bg-muted/30 text-xs text-muted-foreground flex gap-6">
-                <span><strong>Widget:</strong> {{ $selectedSession->widget->display_name ?? 'Unknown' }}</span>
-                <span><strong>Started:</strong>
+                <span><strong>{{ __('admin.s.widget_2') }}</strong> {{ $selectedSession->widget->display_name ?? 'Unknown' }}</span>
+                <span><strong>{{ __('admin.s.started') }}</strong>
                     {{ $selectedSession->started_at ? $selectedSession->started_at->format('d M Y H:i') : $selectedSession->created_at->format('d M Y H:i') }}</span>
-                <span><strong>User Agent:</strong> {{ Str::limit($selectedSession->user_agent ?? 'Unknown', 50) }}</span>
+                <span><strong>{{ __('admin.s.user_agent') }}</strong> {{ Str::limit($selectedSession->user_agent ?? 'Unknown', 50) }}</span>
             </div>
         @else
             {{-- Empty State --}}
             <div class="flex-1 flex items-center justify-center text-muted-foreground">
                 <div class="text-center">
                     <i class="fa-solid fa-comments text-6xl mb-4"></i>
-                    <p class="text-lg">Select a chat session to view</p>
-                    <p class="text-sm mt-1">Click on a session from the left panel</p>
+                    <p class="text-lg">{{ __('admin.s.select_a_chat_session_to_view') }}</p>
+                    <p class="text-sm mt-1">{{ __('admin.s.click_on_a_session_from_the_left_panel') }}</p>
                 </div>
             </div>
         @endif

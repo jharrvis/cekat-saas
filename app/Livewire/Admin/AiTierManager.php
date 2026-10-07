@@ -39,7 +39,7 @@ class AiTierManager extends Component
         // Use Setting::set which handles json encoding properly
         Setting::set('ai_tier_mapping', $this->tierMapping, 'json', 'api');
 
-        session()->flash('message', 'AI Tier mapping saved successfully!');
+        session()->flash('message', __('admin.s.ai_tier_mapping_saved'));
     }
 
     public function render()

@@ -14,38 +14,32 @@
 
     <form wire:submit.prevent="create" class="space-y-6">
         <div>
-            <label class="block text-sm font-medium mb-2">Chatbot Name *</label>
+            <label class="block text-sm font-medium mb-2">{{ __('channels.s.chatbot_name') }}</label>
             <input type="text" wire:model="display_name"
                 class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="e.g., Customer Support Bot">
+                placeholder="{{ __('channels.s.e_g_customer_support_bot') }}">
             @error('display_name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
         </div>
 
         <div>
-            <label class="block text-sm font-medium mb-2">Description (Optional)</label>
+            <label class="block text-sm font-medium mb-2">{{ __('channels.s.description_optional') }}</label>
             <textarea wire:model="description" rows="3"
                 class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Brief description of what this chatbot does..."></textarea>
+                placeholder="{{ __('channels.s.brief_description_of_what_this_chatbot_does') }}"></textarea>
             @error('description') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
         </div>
 
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p class="text-sm text-blue-800">
-                <i class="fa-solid fa-info-circle mr-2"></i>
-                You can create up to <strong>{{ app(\App\Services\Billing\PlanLimitService::class)->limit(auth()->user(), 'total_channels') }}</strong> channels with your
-                current plan.
-            </p>
+                <i class="fa-solid fa-info-circle mr-2"></i>{{ __('livewire.s.you_can_create_up_to') }} <strong>{{ app(\App\Services\Billing\PlanLimitService::class)->limit(auth()->user(), 'total_channels') }}</strong> {{ __('livewire.s.channels_with_your_current_plan') }}</p>
         </div>
 
         <div class="flex gap-3">
             <button type="submit"
                 class="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
-                <i class="fa-solid fa-plus mr-2"></i> Create Chatbot
-            </button>
+                <i class="fa-solid fa-plus mr-2"></i>{{ __('livewire.s.create_chatbot') }}</button>
             <a href="{{ route('dashboard') }}"
-                class="px-6 py-3 border rounded-lg hover:bg-muted/30 transition font-medium">
-                Cancel
-            </a>
+                class="px-6 py-3 border rounded-lg hover:bg-muted/30 transition font-medium">{{ __('channels.s.cancel') }}</a>
         </div>
     </form>
 </div>

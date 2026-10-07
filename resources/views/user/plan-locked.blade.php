@@ -18,11 +18,11 @@
             <div class="flex items-center justify-center gap-3">
                 <a href="{{ route('billing') }}"
                     class="inline-flex items-center justify-center px-5 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition text-sm font-medium">
-                    <i class="fa-solid fa-rocket mr-2"></i> Upgrade Plan
+                    <i class="fa-solid fa-rocket mr-2"></i> {{ __('channels.s.upgrade_plan') }}
                 </a>
                 <a href="{{ route('dashboard') }}"
                     class="inline-flex items-center justify-center px-5 py-3 border border-border rounded-lg hover:bg-muted transition text-sm font-medium">
-                    <i class="fa-solid fa-arrow-left mr-2"></i> Dashboard
+                    <i class="fa-solid fa-arrow-left mr-2"></i> {{ __('general.s.dashboard') }}
                 </a>
             </div>
         </div>

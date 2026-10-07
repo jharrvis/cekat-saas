@@ -45,7 +45,7 @@
                         <i class="fa-solid fa-inbox text-green-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-muted-foreground">Received</p>
+                        <p class="text-sm text-muted-foreground">{{ __('whatsapp.s.received') }}</p>
                         <p class="text-xl font-bold">{{ number_format($device->messages_received) }}</p>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                         <i class="fa-solid fa-paper-plane text-blue-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-muted-foreground">Sent</p>
+                        <p class="text-sm text-muted-foreground">{{ __('whatsapp.s.sent') }}</p>
                         <p class="text-xl font-bold">{{ number_format($device->messages_sent) }}</p>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                         <i class="fa-solid fa-robot text-purple-600"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-muted-foreground">AI Responses</p>
+                        <p class="text-sm text-muted-foreground">{{ __('whatsapp.s.ai_responses') }}</p>
                         <p class="text-xl font-bold">{{ number_format($messages->where('is_ai_response', true)->count()) }}
                         </p>
                     </div>
@@ -80,7 +80,7 @@
         {{-- Messages Table --}}
         <div class="bg-card rounded-xl border shadow-sm overflow-hidden">
             <div class="p-4 border-b">
-                <h2 class="font-semibold">Message History</h2>
+                <h2 class="font-semibold">{{ __('whatsapp.s.message_history') }}</h2>
             </div>
 
             @if($messages->count() > 0)
@@ -116,7 +116,7 @@
                                             <span class="text-xs text-muted-foreground">{{ $message->sender_phone }}</span>
                                         @endif
                                         @if($message->is_ai_response)
-                                            <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">AI</span>
+                                            <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">{{ __('whatsapp.s.ai') }}</span>
                                         @endif
                                     </div>
 
@@ -164,8 +164,8 @@
             @else
                 <div class="p-12 text-center text-muted-foreground">
                     <i class="fa-solid fa-message text-4xl mb-4 opacity-50"></i>
-                    <p>No messages yet.</p>
-                    <p class="text-sm">Messages will appear here when customers start chatting.</p>
+                    <p>{{ __('whatsapp.s.no_messages_yet') }}</p>
+                    <p class="text-sm">{{ __('whatsapp.s.messages_will_appear_here_when_customers_start_c') }}</p>
                 </div>
             @endif
         </div>

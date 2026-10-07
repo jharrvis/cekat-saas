@@ -105,7 +105,7 @@ class ChatHistoryController extends Controller
 
         return redirect()
             ->route('chats.index')
-            ->with('success', 'Percakapan berhasil dihapus permanen.');
+            ->with('success', __('chat.s.conversation_deleted'));
     }
 
     /**
@@ -125,7 +125,7 @@ class ChatHistoryController extends Controller
         // Generate inline: production has no queue worker for this app
         \App\Jobs\GenerateChatSummary::dispatchSync($session);
 
-        return redirect()->back()->with('success', 'Summary berhasil di-generate.');
+        return redirect()->back()->with('success', __('chat.s.summary_generated'));
     }
 
     /**

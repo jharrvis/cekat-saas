@@ -12,7 +12,7 @@
                 <p class="text-sm text-muted-foreground mb-4">{{ $description }}</p>
                 <a href="{{ route('billing') }}"
                     class="inline-flex items-center justify-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition text-sm font-medium">
-                    <i class="fa-solid fa-rocket mr-2"></i> Upgrade Plan
+                    <i class="fa-solid fa-rocket mr-2"></i> {{ __('channels.s.upgrade_plan') }}
                 </a>
             </div>
         </div>

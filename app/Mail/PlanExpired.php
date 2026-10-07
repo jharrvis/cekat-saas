@@ -31,7 +31,7 @@ class PlanExpired extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '⚠️ Plan Anda Telah Berakhir - Cekat.biz.id',
+            subject: __('billing.s.plan_expired_subject', [], $this->user->locale ?? 'id'),
         );
     }
 

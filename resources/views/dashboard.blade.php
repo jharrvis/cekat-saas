@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Cekat.biz.id</title>
+    <title>{{ __('general.s.dashboard_cekat_biz_id') }}</title>
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
@@ -217,7 +217,7 @@
 
             <div x-show="!sidebarCollapsed"
                 class="px-2 mb-2 text-xs font-semibold text-muted-foreground items-center transition-opacity duration-200">
-                MENU UTAMA
+                {{ __('general.s.menu_utama') }}
             </div>
             <div x-show="sidebarCollapsed" class="px-2 mb-2 h-4 flex justify-center items-center">
                 <div class="w-4 h-[1px] bg-border"></div>
@@ -226,55 +226,55 @@
             <a href="dashboard.html"
                 :class="isActive('dashboard') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative"
-                title="Dashboard">
+                title="{{ __('general.s.dashboard') }}">
                 <i class="fa-solid fa-chart-pie w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Dashboard</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('general.s.dashboard') }}</span>
             </a>
 
             <a href="knowledge-base.html"
                 :class="isActive('knowledge-base') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative"
-                title="Knowledge Base">
+                title="{{ __('agents.s.knowledge_base') }}">
                 <i class="fa-solid fa-brain w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Training AI</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('general.s.training_ai') }}</span>
             </a>
 
             <a href="models.html"
                 :class="isActive('models') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative"
-                title="Model Intelligence">
+                title="{{ __('general.s.model_intelligence') }}">
                 <i class="fa-solid fa-robot w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Model Intelligence</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('general.s.model_intelligence') }}</span>
             </a>
 
             <a href="widget-editor.html"
                 :class="isActive('widget-editor') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative"
-                title="Widget Editor">
+                title="{{ __('general.s.widget_editor') }}">
                 <i class="fa-solid fa-paintbrush w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Tampilan Widget</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('general.s.tampilan_widget') }}</span>
             </a>
 
             <a href="analytics.html"
                 :class="isActive('analytics') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative"
-                title="Analytics">
+                title="{{ __('admin.s.analytics') }}">
                 <i class="fa-solid fa-chart-line w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Analytics</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('admin.s.analytics') }}</span>
                 <span x-show="!sidebarCollapsed"
-                    class="ml-auto text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200">Biz</span>
+                    class="ml-auto text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded border border-amber-200">{{ __('general.s.biz') }}</span>
             </a>
 
             <div class="my-4 border-t border-border mx-2"></div>
 
             <div x-show="!sidebarCollapsed"
                 class="px-2 mb-2 text-xs font-semibold text-muted-foreground transition-opacity duration-200">
-                PENGATURAN
+                {{ __('general.s.pengaturan') }}
             </div>
 
             <a href="integration.html"
@@ -282,7 +282,7 @@
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative">
                 <i class="fa-solid fa-plug w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Integrasi</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('general.s.integrasi') }}</span>
             </a>
 
             <a href="settings.html"
@@ -290,7 +290,7 @@
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative">
                 <i class="fa-solid fa-gear w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Pengaturan</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('general.s.pengaturan_2') }}</span>
             </a>
         </nav>
 
@@ -298,12 +298,12 @@
         <div class="p-4 border-t bg-muted/20">
             <div x-show="!sidebarCollapsed" class="bg-primary/10 p-3 rounded-lg border border-primary/20">
                 <div class="flex justify-between items-center mb-1">
-                    <p class="text-xs font-semibold text-primary">Paket: UMKM Pro</p>
+                    <p class="text-xs font-semibold text-primary">{{ __('general.s.paket_umkm_pro') }}</p>
                 </div>
                 <div class="w-full bg-primary/20 rounded-full h-1.5 mb-2">
                     <div class="bg-primary h-1.5 rounded-full" style="width: 65%"></div>
                 </div>
-                <p class="text-[10px] text-muted-foreground">650 / 1000 Pesan</p>
+                <p class="text-[10px] text-muted-foreground">{{ __('general.s.650_1000_pesan') }}</p>
             </div>
         </div>
     </aside>
@@ -327,7 +327,7 @@
                     <i class="fa-solid fa-bars text-lg"></i>
                 </button>
 
-                <div class="font-semibold text-lg">Overview Bisnis</div>
+                <div class="font-semibold text-lg">{{ __('general.s.overview_bisnis') }}</div>
             </div>
 
             <div class="flex items-center gap-2">
@@ -355,20 +355,18 @@
                         x-transition:leave-end="transform opacity-0 scale-95"
                         class="absolute right-0 mt-2 w-80 bg-popover text-popover-foreground border rounded-lg shadow-lg py-1 z-50">
                         <div class="px-4 py-2 border-b">
-                            <h4 class="text-sm font-semibold">Notifikasi</h4>
+                            <h4 class="text-sm font-semibold">{{ __('general.s.notifikasi') }}</h4>
                         </div>
                         <div class="max-h-64 overflow-y-auto">
                             <a href="#" class="block px-4 py-3 hover:bg-accent transition-colors">
-                                <p class="text-sm font-medium">Pelanggan Baru</p>
-                                <p class="text-xs text-muted-foreground line-clamp-1">User #9928 memulai percakapan
-                                    baru.</p>
-                                <p class="text-[10px] text-muted-foreground mt-1">2 menit yang lalu</p>
+                                <p class="text-sm font-medium">{{ __('general.s.pelanggan_baru') }}</p>
+                                <p class="text-xs text-muted-foreground line-clamp-1">{{ __('general.s.user_9928_memulai_percakapan_baru') }}</p>
+                                <p class="text-[10px] text-muted-foreground mt-1">{{ __('general.s.2_menit_yang_lalu') }}</p>
                             </a>
                             <a href="#" class="block px-4 py-3 hover:bg-accent transition-colors">
-                                <p class="text-sm font-medium">Training Selesai</p>
-                                <p class="text-xs text-muted-foreground line-clamp-1">Dokumen 'Kebijakan Retur.docx'
-                                    selesai diproses.</p>
-                                <p class="text-[10px] text-muted-foreground mt-1">1 jam yang lalu</p>
+                                <p class="text-sm font-medium">{{ __('general.s.training_selesai') }}</p>
+                                <p class="text-xs text-muted-foreground line-clamp-1">{{ __('general.s.dokumen_kebijakan_retur_docx_selesai_diproses') }}</p>
+                                <p class="text-[10px] text-muted-foreground mt-1">{{ __('general.s.1_jam_yang_lalu') }}</p>
                             </a>
                         </div>
                     </div>
@@ -380,11 +378,11 @@
                         class="flex items-center gap-2 outline-none">
                         <div
                             class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                            BS
+                            {{ __('general.s.bs') }}
                         </div>
                         <div class="hidden md:block text-left">
-                            <p class="text-sm font-medium leading-none">Budi Santoso</p>
-                            <p class="text-xs text-muted-foreground">Admin</p>
+                            <p class="text-sm font-medium leading-none">{{ __('auth.s.budi_santoso') }}</p>
+                            <p class="text-xs text-muted-foreground">{{ __('general.s.admin') }}</p>
                         </div>
                         <i class="fa-solid fa-chevron-down text-xs text-muted-foreground ml-1"></i>
                     </button>
@@ -397,24 +395,24 @@
                         x-transition:leave-end="transform opacity-0 scale-95"
                         class="absolute right-0 mt-2 w-56 bg-popover text-popover-foreground border rounded-lg shadow-lg py-1 z-50">
                         <div class="px-2 py-1.5">
-                            <p class="text-sm font-medium">Budi Santoso</p>
-                            <p class="text-xs text-muted-foreground">budi@example.com</p>
+                            <p class="text-sm font-medium">{{ __('auth.s.budi_santoso') }}</p>
+                            <p class="text-xs text-muted-foreground">{{ __('general.s.budi_example_com') }}</p>
                         </div>
                         <div class="border-t my-1"></div>
                         <a href="#" class="flex w-full items-center px-2 py-1.5 text-sm hover:bg-accent rounded-sm">
-                            <i class="fa-regular fa-user w-4 mr-2"></i> Profile
+                            <i class="fa-regular fa-user w-4 mr-2"></i> {{ __('general.s.profile') }}
                         </a>
                         <a href="#" class="flex w-full items-center px-2 py-1.5 text-sm hover:bg-accent rounded-sm">
-                            <i class="fa-solid fa-credit-card w-4 mr-2"></i> Billing
+                            <i class="fa-solid fa-credit-card w-4 mr-2"></i> {{ __('general.s.billing') }}
                         </a>
                         <a href="settings.html"
                             class="flex w-full items-center px-2 py-1.5 text-sm hover:bg-accent rounded-sm">
-                            <i class="fa-solid fa-gear w-4 mr-2"></i> Settings
+                            <i class="fa-solid fa-gear w-4 mr-2"></i> {{ __('general.s.settings') }}
                         </a>
                         <div class="border-t my-1"></div>
                         <a href="login.html"
                             class="flex w-full items-center px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10 rounded-sm">
-                            <i class="fa-solid fa-arrow-right-from-bracket w-4 mr-2"></i> Log out
+                            <i class="fa-solid fa-arrow-right-from-bracket w-4 mr-2"></i> {{ __('general.s.log_out') }}
                         </a>
                     </div>
                 </div>
@@ -428,7 +426,7 @@
             <div x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
 
-                <h2 class="text-3xl font-bold tracking-tight mb-6">Halo, Budi! 👋</h2>
+                <h2 class="text-3xl font-bold tracking-tight mb-6">{{ __('general.s.halo_budi') }}</h2>
 
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -454,7 +452,7 @@
                             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <p class="text-sm font-medium text-muted-foreground">Total Percakapan</p>
+                                        <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.total_percakapan') }}</p>
                                         <h3 class="text-2xl font-bold mt-2">1,240</h3>
                                     </div>
                                     <div class="p-2 bg-primary/10 text-primary rounded-lg">
@@ -462,7 +460,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4 flex items-center text-xs text-emerald-500 font-medium">
-                                    <i class="fa-solid fa-arrow-up mr-1"></i> 12% dari bulan lalu
+                                    <i class="fa-solid fa-arrow-up mr-1"></i> {{ __('general.s.12_dari_bulan_lalu') }}
                                 </div>
                             </div>
 
@@ -470,7 +468,7 @@
                             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <p class="text-sm font-medium text-muted-foreground">Dijawab AI</p>
+                                        <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.dijawab_ai') }}</p>
                                         <h3 class="text-2xl font-bold mt-2">985</h3>
                                     </div>
                                     <div
@@ -479,7 +477,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4 text-xs text-muted-foreground">
-                                    79% Otomatisasi
+                                    {{ __('general.s.79_otomatisasi') }}
                                 </div>
                             </div>
 
@@ -487,7 +485,7 @@
                             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <p class="text-sm font-medium text-muted-foreground">Butuh Manusia</p>
+                                        <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.butuh_manusia') }}</p>
                                         <h3 class="text-2xl font-bold mt-2">255</h3>
                                     </div>
                                     <div
@@ -496,7 +494,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4 flex items-center text-xs text-destructive font-medium">
-                                    <i class="fa-solid fa-arrow-up mr-1"></i> Perlu perhatian
+                                    <i class="fa-solid fa-arrow-up mr-1"></i> {{ __('general.s.perlu_perhatian') }}
                                 </div>
                             </div>
 
@@ -504,7 +502,7 @@
                             <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <p class="text-sm font-medium text-muted-foreground">Sentimen User</p>
+                                        <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.sentimen_user') }}</p>
                                         <h3 class="text-2xl font-bold mt-2">4.8/5</h3>
                                     </div>
                                     <div
@@ -513,7 +511,7 @@
                                     </div>
                                 </div>
                                 <div class="mt-4 text-xs text-muted-foreground">
-                                    Berdasarkan feedback
+                                    {{ __('general.s.berdasarkan_feedback') }}
                                 </div>
                             </div>
                         </div>
@@ -533,7 +531,7 @@
 
                         <!-- Content -->
                         <div x-show="!loading">
-                            <h4 class="font-semibold mb-4">Aktivitas Chat 7 Hari Terakhir</h4>
+                            <h4 class="font-semibold mb-4">{{ __('general.s.aktivitas_chat_7_hari_terakhir') }}</h4>
                             <div class="h-[300px] w-full">
                                 <canvas id="chatChart"></canvas>
                             </div>
@@ -572,11 +570,11 @@
 
                         <!-- Content -->
                         <div x-show="!loading" class="space-y-6">
-                            <h4 class="font-semibold mb-6">Topik Terpopuler</h4>
+                            <h4 class="font-semibold mb-6">{{ __('general.s.topik_terpopuler') }}</h4>
                             <div class="space-y-6">
                                 <div>
                                     <div class="flex justify-between text-sm mb-2">
-                                        <span class="text-muted-foreground">Harga Produk</span>
+                                        <span class="text-muted-foreground">{{ __('general.s.harga_produk') }}</span>
                                         <span class="font-bold">45%</span>
                                     </div>
                                     <div class="w-full bg-secondary rounded-full h-2">
@@ -585,7 +583,7 @@
                                 </div>
                                 <div>
                                     <div class="flex justify-between text-sm mb-2">
-                                        <span class="text-muted-foreground">Jam Operasional</span>
+                                        <span class="text-muted-foreground">{{ __('general.s.jam_operasional') }}</span>
                                         <span class="font-bold">30%</span>
                                     </div>
                                     <div class="w-full bg-secondary rounded-full h-2">
@@ -594,7 +592,7 @@
                                 </div>
                                 <div>
                                     <div class="flex justify-between text-sm mb-2">
-                                        <span class="text-muted-foreground">Cara Retur</span>
+                                        <span class="text-muted-foreground">{{ __('general.s.cara_retur') }}</span>
                                         <span class="font-bold">15%</span>
                                     </div>
                                     <div class="w-full bg-secondary rounded-full h-2">

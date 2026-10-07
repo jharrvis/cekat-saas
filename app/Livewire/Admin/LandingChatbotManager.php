@@ -62,7 +62,7 @@ class LandingChatbotManager extends Component
         $settings['model'] = $this->selectedModel;
         $this->widget->update(['settings' => $settings]);
 
-        session()->flash('message', 'Model saved successfully!');
+        session()->flash('message', __('admin.s.model_saved'));
     }
 
     public function uploadAvatar()
@@ -83,7 +83,7 @@ class LandingChatbotManager extends Component
             $this->avatarUpload = null;
 
             $this->saveSettings();
-            session()->flash('message', 'Avatar uploaded successfully!');
+            session()->flash('message', __('admin.s.avatar_uploaded'));
         }
     }
 
@@ -110,7 +110,7 @@ class LandingChatbotManager extends Component
             'settings' => $settings,
         ]);
 
-        session()->flash('message', 'Widget settings saved successfully!');
+        session()->flash('message', __('admin.s.widget_settings_saved'));
     }
 
     public function testModel($modelId = null)
@@ -120,7 +120,7 @@ class LandingChatbotManager extends Component
         if (empty($testModelId)) {
             $this->testResult = [
                 'success' => false,
-                'error' => 'No model selected',
+                'error' => __('admin.s.no_model_selected'),
             ];
             return;
         }
@@ -130,7 +130,7 @@ class LandingChatbotManager extends Component
             if (empty($apiKey)) {
                 $this->testResult = [
                     'success' => false,
-                    'error' => 'OpenRouter API key not configured',
+                    'error' => __('admin.s.openrouter_key_not_configured'),
                 ];
                 return;
             }

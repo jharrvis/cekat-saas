@@ -31,7 +31,7 @@ class PlanExpiringReminder extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "⏰ Plan Anda Akan Berakhir dalam {$this->daysLeft} Hari",
+            subject: __('billing.s.plan_expiring_subject', ['days' => $this->daysLeft], $this->user->locale ?? 'id'),
         );
     }
 

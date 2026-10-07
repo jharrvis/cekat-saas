@@ -20,13 +20,12 @@
         {{-- Header --}}
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold">AI Agents</h2>
-                <p class="text-muted-foreground mt-1">Kelola AI Agent dan knowledge base untuk chatbot Anda</p>
+                <h2 class="text-2xl font-bold">{{ __('agents.s.ai_agents') }}</h2>
+                <p class="text-muted-foreground mt-1">{{ __('agents.s.kelola_ai_agent_dan_knowledge_base_untuk_chatbot') }}</p>
             </div>
             <a href="{{ route('agents.create') }}"
                 class="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition font-medium">
-                <i class="fa-solid fa-plus mr-2"></i> Buat Agent Baru
-            </a>
+                <i class="fa-solid fa-plus mr-2"></i>{{ __('agents.s.buat_agent_baru') }}</a>
         </div>
 
         {{-- Info Card --}}
@@ -34,11 +33,8 @@
             <div class="flex gap-3">
                 <i class="fa-solid fa-lightbulb text-blue-500 mt-1"></i>
                 <div>
-                    <h4 class="font-medium text-blue-800 dark:text-blue-200">💡 Apa itu AI Agent?</h4>
-                    <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                        AI Agent adalah "otak" chatbot Anda yang berisi pengetahuan, personality, dan konfigurasi AI.
-                        Satu Agent bisa digunakan oleh banyak Widget (tampilan chatbot) di berbagai channel.
-                    </p>
+                    <h4 class="font-medium text-blue-800 dark:text-blue-200">{{ __('agents.s.apa_itu_ai_agent') }}</h4>
+                    <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">{{ __('agents.s.ai_agent_adalah_otak_chatbot_anda_yang_berisi_pe') }}</p>
                 </div>
             </div>
         </div>
@@ -88,8 +84,7 @@
                                 </span>
                             @else
                                 <span class="px-2 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
-                                    <i class="fa-solid fa-brain mr-1"></i>Knowledge kosong
-                                </span>
+                                    <i class="fa-solid fa-brain mr-1"></i>{{ __('agents.s.knowledge_kosong') }}</span>
                             @endif
                             <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
                                 <i class="fa-solid fa-calendar mr-1"></i>{{ $agent->created_at->diffForHumans(short: true) }}
@@ -100,8 +95,7 @@
                         <div class="flex gap-2 pt-3 border-t">
                             <a href="{{ route('agents.edit', $agent) }}"
                                 class="flex-1 text-center px-3 py-1.5 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 transition">
-                                <i class="fa-solid fa-edit mr-1"></i> Edit
-                            </a>
+                                <i class="fa-solid fa-edit mr-1"></i>{{ __('agents.s.edit') }}</a>
                             <form action="{{ route('agents.toggle-status', $agent) }}" method="POST" class="flex-1">
                                 @csrf
                                 <button type="submit"
@@ -120,15 +114,11 @@
                 <div class="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
                     <i class="fa-solid fa-robot text-3xl text-primary"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Belum Ada AI Agent</h3>
-                <p class="text-muted-foreground mb-6 max-w-md mx-auto">
-                    AI Agent adalah otak dari chatbot Anda. Buat agent pertama untuk mulai melatih AI dengan pengetahuan bisnis
-                    Anda.
-                </p>
+                <h3 class="text-xl font-semibold mb-2">{{ __('agents.s.belum_ada_ai_agent') }}</h3>
+                <p class="text-muted-foreground mb-6 max-w-md mx-auto">{{ __('agents.s.ai_agent_adalah_otak_dari_chatbot_anda_buat_agen') }}</p>
                 <a href="{{ route('agents.create') }}"
                     class="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition font-medium">
-                    <i class="fa-solid fa-plus mr-2"></i> Buat Agent Pertama
-                </a>
+                    <i class="fa-solid fa-plus mr-2"></i>{{ __('agents.s.buat_agent_pertama') }}</a>
             </div>
         @endif
     </div>

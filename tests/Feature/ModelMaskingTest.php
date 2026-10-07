@@ -81,7 +81,7 @@ class ModelMaskingTest extends TestCase
         $response = $this->get('/');
         $response->assertOk();
         $this->assertDoesNotMatchRegularExpression(self::FORBIDDEN, $response->getContent());
-        $response->assertSee('Didukung Teknologi RAG & AI Generatif', false);
+        $response->assertSee('Didukung Teknologi RAG &amp; AI Generatif', false);
     }
 
     public function test_agent_pages_show_no_tier_card(): void

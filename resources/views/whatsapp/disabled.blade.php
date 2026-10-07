@@ -9,17 +9,16 @@
                 <i class="fa-brands fa-whatsapp text-4xl text-gray-400"></i>
             </div>
 
-            <h1 class="text-2xl font-bold mb-2">WhatsApp Integration Not Available</h1>
+            <h1 class="text-2xl font-bold mb-2">{{ __('whatsapp.s.whatsapp_integration_not_available') }}</h1>
 
             <p class="text-muted-foreground mb-6 max-w-md mx-auto">
-                The WhatsApp integration module is currently disabled by the administrator.
-                Please contact support if you need this feature.
+                {{ __('whatsapp.s.the_whatsapp_integration_module_is_currently_dis') }}
             </p>
 
             <a href="{{ route('dashboard') }}"
                 class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition">
                 <i class="fa-solid fa-arrow-left"></i>
-                Back to Dashboard
+                {{ __('whatsapp.s.back_to_dashboard') }}
             </a>
         </div>
     </div>

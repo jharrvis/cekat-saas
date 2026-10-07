@@ -105,7 +105,7 @@ class WidgetCustomizer extends Component
         ]);
 
         $this->generateEmbedCode();
-        session()->flash('message', 'Widget settings saved successfully!');
+        session()->flash('message', __('livewire.s.flash_widget_settings_saved'));
     }
 
     public function generateEmbedCode()

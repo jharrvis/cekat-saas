@@ -129,10 +129,10 @@ class PlanManager extends Component
 
         if ($this->plan_id) {
             Plan::find($this->plan_id)->update($data);
-            session()->flash('message', 'Plan updated successfully!');
+            session()->flash('message', __('admin.s.plan_updated'));
         } else {
             Plan::create($data);
-            session()->flash('message', 'Plan created successfully!');
+            session()->flash('message', __('admin.s.plan_created'));
         }
 
         $this->resetForm();
@@ -143,7 +143,7 @@ class PlanManager extends Component
     public function deletePlan($planId)
     {
         Plan::find($planId)->delete();
-        session()->flash('message', 'Plan deleted successfully!');
+        session()->flash('message', __('admin.s.plan_deleted'));
         $this->loadPlans();
     }
 

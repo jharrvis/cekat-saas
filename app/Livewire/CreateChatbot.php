@@ -46,7 +46,7 @@ class CreateChatbot extends Component
             'persona_tone' => 'friendly',
         ]);
 
-        session()->flash('message', 'Chatbot created successfully!');
+        session()->flash('message', __('livewire.s.flash_chatbot_created'));
 
         return redirect()->route('channels.edit', $widget->id);
     }

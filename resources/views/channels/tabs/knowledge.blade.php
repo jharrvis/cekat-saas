@@ -11,10 +11,9 @@
                     <i class="fa-solid fa-brain text-2xl"></i>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-bold mb-2">Knowledge Base Dikelola oleh AI Agent</h3>
+                    <h3 class="text-lg font-bold mb-2">{{ __('channels.s.knowledge_base_dikelola_oleh_ai_agent') }}</h3>
                     <p class="text-muted-foreground mb-4">
-                        Widget ini terhubung ke AI Agent <strong>{{ $agent->name }}</strong>.
-                        Semua FAQ, dokumen, dan training AI dikelola melalui AI Agent tersebut.
+                        {{ __('channels.s.widget_ini_terhubung_ke_ai_agent') }} <strong>{{ $agent->name }}</strong>{{ __('channels.s.semua_faq_dokumen_dan_training_ai_dikelola_melal') }}
                     </p>
 
                     {{-- Quick Stats --}}
@@ -26,18 +25,18 @@
                     <div class="flex gap-6 mb-4">
                         <div>
                             <span class="text-2xl font-bold text-primary">{{ $faqCount }}</span>
-                            <span class="text-sm text-muted-foreground ml-1">FAQs</span>
+                            <span class="text-sm text-muted-foreground ml-1">{{ __('agents.s.faqs') }}</span>
                         </div>
                         <div>
                             <span class="text-2xl font-bold text-green-600">{{ $docCount }}</span>
-                            <span class="text-sm text-muted-foreground ml-1">Dokumen</span>
+                            <span class="text-sm text-muted-foreground ml-1">{{ __('agents.s.dokumen') }}</span>
                         </div>
                     </div>
 
                     <a href="{{ route('agents.knowledge', $agent) }}"
                         class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-700 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/30 transition font-medium text-sm">
                         <i class="fa-solid fa-external-link-alt mr-2"></i>
-                        Kelola Knowledge Base di AI Agent
+                        {{ __('channels.s.kelola_knowledge_base_di_ai_agent') }}
                     </a>
                 </div>
             </div>
@@ -47,7 +46,7 @@
         <div class="mt-6 bg-card border rounded-xl p-4">
             <h4 class="font-medium mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-link text-primary"></i>
-                AI Agent Terhubung
+                {{ __('channels.s.ai_agent_terhubung') }}
             </h4>
             <div class="flex items-center gap-4">
                 <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -58,7 +57,7 @@
                     <p class="text-sm text-muted-foreground">{{ $agent->description ?: 'Tidak ada deskripsi' }}</p>
                 </div>
                 <a href="{{ route('agents.edit', $agent) }}" class="text-primary hover:underline text-sm">
-                    <i class="fa-solid fa-edit mr-1"></i>Edit Agent
+                    <i class="fa-solid fa-edit mr-1"></i>{{ __('channels.s.edit_agent') }}
                 </a>
             </div>
         </div>
@@ -66,14 +65,14 @@
         {{-- Unlink Option --}}
         <div class="mt-6 text-center">
             <p class="text-sm text-muted-foreground mb-2">
-                Ingin mengelola Knowledge Base terpisah dari AI Agent?
+                {{ __('channels.s.ingin_mengelola_knowledge_base_terpisah_dari_ai') }}
             </p>
             <form action="{{ route('channels.unlink-agent', $chatbot->id) }}" method="POST" class="inline">
                 @csrf
                 <button type="submit"
                     onclick="return confirm('Yakin ingin memutuskan koneksi dengan AI Agent? Widget akan memiliki Knowledge Base sendiri.')"
                     class="text-red-500 hover:text-red-700 text-sm font-medium">
-                    <i class="fa-solid fa-unlink mr-1"></i>Putuskan Koneksi AI Agent
+                    <i class="fa-solid fa-unlink mr-1"></i>{{ __('channels.s.putuskan_koneksi_ai_agent') }}
                 </button>
             </form>
         </div>
@@ -81,16 +80,15 @@
         {{-- Widget has its own Knowledge Base --}}
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h3 class="text-lg font-bold">Knowledge Base (AI Training)</h3>
-                <p class="text-muted-foreground">Train your AI with FAQs, documents, and website content</p>
+                <h3 class="text-lg font-bold">{{ __('channels.s.knowledge_base_ai_training') }}</h3>
+                <p class="text-muted-foreground">{{ __('channels.s.train_your_ai_with_faqs_documents_and_website_co') }}</p>
             </div>
 
             {{-- Link to AI Agent suggestion --}}
             <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-2">
                 <p class="text-sm text-blue-700 dark:text-blue-300 flex items-center gap-2">
                     <i class="fa-solid fa-lightbulb"></i>
-                    <span>Gunakan <a href="{{ route('agents.index') }}" class="font-medium underline">AI Agent</a> untuk
-                        berbagi Knowledge Base antar widget</span>
+                    <span>{{ __('channels.s.gunakan') }} <a href="{{ route('agents.index') }}" class="font-medium underline">{{ __('channels.s.ai_agent') }}</a> {{ __('channels.s.untuk_berbagi_knowledge_base_antar_widget') }}</span>
                 </p>
             </div>
         </div>

@@ -40,7 +40,7 @@ class ApiKeyController extends Controller
             ->route('api-keys.index')
             ->with('plain_key', $secret)
             ->with('new_key_name', $data['name'])
-            ->with('success', 'API key berhasil dibuat. Salin secret sekarang - hanya ditampilkan sekali.');
+            ->with('success', __('api.s.key_created'));
     }
 
     public function destroy(Request $request, ApiKey $key)
@@ -49,6 +49,6 @@ class ApiKeyController extends Controller
 
         $key->forceFill(['revoked_at' => now()])->save();
 
-        return back()->with('success', 'API key "' . $key->name . '" berhasil dicabut.');
+        return back()->with('success', __('api.s.key_revoked', ['name' => $key->name]));
     }
 }

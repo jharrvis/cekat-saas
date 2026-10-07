@@ -155,7 +155,7 @@
                     class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.leads') }}</span>
                 @unless(auth()->user()->canUseLeads())
                     <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
-                        title="Fitur ini tersedia di paket Pro ke atas"></i>
+                        title="{{ __('general.s.fitur_ini_tersedia_di_paket_pro_ke_atas') }}"></i>
                 @endunless
             </a>
 
@@ -167,7 +167,7 @@
                         class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.whatsapp') }}</span>
                     @unless(auth()->user()->canUseWhatsApp())
                         <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
-                            title="Fitur ini tersedia di paket Pro ke atas"></i>
+                            title="{{ __('general.s.fitur_ini_tersedia_di_paket_pro_ke_atas') }}"></i>
                     @endunless
                 </a>
             @endif
@@ -207,7 +207,7 @@
                     class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.api_keys') }}</span>
                 @unless(auth()->user()->canUseApi())
                     <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
-                        title="Fitur ini tersedia di paket Pro ke atas"></i>
+                        title="{{ __('general.s.fitur_ini_tersedia_di_paket_pro_ke_atas') }}"></i>
                 @endunless
             </a>
         @endif

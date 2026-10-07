@@ -59,7 +59,7 @@ class EmailTemplateManager extends Component
         $template = EmailTemplate::find($id);
 
         if (! $template) {
-            session()->flash('error', 'Template tidak ditemukan.');
+            session()->flash('error', __('admin.s.template_not_found'));
             return;
         }
 
@@ -94,7 +94,7 @@ class EmailTemplateManager extends Component
                 'body' => $this->body,
                 'category' => $this->category,
             ]);
-            $message = 'Template berhasil diperbarui.';
+            $message = __('admin.s.template_updated');
         } else {
             $slug = Str::slug($this->name);
             $base = $slug ?: 'template';
@@ -112,7 +112,7 @@ class EmailTemplateManager extends Component
                 'category' => $this->category,
                 'created_by' => auth()->id(),
             ]);
-            $message = 'Template berhasil dibuat.';
+            $message = __('admin.s.template_created');
         }
 
         $this->resetForm();
@@ -124,12 +124,12 @@ class EmailTemplateManager extends Component
         $template = EmailTemplate::find($id);
 
         if (! $template) {
-            session()->flash('error', 'Template tidak ditemukan.');
+            session()->flash('error', __('admin.s.template_not_found'));
             return;
         }
 
         $template->delete();
-        session()->flash('message', 'Template dihapus.');
+        session()->flash('message', __('admin.s.template_deleted'));
     }
 
     public function preview(): void
@@ -167,9 +167,9 @@ class EmailTemplateManager extends Component
             EmailSender::send($user->email, new CampaignEmail($subject, $body, 'Email Uji', $this->name), 'test', [
                 'template_id' => $this->editingId,
             ]);
-            session()->flash('message', "Email uji dikirim ke {$user->email}.");
+            session()->flash('message', __('admin.s.test_email_sent', ['email' => $user->email]));
         } catch (\Throwable $e) {
-            session()->flash('error', 'Email uji gagal dikirim: ' . $e->getMessage());
+            session()->flash('error', __('admin.s.test_email_failed', ['error' => $e->getMessage()]));
         }
     }
 

@@ -100,14 +100,14 @@ class AiAgentController extends Controller
         if (! $widget) {
             return redirect()
                 ->route('agents.edit', $agent)
-                ->with('error', 'Tidak ada widget yang belum terhubung. Buat channel baru terlebih dahulu.');
+                ->with('error', __('general.s.no_unlinked_widget'));
         }
 
         $widget->update(['ai_agent_id' => $agent->id]);
 
         return redirect()
             ->route('agents.edit', $agent)
-            ->with('success', 'Widget "' . ($widget->display_name ?? $widget->name) . '" terhubung ke agent ini. Buka tab Uji Coba untuk mencobanya.');
+            ->with('success', __('general.s.widget_linked', ['name' => $widget->display_name ?? $widget->name]));
     }
 
     /**

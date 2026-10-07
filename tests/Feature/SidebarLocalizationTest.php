@@ -55,6 +55,23 @@ class SidebarLocalizationTest extends TestCase
         $this->assertStringNotContainsString('>Email Center<', $html);
     }
 
+    public function test_member_sidebar_renders_english_for_en_user(): void
+    {
+        // Full-sweep proof: the same blades render real English when the
+        // user's locale is en (translations shipped with the sweep).
+        $user = $this->makeUser('user');
+        $user->forceFill(['locale' => 'en'])->save();
+
+        $html = $this->actingAs($user)->get(route('dashboard'))->getContent();
+
+        foreach (['Dashboard', 'AI Agents', 'Channels', 'Inbox', 'Settings', 'Billing', 'API Keys'] as $label) {
+            $this->assertStringContainsString($label, $html, "Sidebar EN label hilang: {$label}");
+        }
+        $this->assertStringNotContainsString('>Dasbor<', $html);
+        $this->assertStringNotContainsString('>Saluran<', $html);
+        $this->assertStringNotContainsString('>Penagihan<', $html);
+    }
+
     public function test_member_page_titles_are_indonesian(): void
     {
         $user = $this->makeUser('user');

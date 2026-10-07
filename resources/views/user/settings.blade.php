@@ -1,18 +1,18 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Pengaturan Akun')
+@section('title', __('settings.s.pengaturan_akun'))
 
 @section('content')
     <div class="space-y-6 max-w-4xl">
         {{-- Header --}}
         <div>
-            <h2 class="text-2xl font-bold tracking-tight">Pengaturan Akun</h2>
-            <p class="text-muted-foreground mt-1">Kelola informasi profil dan keamanan akun Anda</p>
+            <h2 class="text-2xl font-bold tracking-tight">{{ __('settings.s.pengaturan_akun') }}</h2>
+            <p class="text-muted-foreground mt-1">{{ __('settings.s.kelola_informasi_profil_dan_keamanan_akun_anda') }}</p>
         </div>
 
         {{-- Profile Section --}}
         <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-            <h3 class="font-semibold text-lg mb-4">Informasi Profil</h3>
+            <h3 class="font-semibold text-lg mb-4">{{ __('settings.s.informasi_profil') }}</h3>
 
             <form action="{{ route('settings.update-profile') }}" method="POST" class="space-y-4">
                 @csrf
@@ -31,16 +31,16 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Nama Lengkap</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('auth.s.nama_lengkap') }}</label>
                         <input type="text" name="name" value="{{ auth()->user()->name }}"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Email</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.email') }}</label>
                         <input type="email" name="email" value="{{ auth()->user()->email }}"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-muted"
                             disabled>
-                        <p class="text-xs text-muted-foreground mt-1">Untuk mengubah email, gunakan bagian "Ganti Email" di bawah</p>
+                        <p class="text-xs text-muted-foreground mt-1">{{ __('settings.s.untuk_mengubah_email_gunakan_bagian_ganti_email') }}</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-2">{{ __('settings.language') }}</label>
@@ -58,24 +58,19 @@
 
                 <div class="flex justify-end">
                     <button type="submit"
-                        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                        Simpan Perubahan
-                    </button>
+                        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">{{ __('agents.s.simpan_perubahan') }}</button>
                 </div>
             </form>
         </div>
 
         {{-- Email Change Section --}}
         <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-            <h3 class="font-semibold text-lg mb-1">Ganti Email</h3>
-            <p class="text-sm text-muted-foreground mb-4">
-                Perubahan aktif setelah dikonfirmasi melalui link yang dikirim ke email baru.
-            </p>
+            <h3 class="font-semibold text-lg mb-1">{{ __('settings.s.ganti_email') }}</h3>
+            <p class="text-sm text-muted-foreground mb-4">{{ __('settings.s.perubahan_aktif_setelah_dikonfirmasi_melalui_lin') }}</p>
 
             @if(auth()->user()->pending_email)
                 <div class="mb-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-400 px-4 py-3 rounded-lg text-sm">
-                    Menunggu konfirmasi ke <strong>{{ auth()->user()->pending_email }}</strong>.
-                    Tidak menerima email? Kirim ulang dengan mengisi ulang email yang sama di bawah.
+                    {{ __('settings.s.menunggu_konfirmasi_ke') }} <strong>{{ auth()->user()->pending_email }}</strong>{{ __('settings.s.tidak_menerima_email_kirim_ulang_dengan_mengisi') }}
                 </div>
             @endif
 
@@ -85,24 +80,22 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Email Baru</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="nama@perusahaan.com"
+                        <label class="block text-sm font-medium mb-2">{{ __('settings.s.email_baru') }}</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="{{ __('auth.s.nama_perusahaan_com') }}"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                     </div>
                 </div>
 
                 <div class="flex justify-end">
                     <button type="submit"
-                        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                        Kirim Link Konfirmasi
-                    </button>
+                        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">{{ __('settings.s.kirim_link_konfirmasi') }}</button>
                 </div>
             </form>
         </div>
 
         {{-- Password Section --}}
         <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-            <h3 class="font-semibold text-lg mb-4">Ubah Password</h3>
+            <h3 class="font-semibold text-lg mb-4">{{ __('settings.s.ubah_password') }}</h3>
 
             <form action="{{ route('settings.update-password') }}" method="POST" class="space-y-4">
                 @csrf
@@ -110,18 +103,18 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Password Saat Ini</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('settings.s.password_saat_ini') }}</label>
                         <input type="password" name="current_password"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                     </div>
                     <div></div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Password Baru</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('settings.s.password_baru') }}</label>
                         <input type="password" name="password"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Konfirmasi Password Baru</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('settings.s.konfirmasi_password_baru') }}</label>
                         <input type="password" name="password_confirmation"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                     </div>
@@ -129,16 +122,14 @@
 
                 <div class="flex justify-end">
                     <button type="submit"
-                        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                        Ubah Password
-                    </button>
+                        class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">{{ __('settings.s.ubah_password') }}</button>
                 </div>
             </form>
         </div>
 
         {{-- Plan Info --}}
         <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm">
-            <h3 class="font-semibold text-lg mb-4">Paket Langganan</h3>
+            <h3 class="font-semibold text-lg mb-4">{{ __('settings.s.paket_langganan') }}</h3>
 
             <div class="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
                 <div>
@@ -149,24 +140,22 @@
                     </p>
                 </div>
                 <a href="#" class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">
-                    <i class="fa-solid fa-arrow-up mr-2"></i>Upgrade
+                    <i class="fa-solid fa-arrow-up mr-2"></i>{{ __('agents.s.upgrade') }}
                 </a>
             </div>
         </div>
 
         {{-- Danger Zone --}}
         <div class="bg-card text-card-foreground p-6 rounded-xl border border-destructive/20 shadow-sm">
-            <h3 class="font-semibold text-lg mb-4 text-destructive">Zona Berbahaya</h3>
+            <h3 class="font-semibold text-lg mb-4 text-destructive">{{ __('settings.s.zona_berbahaya') }}</h3>
 
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="font-medium">Hapus Akun</p>
-                    <p class="text-sm text-muted-foreground">Semua data Anda akan dihapus secara permanen</p>
+                    <p class="font-medium">{{ __('settings.s.hapus_akun') }}</p>
+                    <p class="text-sm text-muted-foreground">{{ __('settings.s.semua_data_anda_akan_dihapus_secara_permanen') }}</p>
                 </div>
                 <button type="button"
-                    class="px-4 py-2 border border-destructive text-destructive rounded-lg hover:bg-destructive hover:text-destructive-foreground transition">
-                    Hapus Akun
-                </button>
+                    class="px-4 py-2 border border-destructive text-destructive rounded-lg hover:bg-destructive hover:text-destructive-foreground transition">{{ __('settings.s.hapus_akun') }}</button>
             </div>
         </div>
     </div>

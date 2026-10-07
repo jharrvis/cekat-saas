@@ -35,22 +35,22 @@
 
     <x-feature-locked :locked="$isLocked" feature-name="Advanced Analytics"
         description="Upgrade to Pro or Business plan to view detailed conversation insights, usage statistics, and engagement metrics.">
-        <h3 class="text-lg font-bold mb-4">Analytics</h3>
-        <p class="text-muted-foreground mb-6">View usage statistics and conversation analytics</p>
+        <h3 class="text-lg font-bold mb-4">{{ __('admin.s.analytics') }}</h3>
+        <p class="text-muted-foreground mb-6">{{ __('channels.s.view_usage_statistics_and_conversation_analytics') }}</p>
 
         <div class="grid md:grid-cols-3 gap-6 mb-6">
             <div class="bg-muted/30 rounded-xl p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-muted-foreground text-sm">Total Conversations</span>
+                    <span class="text-muted-foreground text-sm">{{ __('channels.s.total_conversations') }}</span>
                     <i class="fa-solid fa-message text-blue-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $totalConversations }}</p>
-                <p class="text-xs text-muted-foreground mt-1">All time</p>
+                <p class="text-xs text-muted-foreground mt-1">{{ __('channels.s.all_time') }}</p>
             </div>
 
             <div class="bg-muted/30 rounded-xl p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-muted-foreground text-sm">Messages This Month</span>
+                    <span class="text-muted-foreground text-sm">{{ __('channels.s.messages_this_month') }}</span>
                     <i class="fa-solid fa-paper-plane text-green-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $messagesThisMonth }}</p>
@@ -59,22 +59,22 @@
 
             <div class="bg-muted/30 rounded-xl p-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-muted-foreground text-sm">Avg Messages/Session</span>
+                    <span class="text-muted-foreground text-sm">{{ __('channels.s.avg_messages_session') }}</span>
                     <i class="fa-solid fa-comments text-purple-500"></i>
                 </div>
                 <p class="text-3xl font-bold">{{ $avgMessages }}</p>
-                <p class="text-xs text-muted-foreground mt-1">Engagement Rate</p>
+                <p class="text-xs text-muted-foreground mt-1">{{ __('channels.s.engagement_rate') }}</p>
             </div>
         </div>
 
         <div class="bg-muted/30 rounded-xl p-6">
-            <h4 class="text-lg font-medium mb-4">Recent Conversations</h4>
+            <h4 class="text-lg font-medium mb-4">{{ __('channels.s.recent_conversations') }}</h4>
 
             @if($recentSessions->isEmpty())
                 <div class="text-center py-12 text-muted-foreground">
                     <i class="fa-solid fa-chart-line text-4xl mb-4"></i>
-                    <p>No conversations yet</p>
-                    <p class="text-sm">Analytics will appear here once users start chatting</p>
+                    <p>{{ __('channels.s.no_conversations_yet') }}</p>
+                    <p class="text-sm">{{ __('channels.s.analytics_will_appear_here_once_users_start_chat') }}</p>
                 </div>
             @else
                 <div class="divide-y">

@@ -8,19 +8,15 @@
 
     {{-- Header --}}
     <div class="mb-6">
-        <h3 class="text-lg font-semibold">AI Quality Tier Mapping</h3>
-        <p class="text-sm text-muted-foreground">
-            Map each AI Quality tier to specific LLM models. Users see tiers, not model names.
-        </p>
+        <h3 class="text-lg font-semibold">{{ __('admin.s.ai_quality_tier_mapping') }}</h3>
+        <p class="text-sm text-muted-foreground">{{ __('admin.s.map_each_ai_quality_tier_to_specific_llm_models') }}</p>
     </div>
 
     {{-- Info Box --}}
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <p class="text-sm text-blue-800">
             <i class="fa-solid fa-info-circle mr-2"></i>
-            <strong>How it works:</strong> Each user's plan has an AI tier (basic, standard, advanced, premium).
-            When chatbot responds, we use the model mapped to their tier. Users never see the actual model name.
-        </p>
+            <strong>{{ __('admin.s.how_it_works') }}</strong>{{ __('admin.s.each_user_s_plan_has_an_ai_tier_basic_standard_a') }}</p>
     </div>
 
     {{-- Tier Mapping Cards --}}
@@ -46,10 +42,10 @@
                     </div>
                 </div>
 
-                <label class="block text-sm font-medium mb-2">Mapped Model:</label>
+                <label class="block text-sm font-medium mb-2">{{ __('admin.s.mapped_model') }}</label>
                 <select wire:model="tierMapping.{{ $tierSlug }}"
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white">
-                    <option value="">-- Select Model --</option>
+                    <option value="">{{ __('admin.s.select_model') }}</option>
                     @foreach($models as $model)
                         <option value="{{ $model->model_id }}">
                             {{ $model->name }} ({{ $model->provider }})
@@ -70,12 +66,12 @@
 
     {{-- Current Mapping Summary --}}
     <div class="bg-muted/50 rounded-xl p-4 mb-6">
-        <h4 class="font-semibold mb-3">Current Mapping Summary</h4>
+        <h4 class="font-semibold mb-3">{{ __('admin.s.current_mapping_summary') }}</h4>
         <table class="w-full text-sm">
             <thead>
                 <tr class="border-b">
-                    <th class="text-left py-2">AI Tier</th>
-                    <th class="text-left py-2">Model ID</th>
+                    <th class="text-left py-2">{{ __('admin.s.ai_tier') }}</th>
+                    <th class="text-left py-2">{{ __('admin.s.model_id') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -92,6 +88,5 @@
     {{-- Save Button --}}
     <button wire:click="save"
         class="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition">
-        <i class="fa-solid fa-save mr-2"></i> Save AI Tier Mapping
-    </button>
+        <i class="fa-solid fa-save mr-2"></i>{{ __('admin.s.save_ai_tier_mapping') }}</button>
 </div>

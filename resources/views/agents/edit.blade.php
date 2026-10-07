@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Edit ' . $agent->name)
-@section('page-title', 'Edit AI Agent')
+@section('page-title', __('agents.s.edit_agent_title'))
 
 @section('content')
     <div class="space-y-6" x-data="{ tab: 'profil' }">
@@ -9,8 +9,7 @@
         {{-- Back Button --}}
         <div class="mb-2">
             <a href="{{ route('agents.index') }}" class="text-muted-foreground hover:text-foreground transition">
-                <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke AI Agents
-            </a>
+                <i class="fa-solid fa-arrow-left mr-2"></i>{{ __('agents.s.kembali_ke_ai_agents') }}</a>
         </div>
 
         {{-- Success/Error Messages --}}
@@ -41,38 +40,32 @@
 
         {{-- Tab Nav --}}
         <div class="bg-card rounded-xl shadow-sm border overflow-hidden">
-            <div class="border-b flex overflow-x-auto" role="tablist" aria-label="Editor AI Agent">
+            <div class="border-b flex overflow-x-auto" role="tablist" aria-label="{{ __('agents.s.editor_ai_agent') }}">
                 <button type="button" role="tab" @click="tab = 'profil'" :aria-selected="tab === 'profil'"
                     :class="tab === 'profil' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                    <i class="fa-solid fa-user mr-2"></i> Profil
-                </button>
+                    <i class="fa-solid fa-user mr-2"></i>{{ __('agents.s.profil') }}</button>
                 <button type="button" role="tab" @click="tab = 'perilaku'" :aria-selected="tab === 'perilaku'"
                     :class="tab === 'perilaku' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                    <i class="fa-solid fa-sliders mr-2"></i> Perilaku
-                </button>
+                    <i class="fa-solid fa-sliders mr-2"></i>{{ __('agents.s.perilaku') }}</button>
                 <button type="button" role="tab" @click="tab = 'knowledge'" :aria-selected="tab === 'knowledge'"
                     :class="tab === 'knowledge' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                    <i class="fa-solid fa-brain mr-2"></i> Knowledge
-                </button>
+                    <i class="fa-solid fa-brain mr-2"></i>{{ __('agents.s.knowledge') }}</button>
                 <button type="button" role="tab" @click="tab = 'channels'" :aria-selected="tab === 'channels'"
                     :class="tab === 'channels' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                    <i class="fa-solid fa-share-nodes mr-2"></i> Channels
-                    <span class="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">{{ $agent->widgets->count() }}</span>
+                    <i class="fa-solid fa-share-nodes mr-2"></i>{{ __('agents.s.channels') }}<span class="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">{{ $agent->widgets->count() }}</span>
                 </button>
                 <button type="button" role="tab" @click="tab = 'testing'" :aria-selected="tab === 'testing'"
                     :class="tab === 'testing' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                    <i class="fa-solid fa-flask mr-2"></i> Uji Coba
-                </button>
+                    <i class="fa-solid fa-flask mr-2"></i>{{ __('agents.s.uji_coba') }}</button>
                 <button type="button" role="tab" @click="tab = 'lanjutan'" :aria-selected="tab === 'lanjutan'"
                     :class="tab === 'lanjutan' ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'"
                     class="px-6 py-4 font-medium text-sm border-b-2 transition whitespace-nowrap">
-                    <i class="fa-solid fa-gear mr-2"></i> Lanjutan
-                </button>
+                    <i class="fa-solid fa-gear mr-2"></i>{{ __('agents.s.lanjutan') }}</button>
             </div>
 
             <div class="p-6">
@@ -82,22 +75,22 @@
 
                     {{-- TAB: Profil --}}
                     <div x-show="tab === 'profil'" role="tabpanel" class="space-y-4 max-w-2xl">
-                        <h3 class="font-semibold text-lg">Profil Agent</h3>
+                        <h3 class="font-semibold text-lg">{{ __('agents.s.profil_agent') }}</h3>
                         <div>
-                            <label for="agent-name" class="block text-sm font-medium mb-2">Nama Agent *</label>
+                            <label for="agent-name" class="block text-sm font-medium mb-2">{{ __('agents.s.nama_agent') }}</label>
                             <input id="agent-name" type="text" name="name" value="{{ old('name', $agent->name) }}"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                placeholder="Customer Service Bot" required>
+                                placeholder="{{ __('agents.s.customer_service_bot') }}" required>
                             @error('name')
                                 <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div>
-                            <label for="agent-desc" class="block text-sm font-medium mb-2">Deskripsi</label>
+                            <label for="agent-desc" class="block text-sm font-medium mb-2">{{ __('agents.s.deskripsi') }}</label>
                             <textarea id="agent-desc" name="description" rows="2"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                placeholder="Agent untuk menjawab pertanyaan customer">{{ old('description', $agent->description) }}</textarea>
+                                placeholder="{{ __('agents.s.agent_untuk_menjawab_pertanyaan_customer') }}">{{ old('description', $agent->description) }}</textarea>
                         </div>
 
                         <div class="flex items-center gap-3">
@@ -107,15 +100,15 @@
                                     class="sr-only peer">
                                 <div class="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                             </label>
-                            <span class="text-sm font-medium">Agent Aktif</span>
+                            <span class="text-sm font-medium">{{ __('agents.s.agent_aktif') }}</span>
                         </div>
                     </div>
 
                     {{-- TAB: Perilaku --}}
                     <div x-show="tab === 'perilaku'" role="tabpanel" class="space-y-6 max-w-2xl" x-cloak>
-                        <h3 class="font-semibold text-lg">Perilaku & Gaya Bicara</h3>
+                        <h3 class="font-semibold text-lg">{{ __('agents.s.perilaku_gaya_bicara') }}</h3>
                         <div>
-                            <span class="block text-sm font-medium mb-2" id="personality-label">Personality *</span>
+                            <span class="block text-sm font-medium mb-2" id="personality-label">{{ __('agents.s.personality') }}</span>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3" role="radiogroup" aria-labelledby="personality-label">
                                 @foreach(['friendly' => '😊 Friendly', 'professional' => '💼 Professional', 'casual' => '😎 Casual', 'formal' => '🎩 Formal'] as $value => $label)
                                     <label class="relative cursor-pointer">
@@ -131,29 +124,29 @@
                         </div>
 
                         <div>
-                            <label for="agent-temp" class="block text-sm font-medium mb-2">Kreativitas AI: <span id="temp-value">{{ $agent->ai_temperature }}</span></label>
+                            <label for="agent-temp" class="block text-sm font-medium mb-2">{{ __('agents.s.kreativitas_ai_2') }} <span id="temp-value">{{ $agent->ai_temperature }}</span></label>
                             <div class="flex items-center gap-4">
-                                <span class="text-xs text-muted-foreground">Fokus</span>
+                                <span class="text-xs text-muted-foreground">{{ __('agents.s.fokus') }}</span>
                                 <input id="agent-temp" type="range" name="ai_temperature" min="0" max="1.5" step="0.1"
                                     value="{{ old('ai_temperature', $agent->ai_temperature) }}"
                                     oninput="document.getElementById('temp-value').textContent = this.value"
                                     class="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer">
-                                <span class="text-xs text-muted-foreground">Kreatif</span>
+                                <span class="text-xs text-muted-foreground">{{ __('agents.s.kreatif') }}</span>
                             </div>
                         </div>
 
                         <div>
-                            <label for="agent-fallback" class="block text-sm font-medium mb-2">Fallback Message</label>
+                            <label for="agent-fallback" class="block text-sm font-medium mb-2">{{ __('agents.s.fallback_message') }}</label>
                             <textarea id="agent-fallback" name="fallback_message" rows="2"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                placeholder="Maaf, saya sedang mengalami gangguan teknis...">{{ old('fallback_message', $agent->fallback_message) }}</textarea>
+                                placeholder="{{ __('agents.s.maaf_saya_sedang_mengalami_gangguan_teknis') }}">{{ old('fallback_message', $agent->fallback_message) }}</textarea>
                         </div>
 
                         <div>
-                            <label for="agent-prompt" class="block text-sm font-medium mb-2">Custom Instructions (System Prompt)</label>
+                            <label for="agent-prompt" class="block text-sm font-medium mb-2">{{ __('agents.s.custom_instructions_system_prompt') }}</label>
                             <textarea id="agent-prompt" name="system_prompt" rows="5"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary font-mono text-sm"
-                                placeholder="Kamu adalah asisten customer service yang ramah...">{{ old('system_prompt', $agent->system_prompt) }}</textarea>
+                                placeholder="{{ __('agents.s.kamu_adalah_asisten_customer_service_yang_ramah_2') }}">{{ old('system_prompt', $agent->system_prompt) }}</textarea>
                         </div>
                     </div>
 
@@ -161,8 +154,7 @@
                     <div x-show="tab === 'profil' || tab === 'perilaku'" class="flex gap-3 pt-4 border-t mt-6 max-w-2xl">
                         <button type="submit"
                             class="flex-1 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition font-medium">
-                            <i class="fa-solid fa-save mr-2"></i> Simpan Perubahan
-                        </button>
+                            <i class="fa-solid fa-save mr-2"></i>{{ __('agents.s.simpan_perubahan') }}</button>
                     </div>
                 </form>
 
@@ -182,40 +174,39 @@
                                     <i class="fa-solid fa-brain text-2xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-lg">Knowledge Base</h3>
-                                    <p class="text-white/80 text-sm">Latih AI dengan pengetahuan bisnis Anda</p>
+                                    <h3 class="font-bold text-lg">{{ __('agents.s.knowledge_base') }}</h3>
+                                    <p class="text-white/80 text-sm">{{ __('agents.s.latih_ai_dengan_pengetahuan_bisnis_anda') }}</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-3 mb-4">
                                 <div class="bg-white/20 rounded-lg p-3 text-center">
                                     <div class="text-2xl font-bold">{{ $faqCount }}</div>
-                                    <div class="text-xs text-white/80">FAQs</div>
+                                    <div class="text-xs text-white/80">{{ __('agents.s.faqs') }}</div>
                                 </div>
                                 <div class="bg-white/20 rounded-lg p-3 text-center">
                                     <div class="text-2xl font-bold">{{ $docCount }}</div>
-                                    <div class="text-xs text-white/80">Dokumen</div>
+                                    <div class="text-xs text-white/80">{{ __('agents.s.dokumen') }}</div>
                                 </div>
                             </div>
                             @if($faqCount === 0 && $docCount === 0)
                                 <div class="bg-white/20 rounded-lg p-3 mb-4">
                                     <p class="text-sm flex items-start gap-2">
                                         <i class="fa-solid fa-lightbulb mt-0.5"></i>
-                                        <span>Tambahkan FAQ untuk melatih AI menjawab pertanyaan pelanggan!</span>
+                                        <span>{{ __('agents.s.tambahkan_faq_untuk_melatih_ai_menjawab_pertanya') }}</span>
                                     </p>
                                 </div>
                             @endif
                             <a href="{{ route('agents.knowledge', $agent) }}"
                                 class="block w-full text-center px-4 py-3 bg-white text-amber-600 rounded-lg hover:bg-amber-50 transition font-bold text-sm shadow-lg">
-                                <i class="fa-solid fa-edit mr-2"></i> Kelola Knowledge Base
-                            </a>
+                                <i class="fa-solid fa-edit mr-2"></i>{{ __('agents.s.kelola_knowledge_base') }}</a>
                         </div>
                     </div>
                 </div>
 
                 {{-- TAB: Channels --}}
                 <div x-show="tab === 'channels'" role="tabpanel" class="max-w-2xl" x-cloak>
-                    <h3 class="font-semibold text-lg mb-1">Channel Terhubung</h3>
-                    <p class="text-sm text-muted-foreground mb-4">Satu agent bisa dipasang di banyak channel (Web Widget, WhatsApp).</p>
+                    <h3 class="font-semibold text-lg mb-1">{{ __('agents.s.channel_terhubung') }}</h3>
+                    <p class="text-sm text-muted-foreground mb-4">{{ __('agents.s.satu_agent_bisa_dipasang_di_banyak_channel_web_w') }}</p>
                     @if($agent->widgets->count() > 0)
                         <div class="space-y-2">
                             @foreach($agent->widgets as $widget)
@@ -232,11 +223,10 @@
                         </div>
                     @else
                         <div class="border border-dashed rounded-xl p-8 text-center">
-                            <p class="text-sm text-muted-foreground mb-3">Belum ada channel yang memakai agent ini.</p>
+                            <p class="text-sm text-muted-foreground mb-3">{{ __('agents.s.belum_ada_channel_yang_memakai_agent_ini') }}</p>
                             <a href="{{ route('channels.create') }}"
                                 class="inline-flex items-center text-sm text-primary hover:underline font-medium">
-                                <i class="fa-solid fa-plus mr-1"></i> Buat Channel Baru
-                            </a>
+                                <i class="fa-solid fa-plus mr-1"></i>{{ __('agents.s.buat_channel_baru') }}</a>
                         </div>
                     @endif
                 </div>
@@ -283,12 +273,12 @@
                             }
                         }
                     }">
-                    <h3 class="font-semibold text-lg mb-1">Uji Coba Agent</h3>
-                    <p class="text-sm text-muted-foreground mb-4">Kirim pesan percobaan lewat channel agent ini. Sesi uji coba tidak memotong kuota dan tidak masuk Riwayat Chat.</p>
+                    <h3 class="font-semibold text-lg mb-1">{{ __('agents.s.uji_coba_agent') }}</h3>
+                    <p class="text-sm text-muted-foreground mb-4">{{ __('agents.s.kirim_pesan_percobaan_lewat_channel_agent_ini_se') }}</p>
                     @if($agent->widgets->count() > 0)
                         <div class="space-y-4">
                             <div>
-                                <label for="test-channel" class="block text-sm font-medium mb-2">Channel</label>
+                                <label for="test-channel" class="block text-sm font-medium mb-2">{{ __('agents.s.channel') }}</label>
                                 <select id="test-channel"
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                                     @foreach($agent->widgets as $widget)
@@ -300,7 +290,7 @@
                             {{-- Utas percakapan --}}
                             <div id="test-thread" class="border rounded-xl p-4 bg-muted/20 h-80 overflow-y-auto space-y-3">
                                 <template x-if="messages.length === 0 && !loading">
-                                    <p class="text-sm text-muted-foreground text-center py-10">Belum ada pesan. Tulis pertanyaan pertama Anda di bawah.</p>
+                                    <p class="text-sm text-muted-foreground text-center py-10">{{ __('agents.s.belum_ada_pesan_tulis_pertanyaan_pertama_anda_di') }}</p>
                                 </template>
                                 <template x-for="(m, i) in messages" :key="i">
                                     <div :class="m.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
@@ -316,7 +306,7 @@
                                 </template>
                                 <div x-show="loading" class="flex justify-start" x-cloak>
                                     <div class="bg-white dark:bg-slate-800 border rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
-                                        <p class="text-sm text-muted-foreground"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>AI sedang mengetik…</p>
+                                        <p class="text-sm text-muted-foreground"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>{{ __('agents.s.ai_sedang_mengetik') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -327,33 +317,31 @@
                                 <textarea id="test-message" rows="2" x-model="draft"
                                     @keydown.enter.prevent="if (!$event.shiftKey) send()"
                                     class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                    placeholder="Tulis pertanyaan percobaan... (Enter untuk mengirim)"></textarea>
+                                    placeholder="{{ __('agents.s.tulis_pertanyaan_percobaan_enter_untuk_mengirim') }}"></textarea>
                                 <button type="button" @click="send()" :disabled="loading"
                                     class="px-5 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition font-medium disabled:opacity-50 self-end">
-                                    <span x-show="!loading"><i class="fa-solid fa-paper-plane mr-2"></i> Kirim Tes</span>
-                                    <span x-show="loading">Mengirim...</span>
+                                    <span x-show="!loading"><i class="fa-solid fa-paper-plane mr-2"></i>{{ __('agents.s.kirim_tes') }}</span>
+                                    <span x-show="loading">{{ __('agents.s.mengirim') }}</span>
                                 </button>
                             </div>
                         </div>
                     @elseif($unlinkedWidget)
                         <div class="border border-dashed rounded-xl p-8 text-center">
-                            <p class="text-sm text-muted-foreground mb-2">Agent ini belum terhubung ke channel mana pun, jadi belum bisa diuji.</p>
-                            <p class="text-sm text-muted-foreground mb-4">Widget <strong>{{ $unlinkedWidget->display_name ?? $unlinkedWidget->name }}</strong> milik Anda belum terhubung ke agent. Hubungkan sekarang?</p>
+                            <p class="text-sm text-muted-foreground mb-2">{{ __('agents.s.agent_ini_belum_terhubung_ke_channel_mana_pun_ja') }}</p>
+                            <p class="text-sm text-muted-foreground mb-4">{{ __('agents.s.widget') }} <strong>{{ $unlinkedWidget->display_name ?? $unlinkedWidget->name }}</strong> {{ __('agents.s.milik_anda_belum_terhubung_ke_agent_hubungkan_se') }}</p>
                             <form method="POST" action="{{ route('agents.attach-default-widget', $agent) }}">
                                 @csrf
                                 <button type="submit"
                                     class="inline-flex items-center px-5 py-2.5 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 transition font-medium">
-                                    <i class="fa-solid fa-link mr-2"></i> Hubungkan Widget Saya
-                                </button>
+                                    <i class="fa-solid fa-link mr-2"></i>{{ __('agents.s.hubungkan_widget_saya') }}</button>
                             </form>
                         </div>
                     @else
                         <div class="border border-dashed rounded-xl p-8 text-center">
-                            <p class="text-sm text-muted-foreground mb-3">Buat channel dulu untuk menguji agent ini.</p>
+                            <p class="text-sm text-muted-foreground mb-3">{{ __('agents.s.buat_channel_dulu_untuk_menguji_agent_ini') }}</p>
                             <a href="{{ route('channels.create') }}"
                                 class="inline-flex items-center text-sm text-primary hover:underline font-medium">
-                                <i class="fa-solid fa-plus mr-1"></i> Buat Channel Baru
-                            </a>
+                                <i class="fa-solid fa-plus mr-1"></i>{{ __('agents.s.buat_channel_baru') }}</a>
                         </div>
                     @endif
                 </div>
@@ -362,7 +350,7 @@
                 <div x-show="tab === 'lanjutan'" role="tabpanel" class="max-w-2xl space-y-6" x-cloak>
 
                     <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-5">
-                        <h3 class="font-semibold text-red-700 dark:text-red-400 mb-4">Danger Zone</h3>
+                        <h3 class="font-semibold text-red-700 dark:text-red-400 mb-4">{{ __('agents.s.danger_zone') }}</h3>
                         @if($agent->widgets->count() > 0)
                             <p class="text-sm text-red-600 dark:text-red-400">
                                 Tidak bisa menghapus agent yang masih digunakan oleh {{ $agent->widgets->count() }} channel.
@@ -374,8 +362,7 @@
                                 @method('DELETE')
                                 <button type="submit"
                                     class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium">
-                                    <i class="fa-solid fa-trash mr-2"></i> Hapus Agent
-                                </button>
+                                    <i class="fa-solid fa-trash mr-2"></i>{{ __('agents.s.hapus_agent') }}</button>
                             </form>
                         @endif
                     </div>

@@ -15,10 +15,8 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h2 class="text-2xl font-bold flex items-center gap-3">
-                <i class="fa-brands fa-whatsapp text-green-500"></i>
-                WhatsApp Integration
-            </h2>
-            <p class="text-muted-foreground">Manage WhatsApp module settings and monitor devices</p>
+                <i class="fa-brands fa-whatsapp text-green-500"></i>{{ __('admin.s.whatsapp_integration') }}</h2>
+            <p class="text-muted-foreground">{{ __('admin.s.manage_whatsapp_module_settings_and_monitor_devi') }}</p>
         </div>
 
         {{-- Module Toggle --}}
@@ -39,12 +37,8 @@
         <div class="flex items-start gap-3">
             <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xl mt-0.5"></i>
             <div>
-                <h4 class="font-semibold text-amber-800">Unofficial API Warning</h4>
-                <p class="text-sm text-amber-700">
-                    Fonnte uses an <strong>unofficial WhatsApp API</strong>. There is a risk of accounts being banned by
-                    WhatsApp.
-                    Make sure users understand this risk before enabling WhatsApp integration.
-                </p>
+                <h4 class="font-semibold text-amber-800">{{ __('admin.s.unofficial_api_warning') }}</h4>
+                <p class="text-sm text-amber-700">{{ __('admin.s.fonnte_uses_an') }}<strong>{{ __('admin.s.unofficial_whatsapp_api') }}</strong>{{ __('admin.s.there_is_a_risk_of_accounts_being_banned_by_what') }}</p>
             </div>
         </div>
     </div>
@@ -54,7 +48,7 @@
         <div class="bg-card rounded-xl border p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-muted-foreground">Total Devices</p>
+                    <p class="text-sm text-muted-foreground">{{ __('admin.s.total_devices') }}</p>
                     <p class="text-2xl font-bold">{{ $totalDevices }}</p>
                 </div>
                 <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -66,7 +60,7 @@
         <div class="bg-card rounded-xl border p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-muted-foreground">Connected</p>
+                    <p class="text-sm text-muted-foreground">{{ __('admin.s.connected') }}</p>
                     <p class="text-2xl font-bold text-green-600">{{ $connectedDevices }}</p>
                 </div>
                 <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -78,7 +72,7 @@
         <div class="bg-card rounded-xl border p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-muted-foreground">Messages Sent</p>
+                    <p class="text-sm text-muted-foreground">{{ __('admin.s.messages_sent') }}</p>
                     <p class="text-2xl font-bold text-blue-600">{{ number_format($totalMessagesSent) }}</p>
                 </div>
                 <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -90,7 +84,7 @@
         <div class="bg-card rounded-xl border p-4">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-muted-foreground">Messages Received</p>
+                    <p class="text-sm text-muted-foreground">{{ __('admin.s.messages_received') }}</p>
                     <p class="text-2xl font-bold text-purple-600">{{ number_format($totalMessagesReceived) }}</p>
                 </div>
                 <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
@@ -106,12 +100,10 @@
             <nav class="flex">
                 <button wire:click="setTab('settings')"
                     class="px-6 py-4 font-medium transition {{ $activeTab === 'settings' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground' }}">
-                    <i class="fa-solid fa-cog mr-2"></i> Settings
-                </button>
+                    <i class="fa-solid fa-cog mr-2"></i>{{ __('general.s.settings') }}</button>
                 <button wire:click="setTab('monitor')"
                     class="px-6 py-4 font-medium transition {{ $activeTab === 'monitor' ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground' }}">
-                    <i class="fa-solid fa-chart-line mr-2"></i> Device Monitor
-                </button>
+                    <i class="fa-solid fa-chart-line mr-2"></i>{{ __('admin.s.device_monitor') }}</button>
             </nav>
         </div>
 
@@ -121,24 +113,17 @@
                 <form wire:submit.prevent="saveSettings" class="space-y-6 max-w-2xl">
                     {{-- Fonnte Account Token --}}
                     <div>
-                        <label class="block text-sm font-medium mb-2">
-                            Fonnte Account Token
-                            <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.fonnte_account_token') }}<span class="text-red-500">*</span>
                         </label>
                         <div class="flex gap-2">
                             <input type="password" wire:model="fonnteAccountToken"
                                 class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                placeholder="Enter your Fonnte Account Token">
+                                placeholder="{{ __('admin.s.enter_your_fonnte_account_token') }}">
                             <button type="button" wire:click="testConnection"
                                 class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                                <i class="fa-solid fa-plug mr-1"></i> Test
-                            </button>
+                                <i class="fa-solid fa-plug mr-1"></i>{{ __('admin.s.test') }}</button>
                         </div>
-                        <p class="text-xs text-muted-foreground mt-1">
-                            Get your Account Token from
-                            <a href="https://md.fonnte.com" target="_blank" class="text-blue-600 hover:underline">
-                                md.fonnte.com → Settings
-                            </a>
+                        <p class="text-xs text-muted-foreground mt-1">{{ __('admin.s.get_your_account_token_from') }}<a href="https://md.fonnte.com" target="_blank" class="text-blue-600 hover:underline">{{ __('admin.s.md_fonnte_com_settings') }}</a>
                         </p>
                         @if($testResult)
                             @php
@@ -155,40 +140,33 @@
 
                     {{-- Fallback Message --}}
                     <div>
-                        <label class="block text-sm font-medium mb-2">Fallback Message</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('agents.s.fallback_message') }}</label>
                         <textarea wire:model="fallbackMessage" rows="3"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            placeholder="Message to send when AI fails..."></textarea>
-                        <p class="text-xs text-muted-foreground mt-1">
-                            This message is sent when the AI fails to generate a response.
-                        </p>
+                            placeholder="{{ __('admin.s.message_to_send_when_ai_fails') }}"></textarea>
+                        <p class="text-xs text-muted-foreground mt-1">{{ __('admin.s.this_message_is_sent_when_the_ai_fails_to_genera') }}</p>
                     </div>
 
                     {{-- Auto Reply --}}
                     <div class="flex items-center gap-3">
                         <input type="checkbox" wire:model="autoReplyEnabled" id="autoReply"
                             class="rounded border-gray-300 text-primary focus:ring-primary">
-                        <label for="autoReply" class="text-sm font-medium">
-                            Enable Auto Reply with AI
-                        </label>
+                        <label for="autoReply" class="text-sm font-medium">{{ __('admin.s.enable_auto_reply_with_ai') }}</label>
                     </div>
 
                     {{-- Max Devices Per User --}}
                     <div>
-                        <label class="block text-sm font-medium mb-2">Max Devices per User (Free Plan)</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.max_devices_per_user_free_plan') }}</label>
                         <input type="number" wire:model="maxDevicesPerUser" min="1" max="10"
                             class="w-32 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                        <p class="text-xs text-muted-foreground mt-1">
-                            Higher plans can have different limits configured in Plan settings.
-                        </p>
+                        <p class="text-xs text-muted-foreground mt-1">{{ __('admin.s.higher_plans_can_have_different_limits_configure') }}</p>
                     </div>
 
                     {{-- Save Button --}}
                     <div class="flex gap-3 pt-4">
                         <button type="submit"
                             class="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition">
-                            <i class="fa-solid fa-save mr-2"></i> Save Settings
-                        </button>
+                            <i class="fa-solid fa-save mr-2"></i>{{ __('admin.s.save_settings') }}</button>
                     </div>
                 </form>
             @endif
@@ -200,17 +178,14 @@
                     <div class="flex gap-3 mb-4">
                         <button wire:click="syncDevices"
                             class="px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition">
-                            <i class="fa-solid fa-sync mr-1"></i> Sync from Fonnte
-                        </button>
+                            <i class="fa-solid fa-sync mr-1"></i>{{ __('admin.s.sync_from_fonnte') }}</button>
                         <button wire:click="disconnectAllDevices"
                             onclick="return confirm('Are you sure you want to disconnect all devices?')"
                             class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition">
-                            <i class="fa-solid fa-plug-circle-xmark mr-1"></i> Disconnect All
-                        </button>
+                            <i class="fa-solid fa-plug-circle-xmark mr-1"></i>{{ __('admin.s.disconnect_all') }}</button>
                         <button wire:click="loadDevices"
                             class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                            <i class="fa-solid fa-refresh mr-1"></i> Refresh
-                        </button>
+                            <i class="fa-solid fa-refresh mr-1"></i>{{ __('admin.s.refresh') }}</button>
                     </div>
 
                     {{-- Devices Table --}}
@@ -219,14 +194,14 @@
                             <table class="w-full">
                                 <thead class="bg-muted/50">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-sm font-medium">Device</th>
-                                        <th class="px-4 py-3 text-left text-sm font-medium">User</th>
-                                        <th class="px-4 py-3 text-left text-sm font-medium">Widget</th>
-                                        <th class="px-4 py-3 text-left text-sm font-medium">Phone</th>
-                                        <th class="px-4 py-3 text-left text-sm font-medium">Status</th>
-                                        <th class="px-4 py-3 text-left text-sm font-medium">Messages</th>
-                                        <th class="px-4 py-3 text-left text-sm font-medium">Plan</th>
-                                        <th class="px-4 py-3 text-left text-sm font-medium">Actions</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.device') }}</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.user') }}</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('agents.s.widget') }}</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.phone') }}</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('channels.s.status') }}</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('admin.s.messages') }}</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('emails.s.plan') }}</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium">{{ __('channels.s.actions') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y">
@@ -295,8 +270,8 @@
                     @else
                         <div class="text-center py-12 text-muted-foreground">
                             <i class="fa-solid fa-mobile-screen text-4xl mb-4 opacity-50"></i>
-                            <p>No WhatsApp devices found.</p>
-                            <p class="text-sm mt-1">Devices will appear here when users connect their WhatsApp.</p>
+                            <p>{{ __('admin.s.no_whatsapp_devices_found') }}</p>
+                            <p class="text-sm mt-1">{{ __('admin.s.devices_will_appear_here_when_users_connect_thei') }}</p>
                         </div>
                     @endif
                 </div>

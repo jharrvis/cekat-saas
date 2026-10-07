@@ -11,42 +11,42 @@
         <div class="space-y-6">
             {{-- Basic Settings --}}
             <div class="bg-card rounded-xl shadow-sm border p-6">
-                <h3 class="text-lg font-semibold mb-4">Widget Settings</h3>
+                <h3 class="text-lg font-semibold mb-4">{{ __('docs.s.widget_settings') }}</h3>
 
                 <form wire:submit.prevent="saveSettings" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Widget Name *</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('livewire.s.widget_name') }}</label>
                         <input type="text" wire:model="name"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            placeholder="My Widget">
+                            placeholder="{{ __('livewire.s.my_widget') }}">
                         @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Primary Color *</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('livewire.s.primary_color') }}</label>
                         <div class="flex gap-3 items-center">
                             <input type="color" wire:model.live="primaryColor"
                                 class="h-12 w-20 rounded border cursor-pointer">
                             <input type="text" wire:model.live="primaryColor"
                                 class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                placeholder="#0f172a">
+                                placeholder="{{ __('livewire.s.0f172a') }}">
                         </div>
                         @error('primaryColor') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     {{-- Avatar Settings --}}
                     <div>
-                        <label class="block text-sm font-medium mb-3">Avatar</label>
+                        <label class="block text-sm font-medium mb-3">{{ __('general.s.avatar') }}</label>
                         <div class="flex gap-4 mb-4">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="radio" wire:model.live="avatarType" value="icon"
                                     class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
-                                <span class="text-sm">Default Icon</span>
+                                <span class="text-sm">{{ __('livewire.s.default_icon') }}</span>
                             </label>
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="radio" wire:model.live="avatarType" value="image"
                                     class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
-                                <span class="text-sm">Custom Image</span>
+                                <span class="text-sm">{{ __('livewire.s.custom_image') }}</span>
                             </label>
                         </div>
 
@@ -87,8 +87,8 @@
                                             <img src="{{ $avatarUrl }}" class="w-16 h-16 rounded-full object-cover border">
                                         @endif
                                         <div class="text-xs text-muted-foreground">
-                                            <p class="font-medium text-foreground">Current Preview</p>
-                                            <p>This image will be used as launcher & header avatar.</p>
+                                            <p class="font-medium text-foreground">{{ __('livewire.s.current_preview') }}</p>
+                                            <p>{{ __('livewire.s.this_image_will_be_used_as_launcher_header_avata') }}</p>
                                         </div>
                                     </div>
                                 @endif
@@ -100,28 +100,28 @@
                                                     file:bg-primary/10 file:text-primary
                                                     hover:file:bg-primary/20
                                                   " />
-                                <p class="text-xs text-muted-foreground">Max 1MB. Recommended 100x100px (JPG/PNG).</p>
+                                <p class="text-xs text-muted-foreground">{{ __('livewire.s.max_1mb_recommended_100x100px_jpg_png') }}</p>
                                 @error('avatarUpload') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                             </div>
                         @endif
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Greeting Message *</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('livewire.s.greeting_message') }}</label>
                         <textarea wire:model.live="greeting" rows="3"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                            placeholder="Halo! 👋 Ada yang bisa saya bantu?"></textarea>
+                            placeholder="{{ __('livewire.s.halo_ada_yang_bisa_saya_bantu') }}"></textarea>
                         @error('greeting') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-2">Position *</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('livewire.s.position') }}</label>
                         <select wire:model.live="position"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                            <option value="bottom-right">Bottom Right</option>
-                            <option value="bottom-left">Bottom Left</option>
-                            <option value="top-right">Top Right</option>
-                            <option value="top-left">Top Left</option>
+                            <option value="bottom-right">{{ __('admin.s.bottom_right') }}</option>
+                            <option value="bottom-left">{{ __('admin.s.bottom_left') }}</option>
+                            <option value="top-right">{{ __('livewire.s.top_right') }}</option>
+                            <option value="top-left">{{ __('livewire.s.top_left') }}</option>
                         </select>
                     </div>
 
@@ -129,23 +129,18 @@
 
                     <button type="submit"
                         class="w-full bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
-                        <i class="fa-solid fa-save mr-2"></i> Save Settings
-                    </button>
+                        <i class="fa-solid fa-save mr-2"></i>{{ __('admin.s.save_settings') }}</button>
                 </form>
             </div>
 
             {{-- Test Widget Button --}}
             <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
                 <h3 class="text-lg font-semibold mb-2">
-                    <i class="fa-solid fa-vial mr-2"></i>Test Your Widget
-                </h3>
-                <p class="text-sm text-muted-foreground mb-4">
-                    Test your chatbot with real AI responses before publishing.
-                </p>
+                    <i class="fa-solid fa-vial mr-2"></i>{{ __('livewire.s.test_your_widget') }}</h3>
+                <p class="text-sm text-muted-foreground mb-4">{{ __('livewire.s.test_your_chatbot_with_real_ai_responses_before') }}</p>
                 <button onclick="testWidget()"
                     class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition font-medium">
-                    <i class="fa-solid fa-play mr-2"></i> Launch Widget Test
-                </button>
+                    <i class="fa-solid fa-play mr-2"></i>{{ __('livewire.s.launch_widget_test') }}</button>
             </div>
 
 
@@ -153,7 +148,7 @@
 
         {{-- Preview Panel --}}
         <div class="bg-card rounded-xl shadow-sm border p-6">
-            <h3 class="text-lg font-semibold mb-4">Live Preview</h3>
+            <h3 class="text-lg font-semibold mb-4">{{ __('livewire.s.live_preview') }}</h3>
 
             <div class="border-2 rounded-lg h-[600px] relative overflow-hidden bg-slate-50">
                 {{-- Mock Website --}}
@@ -192,7 +187,7 @@
                             </div>
                             <div class="flex-1">
                                 <p class="font-semibold">{{ $name }}</p>
-                                <p class="text-xs opacity-90">Online</p>
+                                <p class="text-xs opacity-90">{{ __('livewire.s.online') }}</p>
                             </div>
                         </div>
 
@@ -206,8 +201,8 @@
                         {{-- Input --}}
                         <div class="p-3 bg-white border-t">
                             <div class="flex gap-2">
-                                <input type="text" placeholder="Klik di sini untuk mencoba widget…" readonly onclick="testWidget()"
-                                    class="flex-1 px-3 py-2 border rounded-full text-sm cursor-pointer bg-slate-50" title="Buka widget uji coba">
+                                <input type="text" placeholder="{{ __('livewire.s.klik_di_sini_untuk_mencoba_widget') }}" readonly onclick="testWidget()"
+                                    class="flex-1 px-3 py-2 border rounded-full text-sm cursor-pointer bg-slate-50" title="{{ __('livewire.s.buka_widget_uji_coba') }}">
                                 <button class="w-10 h-10 rounded-full flex items-center justify-center text-white"
                                     style="background: {{ $primaryColor }}">
                                     <i class="fa-solid fa-paper-plane"></i>
@@ -216,8 +211,7 @@
                         </div>
 
                         {{-- Powered By --}}
-                        <div class="text-center py-2 text-xs text-gray-400">
-                            Powered by <a href="https://cekat.biz.id" target="_blank"
+                        <div class="text-center py-2 text-xs text-gray-400">{{ __('livewire.s.powered_by') }} <a href="https://cekat.biz.id" target="_blank"
                                 class="text-primary hover:underline">cekat.biz.id</a>
                         </div>
                     </div>

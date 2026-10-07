@@ -29,7 +29,7 @@ class WelcomeUser extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🎉 Selamat Datang di Cekat.biz.id!',
+            subject: __('auth.s.welcome_subject', [], $this->user->locale ?? 'id'),
         );
     }
 

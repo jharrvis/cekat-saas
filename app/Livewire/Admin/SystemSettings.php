@@ -66,7 +66,7 @@ class SystemSettings extends Component
 
         \App\Events\AdminSettingsChanged::dispatch($group, auth()->id(), array_keys($settingsToSave));
 
-        session()->flash('message', ucfirst($group) . ' settings saved successfully!');
+        session()->flash('message', __('admin.s.settings_saved', ['group' => ucfirst($group)]));
         $this->loadSettings();
     }
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dokumentasi Webhook - Cekat.biz.id</title>
+    <title>{{ __('docs.s.dokumentasi_webhook_cekat_biz_id') }}</title>
 
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
@@ -61,22 +61,22 @@
             </a>
 
             <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-                <a href="/#features" class="hover:text-slate-900 transition">Fitur</a>
-                <a href="/#pricing" class="hover:text-slate-900 transition">Harga</a>
-                <a href="#" class="text-slate-900 font-semibold">Docs</a>
+                <a href="/#features" class="hover:text-slate-900 transition">{{ __('docs.s.fitur') }}</a>
+                <a href="/#pricing" class="hover:text-slate-900 transition">{{ __('docs.s.harga') }}</a>
+                <a href="#" class="text-slate-900 font-semibold">{{ __('docs.s.docs') }}</a>
             </div>
 
             <div class="hidden md:flex items-center gap-4">
                 @auth
                     <a href="{{ auth()->user()->isAdmin() ? '/admin/dashboard' : '/dashboard' }}"
                         class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition shadow-sm hover:shadow-md">
-                        <i class="fa-solid fa-gauge mr-2"></i>Dashboard
+                        <i class="fa-solid fa-gauge mr-2"></i>{{ __('general.s.dashboard') }}
                     </a>
                 @else
-                    <a href="/login" class="text-sm font-medium text-slate-600 hover:text-slate-900">Sign in</a>
+                    <a href="/login" class="text-sm font-medium text-slate-600 hover:text-slate-900">{{ __('docs.s.sign_in') }}</a>
                     <a href="/register"
                         class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition shadow-sm hover:shadow-md">
-                        Buat Chatbot <i class="fa-solid fa-arrow-right ml-1 text-xs text-slate-400"></i>
+                        {{ __('docs.s.buat_chatbot') }} <i class="fa-solid fa-arrow-right ml-1 text-xs text-slate-400"></i>
                     </a>
                 @endauth
             </div>
@@ -88,9 +88,9 @@
 
         <!-- Mobile Menu -->
         <div x-show="open" class="md:hidden bg-white border-t border-slate-100 p-4 space-y-4 shadow-lg">
-            <a href="/" class="block text-slate-600 font-medium">Home</a>
-            <a href="/#features" class="block text-slate-600 font-medium">Fitur</a>
-            <a href="/#pricing" class="block text-slate-600 font-medium">Harga</a>
+            <a href="/" class="block text-slate-600 font-medium">{{ __('docs.s.home') }}</a>
+            <a href="/#features" class="block text-slate-600 font-medium">{{ __('docs.s.fitur') }}</a>
+            <a href="/#pricing" class="block text-slate-600 font-medium">{{ __('docs.s.harga') }}</a>
         </div>
     </nav>
 
@@ -98,11 +98,10 @@
     <div class="pt-32 pb-12 bg-slate-50 border-b border-slate-200">
         <div class="max-w-4xl mx-auto px-6 text-center">
             <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6">
-                Dokumentasi Webhook
+                {{ __('docs.s.dokumentasi_webhook') }}
             </h1>
             <p class="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                Hubungkan Cekat AI Chatbot dengan sistem eksternal Anda (WordPress, CRM, Custom App) menggunakan standar
-                Webhook kami.
+                {{ __('docs.s.hubungkan_cekat_ai_chatbot_dengan_sistem_ekstern') }}
             </p>
         </div>
     </div>
@@ -114,20 +113,17 @@
             <!-- Intro Card -->
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-12 hover:shadow-md transition">
                 <h3 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-bolt text-yellow-500"></i> Cara Kerja
+                    <i class="fa-solid fa-bolt text-yellow-500"></i> {{ __('docs.s.cara_kerja') }}
                 </h3>
                 <p class="text-slate-600 mb-4 leading-relaxed">
-                    Ketika percakapan mencapai titik tertentu (misalnya user memberikan data kontak atau meminta
-                    pesanan),
-                    AI kami akan otomatis mendeteksi kebutuhan tersebut dan memicu <strong>HTTP POST Request</strong> ke
-                    URL yang Anda tentukan.
+                    {{ __('docs.s.ketika_percakapan_mencapai_titik_tertentu_misaln') }} <strong>{{ __('docs.s.http_post_request') }}</strong> {{ __('docs.s.ke_url_yang_anda_tentukan') }}
                 </p>
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-700">
                     <ol class="list-decimal list-inside space-y-2">
-                        <li>User chatting dengan Chatbot.</li>
-                        <li>AI mendeteksi "Intent" (misal: <strong>Simpan Lead</strong>).</li>
-                        <li>Server Cekat mengirim POST request ke Server Anda.</li>
-                        <li>Server Anda memproses data (simpan ke DB, kirim email, dll).</li>
+                        <li>{{ __('docs.s.user_chatting_dengan_chatbot') }}</li>
+                        <li>{{ __('docs.s.ai_mendeteksi_intent_misal') }} <strong>{{ __('docs.s.simpan_lead') }}</strong>).</li>
+                        <li>{{ __('docs.s.server_cekat_mengirim_post_request_ke_server_and') }}</li>
+                        <li>{{ __('docs.s.server_anda_memproses_data_simpan_ke_db_kirim_em') }}</li>
                     </ol>
                 </div>
             </div>
@@ -138,36 +134,35 @@
                 <div class="flex gap-4 border-b border-slate-200 mb-6">
                     <button @click="activeTab = 'wp'" class="pb-3 px-1 text-sm font-medium transition relative"
                         :class="activeTab === 'wp' ? 'text-slate-900 border-b-2 border-slate-900' : 'text-slate-500 hover:text-slate-700'">
-                        <i class="fa-brands fa-wordpress mr-2"></i>WordPress
+                        <i class="fa-brands fa-wordpress mr-2"></i>{{ __('admin.s.wordpress') }}
                     </button>
                     <button @click="activeTab = 'laravel'" class="pb-3 px-1 text-sm font-medium transition relative"
                         :class="activeTab === 'laravel' ? 'text-slate-900 border-b-2 border-slate-900' : 'text-slate-500 hover:text-slate-700'">
-                        <i class="fa-brands fa-laravel mr-2"></i>Laravel
+                        <i class="fa-brands fa-laravel mr-2"></i>{{ __('docs.s.laravel') }}
                     </button>
                     <button @click="activeTab = 'custom'" class="pb-3 px-1 text-sm font-medium transition relative"
                         :class="activeTab === 'custom' ? 'text-slate-900 border-b-2 border-slate-900' : 'text-slate-500 hover:text-slate-700'">
-                        <i class="fa-solid fa-code mr-2"></i>Manual / Native
+                        <i class="fa-solid fa-code mr-2"></i>{{ __('docs.s.manual_native') }}
                     </button>
                 </div>
 
                 <!-- WordPress Tab -->
                 <div x-show="activeTab === 'wp'" class="space-y-6 animate-fade-in">
                     <div class="bg-blue-50 border border-blue-100 rounded-xl p-6">
-                        <h4 class="font-bold text-blue-900 mb-2">Panduan Plugin WordPress</h4>
+                        <h4 class="font-bold text-blue-900 mb-2">{{ __('docs.s.panduan_plugin_wordpress') }}</h4>
                         <p class="text-blue-800 text-sm mb-4">
-                            Plugin <strong>Cekat AI Chatbot</strong> (v1.1+) sudah memiliki fitur penerima Webhook
-                            bawaan.
+                            {{ __('docs.s.plugin') }} <strong>{{ __('docs.s.cekat_ai_chatbot') }}</strong> {{ __('docs.s.v1_1_sudah_memiliki_fitur_penerima_webhook_bawaa') }}
                         </p>
                         <ol class="list-decimal list-inside space-y-3 text-blue-900 text-sm">
-                            <li>Download & Update plugin terbaru: <a href="/downloads/cekat-ai-chatbot.zip"
+                            <li>{{ __('docs.s.download_update_plugin_terbaru') }} <a href="/downloads/cekat-ai-chatbot.zip"
                                     class="underline font-bold hover:text-blue-700">cekat-ai-chatbot.zip</a></li>
-                            <li>Buka <strong>WP Admin > Settings > Cekat AI</strong>.</li>
-                            <li>Scroll ke bagian <strong>Webhook Integration</strong>.</li>
-                            <li>Copy <strong>Webhook URL</strong> yang muncul (e.g.,
+                            <li>{{ __('docs.s.buka') }} <strong>WP Admin > Settings > Cekat AI</strong>.</li>
+                            <li>{{ __('docs.s.scroll_ke_bagian') }} <strong>{{ __('docs.s.webhook_integration') }}</strong>.</li>
+                            <li>{{ __('docs.s.copy') }} <strong>{{ __('channels.s.webhook_url') }}</strong> yang muncul (e.g.,
                                 <code>https://web.com/wp-json/cekat/v1/webhook</code>).</li>
-                            <li>Buat & Copy <strong>Secret Key</strong> di halaman tersebut.</li>
-                            <li>Masuk ke <strong>Dashboard Cekat > Widget Settings</strong>.</li>
-                            <li>Paste URL & Secret Key di kolom Webhook.</li>
+                            <li>{{ __('docs.s.buat_copy') }} <strong>{{ __('channels.s.secret_key') }}</strong> {{ __('docs.s.di_halaman_tersebut') }}</li>
+                            <li>{{ __('docs.s.masuk_ke') }} <strong>Dashboard Cekat > Widget Settings</strong>.</li>
+                            <li>{{ __('docs.s.paste_url_secret_key_di_kolom_webhook') }}</li>
                         </ol>
                     </div>
                 </div>
@@ -176,9 +171,8 @@
                 <div x-show="activeTab === 'laravel'" class="space-y-8 animate-fade-in" style="display: none;">
 
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                        <h4 class="font-bold text-slate-900 mb-4">1. Setup Route (Bypass CSRF)</h4>
-                        <p class="text-slate-600 text-sm mb-4">Karena webhook dikirim dari server luar, Anda perlu
-                            mengecualikan route ini dari proteksi CSRF.</p>
+                        <h4 class="font-bold text-slate-900 mb-4">{{ __('docs.s.1_setup_route_bypass_csrf') }}</h4>
+                        <p class="text-slate-600 text-sm mb-4">{{ __('docs.s.karena_webhook_dikirim_dari_server_luar_anda_per') }}</p>
 
                         <div class="mb-4">
                             <p class="text-xs font-mono text-slate-500 mb-1">bootstrap/app.php (Laravel 11)</p>
@@ -204,9 +198,8 @@ Route::post('/cekat/webhook', [CekatWebhookController::class, 'handle']);</code>
                     </div>
 
                     <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                        <h4 class="font-bold text-slate-900 mb-4">2. Buat Controller</h4>
-                        <p class="text-slate-600 text-sm mb-4">Pastikan Anda memverifikasi signature agar aman dari
-                            request palsu.</p>
+                        <h4 class="font-bold text-slate-900 mb-4">{{ __('docs.s.2_buat_controller') }}</h4>
+                        <p class="text-slate-600 text-sm mb-4">{{ __('docs.s.pastikan_anda_memverifikasi_signature_agar_aman') }}</p>
 
                         <div class="rounded-xl overflow-hidden border border-slate-200 bg-[#2d2d2d] shadow-sm">
                             <pre><code class="language-php">namespace App\Http\Controllers;
@@ -255,7 +248,7 @@ class CekatWebhookController extends Controller
                         class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl flex gap-3 text-sm text-yellow-800">
                         <i class="fa-solid fa-lightbulb mt-1"></i>
                         <div>
-                            <strong>Tips:</strong> URL Webhook Anda jadinya adalah
+                            <strong>{{ __('docs.s.tips') }}</strong> URL Webhook Anda jadinya adalah
                             <code>https://aplikasi-anda.com/api/cekat/webhook</code>. <br>
                             Masukkan URL ini di Dashboard Cekat > Widget Settings.
                         </div>
@@ -266,9 +259,8 @@ class CekatWebhookController extends Controller
                 <div x-show="activeTab === 'custom'" class="space-y-8 animate-fade-in" style="display: none;">
 
                     <div>
-                        <h4 class="font-bold text-slate-900 mb-4">Payload Format</h4>
-                        <p class="text-slate-600 mb-3 text-sm">Cekat mengirim request dengan header signature untuk
-                            keamanan.</p>
+                        <h4 class="font-bold text-slate-900 mb-4">{{ __('docs.s.payload_format') }}</h4>
+                        <p class="text-slate-600 mb-3 text-sm">{{ __('docs.s.cekat_mengirim_request_dengan_header_signature_u') }}</p>
                         <div class="rounded-xl overflow-hidden border border-slate-200 bg-[#2d2d2d] shadow-sm">
                             <pre><code class="language-http">POST /your-webhook-endpoint
 Content-Type: application/json
@@ -286,8 +278,8 @@ X-Cekat-Timestamp: 1678892233
                     </div>
 
                     <div>
-                        <h4 class="font-bold text-slate-900 mb-4">Verifikasi Signature (PHP)</h4>
-                        <p class="text-slate-600 mb-3 text-sm">Validasi request menggunakan HMAC SHA256.</p>
+                        <h4 class="font-bold text-slate-900 mb-4">{{ __('docs.s.verifikasi_signature_php') }}</h4>
+                        <p class="text-slate-600 mb-3 text-sm">{{ __('docs.s.validasi_request_menggunakan_hmac_sha256') }}</p>
                         <div class="rounded-xl overflow-hidden border border-slate-200 bg-[#2d2d2d] shadow-sm">
                             <pre><code class="language-php">$payload = file_get_contents('php://input');
 $signature = $_SERVER['HTTP_X_CEKAT_SIGNATURE'];
@@ -309,30 +301,30 @@ if (hash_equals($expected, $signature)) {
 
                 <!-- Available Actions Table -->
                 <div class="mt-12">
-                    <h3 class="text-xl font-bold text-slate-900 mb-6">Daftar Action Available</h3>
+                    <h3 class="text-xl font-bold text-slate-900 mb-6">{{ __('docs.s.daftar_action_available') }}</h3>
                     <div class="overflow-hidden border border-slate-200 rounded-xl shadow-sm">
                         <table class="w-full text-sm text-left text-slate-600">
                             <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
                                 <tr>
-                                    <th class="px-6 py-3">Action Key</th>
-                                    <th class="px-6 py-3">Trigger Condition</th>
-                                    <th class="px-6 py-3">Fields Received</th>
+                                    <th class="px-6 py-3">{{ __('docs.s.action_key') }}</th>
+                                    <th class="px-6 py-3">{{ __('docs.s.trigger_condition') }}</th>
+                                    <th class="px-6 py-3">{{ __('docs.s.fields_received') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr class="bg-white border-b border-slate-100 hover:bg-slate-50">
                                     <td class="px-6 py-4 font-mono font-medium text-blue-600">save_lead</td>
-                                    <td class="px-6 py-4">User memberikan nama, email, atau no HP.</td>
+                                    <td class="px-6 py-4">{{ __('docs.s.user_memberikan_nama_email_atau_no_hp') }}</td>
                                     <td class="px-6 py-4 font-mono text-xs">name, email, phone</td>
                                 </tr>
                                 <tr class="bg-white border-b border-slate-100 hover:bg-slate-50">
                                     <td class="px-6 py-4 font-mono font-medium text-blue-600">check_status</td>
-                                    <td class="px-6 py-4">User bertanya status pesanan/tiket.</td>
+                                    <td class="px-6 py-4">{{ __('docs.s.user_bertanya_status_pesanan_tiket') }}</td>
                                     <td class="px-6 py-4 font-mono text-xs">reference_id</td>
                                 </tr>
                                 <tr class="bg-white hover:bg-slate-50">
                                     <td class="px-6 py-4 font-mono font-medium text-blue-600">create_order</td>
-                                    <td class="px-6 py-4">User ingin membuat pesanan baru.</td>
+                                    <td class="px-6 py-4">{{ __('docs.s.user_ingin_membuat_pesanan_baru') }}</td>
                                     <td class="px-6 py-4 font-mono text-xs">items[], notes</td>
                                 </tr>
                             </tbody>
@@ -349,7 +341,7 @@ if (hash_equals($expected, $signature)) {
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="text-slate-500 text-sm">
-                    &copy; 2026 Cekat.biz.id. All rights reserved.
+                    {{ __('docs.s.copy_2026_cekat_biz_id_all_rights_reserved') }}
                 </div>
                 <div class="flex gap-6 text-slate-400">
                     <a href="#" class="hover:text-slate-900"><i class="fa-brands fa-github"></i></a>

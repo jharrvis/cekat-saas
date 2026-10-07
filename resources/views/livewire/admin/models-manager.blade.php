@@ -34,18 +34,16 @@
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h3 class="text-lg font-bold">LLM Models Management</h3>
-            <p class="text-muted-foreground text-sm">Manage AI models available for each tier</p>
+            <h3 class="text-lg font-bold">{{ __('admin.s.llm_models_management') }}</h3>
+            <p class="text-muted-foreground text-sm">{{ __('admin.s.manage_ai_models_available_for_each_tier') }}</p>
         </div>
         <div class="flex gap-2">
             <button wire:click="fetchFromOpenRouter"
                 class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition text-sm">
-                <i class="fa-solid fa-cloud-download-alt mr-2"></i> Fetch from OpenRouter
-            </button>
+                <i class="fa-solid fa-cloud-download-alt mr-2"></i>{{ __('admin.s.fetch_from_openrouter') }}</button>
             <button wire:click="create"
                 class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition text-sm">
-                <i class="fa-solid fa-plus mr-2"></i> Add Model
-            </button>
+                <i class="fa-solid fa-plus mr-2"></i>{{ __('admin.s.add_model') }}</button>
         </div>
     </div>
 
@@ -58,69 +56,65 @@
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                 <p class="text-sm text-blue-800">
                     <i class="fa-solid fa-lightbulb mr-2"></i>
-                    <strong>Quick Add:</strong> Paste Model ID from OpenRouter (e.g., <code>openai/gpt-4o</code>) then click
-                    <strong>Fetch Info</strong> to auto-fill specs.
-                </p>
+                    <strong>{{ __('admin.s.quick_add') }}</strong> {!! __('admin.s.paste_model_id_from_openrouter_e_g_then_click') !!}
+                    <strong>{{ __('admin.s.fetch_info') }}</strong>{{ __('admin.s.to_auto_fill_specs') }}</p>
             </div>
 
             <form wire:submit.prevent="save" class="grid md:grid-cols-2 gap-4">
                 {{-- Model ID with Fetch Button --}}
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">Model ID * <span class="text-muted-foreground">(from
-                            OpenRouter)</span></label>
+                    <label class="block text-sm font-medium mb-1">{{ __('admin.s.model_id_2') }}<span class="text-muted-foreground">{{ __('admin.s.from_openrouter') }}</span></label>
                     <div class="flex gap-2">
                         <input type="text" wire:model="model_id" class="flex-1 px-3 py-2 border rounded-lg text-sm"
-                            placeholder="e.g., openai/gpt-4o-mini or google/gemini-1.5-pro">
+                            placeholder="{{ __('admin.s.e_g_openai_gpt_4o_mini_or_google_gemini_1_5_pro') }}">
                         <button type="button" wire:click="fetchModelInfo" wire:loading.attr="disabled"
                             class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition text-sm whitespace-nowrap">
                             <span wire:loading.remove wire:target="fetchModelInfo">
-                                <i class="fa-solid fa-cloud-download-alt mr-1"></i> Fetch Info
-                            </span>
+                                <i class="fa-solid fa-cloud-download-alt mr-1"></i>{{ __('admin.s.fetch_info') }}</span>
                             <span wire:loading wire:target="fetchModelInfo">
-                                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Fetching...
-                            </span>
+                                <i class="fa-solid fa-spinner fa-spin mr-1"></i>{{ __('admin.s.fetching') }}</span>
                         </button>
                     </div>
                     @error('model_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Display Name *</label>
+                    <label class="block text-sm font-medium mb-1">{{ __('admin.s.display_name') }}</label>
                     <input type="text" wire:model="name" class="w-full px-3 py-2 border rounded-lg text-sm"
-                        placeholder="e.g., GPT-4o">
+                        placeholder="{{ __('admin.s.e_g_gpt_4o') }}">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Provider *</label>
+                    <label class="block text-sm font-medium mb-1">{{ __('admin.s.provider_2') }}</label>
                     <input type="text" wire:model="provider" class="w-full px-3 py-2 border rounded-lg text-sm"
-                        placeholder="e.g., OpenAI">
+                        placeholder="{{ __('admin.s.e_g_openai') }}">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Context Length</label>
+                    <label class="block text-sm font-medium mb-1">{{ __('admin.s.context_length') }}</label>
                     <input type="number" wire:model="context_length" class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Input Price (per 1M tokens)</label>
+                    <label class="block text-sm font-medium mb-1">{{ __('admin.s.input_price_per_1m_tokens') }}</label>
                     <input type="number" step="0.0001" wire:model="input_price"
                         class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Output Price (per 1M tokens)</label>
+                    <label class="block text-sm font-medium mb-1">{{ __('admin.s.output_price_per_1m_tokens') }}</label>
                     <input type="number" step="0.0001" wire:model="output_price"
                         class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Popularity (0-100)</label>
+                    <label class="block text-sm font-medium mb-1">{{ __('admin.s.popularity_0_100') }}</label>
                     <input type="number" wire:model="popularity" min="0" max="100"
                         class="w-full px-3 py-2 border rounded-lg text-sm">
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">Description</label>
+                    <label class="block text-sm font-medium mb-1">{{ __('channels.s.description') }}</label>
                     <textarea wire:model="description" rows="2"
                         class="w-full px-3 py-2 border rounded-lg text-sm"></textarea>
                 </div>
@@ -128,20 +122,15 @@
                 {{-- Action Buttons --}}
                 <div class="md:col-span-2 flex gap-2 items-center">
                     <button type="submit" class="bg-primary text-primary-foreground px-6 py-2 rounded-lg">
-                        <i class="fa-solid fa-save mr-2"></i> Save
-                    </button>
+                        <i class="fa-solid fa-save mr-2"></i>{{ __('admin.s.save') }}</button>
                     <button type="button" wire:click="testModel" wire:loading.attr="disabled"
                         class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition">
                         <span wire:loading.remove wire:target="testModel">
-                            <i class="fa-solid fa-play mr-2"></i> Test Model
-                        </span>
+                            <i class="fa-solid fa-play mr-2"></i>{{ __('admin.s.test_model') }}</span>
                         <span wire:loading wire:target="testModel">
-                            <i class="fa-solid fa-spinner fa-spin mr-2"></i> Testing...
-                        </span>
+                            <i class="fa-solid fa-spinner fa-spin mr-2"></i>{{ __('admin.s.testing') }}</span>
                     </button>
-                    <button type="button" wire:click="resetForm" class="px-6 py-2 border rounded-lg">
-                        Cancel
-                    </button>
+                    <button type="button" wire:click="resetForm" class="px-6 py-2 border rounded-lg">{{ __('channels.s.cancel') }}</button>
                 </div>
             </form>
         </div>
@@ -152,12 +141,12 @@
         <table class="w-full">
             <thead class="bg-muted/50">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Model</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Provider</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Price</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Tiers</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Actions</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">{{ __('admin.s.model') }}</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">{{ __('admin.s.provider') }}</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">{{ __('admin.s.price') }}</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">{{ __('admin.s.tiers') }}</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">{{ __('channels.s.status') }}</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">{{ __('channels.s.actions') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -172,7 +161,7 @@
                         <td class="px-4 py-3 text-sm">{{ $model->provider }}</td>
                         <td class="px-4 py-3 text-sm">
                             @if($model->input_price == 0)
-                                <span class="text-green-600 font-medium">Free</span>
+                                <span class="text-green-600 font-medium">{{ __('admin.s.free_2') }}</span>
                             @else
                                 ${{ number_format($model->input_price, 2) }}
                             @endif
@@ -198,23 +187,21 @@
                         <td class="px-4 py-3 text-right">
                             <button wire:click="testModel('{{ $model->model_id }}')" 
                                 wire:loading.attr="disabled"
-                                class="text-green-600 hover:text-green-700 p-1" title="Test Model">
+                                class="text-green-600 hover:text-green-700 p-1" title="{{ __('admin.s.test_model') }}">
                                 <i class="fa-solid fa-play"></i>
                             </button>
-                            <button wire:click="edit({{ $model->id }})" class="text-blue-600 hover:text-blue-700 p-1" title="Edit">
+                            <button wire:click="edit({{ $model->id }})" class="text-blue-600 hover:text-blue-700 p-1" title="{{ __('agents.s.edit') }}">
                                 <i class="fa-solid fa-edit"></i>
                             </button>
                             <button wire:click="delete({{ $model->id }})" onclick="return confirm('Delete this model?')"
-                                class="text-red-600 hover:text-red-700 p-1" title="Delete">
+                                class="text-red-600 hover:text-red-700 p-1" title="{{ __('admin.s.delete') }}">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">
-                            No models configured. Click "Add Model" or "Fetch from OpenRouter" to get started.
-                        </td>
+                        <td colspan="6" class="px-4 py-8 text-center text-muted-foreground">{{ __('admin.s.no_models_configured_click_add_model_or_fetch_fr') }}</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -225,10 +212,6 @@
     <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <p class="text-sm text-blue-800">
             <i class="fa-solid fa-info-circle mr-2"></i>
-            <strong>Tier Assignment:</strong>
-            Starter (Free) users can only use models marked "Starter".
-            Pro users can use Starter + Pro models.
-            Business users can use all models.
-        </p>
+            <strong>{{ __('admin.s.tier_assignment') }}</strong>{{ __('admin.s.starter_free_users_can_only_use_models_marked_st') }}</p>
     </div>
 </div>

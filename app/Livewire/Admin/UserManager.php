@@ -127,10 +127,10 @@ class UserManager extends Component
 
         if ($this->isEditing) {
             User::find($this->userId)->update($data);
-            session()->flash('message', 'User berhasil diupdate.');
+            session()->flash('message', __('admin.s.user_updated'));
         } else {
             User::create($data);
-            session()->flash('message', 'User berhasil ditambahkan.');
+            session()->flash('message', __('admin.s.user_added'));
         }
 
         $this->closeModal();
@@ -159,23 +159,23 @@ class UserManager extends Component
         $user = User::find($userId);
 
         if (!$user) {
-            session()->flash('error', 'User tidak ditemukan.');
+            session()->flash('error', __('admin.s.user_not_found'));
             return;
         }
 
         // Prevent deleting self or last admin
         if ($user->id === auth()->id()) {
-            session()->flash('error', 'Tidak bisa menghapus akun sendiri.');
+            session()->flash('error', __('admin.s.cannot_delete_own_account'));
             return;
         }
 
         if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
-            session()->flash('error', 'Tidak bisa menghapus admin terakhir.');
+            session()->flash('error', __('admin.s.cannot_delete_last_admin'));
             return;
         }
 
         $user->delete();
-        session()->flash('message', 'User berhasil dihapus.');
+        session()->flash('message', __('admin.s.user_deleted'));
     }
 
     public function openSuspendModal($userId)
@@ -197,7 +197,7 @@ class UserManager extends Component
         $user = User::find($this->suspendUserId);
 
         if (!$user) {
-            session()->flash('error', 'User tidak ditemukan.');
+            session()->flash('error', __('admin.s.user_not_found'));
             return;
         }
 
@@ -215,7 +215,7 @@ class UserManager extends Component
         }
 
         $this->closeSuspendModal();
-        session()->flash('message', 'User berhasil di-suspend.');
+        session()->flash('message', __('admin.s.user_suspended'));
     }
 
     public function banUser($userId)
@@ -223,7 +223,7 @@ class UserManager extends Component
         $user = User::find($userId);
 
         if (!$user) {
-            session()->flash('error', 'User tidak ditemukan.');
+            session()->flash('error', __('admin.s.user_not_found'));
             return;
         }
 
@@ -239,7 +239,7 @@ class UserManager extends Component
             \Log::error('Failed to send ban email', ['error' => $e->getMessage()]);
         }
 
-        session()->flash('message', 'User berhasil di-banned.');
+        session()->flash('message', __('admin.s.user_banned'));
     }
 
     public function activateUser($userId)
@@ -247,7 +247,7 @@ class UserManager extends Component
         $user = User::find($userId);
 
         if (!$user) {
-            session()->flash('error', 'User tidak ditemukan.');
+            session()->flash('error', __('admin.s.user_not_found'));
             return;
         }
 
@@ -257,7 +257,7 @@ class UserManager extends Component
             'suspended_reason' => null,
         ]);
 
-        session()->flash('message', 'User berhasil diaktifkan kembali.');
+        session()->flash('message', __('admin.s.user_reactivated'));
     }
 
     public function resetQuota($userId)
@@ -265,12 +265,12 @@ class UserManager extends Component
         $user = User::find($userId);
 
         if (!$user) {
-            session()->flash('error', 'User tidak ditemukan.');
+            session()->flash('error', __('admin.s.user_not_found'));
             return;
         }
 
         $user->update(['monthly_message_used' => 0]);
-        session()->flash('message', 'Kuota pesan berhasil direset.');
+        session()->flash('message', __('admin.s.quota_reset'));
     }
 
     public function sendPasswordReset($userId)
@@ -278,12 +278,12 @@ class UserManager extends Component
         $user = User::find($userId);
 
         if (!$user) {
-            session()->flash('error', 'User tidak ditemukan.');
+            session()->flash('error', __('admin.s.user_not_found'));
             return;
         }
 
         Password::sendResetLink(['email' => $user->email]);
-        session()->flash('message', 'Link reset password telah dikirim ke ' . $user->email);
+        session()->flash('message', __('admin.s.password_reset_link_sent', ['email' => $user->email]));
     }
 
     public function changePlan($userId, $planId)
@@ -291,7 +291,7 @@ class UserManager extends Component
         $user = User::find($userId);
 
         if (!$user) {
-            session()->flash('error', 'User tidak ditemukan.');
+            session()->flash('error', __('admin.s.user_not_found'));
             return;
         }
 
@@ -300,7 +300,7 @@ class UserManager extends Component
             'monthly_message_used' => 0,
         ]);
 
-        session()->flash('message', 'Plan user berhasil diubah.');
+        session()->flash('message', __('admin.s.user_plan_changed'));
     }
 
     public function export()

@@ -9,24 +9,20 @@
     {{-- Header --}}
     <div class="flex justify-between items-center mb-4">
         <div>
-            <h3 class="text-lg font-bold">Select AI Model</h3>
-            <p class="text-sm text-muted-foreground">Pilih model LLM langsung untuk landing page widget (tanpa batasan
-                tier)</p>
+            <h3 class="text-lg font-bold">{{ __('admin.s.select_ai_model') }}</h3>
+            <p class="text-sm text-muted-foreground">{{ __('admin.s.pilih_model_llm_langsung_untuk_landing_page_widg') }}</p>
         </div>
         <div class="flex gap-2">
             <button wire:click="testModel" wire:loading.attr="disabled"
                 class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition text-sm">
                 <span wire:loading.remove wire:target="testModel">
-                    <i class="fa-solid fa-play mr-1"></i> Test Model
-                </span>
+                    <i class="fa-solid fa-play mr-1"></i>{{ __('admin.s.test_model') }}</span>
                 <span wire:loading wire:target="testModel">
-                    <i class="fa-solid fa-spinner fa-spin mr-1"></i> Testing...
-                </span>
+                    <i class="fa-solid fa-spinner fa-spin mr-1"></i>{{ __('admin.s.testing') }}</span>
             </button>
             <button wire:click="saveModel"
                 class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition text-sm">
-                <i class="fa-solid fa-save mr-1"></i> Save Model
-            </button>
+                <i class="fa-solid fa-save mr-1"></i>{{ __('admin.s.save_model') }}</button>
         </div>
     </div>
 
@@ -34,8 +30,7 @@
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
         <p class="text-sm text-blue-800">
             <i class="fa-solid fa-infinity mr-2"></i>
-            <strong>Landing Page Widget:</strong> Tidak ada batasan quota. Admin dapat memilih model langsung.
-        </p>
+            <strong>{{ __('admin.s.landing_page_widget') }}</strong>{{ __('admin.s.tidak_ada_batasan_quota_admin_dapat_memilih_mode') }}</p>
     </div>
 
     {{-- Test Result --}}
@@ -54,7 +49,7 @@
 
     {{-- Current Selection --}}
     <div class="bg-muted/30 rounded-lg p-4 mb-6">
-        <p class="text-sm text-muted-foreground">Model Aktif Saat Ini:</p>
+        <p class="text-sm text-muted-foreground">{{ __('admin.s.model_aktif_saat_ini') }}</p>
         <p class="font-mono text-lg font-bold text-primary">{{ $selectedModel }}</p>
     </div>
 
@@ -79,7 +74,7 @@
                         <span class="text-xs px-2 py-0.5 rounded bg-muted capitalize">{{ $model->provider }}</span>
                     </div>
                     @if($model->input_price == 0)
-                        <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-700 font-medium">FREE</span>
+                        <span class="text-xs px-2 py-1 rounded bg-green-100 text-green-700 font-medium">{{ __('admin.s.free') }}</span>
                     @endif
                 </div>
 
@@ -95,11 +90,11 @@
                 {{-- Stats --}}
                 <div class="grid grid-cols-2 gap-2 text-xs">
                     <div class="bg-muted/50 rounded p-2">
-                        <p class="text-muted-foreground">Context</p>
+                        <p class="text-muted-foreground">{{ __('admin.s.context') }}</p>
                         <p class="font-semibold">{{ number_format($model->context_length) }}</p>
                     </div>
                     <div class="bg-muted/50 rounded p-2">
-                        <p class="text-muted-foreground">Input Price</p>
+                        <p class="text-muted-foreground">{{ __('admin.s.input_price') }}</p>
                         <p class="font-semibold">
                             @if($model->input_price == 0)
                                 Free
@@ -116,8 +111,8 @@
     @if(count($models) === 0)
         <div class="text-center py-12 text-muted-foreground">
             <i class="fa-solid fa-robot text-4xl mb-4"></i>
-            <p>No active models found.</p>
-            <p class="text-sm">Add models in Settings → LLM Models</p>
+            <p>{{ __('admin.s.no_active_models_found') }}</p>
+            <p class="text-sm">{{ __('admin.s.add_models_in_settings_llm_models') }}</p>
         </div>
     @endif
 </div>

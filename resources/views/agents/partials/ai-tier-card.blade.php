@@ -49,8 +49,7 @@
                 <div class="flex items-center gap-2">
                     <h3 class="font-bold text-lg">{{ $currentTierData['name'] }}</h3>
                     <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full font-medium">
-                        <i class="fa-solid fa-check mr-1"></i>ACTIVE
-                    </span>
+                        <i class="fa-solid fa-check mr-1"></i>{{ __('agents.s.active') }}</span>
                 </div>
                 <p class="text-sm text-muted-foreground">{{ $currentTierData['description'] }}</p>
             </div>
@@ -74,7 +73,7 @@
     <div x-data="{ open: false }">
         <button @click="open = !open"
             class="w-full p-4 flex items-center justify-between text-sm font-medium hover:bg-muted/50 transition">
-            <span>Perbandingan AI Quality Tiers</span>
+            <span>{{ __('agents.s.perbandingan_ai_quality_tiers') }}</span>
             <i class="fa-solid fa-chevron-down transition-transform" :class="{ 'rotate-180': open }"></i>
         </button>
 
@@ -86,7 +85,7 @@
                             {{ $tierKey === $currentTier ? 'border-primary bg-primary/5' : 'border-transparent bg-muted/30' }}">
                         @if($tierKey === $currentTier)
                             <span
-                                class="px-2 py-0.5 bg-primary text-white text-xs rounded-full mb-2 inline-block">Current</span>
+                                class="px-2 py-0.5 bg-primary text-white text-xs rounded-full mb-2 inline-block">{{ __('agents.s.current') }}</span>
                         @endif
                         <div class="flex flex-col items-center text-center">
                             <span class="text-2xl mb-1">{{ $tier['icon'] }}</span>
@@ -104,13 +103,12 @@
         <div class="p-4 bg-gradient-to-r from-primary/10 to-indigo-500/10 border-t">
             <div class="flex items-center justify-between gap-3">
                 <div>
-                    <p class="font-medium text-sm">Ingin AI lebih pintar?</p>
-                    <p class="text-xs text-muted-foreground">Upgrade untuk AI Quality lebih tinggi</p>
+                    <p class="font-medium text-sm">{{ __('agents.s.ingin_ai_lebih_pintar') }}</p>
+                    <p class="text-xs text-muted-foreground">{{ __('agents.s.upgrade_untuk_ai_quality_lebih_tinggi') }}</p>
                 </div>
                 <a href="{{ route('billing') }}"
                     class="px-4 py-2 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 transition whitespace-nowrap">
-                    <i class="fa-solid fa-arrow-up mr-1"></i> Upgrade
-                </a>
+                    <i class="fa-solid fa-arrow-up mr-1"></i>{{ __('agents.s.upgrade') }}</a>
             </div>
         </div>
     @endif

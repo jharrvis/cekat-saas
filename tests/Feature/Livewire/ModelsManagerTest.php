@@ -35,7 +35,7 @@ class ModelsManagerTest extends TestCase
 
         Livewire::test(ModelsManager::class)
             ->call('fetchFromOpenRouter')
-            ->assertSee('Imported 2 new models from OpenRouter!');
+            ->assertSee('2 model baru diimpor dari OpenRouter!');
 
         // Negative (provider-pays) pricing must be clamped to free, not stored.
         $this->assertDatabaseHas('llm_models', [
@@ -66,8 +66,8 @@ class ModelsManagerTest extends TestCase
 
         Livewire::test(ModelsManager::class)
             ->call('fetchFromOpenRouter')
-            ->assertSee('Imported 1 new models from OpenRouter!')
-            ->assertSee('1 rows skipped');
+            ->assertSee('1 model baru diimpor dari OpenRouter!')
+            ->assertSee('1 baris dilewati');
 
         $this->assertDatabaseHas('llm_models', ['model_id' => 'good/model']);
     }

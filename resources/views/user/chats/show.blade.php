@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Chat Detail')
+@section('title', __('chat.s.chat_detail'))
 
 @section('content')
     <div class="space-y-6">
@@ -11,7 +11,7 @@
                     <i class="fa-solid fa-arrow-left text-xl"></i>
                 </a>
                 <div>
-                    <h1 class="text-2xl font-bold">Chat Detail</h1>
+                    <h1 class="text-2xl font-bold">{{ __('chat.s.chat_detail') }}</h1>
                     <p class="text-muted-foreground">
                         {{ $session->widget->display_name }} • {{ $session->created_at->format('d M Y H:i') }}
                     </p>
@@ -23,14 +23,14 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn-secondary text-red-600">
-                        <i class="fa-solid fa-trash mr-2"></i>Delete
+                        <i class="fa-solid fa-trash mr-2"></i>{{ __('admin.s.delete') }}
                     </button>
                 </form>
                 @if(!$session->summary)
                     <form action="{{ route('chats.summary', $session->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn-secondary">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Generate Summary
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>{{ __('chat.s.generate_summary') }}
                         </button>
                     </form>
                 @endif
@@ -41,7 +41,7 @@
             {{-- Chat Messages --}}
             <div class="md:col-span-2 bg-card rounded-xl border overflow-hidden">
                 <div class="p-4 border-b bg-muted/30">
-                    <h3 class="font-semibold">Conversation</h3>
+                    <h3 class="font-semibold">{{ __('chat.s.conversation') }}</h3>
                     <p class="text-sm text-muted-foreground">{{ $session->messages->count() }} messages</p>
                 </div>
                 <div class="p-4 space-y-4 max-h-[600px] overflow-y-auto">
@@ -64,29 +64,29 @@
                 {{-- Lead Info --}}
                 <div class="bg-card rounded-xl border p-4">
                     <h3 class="font-semibold mb-3">
-                        <i class="fa-solid fa-user mr-2"></i>Customer Info
+                        <i class="fa-solid fa-user mr-2"></i>{{ __('chat.s.customer_info') }}
                     </h3>
                     @if($session->visitor_name)
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-muted-foreground">Nama:</span>
+                                <span class="text-muted-foreground">{{ __('chat.s.nama') }}</span>
                                 <span class="font-medium">{{ $session->visitor_name }}</span>
                             </div>
                             @if($session->visitor_email)
                                 <div class="flex justify-between">
-                                    <span class="text-muted-foreground">Email:</span>
+                                    <span class="text-muted-foreground">{{ __('chat.s.email') }}</span>
                                     <span class="font-medium">{{ $session->visitor_email }}</span>
                                 </div>
                             @endif
                             @if($session->visitor_phone)
                                 <div class="flex justify-between">
-                                    <span class="text-muted-foreground">Phone:</span>
+                                    <span class="text-muted-foreground">{{ __('chat.s.phone') }}</span>
                                     <span class="font-medium">{{ $session->visitor_phone }}</span>
                                 </div>
                             @endif
                         </div>
                     @else
-                        <p class="text-sm text-muted-foreground">No lead data collected</p>
+                        <p class="text-sm text-muted-foreground">{{ __('chat.s.no_lead_data_collected') }}</p>
                     @endif
                 </div>
 
@@ -94,7 +94,7 @@
                 @if($session->summary)
                     <div class="bg-card rounded-xl border p-4">
                         <h3 class="font-semibold mb-3">
-                            <i class="fa-solid fa-clipboard-list mr-2"></i>Summary
+                            <i class="fa-solid fa-clipboard-list mr-2"></i>{{ __('chat.s.summary') }}
                         </h3>
                         <p class="text-sm text-muted-foreground whitespace-pre-wrap">{{ $session->summary }}</p>
                         <p class="text-xs text-muted-foreground mt-2">
@@ -106,36 +106,36 @@
                 {{-- Session Info --}}
                 <div class="bg-card rounded-xl border p-4">
                     <h3 class="font-semibold mb-3">
-                        <i class="fa-solid fa-info-circle mr-2"></i>Session Info
+                        <i class="fa-solid fa-info-circle mr-2"></i>{{ __('chat.s.session_info') }}
                     </h3>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-muted-foreground">Session ID:</span>
+                            <span class="text-muted-foreground">{{ __('chat.s.session_id') }}</span>
                             <span class="font-mono text-xs">{{ Str::limit($session->visitor_uuid ?? $session->session_id ?? '-', 16) }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-muted-foreground">Started:</span>
+                            <span class="text-muted-foreground">{{ __('admin.s.started') }}</span>
                             <span>{{ $session->created_at->format('d M Y H:i') }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-muted-foreground">Last Activity:</span>
+                            <span class="text-muted-foreground">{{ __('chat.s.last_activity') }}</span>
                             <span>{{ $session->updated_at->diffForHumans() }}</span>
                         </div>
                         @if($session->ip_address)
                             <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">IP Address:</span>
+                                <span class="text-muted-foreground">{{ __('chat.s.ip_address') }}</span>
                                 <span class="font-mono text-xs">{{ $session->ip_address }}</span>
                             </div>
                         @endif
                         @if($browser = \App\Support\VisitorGeo::describeAgent($session->user_agent))
                             <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">Browser:</span>
+                                <span class="text-muted-foreground">{{ __('chat.s.browser') }}</span>
                                 <span class="text-right">{{ $browser }}</span>
                             </div>
                         @endif
                         @if($session->device_type)
                             <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">Device:</span>
+                                <span class="text-muted-foreground">{{ __('chat.s.device') }}</span>
                                 <span class="capitalize">{{ $session->device_type }}</span>
                             </div>
                         @endif
@@ -145,24 +145,24 @@
                             $session->location_data['country'] ?? null,
                         ]))))
                             <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">Location:</span>
+                                <span class="text-muted-foreground">{{ __('chat.s.location') }}</span>
                                 <span class="text-right">{{ $location }}</span>
                             </div>
                         @elseif($session->location_data['country_code'] ?? null)
                             <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">Location:</span>
+                                <span class="text-muted-foreground">{{ __('chat.s.location') }}</span>
                                 <span>{{ $session->location_data['country_code'] }}</span>
                             </div>
                         @endif
                         @if($session->source_url)
                             <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">Halaman:</span>
+                                <span class="text-muted-foreground">{{ __('chat.s.halaman') }}</span>
                                 <span class="text-right text-xs break-all" title="{{ $session->source_url }}">{{ \Illuminate\Support\Str::limit($session->source_url, 70) }}</span>
                             </div>
                         @endif
                         @if($session->referer_url)
                             <div class="flex justify-between gap-4">
-                                <span class="text-muted-foreground">Referrer:</span>
+                                <span class="text-muted-foreground">{{ __('chat.s.referrer') }}</span>
                                 <span class="text-right text-xs break-all" title="{{ $session->referer_url }}">{{ \Illuminate\Support\Str::limit($session->referer_url, 70) }}</span>
                             </div>
                         @endif

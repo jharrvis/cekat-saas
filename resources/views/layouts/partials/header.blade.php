@@ -51,12 +51,12 @@
                     <p class="text-xs text-muted-foreground">{{ auth()->user()->email ?? 'user@example.com' }}</p>
                 </div>
                 <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm hover:bg-accent">
-                    <i class="fa-solid fa-gear w-4 mr-2"></i> Pengaturan
+                    <i class="fa-solid fa-gear w-4 mr-2"></i> {{ __('general.s.pengaturan_2') }}
                 </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-accent text-destructive">
-                        <i class="fa-solid fa-right-from-bracket w-4 mr-2"></i> Logout
+                        <i class="fa-solid fa-right-from-bracket w-4 mr-2"></i> {{ __('auth.s.logout') }}
                     </button>
                 </form>
             </div>

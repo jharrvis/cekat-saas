@@ -9,14 +9,13 @@
     {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h2 class="text-2xl font-bold">Plan Management</h2>
-            <p class="text-muted-foreground">Manage subscription plans and pricing tiers</p>
+            <h2 class="text-2xl font-bold">{{ __('admin.s.plan_management') }}</h2>
+            <p class="text-muted-foreground">{{ __('admin.s.manage_subscription_plans_and_pricing_tiers') }}</p>
         </div>
         @if(!$showForm)
             <button wire:click="createPlan"
                 class="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition font-medium">
-                <i class="fa-solid fa-plus mr-2"></i> Create New Plan
-            </button>
+                <i class="fa-solid fa-plus mr-2"></i>{{ __('admin.s.create_new_plan') }}</button>
         @endif
     </div>
 
@@ -29,13 +28,13 @@
                 {{-- Basic Info --}}
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Plan Name *</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.plan_name') }}</label>
                         <input type="text" wire:model.live="name"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Slug *</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.slug') }}</label>
                         <input type="text" wire:model="slug"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         @error('slug') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
@@ -43,74 +42,74 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium mb-2">Description</label>
+                    <label class="block text-sm font-medium mb-2">{{ __('channels.s.description') }}</label>
                     <textarea wire:model="description" rows="2"
                         class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"></textarea>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium mb-2">Price (Rp) *</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.price_rp') }}</label>
                         <input type="number" wire:model="price" min="0"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         @error('price') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-2">Billing Period</label>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.billing_period') }}</label>
                         <select wire:model="billing_period"
                             class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
+                            <option value="monthly">{{ __('admin.s.monthly') }}</option>
+                            <option value="yearly">{{ __('admin.s.yearly') }}</option>
                         </select>
                     </div>
                 </div>
 
                 {{-- Limits --}}
                 <div class="border-t pt-4">
-                    <h4 class="font-semibold mb-3">Limits</h4>
+                    <h4 class="font-semibold mb-3">{{ __('admin.s.limits') }}</h4>
                     <div class="grid md:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-2">Max Widgets *</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.max_widgets') }}</label>
                             <input type="number" wire:model="max_widgets" min="1"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">Max Agents *</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.max_agents') }}</label>
                             <input type="number" wire:model="max_agents" min="1"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">Max Messages/Month *</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.max_messages_month') }}</label>
                             <input type="number" wire:model="max_messages_per_month" min="1"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">Max Documents *</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.max_documents') }}</label>
                             <input type="number" wire:model="max_documents" min="0"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">Max File Size (MB) *</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.max_file_size_mb') }}</label>
                             <input type="number" wire:model="max_file_size_mb" min="1"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">Max FAQs *</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.max_faqs') }}</label>
                             <input type="number" wire:model="max_faqs" min="0"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">Chat History (days) *</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.chat_history_days') }}</label>
                             <input type="number" wire:model="chat_history_days" min="0"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">Max WhatsApp Devices *</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.max_whatsapp_devices') }}</label>
                             <input type="number" wire:model="max_whatsapp_devices" min="0"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-2">Sort Order</label>
+                            <label class="block text-sm font-medium mb-2">{{ __('admin.s.sort_order') }}</label>
                             <input type="number" wire:model="sort_order" min="0"
                                 class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
                         </div>
@@ -119,11 +118,8 @@
 
                 {{-- AI Quality Tier --}}
                 <div class="border-t pt-4">
-                    <h4 class="font-semibold mb-3">AI Quality Tier</h4>
-                    <p class="text-sm text-muted-foreground mb-3">
-                        Pilih tingkat kualitas AI untuk plan ini. Model spesifik diatur di
-                        <a href="{{ route('admin.settings') }}" class="text-primary hover:underline">Settings → AI
-                            Tiers</a>.
+                    <h4 class="font-semibold mb-3">{{ __('admin.s.ai_quality_tier') }}</h4>
+                    <p class="text-sm text-muted-foreground mb-3">{{ __('admin.s.pilih_tingkat_kualitas_ai_untuk_plan_ini_model_s') }}<a href="{{ route('admin.settings') }}" class="text-primary hover:underline">{{ __('admin.s.settings_ai_tiers') }}</a>.
                     </p>
                     <div class="grid md:grid-cols-4 gap-3">
                         @php
@@ -159,7 +155,7 @@
 
                 {{-- Features --}}
                 <div class="border-t pt-4">
-                    <h4 class="font-semibold mb-3">Features</h4>
+                    <h4 class="font-semibold mb-3">{{ __('admin.s.features') }}</h4>
                     <div class="grid md:grid-cols-2 gap-3">
                         @foreach($availableFeatures as $featureKey => $featureName)
                             <label class="flex items-center gap-2 p-3 border rounded-lg hover:bg-muted/30 cursor-pointer">
@@ -175,7 +171,7 @@
                 <div class="border-t pt-4">
                     <label class="flex items-center gap-2">
                         <input type="checkbox" wire:model="is_active" class="rounded border-gray-300">
-                        <span class="text-sm font-medium">Active</span>
+                        <span class="text-sm font-medium">{{ __('channels.s.active') }}</span>
                     </label>
                 </div>
 
@@ -183,12 +179,10 @@
                 <div class="flex gap-3">
                     <button type="submit"
                         class="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition">
-                        <i class="fa-solid fa-save mr-2"></i> Save Plan
-                    </button>
+                        <i class="fa-solid fa-save mr-2"></i>{{ __('admin.s.save_plan') }}</button>
                     <button type="button" wire:click="cancelEdit"
                         class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition">
-                        <i class="fa-solid fa-times mr-2"></i> Cancel
-                    </button>
+                        <i class="fa-solid fa-times mr-2"></i>{{ __('channels.s.cancel') }}</button>
                 </div>
             </form>
         </div>
@@ -217,23 +211,23 @@
 
                     <div class="space-y-2 mb-4 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-muted-foreground">Widgets:</span>
+                            <span class="text-muted-foreground">{{ __('admin.s.widgets_2') }}</span>
                             <span class="font-medium">{{ $plan['max_widgets'] }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-muted-foreground">Agents:</span>
+                            <span class="text-muted-foreground">{{ __('admin.s.agents') }}</span>
                             <span class="font-medium">{{ $plan['max_agents'] ?? 1 }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-muted-foreground">Messages:</span>
+                            <span class="text-muted-foreground">{{ __('admin.s.messages_2') }}</span>
                             <span class="font-medium">{{ number_format($plan['max_messages_per_month']) }}/mo</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-muted-foreground">Documents:</span>
+                            <span class="text-muted-foreground">{{ __('admin.s.documents') }}</span>
                             <span class="font-medium">{{ $plan['max_documents'] }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-muted-foreground">AI Tier:</span>
+                            <span class="text-muted-foreground">{{ __('admin.s.ai_tier_2') }}</span>
                             <span class="font-medium capitalize">{{ $plan['ai_tier'] ?? 'basic' }}</span>
                         </div>
                     </div>
@@ -241,8 +235,7 @@
                     <div class="flex gap-2">
                         <button wire:click="editPlan({{ $plan['id'] }})"
                             class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition text-sm">
-                            <i class="fa-solid fa-edit mr-1"></i> Edit
-                        </button>
+                            <i class="fa-solid fa-edit mr-1"></i>{{ __('agents.s.edit') }}</button>
                         <button wire:click="toggleActive({{ $plan['id'] }})"
                             class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition text-sm">
                             <i class="fa-solid fa-{{ $plan['is_active'] ? 'eye-slash' : 'eye' }}"></i>
@@ -256,7 +249,7 @@
             @empty
                 <div class="col-span-3 text-center py-12 text-muted-foreground">
                     <i class="fa-solid fa-box-open text-4xl mb-4"></i>
-                    <p>No plans created yet.</p>
+                    <p>{{ __('admin.s.no_plans_created_yet') }}</p>
                 </div>
             @endforelse
         </div>
