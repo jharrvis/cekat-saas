@@ -22,6 +22,7 @@ class ChatController extends Controller
             pageUrl: $input['pageUrl'],
             referrerUrl: $input['referrerUrl'],
             leadForm: $input['leadForm'],
+            preview: $input['preview'],
         );
 
         return response()->json($result['body'], $result['status']);

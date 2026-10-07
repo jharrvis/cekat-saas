@@ -73,7 +73,41 @@ class AiAgentController extends Controller
 
         $agent->load(['widgets', 'knowledgeBase.faqs']);
 
-        return view('agents.edit', compact('agent'));
+        // T-07: the test panel's empty state offers a one-click attach when
+        // the owner has a widget that is not linked to any agent yet.
+        $unlinkedWidget = auth()->user()->widgets()
+            ->whereNull('ai_agent_id')
+            ->orderBy('id')
+            ->first();
+
+        return view('agents.edit', compact('agent', 'unlinkedWidget'));
+    }
+
+    /**
+     * T-07: attach the owner's first unlinked widget (usually the default
+     * widget created at registration) to this agent so the test panel and
+     * the widget go live in one click.
+     */
+    public function attachDefaultWidget(AiAgent $agent)
+    {
+        Gate::authorize('update', $agent);
+
+        $widget = auth()->user()->widgets()
+            ->whereNull('ai_agent_id')
+            ->orderBy('id')
+            ->first();
+
+        if (! $widget) {
+            return redirect()
+                ->route('agents.edit', $agent)
+                ->with('error', 'Tidak ada widget yang belum terhubung. Buat channel baru terlebih dahulu.');
+        }
+
+        $widget->update(['ai_agent_id' => $agent->id]);
+
+        return redirect()
+            ->route('agents.edit', $agent)
+            ->with('success', 'Widget "' . ($widget->display_name ?? $widget->name) . '" terhubung ke agent ini. Buka tab Uji Coba untuk mencobanya.');
     }
 
     /**

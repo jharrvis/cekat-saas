@@ -18,7 +18,7 @@ class ChatHistoryController extends Controller
         $user = auth()->user();
         $widgetIds = $user->widgets()->pluck('id');
 
-        $query = ChatSession::whereIn('widget_id', $widgetIds)
+        $query = ChatSession::real()->whereIn('widget_id', $widgetIds)
             ->with(['widget', 'messages'])
             ->withCount('messages');
 
@@ -43,15 +43,15 @@ class ChatHistoryController extends Controller
 
         // Stats
         $stats = [
-            'total' => ChatSession::whereIn('widget_id', $widgetIds)->count(),
-            'this_month' => ChatSession::whereIn('widget_id', $widgetIds)
+            'total' => ChatSession::real()->whereIn('widget_id', $widgetIds)->count(),
+            'this_month' => ChatSession::real()->whereIn('widget_id', $widgetIds)
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count(),
-            'leads' => ChatSession::whereIn('widget_id', $widgetIds)
+            'leads' => ChatSession::real()->whereIn('widget_id', $widgetIds)
                 ->whereNotNull('visitor_name')
                 ->count(),
-            'avg_messages' => ChatSession::whereIn('widget_id', $widgetIds)
+            'avg_messages' => ChatSession::real()->whereIn('widget_id', $widgetIds)
                 ->withCount('messages')
                 ->get()
                 ->avg('messages_count') ?? 0,
@@ -70,7 +70,7 @@ class ChatHistoryController extends Controller
         $user = auth()->user();
         $widgetIds = $user->widgets()->pluck('id');
 
-        $session = ChatSession::whereIn('widget_id', $widgetIds)
+        $session = ChatSession::real()->whereIn('widget_id', $widgetIds)
             ->with([
                     'widget',
                     'messages' => function ($q) {
@@ -92,7 +92,7 @@ class ChatHistoryController extends Controller
         $user = auth()->user();
         $widgetIds = $user->widgets()->pluck('id');
 
-        $session = ChatSession::whereIn('widget_id', $widgetIds)->findOrFail($id);
+        $session = ChatSession::real()->whereIn('widget_id', $widgetIds)->findOrFail($id);
 
         Gate::authorize('delete', $session);
 
@@ -116,7 +116,7 @@ class ChatHistoryController extends Controller
         $user = auth()->user();
         $widgetIds = $user->widgets()->pluck('id');
 
-        $session = ChatSession::whereIn('widget_id', $widgetIds)
+        $session = ChatSession::real()->whereIn('widget_id', $widgetIds)
             ->with('messages')
             ->findOrFail($id);
 
@@ -136,7 +136,7 @@ class ChatHistoryController extends Controller
         $user = auth()->user();
         $widgetIds = $user->widgets()->pluck('id');
 
-        $sessions = ChatSession::whereIn('widget_id', $widgetIds)
+        $sessions = ChatSession::real()->whereIn('widget_id', $widgetIds)
             ->with(['widget', 'messages'])
             ->withCount('messages')
             ->orderBy('created_at', 'desc')

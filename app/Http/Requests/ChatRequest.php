@@ -44,6 +44,10 @@ class ChatRequest extends FormRequest
             // omit both - nullable keeps them compatible).
             'pageUrl' => 'nullable|string|max:500',
             'referrerUrl' => 'nullable|string|max:500',
+            // Owner test surfaces (T-07): agent test panel + widget
+            // customizer preview. Preview chats skip quota and are kept
+            // out of the customer chat history.
+            'preview' => 'nullable|boolean',
             // Pre-chat form (Strategy 3): the visitor's details captured
             // before the first message. Sent once with that message.
             'leadForm' => 'nullable|array',
@@ -81,6 +85,7 @@ class ChatRequest extends FormRequest
             'pageUrl' => $validated['pageUrl'] ?? '',
             'referrerUrl' => $validated['referrerUrl'] ?? '',
             'leadForm' => $validated['leadForm'] ?? null,
+            'preview' => (bool) ($validated['preview'] ?? false),
         ];
     }
 

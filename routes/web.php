@@ -242,6 +242,7 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     Route::put('/agents/{agent}', [App\Http\Controllers\AiAgentController::class, 'update'])->name('agents.update');
     Route::delete('/agents/{agent}', [App\Http\Controllers\AiAgentController::class, 'destroy'])->name('agents.destroy');
     Route::post('/agents/{agent}/toggle-status', [App\Http\Controllers\AiAgentController::class, 'toggleStatus'])->name('agents.toggle-status');
+    Route::post('/agents/{agent}/attach-default-widget', [App\Http\Controllers\AiAgentController::class, 'attachDefaultWidget'])->name('agents.attach-default-widget');
 
 
     // User Account Settings

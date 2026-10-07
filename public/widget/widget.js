@@ -55,6 +55,9 @@
     offlineMessage: 'Maaf, layanan sedang tidak tersedia. Silakan coba lagi nanti.',
     storageKey: 'csai_chat_history',
     maxHistoryLength: 50,
+    // Owner test mode (T-07): set by the dashboard customizer / test panel.
+    // Preview chats skip the owner's quota and stay out of chat history.
+    preview: false,
     // Avatar settings
     avatarType: 'icon',
     avatarIcon: 'robot',
@@ -1756,6 +1759,9 @@
 
       // Pre-chat form details ride the first message, once.
       if (pendingLeadForm) payload.leadForm = pendingLeadForm;
+
+      // Owner test mode (T-07).
+      if (config.preview) payload.preview = true;
 
       const response = await fetch(config.apiUrl, {
         method: 'POST',

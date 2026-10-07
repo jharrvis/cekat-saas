@@ -45,7 +45,7 @@ class ChatOrchestrator
         protected SessionIdService $sessions,
     ) {}
 
-    public function handle(string $message, string $widgetSlug, array $history, string $sessionId, string $pageUrl = '', string $referrerUrl = '', ?array $leadForm = null): array
+    public function handle(string $message, string $widgetSlug, array $history, string $sessionId, string $pageUrl = '', string $referrerUrl = '', ?array $leadForm = null, bool $preview = false): array
     {
         // Captured at request receipt, BEFORE the LLM call (up to ~60s) -
         // otherwise the visitor's message would be stamped with "when the
@@ -86,8 +86,9 @@ class ChatOrchestrator
                 ];
             }
 
-            // Check quota before processing (skip for landing page widget)
-            if ($denied = $this->quota->check($widget->user, $widget->slug)) {
+            // Check quota before processing (skip for landing page widget).
+            // Preview/test chats (T-07) never touch the owner's quota.
+            if (! $preview && ($denied = $this->quota->check($widget->user, $widget->slug))) {
                 if (($denied['body']['error_code'] ?? null) === 'quota_exceeded' && $widget->user) {
                     QuotaExceeded::dispatch(
                         $widget->user->id,
@@ -188,7 +189,7 @@ class ChatOrchestrator
                     // all show clean text (##, **, raw HTML removed).
                     $responseText = TextSanitizer::markdownToPlain($responseText);
 
-                    $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? [], $pageUrl, $referrerUrl, $receivedAt);
+                    $this->persistConversation($widget, $sessionId, $message, $responseText, $model, $response['usage'] ?? [], $pageUrl, $referrerUrl, $receivedAt, $preview);
 
                     // Lead capture: the pre-chat form (Strategy 3) wins when
                     // the visitor filled it - explicit, complete data over
@@ -223,8 +224,11 @@ class ChatOrchestrator
                         }
                     }
 
-                // Increment user's monthly message quota (skip for landing page widget - unlimited)
-                $this->quota->consume($widget->user, $widget->slug);
+                // Increment user's monthly message quota (skip for landing page widget - unlimited;
+                // preview/test chats are free, T-07)
+                if (! $preview) {
+                    $this->quota->consume($widget->user, $widget->slug);
+                }
 
                 ChatRequestProcessed::dispatch(
                     $widget->slug,
@@ -399,7 +403,7 @@ class ChatOrchestrator
         ]);
     }
 
-    protected function persistConversation(Widget $widget, string $sessionId, string $userMessage, string $aiResponse, string $model, array $usage, string $pageUrl = '', string $referrerUrl = '', ?\DateTimeInterface $receivedAt = null): void
+    protected function persistConversation(Widget $widget, string $sessionId, string $userMessage, string $aiResponse, string $model, array $usage, string $pageUrl = '', string $referrerUrl = '', ?\DateTimeInterface $receivedAt = null, bool $preview = false): void
     {
         // Full page URL comes from the widget; the Referer header is only an
         // origin-only fallback for older embeds.
@@ -409,6 +413,7 @@ class ChatOrchestrator
             ['widget_id' => $widget->id, 'visitor_uuid' => $sessionId],
             [
                 'current_agent_id' => $widget->ai_agent_id,
+                'is_preview' => $preview,
                 'started_at' => $receivedAt ?? now(),
                 'source_url' => $pageUrl !== '' ? $pageUrl : null,
                 'referer_url' => $referer !== '' ? mb_substr($referer, 0, 500) : null,

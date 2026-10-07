@@ -243,9 +243,48 @@
 
                 {{-- TAB: Uji Coba --}}
                 <div x-show="tab === 'testing'" role="tabpanel" class="max-w-2xl" x-cloak
-                    x-data="{ loading: false, reply: '', model: '', error: '' }">
+                    x-data="{
+                        loading: false,
+                        messages: [],
+                        draft: '',
+                        error: '',
+                        session: 'test-' + Date.now(),
+                        lastDuration: '',
+                        async send() {
+                            const text = this.draft.trim();
+                            if (!text || this.loading) return;
+                            const channel = document.getElementById('test-channel').value;
+                            this.messages.push({ role: 'user', content: text });
+                            this.draft = '';
+                            this.error = '';
+                            this.loading = true;
+                            const started = performance.now();
+                            try {
+                                const r = await fetch('/api/chat', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                    body: JSON.stringify({
+                                        message: text,
+                                        widgetId: channel,
+                                        history: this.messages.slice(0, -1).slice(-12),
+                                        sessionId: this.session,
+                                        preview: true
+                                    })
+                                });
+                                const d = await r.json();
+                                const reply = d.response || d.message || d.error || 'Tidak ada respons.';
+                                this.lastDuration = ((performance.now() - started) / 1000).toFixed(1).replace('.', ',') + ' dtk';
+                                this.messages.push({ role: 'assistant', content: reply });
+                            } catch (e) {
+                                this.error = 'Gagal menghubungi API: ' + e.message;
+                            } finally {
+                                this.loading = false;
+                                this.$nextTick(() => { const el = document.getElementById('test-thread'); if (el) el.scrollTop = el.scrollHeight; });
+                            }
+                        }
+                    }">
                     <h3 class="font-semibold text-lg mb-1">Uji Coba Agent</h3>
-                    <p class="text-sm text-muted-foreground mb-4">Kirim pesan percobaan lewat channel agent ini.</p>
+                    <p class="text-sm text-muted-foreground mb-4">Kirim pesan percobaan lewat channel agent ini. Sesi uji coba tidak memotong kuota dan tidak masuk Riwayat Chat.</p>
                     @if($agent->widgets->count() > 0)
                         <div class="space-y-4">
                             <div>
@@ -257,32 +296,56 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div>
-                                <label for="test-message" class="block text-sm font-medium mb-2">Pesan</label>
-                                <textarea id="test-message" rows="2"
-                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                                    placeholder="Tulis pertanyaan percobaan..."></textarea>
-                            </div>
-                            <button type="button"
-                                @click="loading = true; reply = ''; model = ''; error = '';
-                                    fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                                        body: JSON.stringify({ message: document.getElementById('test-message').value, widgetId: document.getElementById('test-channel').value, history: [], sessionId: 'test-' + Date.now() }) })
-                                    .then(r => r.json())
-                                    .then(d => { reply = d.response || d.message || d.error || 'Tidak ada respons.'; model = (d.meta && d.meta.model) || ''; })
-                                    .catch(e => { error = 'Gagal menghubungi API: ' + e.message; })
-                                    .finally(() => { loading = false; })"
-                                :disabled="loading"
-                                class="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition font-medium disabled:opacity-50">
-                                <span x-show="!loading"><i class="fa-solid fa-paper-plane mr-2"></i> Kirim Tes</span>
-                                <span x-show="loading">Mengirim...</span>
-                            </button>
-                            <template x-if="error"><p class="text-sm text-red-600" x-text="error"></p></template>
-                            <template x-if="reply">
-                                <div class="border rounded-xl p-4 bg-muted/30">
-                                    <p class="text-xs text-muted-foreground mb-1">Respons AI <span x-show="model" x-text="'· ' + model"></span></p>
-                                    <p class="text-sm whitespace-pre-wrap" x-text="reply"></p>
+
+                            {{-- Utas percakapan --}}
+                            <div id="test-thread" class="border rounded-xl p-4 bg-muted/20 h-80 overflow-y-auto space-y-3">
+                                <template x-if="messages.length === 0 && !loading">
+                                    <p class="text-sm text-muted-foreground text-center py-10">Belum ada pesan. Tulis pertanyaan pertama Anda di bawah.</p>
+                                </template>
+                                <template x-for="(m, i) in messages" :key="i">
+                                    <div :class="m.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                                        <div :class="m.role === 'user'
+                                                ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-md'
+                                                : 'bg-white dark:bg-slate-800 border rounded-2xl rounded-bl-md'"
+                                            class="px-4 py-2.5 max-w-[85%] shadow-sm">
+                                            <p class="text-sm whitespace-pre-wrap" x-text="m.content"></p>
+                                            <p x-show="m.role === 'assistant' && i === messages.length - 1 && lastDuration"
+                                                class="text-[11px] opacity-60 mt-1" x-text="'Dijawab dalam ' + lastDuration"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="loading" class="flex justify-start" x-cloak>
+                                    <div class="bg-white dark:bg-slate-800 border rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                                        <p class="text-sm text-muted-foreground"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>AI sedang mengetik…</p>
+                                    </div>
                                 </div>
-                            </template>
+                            </div>
+
+                            <template x-if="error"><p class="text-sm text-red-600" x-text="error"></p></template>
+
+                            <div class="flex gap-2">
+                                <textarea id="test-message" rows="2" x-model="draft"
+                                    @keydown.enter.prevent="if (!$event.shiftKey) send()"
+                                    class="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    placeholder="Tulis pertanyaan percobaan... (Enter untuk mengirim)"></textarea>
+                                <button type="button" @click="send()" :disabled="loading"
+                                    class="px-5 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition font-medium disabled:opacity-50 self-end">
+                                    <span x-show="!loading"><i class="fa-solid fa-paper-plane mr-2"></i> Kirim Tes</span>
+                                    <span x-show="loading">Mengirim...</span>
+                                </button>
+                            </div>
+                        </div>
+                    @elseif($unlinkedWidget)
+                        <div class="border border-dashed rounded-xl p-8 text-center">
+                            <p class="text-sm text-muted-foreground mb-2">Agent ini belum terhubung ke channel mana pun, jadi belum bisa diuji.</p>
+                            <p class="text-sm text-muted-foreground mb-4">Widget <strong>{{ $unlinkedWidget->display_name ?? $unlinkedWidget->name }}</strong> milik Anda belum terhubung ke agent. Hubungkan sekarang?</p>
+                            <form method="POST" action="{{ route('agents.attach-default-widget', $agent) }}">
+                                @csrf
+                                <button type="submit"
+                                    class="inline-flex items-center px-5 py-2.5 bg-primary text-primary-foreground text-sm rounded-lg hover:bg-primary/90 transition font-medium">
+                                    <i class="fa-solid fa-link mr-2"></i> Hubungkan Widget Saya
+                                </button>
+                            </form>
                         </div>
                     @else
                         <div class="border border-dashed rounded-xl p-8 text-center">
