@@ -247,11 +247,9 @@ class ChatOrchestrator
                     'success' => true,
                     'response' => TextSanitizer::markdownToPlain($responseText),
                     'sessionId' => $sessionId,
-                    'usage' => $response['usage'] ?? null,
-                    'meta' => [
-                        'model' => $model,
-                        'tokens_used' => $response['usage']['total_tokens'] ?? 0,
-                    ],
+                    // T-21 (owner masking policy): the response body must never
+                    // reveal the model identity or provider-shaped usage data.
+                    // Model + tokens stay in server logs and ai_model_used only.
                 ],
             ];
         } catch (\Exception $e) {

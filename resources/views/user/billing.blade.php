@@ -84,10 +84,6 @@
                             <i class="fa-solid fa-clock-rotate-left text-primary"></i>
                             <span>{{ app(\App\Services\Billing\PlanLimitService::class)->limit($user, 'chat_history_days') }} Hari Chat History</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-brain text-primary"></i>
-                            <span>AI Quality: {{ ucfirst(app(\App\Services\Billing\PlanLimitService::class)->aiTier($user)) }}</span>
-                        </div>
                     </div>
                 </div>
 
@@ -276,7 +272,6 @@
                             @php($planWidgetLimit = $planLimits->limit($plan, 'total_channels'))
                             <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ $planWidgetLimit == -1 ? 'Unlimited' : $planWidgetLimit }} Widget</li>
                             <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ number_format($planLimits->limit($plan, 'monthly_messages'), 0, ',', '.') }} Pesan</li>
-                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i>AI {{ ucfirst($planLimits->aiTier($plan)) }}</li>
                             <li><i class="fa-solid fa-check text-green-500 mr-2"></i>{{ $planLimits->limit($plan, 'chat_history_days') }} Hari History</li>
                         </ul>
                         @if($isCurrent)

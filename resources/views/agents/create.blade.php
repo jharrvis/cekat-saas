@@ -126,8 +126,6 @@
 
         {{-- Sidebar (1 column) --}}
         <div class="space-y-6">
-            {{-- AI Tier Info --}}
-            @include('agents.partials.ai-tier-card')
 
             {{-- Tips --}}
             <div class="bg-card border rounded-xl p-5">

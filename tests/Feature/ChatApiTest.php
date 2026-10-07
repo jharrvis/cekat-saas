@@ -86,8 +86,10 @@ class ChatApiTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('response', 'Silakan order di https://toko.test/order kak')
-            ->assertJsonPath('meta.tokens_used', 42)
-            ->assertJsonStructure(['meta' => ['model', 'tokens_used']]);
+            // T-21 masking: no model identity or provider-shaped usage data
+            // may leave the server in the response body.
+            ->assertJsonMissingPath('meta')
+            ->assertJsonMissingPath('usage');
 
         // Unsigned client-supplied ids are replaced by server-minted signed ones
         $sessionId = $response->json('sessionId');
