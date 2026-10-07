@@ -21,6 +21,14 @@ Route::get('/docs/api', function () {
     return view('docs.api');
 })->name('docs.api');
 
+// T-10: public legal pages linked from the landing footer.
+Route::get('/kebijakan-privasi', function () {
+    return view('legal.privacy');
+})->name('legal.privacy');
+Route::get('/syarat-ketentuan', function () {
+    return view('legal.terms');
+})->name('legal.terms');
+
 // API Routes
 Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->group(function () {
     // CORS preflight (the middleware answers it before the controller)
