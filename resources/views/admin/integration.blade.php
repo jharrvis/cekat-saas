@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Integration Management')
-@section('page-title', 'Integration Management')
+@section('title', __('nav.integration_management'))
+@section('page-title', __('nav.integration_management'))
 
 @section('content')
     <div>

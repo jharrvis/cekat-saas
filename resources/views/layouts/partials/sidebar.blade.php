@@ -27,134 +27,132 @@
             {{-- ADMIN MENU --}}
             <div x-show="!sidebarCollapsed"
                 class="px-2 mb-2 text-xs font-semibold text-muted-foreground transition-opacity duration-200">
-                ADMIN
+                {{ __('nav.admin_section') }}
             </div>
 
             <a href="{{ route('admin.dashboard') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.dashboard') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-gauge w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Dashboard</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.dashboard') }}</span>
             </a>
 
             <a href="{{ route('admin.landing-chatbot') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.landing-chatbot') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-globe w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Landing Chatbot</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.landing_chatbot') }}</span>
             </a>
 
             <a href="{{ route('admin.transactions') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.transactions') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-credit-card w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Transactions</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.transactions') }}</span>
             </a>
 
             <a href="{{ route('admin.users') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.users') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-users w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Users</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.users') }}</span>
             </a>
 
             <a href="{{ route('admin.plans') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.plans') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-box w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Plans</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.plans') }}</span>
             </a>
 
             <a href="{{ route('admin.models') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.models') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-microchip w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">AI Models & Tiers</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.ai_models_tiers') }}</span>
             </a>
 
             <a href="{{ route('admin.billing') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.billing') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-file-invoice-dollar w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Billing</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.billing') }}</span>
             </a>
 
             <a href="{{ route('admin.chat-inbox') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.chat-inbox') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-inbox w-5 text-center text-base shrink-0"></i>
-                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">Chat
-                    Inbox</span>
+                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.chat_inbox') }}</span>
             </a>
 
             <a href="{{ route('admin.integration') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.integration') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-plug w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Integration</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.integration') }}</span>
             </a>
 
             <a href="{{ route('admin.whatsapp') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.whatsapp') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-brands fa-whatsapp w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">WhatsApp</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.whatsapp') }}</span>
             </a>
 
             <a href="{{ route('admin.email-center') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.email-center') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-envelope w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Email Center</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.email_center') }}</span>
             </a>
 
             <a href="{{ route('admin.settings') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('admin.settings') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-cog w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Settings</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.settings') }}</span>
             </a>
 
         @else
             {{-- USER MENU --}}
             <div x-show="!sidebarCollapsed"
                 class="px-2 mb-2 text-xs font-semibold text-muted-foreground transition-opacity duration-200">
-                MENU UTAMA
+                {{ __('nav.main_menu') }}
             </div>
 
             <a href="{{ route('dashboard') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('dashboard') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-chart-pie w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Dashboard</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.dashboard') }}</span>
             </a>
 
             <a href="{{ route('agents.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('agents.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-brain w-5 text-center text-base shrink-0"></i>
-                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">AI
-                    Agents</span>
+                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.agents') }}</span>
                 <span x-show="!sidebarCollapsed"
-                    class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">NEW</span>
+                    class="ml-auto text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded">{{ __('nav.new_badge') }}</span>
             </a>
 
             <a href="{{ route('channels.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('channels.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-robot w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Channels</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.channels') }}</span>
             </a>
 
             <a href="{{ route('chats.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('chats.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-comments w-5 text-center text-base shrink-0"></i>
-                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">Inbox</span>
+                <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.inbox') }}</span>
             </a>
 
             <a href="{{ route('leads.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('leads.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-user-plus w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Leads</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.leads') }}</span>
                 @unless(auth()->user()->canUseLeads())
                     <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
                         title="Fitur ini tersedia di paket Pro ke atas"></i>
@@ -166,7 +164,7 @@
                     class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('whatsapp.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                     <i class="fa-brands fa-whatsapp w-5 text-center text-base shrink-0"></i>
                     <span x-show="!sidebarCollapsed"
-                        class="font-medium whitespace-nowrap transition-opacity duration-200">WhatsApp</span>
+                        class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.whatsapp') }}</span>
                     @unless(auth()->user()->canUseWhatsApp())
                         <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
                             title="Fitur ini tersedia di paket Pro ke atas"></i>
@@ -178,35 +176,35 @@
 
             <div x-show="!sidebarCollapsed"
                 class="px-2 mb-2 text-xs font-semibold text-muted-foreground transition-opacity duration-200">
-                PENGATURAN
+                {{ __('nav.settings_section') }}
             </div>
 
             <a href="{{ route('settings') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('settings') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-gear w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Settings</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.settings') }}</span>
             </a>
 
             <a href="{{ route('billing') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('billing') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-credit-card w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Billing</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.billing') }}</span>
             </a>
 
             <a href="{{ route('integration') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('integration') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-plug w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">Integration</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.integration') }}</span>
             </a>
 
             <a href="{{ route('api-keys.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('api-keys.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-key w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
-                    class="font-medium whitespace-nowrap transition-opacity duration-200">API Keys</span>
+                    class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.api_keys') }}</span>
                 @unless(auth()->user()->canUseApi())
                     <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
                         title="Fitur ini tersedia di paket Pro ke atas"></i>
@@ -269,7 +267,7 @@
                     @elseif($sidebarWarning === 'critical')
                         <i class="fa-solid fa-exclamation-circle mr-1"></i>Kuota Hampir Habis
                     @else
-                        Plan: {{ $plan->name ?? 'Starter' }}
+                        {{ __('nav.plan_label') }}: {{ $plan->name ?? 'Starter' }}
                     @endif
                 </p>
             </div>
@@ -279,7 +277,7 @@
                     style="width: {{ $percentage }}%"></div>
             </div>
             <p class="text-[10px] text-muted-foreground">
-                {{ number_format($used, 0, ',', '.') }} / {{ number_format($quota, 0, ',', '.') }} Messages
+                {{ number_format($used, 0, ',', '.') }} / {{ number_format($quota, 0, ',', '.') }} {{ __('nav.messages') }}
             </p>
             @if($user->plan_expires_at && $plan && $plan->price > 0)
                 @php($daysLeft = (int) ceil(now()->diffInDays($user->plan_expires_at, false)))
@@ -295,7 +293,7 @@
             @if($sidebarWarning !== 'normal')
                 <a href="{{ route('billing') }}"
                     class="block mt-2 text-center px-2 py-1 {{ $sidebarWarning === 'exceeded' ? 'bg-red-500 hover:bg-red-600' : 'bg-amber-500 hover:bg-amber-600' }} text-white text-xs rounded font-medium transition">
-                    <i class="fa-solid fa-arrow-up mr-1"></i>Upgrade
+                    <i class="fa-solid fa-arrow-up mr-1"></i>{{ __('nav.upgrade') }}
                 </a>
             @endif
         </div>

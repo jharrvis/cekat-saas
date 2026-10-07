@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'System Settings')
-@section('page-title', 'System Settings')
+@section('title', __('nav.system_settings'))
+@section('page-title', __('nav.system_settings'))
 
 @section('content')
     <div class="bg-card rounded-xl shadow-sm border p-6">

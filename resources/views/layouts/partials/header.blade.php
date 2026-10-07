@@ -13,7 +13,7 @@
             <i class="fa-solid fa-bars text-lg"></i>
         </button>
 
-        <div class="font-semibold text-lg">@yield('page-title', 'Dashboard')</div>
+        <div class="font-semibold text-lg">@yield('page-title', __('nav.dashboard'))</div>
     </div>
 
     <div class="flex items-center gap-2">

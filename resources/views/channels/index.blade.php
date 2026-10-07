@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Channels')
-@section('page-title', 'Channels')
+@section('title', __('nav.channels'))
+@section('page-title', __('nav.channels'))
 
 @section('content')
     <div>

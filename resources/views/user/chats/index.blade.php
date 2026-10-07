@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Chat History')
+@section('title', __('nav.chat_history'))
 
 @section('content')
     <div class="space-y-6">

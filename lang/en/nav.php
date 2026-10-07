@@ -1,0 +1,42 @@
+<?php
+
+// Navigation labels (sidebar + page titles). Key-identical mirror of
+// lang/id/nav.php (parity guarded by LocaleTest).
+
+return [
+    'main_menu' => 'MAIN MENU',
+    'settings_section' => 'SETTINGS',
+    'admin_section' => 'ADMIN',
+    'dashboard' => 'Dashboard',
+    'admin_dashboard' => 'Admin Dashboard',
+    'agents' => 'AI Agents',
+    'channels' => 'Channels',
+    'inbox' => 'Inbox',
+    'chat_inbox' => 'Chat Inbox',
+    'leads' => 'Leads',
+    'whatsapp' => 'WhatsApp',
+    'settings' => 'Settings',
+    'account_settings' => 'Account Settings',
+    'billing' => 'Billing',
+    'billing_subscription' => 'Billing & Subscription',
+    'integration' => 'Integration',
+    'integration_management' => 'Integration Management',
+    'api_keys' => 'API Keys',
+    'landing_chatbot' => 'Landing Chatbot',
+    'transactions' => 'Transactions',
+    'transaction_monitor' => 'Transaction Monitor',
+    'users' => 'Users',
+    'user_management' => 'User Management',
+    'plans' => 'Plans',
+    'plan_management' => 'Plan Management',
+    'ai_models_tiers' => 'AI Models & Tiers',
+    'email_center' => 'Email Center',
+    'system_settings' => 'System Settings',
+    'new_badge' => 'NEW',
+    'plan_label' => 'Plan',
+    'messages' => 'Messages',
+    'upgrade' => 'Upgrade',
+    'chat_history' => 'Chat History',
+    'test_widget' => 'Test Widget',
+    'widget_customizer' => 'Widget Customizer',
+];

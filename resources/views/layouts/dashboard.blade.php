@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - Cekat.biz.id</title>
+    <title>@yield('title', __('nav.dashboard')) - Cekat.biz.id</title>
 
     {{-- Alpine.js is included automatically by Livewire 3 --}}
     @livewireStyles

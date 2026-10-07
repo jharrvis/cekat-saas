@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'System Settings')
-@section('page-title', 'System Settings')
+@section('title', __('nav.system_settings'))
+@section('page-title', __('nav.system_settings'))
 
 @section('content')
     @livewire('admin.system-settings')

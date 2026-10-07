@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Dashboard')
+@section('title', __('nav.dashboard'))
 
 @section('content')
     <div class="space-y-6">

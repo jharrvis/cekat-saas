@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Email Center')
-@section('page-title', 'Email Center')
+@section('title', __('nav.email_center'))
+@section('page-title', __('nav.email_center'))
 
 @section('content')
     @php

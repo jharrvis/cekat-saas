@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'AI Agents')
-@section('page-title', 'AI Agents')
+@section('title', __('nav.agents'))
+@section('page-title', __('nav.agents'))
 
 @section('content')
     <div class="space-y-6">

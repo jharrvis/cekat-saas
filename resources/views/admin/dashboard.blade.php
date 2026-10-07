@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Admin Dashboard')
-@section('page-title', 'Admin Dashboard')
+@section('title', __('nav.admin_dashboard'))
+@section('page-title', __('nav.admin_dashboard'))
 
 @section('content')
     <div>

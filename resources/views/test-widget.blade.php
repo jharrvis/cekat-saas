@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Test Widget')
+@section('title', __('nav.test_widget'))
 @section('page-title', 'Test Your Chatbot')
 
 @section('content')

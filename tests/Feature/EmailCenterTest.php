@@ -43,7 +43,7 @@ class EmailCenterTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.email-center'))
             ->assertOk()
-            ->assertSee('Email Center')
+            ->assertSee('Pusat Email')
             ->assertSee('Log Email');
     }
 

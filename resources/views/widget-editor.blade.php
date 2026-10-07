@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Widget Customizer')
+@section('title', __('nav.widget_customizer'))
 @section('page-title', 'Tampilan Widget')
 
 @section('content')

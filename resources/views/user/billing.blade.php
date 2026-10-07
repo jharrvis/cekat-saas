@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Billing & Subscription')
+@section('title', __('nav.billing_subscription'))
 
 @push('scripts')
     {{-- Midtrans Snap JS --}}

@@ -1,7 +1,7 @@
 @extends('layouts.dashboard')
 
-@section('title', 'User Management')
-@section('page-title', 'User Management')
+@section('title', __('nav.user_management'))
+@section('page-title', __('nav.user_management'))
 
 @section('content')
     @livewire('admin.user-manager')

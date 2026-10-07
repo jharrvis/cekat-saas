@@ -46,10 +46,10 @@ class PageTitlesTest extends TestCase
         ]);
 
         $expectations = [
-            [route('dashboard'), 'Dashboard - Cekat.biz.id'],
-            [route('agents.index'), 'AI Agents - Cekat.biz.id'],
-            [route('channels.index'), 'Channels - Cekat.biz.id'],
-            [route('billing'), 'Billing &amp; Subscription - Cekat.biz.id'],
+            [route('dashboard'), 'Dasbor - Cekat.biz.id'],
+            [route('agents.index'), 'Agen AI - Cekat.biz.id'],
+            [route('channels.index'), 'Saluran - Cekat.biz.id'],
+            [route('billing'), 'Penagihan &amp; Langganan - Cekat.biz.id'],
             [route('settings'), 'Pengaturan Akun - Cekat.biz.id'],
         ];
 

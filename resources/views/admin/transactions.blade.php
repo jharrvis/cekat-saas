@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Transaction Monitor')
+@section('title', __('nav.transaction_monitor'))
 
 @section('content')
     @livewire('admin.transaction-monitor')
