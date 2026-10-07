@@ -136,15 +136,17 @@
                 </div>
 
                 <!-- FORM REGISTER -->
-                <form method="POST" action="{{ route('register') }}" data-loading>
+                <form method="POST" action="{{ route('register') }}" data-loading novalidate>
                     @csrf
+
+                    <x-auth-error-summary />
 
                     <div class="space-y-4">
                         <div>
                             <label for="name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Nama Lengkap</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i data-lucide="user" class="w-4 h-4"></i></span>
-                                <input type="text" id="name" name="name" value="{{ old('name') }}" required autofocus placeholder="Budi Santoso"
+                                <input type="text" id="name" name="name" @error('name') aria-invalid="true" @enderror value="{{ old('name') }}" required autofocus placeholder="Budi Santoso"
                                     class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors @error('name') border-red-500 focus:border-red-500 @enderror">
                             </div>
                             @error('name')
@@ -155,7 +157,7 @@
                             <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Email Perusahaan</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i data-lucide="mail" class="w-4 h-4"></i></span>
-                                <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="budi@perusahaan.com"
+                                <input type="email" id="email" name="email" @error('email') aria-invalid="true" @enderror value="{{ old('email') }}" required placeholder="budi@perusahaan.com"
                                     class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors @error('email') border-red-500 focus:border-red-500 @enderror">
                             </div>
                             @error('email')
@@ -166,7 +168,7 @@
                             <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Kata Sandi Baru</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i data-lucide="key" class="w-4 h-4"></i></span>
-                                <input type="password" id="password" name="password" required placeholder="Minimal 8 karakter"
+                                <input type="password" id="password" name="password" @error('password') aria-invalid="true" @enderror required placeholder="Minimal 8 karakter"
                                     class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors @error('password') border-red-500 focus:border-red-500 @enderror">
                             </div>
                             @error('password')
@@ -177,9 +179,12 @@
                             <label for="password_confirmation" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Konfirmasi Kata Sandi</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i data-lucide="shield-check" class="w-4 h-4"></i></span>
-                                <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Ulangi kata sandi"
-                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors">
+                                <input type="password" id="password_confirmation" name="password_confirmation" @error('password_confirmation') aria-invalid="true" @enderror required placeholder="Ulangi kata sandi"
+                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors @error('password_confirmation') border-red-500 focus:border-red-500 @enderror">
                             </div>
+                            @error('password_confirmation')
+                                <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                         <button type="submit" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-500/25 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
                             Daftar & Buat Bot Pertama

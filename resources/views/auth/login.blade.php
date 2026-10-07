@@ -136,23 +136,22 @@
                 </div>
 
                 <!-- FORM LOGIN -->
-                <form method="POST" action="/login" data-loading>
+                <form method="POST" action="/login" data-loading novalidate>
                     @csrf
 
-                    @if($errors->any())
-                        <div class="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm mb-4">
-                            {{ $errors->first() }}
-                        </div>
-                    @endif
+                    <x-auth-error-summary />
 
                     <div class="space-y-4">
                         <div>
                             <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">Email Perusahaan</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i data-lucide="mail" class="w-4 h-4"></i></span>
-                                <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="nama@perusahaan.com"
-                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors">
+                                <input type="email" id="email" name="email" value="{{ old('email') }}" required placeholder="nama@perusahaan.com" @error('email') aria-invalid="true" @enderror
+                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors @error('email') border-red-500 focus:border-red-500 @enderror">
                             </div>
+                            @error('email')
+                                <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-2">
@@ -161,9 +160,12 @@
                             </div>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400"><i data-lucide="key" class="w-4 h-4"></i></span>
-                                <input type="password" id="password" name="password" required placeholder="••••••••"
-                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors">
+                                <input type="password" id="password" name="password" required placeholder="••••••••" @error('password') aria-invalid="true" @enderror
+                                    class="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white transition-colors @error('password') border-red-500 focus:border-red-500 @enderror">
                             </div>
+                            @error('password')
+                                <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                         <button type="submit" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-500/25 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
                             Masuk ke Dasbor

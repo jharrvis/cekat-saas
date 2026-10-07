@@ -24,12 +24,14 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('password.email') }}">
+                <form method="POST" action="{{ route('password.email') }}" novalidate>
                     @csrf
+
+                    <x-auth-error-summary />
 
                     <div class="mb-6">
                         <label for="email" class="block text-sm font-medium text-slate-700 mb-2">Email Address</label>
-                        <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                        <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus @error('email') aria-invalid="true" @enderror
                             class="w-full px-4 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('email') border-red-500 @enderror">
                         @error('email')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
