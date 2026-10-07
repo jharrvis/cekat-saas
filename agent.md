@@ -24,7 +24,7 @@ The product domain is an AI customer service SaaS. The core concepts are:
 - Prefer existing project patterns over new abstractions.
 - Do not put large business logic in Blade views or route closures.
 - Do not add new product concepts when an existing domain concept fits.
-- Do not expose real model complexity to users when a plan or AI quality tier abstraction is intended.
+- Do not expose AI model or provider identity to users at all (owner policy, T-21): never name a model/provider in UI copy, public API responses, emails, or docs; do not surface internal AI tier names to users either — plans are communicated through quota and features. Model/tier mapping is admin-only (see `docs/i18n-inventory.md` and `ModelMaskingTest`).
 - Do not change database relationships without a migration and compatibility plan.
 - Do not leave documentation outdated after behavior, routes, environment variables, migrations, or workflows change.
 - Do not claim tests passed unless they were actually run.
@@ -214,8 +214,8 @@ When implementation details are not specified, use these defaults:
 
 - Treat AI Agent as the primary product object.
 - Treat Web Widget and WhatsApp as channels.
-- Keep model names abstracted behind plan AI tiers for normal users.
+- Keep model names and AI tier names hidden from normal users entirely; they exist only in admin surfaces, logs, and the `ai_model_used` column.
 - Keep admin controls explicit and operational.
 - Keep user workflows simple and guided.
-- Preserve Indonesian language UX where the current screen already uses Indonesian.
+- Localization is mandatory, not cosmetic (owner policy, T-12): Indonesian (`id`) is the default locale; every user-facing string goes through Laravel localization keys in `lang/id/` with an identical-key mirror in `lang/en/` (key parity is guarded by `LocaleTest`). Never hardcode user-facing copy in Blade, controllers, Livewire, mailables, or JS — add a lang key instead. Per-user language lives in `users.locale`; adding a language means adding a `lang/<code>` folder.
 - Preserve existing data and backward compatibility unless the user approves a breaking migration.
