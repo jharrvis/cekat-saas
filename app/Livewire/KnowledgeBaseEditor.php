@@ -23,6 +23,7 @@ class KnowledgeBaseEditor extends Component
 
     // Company Info
     public $company_name = '';
+    public $maxFileSizeMb = 10;
     public $company_description = '';
     public $persona_name = '';
     public $persona_tone = 'friendly';
@@ -74,6 +75,10 @@ class KnowledgeBaseEditor extends Component
                 'persona_tone' => 'friendly',
             ]);
         }
+
+        // T-15: the upload limit shown to the user is their plan's
+        // effective limit, not a static number.
+        $this->maxFileSizeMb = intdiv($this->uploadMaxKilobytes(), 1024);
 
         // Load data
         $this->loadKnowledgeBase();

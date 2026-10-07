@@ -76,22 +76,26 @@
                         </p>
 
                         <div class="grid md:grid-cols-4 gap-4">
-                            {{-- Step 1 --}}
+                            {{-- Step 1: T-15/F-17 — checked only when a widget is
+                                 actually LINKED to an agent. Every new account owns
+                                 an auto-created default widget, so mere existence
+                                 must not complete this step. --}}
+                            @php $hasLinkedWidget = $widgets->contains(fn ($w) => $w->ai_agent_id !== null); @endphp
                             <div
-                                class="flex flex-col items-center text-center p-4 bg-card rounded-lg border {{ $widgets->count() > 0 ? 'border-green-500 bg-green-50 dark:bg-green-950/30' : '' }}">
+                                class="flex flex-col items-center text-center p-4 bg-card rounded-lg border {{ $hasLinkedWidget ? 'border-green-500 bg-green-50 dark:bg-green-950/30' : '' }}">
                                 <div
-                                    class="w-8 h-8 rounded-full {{ $widgets->count() > 0 ? 'bg-green-500' : 'bg-muted' }} text-white flex items-center justify-center text-sm font-bold mb-2">
-                                    @if($widgets->count() > 0)
+                                    class="w-8 h-8 rounded-full {{ $hasLinkedWidget ? 'bg-green-500' : 'bg-muted' }} text-white flex items-center justify-center text-sm font-bold mb-2">
+                                    @if($hasLinkedWidget)
                                         <i class="fa-solid fa-check"></i>
                                     @else
                                         1
                                     @endif
                                 </div>
                                 <h4 class="font-semibold text-sm">Buat Channel</h4>
-                                <p class="text-xs text-muted-foreground mt-1">Buat channel pertama Anda</p>
-                                @if($widgets->count() === 0)
-                                    <a href="{{ route('channels.create') }}" class="mt-2 text-xs text-primary hover:underline">
-                                        Mulai →
+                                <p class="text-xs text-muted-foreground mt-1">Hubungkan channel ke AI Agent Anda</p>
+                                @if(!$hasLinkedWidget)
+                                    <a href="{{ route('channels.index') }}" class="mt-2 text-xs text-primary hover:underline">
+                                        Hubungkan →
                                     </a>
                                 @endif
                             </div>

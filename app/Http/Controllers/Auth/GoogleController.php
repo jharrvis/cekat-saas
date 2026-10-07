@@ -65,7 +65,7 @@ class GoogleController extends Controller
 
                 // Create knowledge base
                 $widget->knowledgeBase()->create([
-                    'company_name' => $user->name,
+                    'company_name' => '', // T-15: jangan isi nama pemilik sebagai nama bisnis; pengguna mengisinya di Info Bisnis
                     'persona_name' => 'AI Assistant',
                     'persona_tone' => 'friendly',
                 ]);
