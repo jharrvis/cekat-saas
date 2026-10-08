@@ -138,6 +138,16 @@
                         @endif
                     </div>
 
+                    {{-- Lead Notification Device Token --}}
+                    <div>
+                        <label class="block text-sm font-medium mb-2">{{ __('admin.s.lead_notif_device_token') }}
+                        </label>
+                        <input type="password" wire:model="leadNotifDeviceToken"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            placeholder="{{ __('admin.s.enter_device_token') }}">
+                        <p class="text-xs text-muted-foreground mt-1">{{ __('admin.s.lead_notif_device_token_help') }}</p>
+                    </div>
+
                     {{-- Fallback Message --}}
                     <div>
                         <label class="block text-sm font-medium mb-2">{{ __('agents.s.fallback_message') }}</label>

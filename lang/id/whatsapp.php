@@ -2,6 +2,11 @@
 
 return [
     'module_unavailable' => 'Modul WhatsApp tidak tersedia.',
+    'lead_notif_title' => '🔔 Lead baru dari :channel',
+    'lead_notif_name' => 'Nama: :value',
+    'lead_notif_email' => 'Email: :value',
+    'lead_notif_phone' => 'WhatsApp: :value',
+    'lead_notif_view' => 'Lihat percakapan: :url',
     'device_created' => 'Device berhasil dibuat. Silakan scan QR code untuk menghubungkan.',
     'device_create_failed' => 'Gagal membuat device: :message',
     'device_updated' => 'Device berhasil diperbarui.',

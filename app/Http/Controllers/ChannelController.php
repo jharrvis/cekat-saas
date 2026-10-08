@@ -145,6 +145,15 @@ class ChannelController extends Controller
             // Off = legacy behaviour (always notify); on = honor the checkbox.
             $settings['lead_email_new_lead'] = $notifEnabled ? $request->has('lead_email_new_lead') : true;
 
+            // WhatsApp notification per channel (validated by
+            // UpdateWidgetRequest: lead_wa_notif is required when the
+            // toggle is on). Stored normalized to the 62xx digit form.
+            $waNotifEnabled = $request->has('lead_wa_notif_enabled');
+            $settings['lead_wa_notif_enabled'] = $waNotifEnabled;
+            $settings['lead_wa_notif'] = \App\Services\WhatsApp\PhoneNumber::normalizeId($request->input('lead_wa_notif'))
+                ?? trim((string) $request->input('lead_wa_notif', ''));
+            $settings['lead_wa_new_lead'] = $waNotifEnabled ? $request->has('lead_wa_new_lead') : true;
+
             $chatbot->update(['settings' => $settings]);
 
             return redirect()->back()->with('success', __('channels.lead_settings_saved'));

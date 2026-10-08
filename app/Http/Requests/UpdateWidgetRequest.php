@@ -28,6 +28,13 @@ class UpdateWidgetRequest extends FormRequest
         if (! $this->has('lead_email_notif_enabled') && trim((string) $this->input('lead_email_notif', '')) === '') {
             $this->request->remove('lead_email_notif');
         }
+
+        // Same pattern for the WhatsApp notification number: the input
+        // submits "" while its toggle is off; drop it so the format rule
+        // does not fail on the empty hidden value.
+        if (! $this->has('lead_wa_notif_enabled') && trim((string) $this->input('lead_wa_notif', '')) === '') {
+            $this->request->remove('lead_wa_notif');
+        }
     }
 
     public function rules(): array
@@ -53,6 +60,7 @@ class UpdateWidgetRequest extends FormRequest
             'lead_trigger_after_message' => 'nullable|integer|min:1|max:50',
             'lead_trigger_keywords' => 'nullable|string|max:1000',
             'lead_email_notif' => ['required_if:lead_email_notif_enabled,1', 'email', 'max:255'],
+            'lead_wa_notif' => ['required_if:lead_wa_notif_enabled,1', 'nullable', 'string', 'max:25', 'regex:/^[0-9+\s.\-]+$/'],
             // Webhook tab
             'webhook_url' => 'nullable|url|max:2000',
             'webhook_secret' => 'nullable|string|max:500',
