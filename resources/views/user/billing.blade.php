@@ -168,7 +168,9 @@
                                                 <i class="fa-solid fa-credit-card mr-1"></i>{{ __('billing.s.lanjutkan') }}
                                             </button>
                                         @elseif($tx->status === 'success')
-                                            <span class="text-green-600"><i class="fa-solid fa-check"></i></span>
+                                            <a href="{{ route('billing.invoice.download', $tx) }}" class="px-3 py-1 text-xs border rounded-lg hover:bg-muted transition" title="{{ __('billing.s.invoice_unduh') }}">
+                                                <i class="fa-solid fa-file-arrow-down mr-1"></i>{{ __('billing.s.invoice_unduh') }}
+                                            </a>
                                         @else
                                             <span class="text-muted-foreground">-</span>
                                         @endif
@@ -193,15 +195,8 @@
                 <div class="bg-card rounded-xl border p-4">
                     <h3 class="font-semibold mb-3">{{ __('admin.s.quick_actions') }}</h3>
                     <div class="space-y-2">
-                        <a href="#" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition text-sm">
-                            <i class="fa-solid fa-credit-card w-5 mr-2"></i>{{ __('billing.s.kelola_metode_bayar') }}
-                        </a>
-                        <a href="#" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition text-sm">
+                        <a href="{{ route('billing.invoices.download_all') }}" class="block w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition text-sm">
                             <i class="fa-solid fa-receipt w-5 mr-2"></i>{{ __('billing.s.download_all_invoices') }}
-                        </a>
-                        <a href="#"
-                            class="block w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition text-sm text-red-500">
-                            <i class="fa-solid fa-times-circle w-5 mr-2"></i>{{ __('billing.s.cancel_subscription') }}
                         </a>
                     </div>
                 </div>

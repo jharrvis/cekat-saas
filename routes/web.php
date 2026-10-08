@@ -360,6 +360,8 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     // Payment Routes (Midtrans)
     Route::post('/billing/pay/{plan}', [App\Http\Controllers\PaymentController::class, 'createTransaction'])->name('billing.pay');
     Route::get('/billing/transactions/{transaction}/status', [App\Http\Controllers\PaymentController::class, 'transactionStatus'])->name('billing.transaction.status');
+    Route::get('/billing/invoices/download-all', [App\Http\Controllers\User\InvoiceController::class, 'downloadAll'])->name('billing.invoices.download_all');
+    Route::get('/billing/invoices/{transaction}/download', [App\Http\Controllers\User\InvoiceController::class, 'download'])->name('billing.invoice.download');
     Route::get('/payment/finish', [App\Http\Controllers\PaymentController::class, 'finish'])->name('payment.finish');
 });
 

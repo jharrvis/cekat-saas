@@ -53,6 +53,20 @@ class PaymentSuccess extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        // Attach the invoice PDF; a rendering failure must never block
+        // the success email itself.
+        try {
+            $transaction = $this->transaction->loadMissing('plan');
+            $pdf = \App\Services\Billing\InvoiceService::pdf(collect([$transaction]), $this->user);
+
+            return [
+                \Illuminate\Mail\Mailables\Attachment::fromData(
+                    fn () => $pdf,
+                    \App\Services\Billing\InvoiceService::fileName($transaction)
+                )->withMime('application/pdf'),
+            ];
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 }
