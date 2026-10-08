@@ -34,12 +34,14 @@ class ChatSession extends Model
         'referer_url',
         'is_lead',
         'is_preview',
+        'read_at',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
         'summary_generated_at' => 'datetime',
+        'read_at' => 'datetime',
         'is_converted' => 'boolean',
         'is_lead' => 'boolean',
         'is_preview' => 'boolean',
@@ -50,6 +52,26 @@ class ChatSession extends Model
      * T-07: only real visitor sessions (exclude owner test/preview sessions)
      * for customer-facing history, stats, and lead surfaces.
      */
+    /** Unread for the owner: not opened since the last visitor activity. */
+    public function scopeUnread($query)
+    {
+        return $query->whereNull('read_at');
+    }
+
+    public function markAsRead(): void
+    {
+        if ($this->read_at === null) {
+            $this->forceFill(['read_at' => now()])->save();
+        }
+    }
+
+    public function markAsUnread(): void
+    {
+        if ($this->read_at !== null) {
+            $this->forceFill(['read_at' => null])->save();
+        }
+    }
+
     public function scopeReal($query)
     {
         return $query->where('is_preview', false);

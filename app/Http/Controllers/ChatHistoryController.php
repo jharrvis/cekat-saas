@@ -79,6 +79,9 @@ class ChatHistoryController extends Controller
                 ])
             ->findOrFail($id);
 
+        // Opening the detail marks the session as read (sidebar counters).
+        $session->markAsRead();
+
         Gate::authorize('view', $session);
 
         return view('user.chats.show', compact('session'));

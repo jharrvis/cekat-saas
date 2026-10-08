@@ -142,10 +142,22 @@
                     class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.channels') }}</span>
             </a>
 
+            @php
+                // Unread counters ("belum dibuka") for the member sidebar:
+                // sessions not opened since their last visitor activity.
+                $leadQueryService = app(\App\Services\Api\LeadQueryService::class);
+                $sidebarWidgetIds = auth()->user()->widgets()->pluck('id');
+                $unreadInboxCount = \App\Models\ChatSession::real()->unread()->whereIn('widget_id', $sidebarWidgetIds)->count();
+                $unreadLeadsCount = $leadQueryService->leadsFor(auth()->user())->real()->unread()->count();
+            @endphp
             <a href="{{ route('chats.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors group relative {{ request()->routeIs('chats.*') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground' }}">
                 <i class="fa-solid fa-comments w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed" class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.inbox') }}</span>
+                @if($unreadInboxCount > 0)
+                    <span x-show="!sidebarCollapsed"
+                        class="ml-auto min-w-[20px] text-center text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">{{ $unreadInboxCount > 99 ? '99+' : $unreadInboxCount }}</span>
+                @endif
             </a>
 
             <a href="{{ route('leads.index') }}"
@@ -153,6 +165,12 @@
                 <i class="fa-solid fa-user-plus w-5 text-center text-base shrink-0"></i>
                 <span x-show="!sidebarCollapsed"
                     class="font-medium whitespace-nowrap transition-opacity duration-200">{{ __('nav.leads') }}</span>
+                @if(auth()->user()->canUseLeads())
+                @if($unreadLeadsCount > 0)
+                    <span x-show="!sidebarCollapsed"
+                        class="ml-auto min-w-[20px] text-center text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full">{{ $unreadLeadsCount > 99 ? '99+' : $unreadLeadsCount }}</span>
+                @endif
+                @endif
                 @unless(auth()->user()->canUseLeads())
                     <i class="fa-solid fa-lock ml-auto text-[10px] opacity-70"
                         title="{{ __('general.s.fitur_ini_tersedia_di_paket_pro_ke_atas') }}"></i>

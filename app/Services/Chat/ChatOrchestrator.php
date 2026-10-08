@@ -479,5 +479,11 @@ class ChatOrchestrator
             'tokens_used' => $usage['total_tokens'] ?? 0,
             'model_used' => $model,
         ]);
+
+        // A fresh visitor exchange lights the owner's unread counters
+        // again (preview/test sessions never count).
+        if (! $session->is_preview) {
+            $session->markAsUnread();
+        }
     }
 }
