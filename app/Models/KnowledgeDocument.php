@@ -13,6 +13,8 @@ class KnowledgeDocument extends Model
         'knowledge_base_id',
         'name',
         'type',
+        'source',
+        'external_ref',
         'file_path',
         'url',
         'content',
