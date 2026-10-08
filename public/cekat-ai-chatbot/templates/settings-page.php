@@ -13,6 +13,9 @@ $position = get_option('cekat_position', 'bottom-right');
 $primary_color = get_option('cekat_primary_color', '#6366f1');
 $primary_color = get_option('cekat_primary_color', '#6366f1');
 $exclude_pages = get_option('cekat_exclude_pages', '');
+$api_key = get_option('cekat_api_key', '');
+$wc_sync_enabled = get_option('cekat_wc_sync_enabled', 0);
+$wc_last_sync = get_option('cekat_wc_last_sync', null);
 $webhook_secret = get_option('cekat_webhook_secret', '');
 ?>
 
@@ -152,8 +155,69 @@ $webhook_secret = get_option('cekat_webhook_secret', '');
                                 <p class="description"><?php _e('Create a random secret key and save it here AND in Cekat Widget Settings.', 'cekat-ai-chatbot'); ?></p>
                             </td>
                         </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="cekat_api_key"><?php _e('API Key', 'cekat-ai-chatbot'); ?></label>
+                            </th>
+                            <td>
+                                <input type="password"
+                                       id="cekat_api_key"
+                                       name="cekat_api_key"
+                                       value="<?php echo esc_attr($api_key); ?>"
+                                       class="regular-text"
+                                       placeholder="ck_live_...">
+                                <button type="button" class="button button-secondary" onclick="document.getElementById('cekat_api_key').type = 'text'">
+                                    <span class="dashicons dashicons-visibility"></span>
+                                </button>
+                                <p class="description"><?php _e('Create an API key in your Cekat dashboard (Settings &gt; API Keys). Used by integrations such as the WooCommerce product sync below.', 'cekat-ai-chatbot'); ?></p>
+                            </td>
+                        </tr>
                     </table>
                 </div>
+
+                <?php if (class_exists('WooCommerce')) : ?>
+                <!-- WooCommerce Card -->
+                <div class="cekat-card">
+                    <h2><?php _e('WooCommerce Product Sync', 'cekat-ai-chatbot'); ?></h2>
+                    <p class="description" style="margin-bottom: 12px;">
+                        <?php _e('Sync your product catalog (name, price, stock, description, link) into the chatbot knowledge base, so the chatbot can answer product and stock questions. Products stay in sync automatically when they change.', 'cekat-ai-chatbot'); ?>
+                    </p>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="cekat_wc_sync_enabled"><?php _e('Enable Sync', 'cekat-ai-chatbot'); ?></label>
+                            </th>
+                            <td>
+                                <label>
+                                    <input type="checkbox"
+                                           id="cekat_wc_sync_enabled"
+                                           name="cekat_wc_sync_enabled"
+                                           value="1"
+                                           <?php checked($wc_sync_enabled, 1); ?>>
+                                    <?php _e('Keep products synced to the chatbot knowledge base', 'cekat-ai-chatbot'); ?>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label><?php _e('Full Sync', 'cekat-ai-chatbot'); ?></label>
+                            </th>
+                            <td>
+                                <button type="button" id="cekat-wc-sync-all" class="button">
+                                    <?php _e('Sync All Products Now', 'cekat-ai-chatbot'); ?>
+                                </button>
+                                <span id="cekat-wc-sync-status"></span>
+                                <?php if (is_array($wc_last_sync)) : ?>
+                                    <p class="description">
+                                        <?php printf(__('Last full sync: %s (%d sent, %d failed of %d products).', 'cekat-ai-chatbot'), esc_html($wc_last_sync['at']), (int) $wc_last_sync['synced'], (int) $wc_last_sync['failed'], (int) $wc_last_sync['total']); ?>
+                                    </p>
+                                <?php endif; ?>
+                                <p class="description"><?php _e('Save the settings first, then run a full sync once. After that, product changes sync automatically.', 'cekat-ai-chatbot'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <?php endif; ?>
 
                 <?php submit_button(__('Save Settings', 'cekat-ai-chatbot')); ?>
             </form>

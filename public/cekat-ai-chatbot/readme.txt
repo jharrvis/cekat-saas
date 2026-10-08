@@ -3,7 +3,7 @@ Contributors: cekatbizid
 Tags: chatbot, ai, customer service, live chat, support
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -16,8 +16,9 @@ Cekat AI Chatbot adalah plugin WordPress yang memungkinkan Anda menambahkan chat
 
 * Menjawab pertanyaan pelanggan secara otomatis 24/7
 * Belajar dari knowledge base yang Anda definisikan
-* Menggunakan berbagai model AI (GPT-4, Claude, dll)
+* Didukung teknologi AI generatif dan RAG (Retrieval-Augmented Generation)
 * Mengumpulkan leads dari visitor website
+* Integrasi WooCommerce: katalog produk (harga, stok, deskripsi) tersinkron otomatis ke knowledge base sehingga chatbot bisa menjawab pertanyaan produk dan stok
 
 **Fitur Utama:**
 
@@ -65,6 +66,10 @@ Ya, Anda dapat mengubah warna, posisi, greeting message, dan lainnya melalui das
 3. Dashboard Cekat.biz.id
 
 == Changelog ==
+
+= 1.1.0 =
+* Integrasi WooCommerce: sinkronisasi katalog produk (nama, harga, stok, kategori, deskripsi, tautan) ke knowledge base chatbot secara otomatis saat produk berubah, plus sinkronisasi penuh manual dari halaman pengaturan
+* Pengaturan API Key untuk integrasi server-to-server
 
 = 1.0.0 =
 * Initial release

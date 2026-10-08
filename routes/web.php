@@ -233,6 +233,10 @@ Route::prefix('api/v1')->middleware(['api.key', 'throttle:api-key'])->group(func
     Route::get('/sessions/{id}/messages', [App\Http\Controllers\Api\V1\SessionController::class, 'messages']);
     Route::get('/widgets', [App\Http\Controllers\Api\V1\WidgetController::class, 'index']);
     Route::get('/stats', [App\Http\Controllers\Api\V1\StatsController::class, 'index']);
+    // Knowledge sync writes for integrations (WordPress/WooCommerce
+    // plugin): upsert/remove one document per external item.
+    Route::post('/knowledge/documents', [App\Http\Controllers\Api\V1\KnowledgeSyncController::class, 'upsert']);
+    Route::delete('/knowledge/documents', [App\Http\Controllers\Api\V1\KnowledgeSyncController::class, 'remove']);
 });
 
 // Suspended/Banned Account Info Page
