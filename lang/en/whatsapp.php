@@ -2,6 +2,11 @@
 
 return [
     'module_unavailable' => 'WhatsApp module is not available.',
+    'lead_notif_title' => '🔔 New lead from :channel',
+    'lead_notif_name' => 'Name: :value',
+    'lead_notif_email' => 'Email: :value',
+    'lead_notif_phone' => 'WhatsApp: :value',
+    'lead_notif_view' => 'View conversation: :url',
     'device_created' => 'Device created. Scan the QR code to connect.',
     'device_create_failed' => 'Failed to create device: :message',
     'device_updated' => 'Device updated successfully.',

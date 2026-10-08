@@ -22,6 +22,7 @@ class WhatsAppSettings extends Component
     // Module Settings
     public bool $moduleEnabled = false;
     public string $fonnteAccountToken = '';
+    public string $leadNotifDeviceToken = '';
     public string $fallbackMessage = '';
     public bool $autoReplyEnabled = true;
     public int $maxDevicesPerUser = 1;
@@ -50,6 +51,7 @@ class WhatsAppSettings extends Component
     {
         $this->moduleEnabled = (bool) Setting::get('whatsapp_module_enabled', false);
         $this->fonnteAccountToken = Setting::get('fonnte_account_token', '');
+        $this->leadNotifDeviceToken = Setting::get('whatsapp_lead_notif_device_token', '');
         $this->fallbackMessage = Setting::get(
             'whatsapp_fallback_message',
             'Maaf, saya sedang mengalami gangguan teknis. Silakan coba lagi nanti.'
@@ -96,6 +98,7 @@ class WhatsAppSettings extends Component
     {
         $this->validate([
             'fonnteAccountToken' => 'required_if:moduleEnabled,true|string|max:500',
+            'leadNotifDeviceToken' => 'nullable|string|max:500',
             'fallbackMessage' => 'required|string|max:500',
             'maxDevicesPerUser' => 'required|integer|min:1|max:100',
         ]);
@@ -103,6 +106,7 @@ class WhatsAppSettings extends Component
         // Save settings
         Setting::set('whatsapp_module_enabled', $this->moduleEnabled, 'boolean', 'whatsapp');
         Setting::set('fonnte_account_token', $this->fonnteAccountToken, 'string', 'whatsapp');
+        Setting::set('whatsapp_lead_notif_device_token', $this->leadNotifDeviceToken, 'string', 'whatsapp');
         Setting::set('whatsapp_fallback_message', $this->fallbackMessage, 'string', 'whatsapp');
         Setting::set('whatsapp_auto_reply_enabled', $this->autoReplyEnabled, 'boolean', 'whatsapp');
         Setting::set('whatsapp_max_devices_per_user', $this->maxDevicesPerUser, 'number', 'whatsapp');
@@ -110,6 +114,7 @@ class WhatsAppSettings extends Component
         \App\Events\AdminSettingsChanged::dispatch('whatsapp', auth()->id(), [
             'whatsapp_module_enabled',
             'fonnte_account_token',
+            'whatsapp_lead_notif_device_token',
             'whatsapp_fallback_message',
             'whatsapp_auto_reply_enabled',
             'whatsapp_max_devices_per_user',
