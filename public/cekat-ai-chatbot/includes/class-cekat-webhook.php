@@ -105,6 +105,10 @@ class Cekat_Webhook
             return new WP_Error('secret_required', 'Webhook secret is not configured', array('status' => 401));
         }
 
+        if (!(bool) get_option('cekat_wc_enabled', 1)) {
+            return rest_ensure_response(array('success' => false, 'error' => 'woocommerce_disabled'));
+        }
+
         if (!function_exists('wc_get_order')) {
             return new WP_Error('woocommerce_inactive', 'WooCommerce is not active', array('status' => 400));
         }
@@ -231,6 +235,10 @@ class Cekat_Webhook
     {
         if (empty(get_option('cekat_webhook_secret', ''))) {
             return new WP_Error('secret_required', 'Webhook secret is not configured', array('status' => 401));
+        }
+
+        if (!(bool) get_option('cekat_wc_enabled', 1)) {
+            return rest_ensure_response(array('success' => false, 'error' => 'woocommerce_disabled'));
         }
 
         if (!function_exists('wc_create_order')) {

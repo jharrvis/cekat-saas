@@ -3,7 +3,7 @@
  * Plugin Name: Cekat AI Chatbot
  * Plugin URI: https://cekat.biz.id
  * Description: AI-Powered Customer Service Chatbot untuk WordPress. Integrasikan chatbot cerdas ke website Anda dalam hitungan menit.
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: Cekat.biz.id
  * Author URI: https://cekat.biz.id
  * License: GPL v2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('CEKAT_VERSION', '1.3.0');
+define('CEKAT_VERSION', '1.4.0');
 // Cache-busting version for the served widget bundle (keep in sync with
 // the ?v= query used in resources/views/**/integration & embed snippets).
 define('CEKAT_WIDGET_VERSION', '20260927-p2');
@@ -52,8 +52,10 @@ class Cekat_AI_Chatbot
         require_once CEKAT_PLUGIN_DIR . 'includes/class-cekat-webhook.php';
         Cekat_Webhook::get_instance();
 
-        // WooCommerce catalog sync (only when WooCommerce is active)
-        if (class_exists('WooCommerce')) {
+        // WooCommerce integration (only when WooCommerce is active AND
+        // the master switch is on - sites that do not sell through the
+        // chatbot can turn the whole integration off)
+        if (class_exists('WooCommerce') && (bool) get_option('cekat_wc_enabled', 1)) {
             require_once CEKAT_PLUGIN_DIR . 'includes/class-cekat-woocommerce.php';
             Cekat_WooCommerce::get_instance();
         }
@@ -85,6 +87,7 @@ class Cekat_AI_Chatbot
         // Set default options
         add_option('cekat_widget_id', '');
         add_option('cekat_enabled', '1');
+        add_option('cekat_wc_enabled', '1');
         add_option('cekat_position', 'bottom-right');
         add_option('cekat_primary_color', '#6366f1');
         add_option('cekat_exclude_pages', '');
@@ -145,6 +148,9 @@ class Cekat_AI_Chatbot
             'sanitize_callback' => 'sanitize_text_field'
         ));
         register_setting('cekat_settings', 'cekat_wc_sync_enabled', array(
+            'sanitize_callback' => 'absint'
+        ));
+        register_setting('cekat_settings', 'cekat_wc_enabled', array(
             'sanitize_callback' => 'absint'
         ));
     }
