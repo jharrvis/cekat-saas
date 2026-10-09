@@ -4,6 +4,8 @@ return [
     'language' => 'Bahasa',
     'language_hint' => 'Bahasa tampilan dasbor dan email yang Anda terima.',
     'profile_updated' => 'Profil berhasil diperbarui!',
+    'whatsapp_number' => 'Nomor WhatsApp Notifikasi',
+    'whatsapp_number_hint' => 'Nomor tujuan notifikasi WhatsApp (mis. lead baru) untuk channel yang tidak mengatur nomornya sendiri.',
     'password_changed' => 'Kata sandi berhasil diubah!',
     'email_changed' => 'Email berhasil diubah menjadi :email.',
     's' => [

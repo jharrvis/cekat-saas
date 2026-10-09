@@ -182,6 +182,35 @@ class LeadWhatsAppNotificationTest extends TestCase
         Http::assertNothingSent();
     }
 
+    public function test_falls_back_to_account_number_when_channel_number_is_empty(): void
+    {
+        [$owner, $widget, $session] = $this->makeStack(true, ['lead_wa_notif' => '']);
+        $owner->update(['whatsapp_number' => '0857-1111-2222']);
+
+        $this->capture($widget, $session, ['name' => 'Budi']);
+
+        Http::assertSent(fn (Request $request) => $request['target'] === '6285711112222');
+    }
+
+    public function test_channel_number_wins_over_account_number(): void
+    {
+        [$owner, $widget, $session] = $this->makeStack(true);
+        $owner->update(['whatsapp_number' => '6285711112222']);
+
+        $this->capture($widget, $session, ['name' => 'Budi']);
+
+        Http::assertSent(fn (Request $request) => $request['target'] === '6281234567890');
+    }
+
+    public function test_no_ping_when_channel_and_account_numbers_are_empty(): void
+    {
+        [, $widget, $session] = $this->makeStack(true, ['lead_wa_notif' => '']);
+
+        $this->capture($widget, $session, ['name' => 'Budi']);
+
+        Http::assertNothingSent();
+    }
+
     public function test_phone_number_normalization(): void
     {
         $this->assertSame('6281234567890', PhoneNumber::normalizeId('0812-3456-7890'));
