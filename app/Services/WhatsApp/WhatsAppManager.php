@@ -291,6 +291,18 @@ class WhatsAppManager
         // Send via Fonnte
         $result = $this->fonnte->sendMessage($device->fonnte_device_token, $normalizedPhone, $message);
 
+        // Fonnte returns the message id as an ARRAY (one id per
+        // target). Storing it raw crashed the insert with "Array to
+        // string conversion" AFTER the message was already delivered,
+        // which made processIncomingMessage send its fallback text as
+        // a second message - users saw every AI reply doubled with a
+        // "gangguan teknis" notice. Normalize to a single string id.
+        $fonnteMessageId = $result['id'] ?? null;
+        if (is_array($fonnteMessageId)) {
+            $fonnteMessageId = $fonnteMessageId[0] ?? null;
+        }
+        $resultReason = $result['reason'] ?? null;
+
         // Create message record
         $waMessage = WhatsAppMessage::create([
             'whatsapp_device_id' => $device->id,
@@ -300,9 +312,9 @@ class WhatsAppManager
             'message' => $message,
             'message_type' => 'text',
             'status' => ($result['status'] ?? false) ? 'sent' : 'failed',
-            'fonnte_message_id' => $result['id'] ?? null,
+            'fonnte_message_id' => $fonnteMessageId !== null ? (string) $fonnteMessageId : null,
             'is_ai_response' => $isAiResponse,
-            'error_message' => $result['reason'] ?? null,
+            'error_message' => is_scalar($resultReason) ? (string) $resultReason : null,
         ]);
 
         // Update device stats

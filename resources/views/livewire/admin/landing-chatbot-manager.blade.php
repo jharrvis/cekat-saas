@@ -52,7 +52,8 @@
         <div class="p-6">
             {{-- Knowledge Base Tab --}}
             <div x-show="activeTab === 'knowledge'" x-cloak>
-                @livewire('knowledge-base-editor', ['widgetId' => $widget->{{ __('agents.s.id') }}</div>
+                @livewire('knowledge-base-editor', ['widgetId' => $widget->id])
+            </div>
 
             {{-- AI Model Tab --}}
             <div x-show="activeTab === 'model'" x-cloak>
