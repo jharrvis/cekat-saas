@@ -15,6 +15,8 @@ $primary_color = get_option('cekat_primary_color', '#6366f1');
 $exclude_pages = get_option('cekat_exclude_pages', '');
 $api_key = get_option('cekat_api_key', '');
 $wc_enabled = get_option('cekat_wc_enabled', 1);
+$content_sync_enabled = get_option('cekat_content_sync_enabled', 0);
+$content_last_sync = get_option('cekat_content_last_sync', null);
 $wc_sync_enabled = get_option('cekat_wc_sync_enabled', 0);
 $wc_last_sync = get_option('cekat_wc_last_sync', null);
 $webhook_secret = get_option('cekat_webhook_secret', '');
@@ -171,6 +173,48 @@ $webhook_secret = get_option('cekat_webhook_secret', '');
                                     <span class="dashicons dashicons-visibility"></span>
                                 </button>
                                 <p class="description"><?php _e('Create an API key in your Cekat dashboard (Settings &gt; API Keys). Used by integrations such as the WooCommerce product sync below.', 'cekat-ai-chatbot'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Website Content Card -->
+                <div class="cekat-card">
+                    <h2><?php _e('Website Content Sync', 'cekat-ai-chatbot'); ?></h2>
+                    <p class="description" style="margin-bottom: 12px;">
+                        <?php _e('Sync your published pages, blog posts and site info (name, tagline, store address) into the chatbot knowledge base, so the chatbot can answer general questions about your website - about pages, FAQs, policies - not just product questions.', 'cekat-ai-chatbot'); ?>
+                    </p>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="cekat_content_sync_enabled"><?php _e('Enable Content Sync', 'cekat-ai-chatbot'); ?></label>
+                            </th>
+                            <td>
+                                <label>
+                                    <input type="checkbox"
+                                           id="cekat_content_sync_enabled"
+                                           name="cekat_content_sync_enabled"
+                                           value="1"
+                                           <?php checked($content_sync_enabled, 1); ?>>
+                                    <?php _e('Keep pages, posts and site info synced to the chatbot knowledge base', 'cekat-ai-chatbot'); ?>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label><?php _e('Full Sync', 'cekat-ai-chatbot'); ?></label>
+                            </th>
+                            <td>
+                                <button type="button" id="cekat-content-sync-all" class="button">
+                                    <?php _e('Sync All Content Now', 'cekat-ai-chatbot'); ?>
+                                </button>
+                                <span id="cekat-content-sync-status"></span>
+                                <?php if (is_array($content_last_sync)) : ?>
+                                    <p class="description">
+                                        <?php printf(__('Last full sync: %s (%d sent, %d failed of %d items).', 'cekat-ai-chatbot'), esc_html($content_last_sync['at']), (int) $content_last_sync['synced'], (int) $content_last_sync['failed'], (int) $content_last_sync['total']); ?>
+                                    </p>
+                                <?php endif; ?>
+                                <p class="description"><?php _e('Save the settings first, then run a full sync once. After that, content changes sync automatically.', 'cekat-ai-chatbot'); ?></p>
                             </td>
                         </tr>
                     </table>
