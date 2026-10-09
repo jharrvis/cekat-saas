@@ -14,6 +14,11 @@ return [
     'order_unpaid' => 'Belum dibayar',
     'order_tracking_line' => 'No. resi: :tracking',
     'order_verify_ask' => 'Boleh saya tahu email atau nomor HP yang dipakai saat checkout? Itu diperlukan untuk memverifikasi pesanan ini milik Anda.',
+    'order_created_title' => 'Pesanan #:id berhasil dibuat.',
+    'order_created_pay' => 'Selesaikan pembayaran di sini: :url',
+    'order_create_need_contact' => 'Untuk membuat pesanan, saya perlu nama Anda dan email atau nomor HP untuk data pembeli. Boleh diinfokan?',
+    'order_create_unavailable' => 'Maaf, ada produk yang tidak bisa dipesan saat ini: :detail. Silakan periksa nama produk atau ketersediaannya ya.',
+    'order_create_needs_variant' => 'Produk ini punya beberapa varian: :detail. Mau pilih yang mana?',
     'order_lookup_failed' => 'Maaf, pesanan dengan data tersebut tidak ditemukan atau kontak verifikasinya tidak cocok. Periksa kembali nomor pesanan dan email/no. HP yang dipakai saat checkout ya.',
     'order_status_labels' => [
         'pending' => 'Menunggu pembayaran',

@@ -14,6 +14,11 @@ return [
     'order_unpaid' => 'Unpaid',
     'order_tracking_line' => 'Tracking number: :tracking',
     'order_verify_ask' => 'May I have the email or phone number used at checkout? It is needed to verify this order belongs to you.',
+    'order_created_title' => 'Order #:id has been created.',
+    'order_created_pay' => 'Complete your payment here: :url',
+    'order_create_need_contact' => 'To place the order I need your name and an email or phone number for the buyer details. Could you share them?',
+    'order_create_unavailable' => 'Sorry, some items cannot be ordered right now: :detail. Please check the product name or availability.',
+    'order_create_needs_variant' => 'This product has several variants: :detail. Which one would you like?',
     'order_lookup_failed' => 'Sorry, no order matches that data, or the verification contact does not match. Please double-check the order number and the email/phone used at checkout.',
     'order_status_labels' => [
         'pending' => 'Awaiting payment',
