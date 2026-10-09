@@ -105,6 +105,13 @@ class DashboardController extends Controller
             $quotaWarningLevel = 'warning';
         }
 
+        // Subscription summary for the dashboard card: the quota
+        // numbers above were already computed, but the plan name and
+        // the subscription end date were never shown to the user.
+        $currentPlan = app(\App\Services\Billing\PlanLimitService::class)->planFor($user);
+        $planName = $currentPlan->name;
+        $planExpiresAt = $user->plan_expires_at;
+
         // Recent Conversations (5 terbaru)
         $recentConversations = $this->getRecentConversations($widgetIds);
 
@@ -130,6 +137,8 @@ class DashboardController extends Controller
             'usedMessages',
             'quotaRemaining',
             'quotaWarningLevel',
+            'planName',
+            'planExpiresAt',
             'recentConversations',
             'peakHours',
             'hotSessions'
