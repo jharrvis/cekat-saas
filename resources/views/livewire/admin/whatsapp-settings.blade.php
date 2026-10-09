@@ -265,6 +265,22 @@
                                                             <i class="fa-solid fa-qrcode"></i>
                                                         </button>
                                                     @endif
+                                                    @if($device->is_platform)
+                                                        @if($device->widget_id)
+                                                            <button wire:click="unlinkDevice({{ $device->id }})"
+                                                                onclick="return confirm('Unlink this device from its widget?')"
+                                                                title="{{ __('admin.s.unlink_device') }}"
+                                                                class="px-2 py-1 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded text-xs">
+                                                                <i class="fa-solid fa-link-slash"></i>
+                                                            </button>
+                                                        @else
+                                                            <button wire:click="openLink({{ $device->id }})"
+                                                                title="{{ __('admin.s.link_device') }}"
+                                                                class="px-2 py-1 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded text-xs">
+                                                                <i class="fa-solid fa-link"></i>
+                                                            </button>
+                                                        @endif
+                                                    @endif
                                                     @if($device->status === 'connected')
                                                         <button wire:click="disconnectDevice({{ $device->id }})"
                                                             onclick="return confirm('Disconnect this device?')"
@@ -319,6 +335,30 @@
                                     {{ $connectError }}
                                 </div>
                             @endif
+                        </div>
+                    @endif
+
+                    @if($linkDeviceId)
+                        <div class="mt-4 bg-card border rounded-xl p-6">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h4 class="font-semibold">{{ __('admin.s.link_device_to_widget') }}</h4>
+                                    <p class="text-sm text-muted-foreground">{{ $linkDeviceLabel }}</p>
+                                </div>
+                                <button wire:click="closeLink" class="text-muted-foreground hover:text-foreground text-xl leading-none">&times;</button>
+                            </div>
+                            <div class="flex flex-wrap gap-2 items-center mt-4">
+                                <select wire:model="linkWidgetId" class="px-3 py-2 border rounded-lg bg-background text-sm min-w-64">
+                                    <option value="">{{ __('admin.s.select_widget') }}</option>
+                                    @foreach($linkWidgetOptions as $option)
+                                        <option value="{{ $option['id'] }}">{{ $option['label'] }}</option>
+                                    @endforeach
+                                </select>
+                                <button wire:click="saveLink" class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm">
+                                    {{ __('admin.s.save_link') }}
+                                </button>
+                            </div>
+                            <p class="text-xs text-muted-foreground mt-2">{{ __('admin.s.link_webhook_note') }}</p>
                         </div>
                     @endif
                 </div>
