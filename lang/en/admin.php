@@ -92,6 +92,8 @@ return [
         'device_not_found' => 'Device not found.',
         'devices_disconnected' => 'Disconnected :count device(s).',
         'devices_synced' => 'Synced :count device(s) from Fonnte.',
+        'devices_synced_imported' => ':synced device(s) updated, :imported new device(s) imported from Fonnte.',
+        'platform_device' => 'Platform Device',
         'devices_will_appear_here_when_users_connect_thei' => 'Devices will appear here when users connect their WhatsApp.',
         'dibuat' => 'Created',
         'dihentikan' => 'Stopped',

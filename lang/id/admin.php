@@ -92,6 +92,8 @@ return [
         'device_not_found' => 'Perangkat tidak ditemukan.',
         'devices_disconnected' => ':count perangkat diputuskan.',
         'devices_synced' => ':count perangkat disinkronkan dari Fonnte.',
+        'devices_synced_imported' => ':synced perangkat diperbarui, :imported perangkat baru diimpor dari Fonnte.',
+        'platform_device' => 'Device Platform',
         'devices_will_appear_here_when_users_connect_thei' => 'Perangkat akan muncul di sini ketika pengguna menghubungkan WhatsApp mereka.',
         'dibuat' => 'Dibuat',
         'dihentikan' => 'Dihentikan',

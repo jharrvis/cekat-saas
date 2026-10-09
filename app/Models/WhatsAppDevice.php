@@ -13,6 +13,7 @@ class WhatsAppDevice extends Model
 
     protected $fillable = [
         'user_id',
+        'is_platform',
         'widget_id',
         'fonnte_device_id',
         'fonnte_device_token',
@@ -36,6 +37,7 @@ class WhatsAppDevice extends Model
         'plan_expires_at' => 'datetime',
         'settings' => 'array',
         'is_active' => 'boolean',
+        'is_platform' => 'boolean',
     ];
 
     /**
@@ -94,6 +96,14 @@ class WhatsAppDevice extends Model
         }
 
         return $phone;
+    }
+
+    /**
+     * Scope: Only platform devices (account-level, no tenant owner).
+     */
+    public function scopePlatform($query)
+    {
+        return $query->where('is_platform', true);
     }
 
     /**
