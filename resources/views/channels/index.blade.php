@@ -147,6 +147,13 @@
                                         class="px-2 py-1 rounded text-xs font-medium {{ $chatbot->status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700' }}">
                                         {{ ucfirst($chatbot->status ?? 'draft') }}
                                     </span>
+                                    @if(($chatbot->status ?? '') === 'active' && trim($chatbot->settings['allowed_domains'] ?? '') === '')
+                                        <span
+                                            class="px-2 py-1 rounded text-xs font-medium bg-amber-100 text-amber-700 ml-1">
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+                                            {{ __('channels.s.domain_belum_dibatasi') }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                                     {{ $chatbot->knowledgeBase?->faqs()->count() ?? 0 }} {{ __('agents.s.faqs') }}

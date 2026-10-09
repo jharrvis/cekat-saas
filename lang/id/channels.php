@@ -39,6 +39,7 @@ return [
         'aktifkan_channel_anda' => 'Aktifkan Channel Anda',
         'all_time' => 'Sepanjang waktu',
         'allowed_domains' => 'Domain yang Diizinkan',
+        'domain_belum_dibatasi' => 'Domain belum dibatasi',
         'analitik' => 'Analitik',
         'analytics_will_appear_here_once_users_start_chat' => 'Analitik akan muncul di sini setelah pengguna mulai mengobrol',
         'anda_dapat_menyesuaikan_tampilan_di' => 'Anda dapat menyesuaikan tampilan di',

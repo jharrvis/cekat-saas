@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Listeners\AlertWidgetAbuseSpike;
 use App\Listeners\LogSystemEvent;
 use App\Models\KnowledgeDocument;
 use App\Observers\KnowledgeDocumentObserver;
@@ -28,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Event::subscribe(LogSystemEvent::class);
+        Event::subscribe(AlertWidgetAbuseSpike::class);
         KnowledgeDocument::observe(KnowledgeDocumentObserver::class);
 
         // Public widget chat endpoint: blunt per-IP+widget and per-IP caps so
