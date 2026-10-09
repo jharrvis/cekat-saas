@@ -222,8 +222,8 @@
                                                 <div class="text-xs text-muted-foreground">ID: {{ $device->id }}</div>
                                             </td>
                                             <td class="px-4 py-3">
-                                                <div class="text-sm">{{ $device->user->name ?? 'Unknown' }}</div>
-                                                <div class="text-xs text-muted-foreground">{{ $device->user->email ?? '' }}</div>
+                                                <div class="text-sm">{{ $device->is_platform ? __('admin.s.platform_device') : ($device->user->name ?? 'Unknown') }}</div>
+                                                <div class="text-xs text-muted-foreground">{{ $device->is_platform ? '' : ($device->user->email ?? '') }}</div>
                                             </td>
                                             <td class="px-4 py-3">
                                                 <span class="text-sm">{{ $device->widget->name ?? '-' }}</span>

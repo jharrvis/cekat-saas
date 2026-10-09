@@ -45,6 +45,37 @@ class FonnteService
     }
 
     /**
+     * Recursively redact credential values before anything is written
+     * to the application log. Fonnte responses contain live device
+     * tokens; full responses were previously logged in plaintext.
+     */
+    public static function redactForLog(array $data): array
+    {
+        $sensitive = ['token', 'authorization', 'secret', 'password'];
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = self::redactForLog($value);
+                continue;
+            }
+
+            foreach ($sensitive as $needle) {
+                if (is_string($key) && stripos($key, $needle) !== false) {
+                    $data[$key] = '[redacted]';
+                    break;
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    private function logInfo(string $message, array $context = []): void
+    {
+        Log::info($message, self::redactForLog($context));
+    }
+
+    /**
      * Get all devices registered under the account.
      * Uses Account Token for management operations.
      */
@@ -62,7 +93,7 @@ class FonnteService
 
         $data = $response->json();
 
-        Log::info('Fonnte getDevices response', ['data' => $data]);
+        $this->logInfo('Fonnte getDevices response', ['data' => $data]);
 
         if (isset($data['status']) && $data['status'] === false) {
             throw new \Exception($data['reason'] ?? 'Failed to get devices');
@@ -106,7 +137,7 @@ class FonnteService
             $deviceNumber = str_pad($deviceNumber, 8, '0', STR_PAD_LEFT);
         }
 
-        Log::info('Fonnte addDevice request', [
+        $this->logInfo('Fonnte addDevice request', [
             'name' => $name,
             'device' => $deviceNumber,
         ]);
@@ -126,7 +157,7 @@ class FonnteService
 
         $data = $response->json();
 
-        Log::info('Fonnte addDevice response', ['name' => $name, 'data' => $data]);
+        $this->logInfo('Fonnte addDevice response', ['name' => $name, 'data' => $data]);
 
         if (isset($data['status']) && $data['status'] === false) {
             throw new \Exception($data['reason'] ?? 'Failed to add device');
@@ -156,7 +187,7 @@ class FonnteService
 
         $data = $response->json();
 
-        Log::info('Fonnte deleteDevice response', ['data' => $data]);
+        $this->logInfo('Fonnte deleteDevice response', ['data' => $data]);
 
         return $data['status'] ?? false;
     }
@@ -209,7 +240,7 @@ class FonnteService
             $data['device'] = $settings['device'];
         }
 
-        Log::info('Fonnte updateDevice request', ['data' => $data]);
+        $this->logInfo('Fonnte updateDevice request', ['data' => $data]);
 
         $response = Http::asForm()
             ->withHeaders([
@@ -219,7 +250,7 @@ class FonnteService
 
         $result = $response->json() ?? [];
 
-        Log::info('Fonnte updateDevice response', ['data' => $result]);
+        $this->logInfo('Fonnte updateDevice response', ['data' => $result]);
 
         if (isset($result['status']) && $result['status'] === false) {
             throw new \Exception($result['reason'] ?? 'Failed to update device');
@@ -244,7 +275,7 @@ class FonnteService
 
         $data = $response->json();
 
-        Log::info('Fonnte getQR response', ['data' => $data]);
+        $this->logInfo('Fonnte getQR response', ['data' => $data]);
 
         if (isset($data['status']) && $data['status'] === false) {
             // Device might already be connected
@@ -290,7 +321,7 @@ class FonnteService
 
         $data = $response->json();
 
-        Log::info('Fonnte disconnect response', ['data' => $data]);
+        $this->logInfo('Fonnte disconnect response', ['data' => $data]);
 
         return $data['status'] ?? false;
     }
@@ -319,7 +350,7 @@ class FonnteService
 
         $data = $response->json();
 
-        Log::info('Fonnte sendMessage response', [
+        $this->logInfo('Fonnte sendMessage response', [
             'target' => $target,
             'status' => $data['status'] ?? null,
         ]);
@@ -361,7 +392,7 @@ class FonnteService
 
         $data = $response->json() ?? [];
 
-        Log::info('Fonnte sendMedia response', ['target' => $target, 'data' => $data]);
+        $this->logInfo('Fonnte sendMedia response', ['target' => $target, 'data' => $data]);
 
         if (isset($data['status']) && $data['status'] === false) {
             throw new \Exception($data['reason'] ?? 'Failed to send media');
@@ -434,7 +465,7 @@ class FonnteService
 
         $data = $response->json() ?? [];
 
-        Log::info('Fonnte orderPlan response', ['plan' => $plan, 'data' => $data]);
+        $this->logInfo('Fonnte orderPlan response', ['plan' => $plan, 'data' => $data]);
 
         return $data;
     }
@@ -457,7 +488,7 @@ class FonnteService
 
         $data = $response->json() ?? [];
 
-        Log::info('Fonnte setWebhook response', ['url' => $webhookUrl, 'data' => $data]);
+        $this->logInfo('Fonnte setWebhook response', ['url' => $webhookUrl, 'data' => $data]);
 
         return $data;
     }

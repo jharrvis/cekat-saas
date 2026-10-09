@@ -158,27 +158,84 @@ class WhatsAppSettings extends Component
             $fonnteDevices = $fonnte->getDevices();
 
             $synced = 0;
+            $imported = 0;
+            $seenTokens = [];
+
             foreach ($fonnteDevices as $fDevice) {
-                // Check if device exists locally
-                $localDevice = WhatsAppDevice::where('fonnte_device_token', $fDevice['token'] ?? null)->first();
+                $token = $fDevice['token'] ?? null;
+
+                if (! $token) {
+                    continue;
+                }
+
+                $seenTokens[] = $token;
+                $status = ($fDevice['status'] ?? null) === 'connect' ? 'connected' : 'disconnected';
+                $localDevice = WhatsAppDevice::where('fonnte_device_token', $token)->first();
 
                 if ($localDevice) {
-                    // Update status
+                    // Known device (tenant-owned or platform): refresh
+                    // live state only, ownership is never reassigned.
                     $localDevice->update([
-                        'status' => $fDevice['status'] === 'connect' ? 'connected' : 'disconnected',
+                        'status' => $status,
                         'phone_number' => $fDevice['device'] ?? $localDevice->phone_number,
                     ]);
                     $synced++;
+                } else {
+                    // Account-level device the app has never seen: import
+                    // it as a platform device (no tenant owner). The old
+                    // update-only sync could never surface these, which
+                    // left the monitoring tab permanently empty.
+                    WhatsAppDevice::create([
+                        'user_id' => null,
+                        'is_platform' => true,
+                        'fonnte_device_token' => $token,
+                        'phone_number' => $fDevice['device'] ?? null,
+                        'device_name' => $fDevice['name'] ?? null,
+                        'status' => $status,
+                        'plan' => $this->mapFonntePlan($fDevice['package'] ?? null),
+                        'plan_expires_at' => isset($fDevice['expired']) && is_numeric($fDevice['expired'])
+                            ? now()->createFromTimestamp((int) $fDevice['expired'])
+                            : null,
+                        'is_active' => true,
+                        'connected_at' => $status === 'connected' ? now() : null,
+                    ]);
+                    $imported++;
                 }
             }
 
-            session()->flash('message', __('admin.s.devices_synced', ['count' => $synced]));
+            // Platform devices that disappeared from the Fonnte account
+            // no longer exist there; reflect that instead of showing
+            // them as live forever. Tenant devices are left alone -
+            // their lifecycle is managed from the tenant side.
+            WhatsAppDevice::platform()
+                ->whereNotIn('fonnte_device_token', $seenTokens ?: [''])
+                ->where('status', '!=', 'disconnected')
+                ->update(['status' => 'disconnected', 'disconnected_at' => now()]);
+
+            if ($imported > 0) {
+                session()->flash('message', __('admin.s.devices_synced_imported', ['synced' => $synced, 'imported' => $imported]));
+            } else {
+                session()->flash('message', __('admin.s.devices_synced', ['count' => $synced]));
+            }
+
             $this->loadStatistics();
             $this->loadDevices();
 
         } catch (\Exception $e) {
             session()->flash('error', __('admin.s.sync_failed', ['error' => $e->getMessage()]));
         }
+    }
+
+    /**
+     * Map a Fonnte package label onto the local plan enum; unknown
+     * labels keep the safe default.
+     */
+    private function mapFonntePlan(?string $package): string
+    {
+        $known = ['free', 'lite', 'regular', 'regular_pro', 'master', 'super', 'advanced', 'ultra'];
+        $normalized = strtolower(str_replace([' ', '-'], '_', trim((string) $package)));
+
+        return in_array($normalized, $known, true) ? $normalized : 'free';
     }
 
     /**
