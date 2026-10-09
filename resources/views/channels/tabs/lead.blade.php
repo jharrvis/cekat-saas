@@ -209,11 +209,12 @@
 
                         <div x-show="waNotifOn" x-cloak class="space-y-4">
                             <div>
-                                <label class="text-sm block mb-2">{{ __('channels.s.nomor_whatsapp_tujuan') }} <span class="text-red-500">*</span></label>
+                                <label class="text-sm block mb-2">{{ __('channels.s.nomor_whatsapp_tujuan') }}</label>
                                 <input type="tel" name="lead_wa_notif"
                                     value="{{ $chatbot->settings['lead_wa_notif'] ?? '' }}"
                                     placeholder="{{ __('channels.s.placeholder_nomor_whatsapp') }}"
                                     class="w-full max-w-md px-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                <p class="text-xs text-muted-foreground mt-1">{{ __('channels.s.kosongkan_untuk_memakai_nomor_akun') }}</p>
                                 @error('lead_wa_notif')
                                     <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                 @enderror

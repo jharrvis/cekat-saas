@@ -106,6 +106,7 @@ return [
         'notifikasi_whatsapp_leads' => 'Notifikasi WhatsApp Leads',
         'kirim_notifikasi_lead_ke_whatsapp_khusus_channel' => 'Kirim notifikasi lead ke nomor WhatsApp khusus channel ini. Pesan dikirim dari device notifikasi platform atau device WhatsApp Anda yang terhubung.',
         'nomor_whatsapp_tujuan' => 'Nomor WhatsApp Tujuan',
+        'kosongkan_untuk_memakai_nomor_akun' => 'Kosongkan untuk memakai nomor WhatsApp notifikasi di pengaturan akun Anda.',
         'placeholder_nomor_whatsapp' => '0812xxxxxxx',
         'pengaturan_domain_pindah_ke_tab' => 'Pengaturan domain pindah ke tab',
         'per_channel' => 'Per Channel',

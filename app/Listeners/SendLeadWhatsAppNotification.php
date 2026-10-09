@@ -55,7 +55,10 @@ class SendLeadWhatsAppNotification
             return;
         }
 
-        $target = PhoneNumber::normalizeId((string) ($settings['lead_wa_notif'] ?? ''));
+        // Destination: the channel's own number wins; when the channel
+        // leaves it empty, fall back to the account notification number.
+        $target = PhoneNumber::normalizeId((string) ($settings['lead_wa_notif'] ?? ''))
+            ?? PhoneNumber::normalizeId($owner->whatsapp_number);
 
         if ($target === null) {
             return;

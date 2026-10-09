@@ -60,7 +60,9 @@ class UpdateWidgetRequest extends FormRequest
             'lead_trigger_after_message' => 'nullable|integer|min:1|max:50',
             'lead_trigger_keywords' => 'nullable|string|max:1000',
             'lead_email_notif' => ['required_if:lead_email_notif_enabled,1', 'email', 'max:255'],
-            'lead_wa_notif' => ['required_if:lead_wa_notif_enabled,1', 'nullable', 'string', 'max:25', 'regex:/^[0-9+\s.\-]+$/'],
+            // Optional even when the toggle is on: an empty channel
+            // number falls back to the account notification number.
+            'lead_wa_notif' => ['nullable', 'string', 'max:25', 'regex:/^[0-9+\s.\-]+$/'],
             // Webhook tab
             'webhook_url' => 'nullable|url|max:2000',
             'webhook_secret' => 'nullable|string|max:500',

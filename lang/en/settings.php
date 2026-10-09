@@ -4,6 +4,8 @@ return [
     'language' => 'Language',
     'language_hint' => 'Display language for the dashboard and emails you receive.',
     'profile_updated' => 'Profile updated successfully!',
+    'whatsapp_number' => 'WhatsApp Notification Number',
+    'whatsapp_number_hint' => 'Destination for WhatsApp notifications (e.g. new leads) for channels that do not set their own number.',
     'password_changed' => 'Password changed successfully!',
     'email_changed' => 'Email changed to :email.',
     's' => [
