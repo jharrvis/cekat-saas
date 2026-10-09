@@ -48,7 +48,8 @@ class Cekat_WooCommerce
      */
     public static function is_configured()
     {
-        return (bool) get_option('cekat_wc_sync_enabled', 0)
+        return (bool) get_option('cekat_wc_enabled', 1)
+            && (bool) get_option('cekat_wc_sync_enabled', 0)
             && get_option('cekat_widget_id', '') !== ''
             && get_option('cekat_api_key', '') !== '';
     }

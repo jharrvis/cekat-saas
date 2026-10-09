@@ -14,6 +14,7 @@ $primary_color = get_option('cekat_primary_color', '#6366f1');
 $primary_color = get_option('cekat_primary_color', '#6366f1');
 $exclude_pages = get_option('cekat_exclude_pages', '');
 $api_key = get_option('cekat_api_key', '');
+$wc_enabled = get_option('cekat_wc_enabled', 1);
 $wc_sync_enabled = get_option('cekat_wc_sync_enabled', 0);
 $wc_last_sync = get_option('cekat_wc_last_sync', null);
 $webhook_secret = get_option('cekat_webhook_secret', '');
@@ -178,11 +179,27 @@ $webhook_secret = get_option('cekat_webhook_secret', '');
                 <?php if (class_exists('WooCommerce')) : ?>
                 <!-- WooCommerce Card -->
                 <div class="cekat-card">
-                    <h2><?php _e('WooCommerce Product Sync', 'cekat-ai-chatbot'); ?></h2>
+                    <h2><?php _e('WooCommerce Integration', 'cekat-ai-chatbot'); ?></h2>
                     <p class="description" style="margin-bottom: 12px;">
-                        <?php _e('Sync your product catalog (name, price, stock, description, link) into the chatbot knowledge base, so the chatbot can answer product and stock questions. Products stay in sync automatically when they change.', 'cekat-ai-chatbot'); ?>
+                        <?php _e('Connect WooCommerce to the chatbot: sync your product catalog (name, price, stock, description, link) into the knowledge base, let visitors check order status in the chat, and let them place orders from the chat. Turn the master switch off to disable the whole integration.', 'cekat-ai-chatbot'); ?>
                     </p>
                     <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="cekat_wc_enabled"><?php _e('WooCommerce Integration', 'cekat-ai-chatbot'); ?></label>
+                            </th>
+                            <td>
+                                <label>
+                                    <input type="checkbox"
+                                           id="cekat_wc_enabled"
+                                           name="cekat_wc_enabled"
+                                           value="1"
+                                           <?php checked($wc_enabled, 1); ?>>
+                                    <?php _e('Enable the WooCommerce integration (master switch)', 'cekat-ai-chatbot'); ?>
+                                </label>
+                                <p class="description"><?php _e('When off, product sync stops and the chat order features (order status checks and ordering) are refused. Products already synced stay in the knowledge base until removed there.', 'cekat-ai-chatbot'); ?></p>
+                            </td>
+                        </tr>
                         <tr>
                             <th scope="row">
                                 <label for="cekat_wc_sync_enabled"><?php _e('Enable Sync', 'cekat-ai-chatbot'); ?></label>
