@@ -3,7 +3,7 @@
  * Plugin Name: Cekat AI Chatbot
  * Plugin URI: https://cekat.biz.id
  * Description: AI-Powered Customer Service Chatbot untuk WordPress. Integrasikan chatbot cerdas ke website Anda dalam hitungan menit.
- * Version: 1.4.0
+ * Version: 1.5.0
  * Author: Cekat.biz.id
  * Author URI: https://cekat.biz.id
  * License: GPL v2 or later
@@ -17,7 +17,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('CEKAT_VERSION', '1.4.0');
+define('CEKAT_VERSION', '1.5.0');
 // Cache-busting version for the served widget bundle (keep in sync with
 // the ?v= query used in resources/views/**/integration & embed snippets).
 define('CEKAT_WIDGET_VERSION', '20260927-p2');
@@ -51,6 +51,10 @@ class Cekat_AI_Chatbot
     {
         require_once CEKAT_PLUGIN_DIR . 'includes/class-cekat-webhook.php';
         Cekat_Webhook::get_instance();
+
+        // GitHub-based auto-update checker
+        require_once CEKAT_PLUGIN_DIR . 'includes/class-cekat-updater.php';
+        Cekat_Updater::get_instance();
 
         // WooCommerce integration (only when WooCommerce is active AND
         // the master switch is on - sites that do not sell through the
