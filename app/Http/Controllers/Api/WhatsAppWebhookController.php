@@ -41,6 +41,28 @@ class WhatsAppWebhookController extends Controller
 
         // Find device
         $device = WhatsAppDevice::find($deviceId);
+
+        if (!$device) {
+            // A device can carry a stale webhook URL in Fonnte with an
+            // old local id (e.g. after its row was re-created by a
+            // re-import). Every Fonnte payload carries the device's
+            // own phone number in "device", so resolve by that before
+            // giving up - the id in the URL stays authoritative when
+            // it does match a device.
+            $payloadPhone = preg_replace('/[^0-9]/', '', (string) $request->input('device', ''));
+
+            if ($payloadPhone !== '') {
+                $device = WhatsAppDevice::where('phone_number', $payloadPhone)->first();
+
+                if ($device) {
+                    Log::info('WhatsApp webhook device resolved by payload phone', [
+                        'url_device_id' => $deviceId,
+                        'device_id' => $device->id,
+                    ]);
+                }
+            }
+        }
+
         if (!$device) {
             Log::warning('WhatsApp webhook for unknown device', ['device_id' => $deviceId]);
             return response()->json(['status' => 'device_not_found'], 404);
