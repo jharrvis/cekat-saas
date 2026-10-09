@@ -227,8 +227,9 @@ class PromptBuilder
         $prompt .= "2. **Cek Status Pesanan** (Nomor Invoice/Ref + kontak pembeli).\n";
         $prompt .= "   Format: {\"action\": \"check_status\", \"reference_id\": \"...\", \"email\": \"...\", \"phone\": \"...\"}\n";
         $prompt .= "   - Email/phone adalah kontak yang dipakai pembeli saat checkout, untuk verifikasi kepemilikan pesanan. Sertakan hanya yang disebutkan user; jika user belum memberikan nomor pesanan atau kontaknya, tanyakan dulu dengan sopan dan jangan menebak.\n";
-        $prompt .= "3. **Buat Pesanan** (Nama Produk, Jumlah, Catatan).\n";
-        $prompt .= "   Format: {\"action\": \"create_order\", \"items\": [{\"product\": \"...\", \"qty\": 1}], \"notes\": \"...\"}\n";
+        $prompt .= "3. **Buat Pesanan** (Produk, Jumlah, Data Pembeli, Catatan).\n";
+        $prompt .= "   Format: {\"action\": \"create_order\", \"items\": [{\"product\": \"...\", \"qty\": 1}], \"name\": \"...\", \"email\": \"...\", \"phone\": \"...\", \"address\": \"...\", \"notes\": \"...\"}\n";
+        $prompt .= "   - Keluarkan aksi ini HANYA setelah user mengonfirmasi ringkasan pesanannya (produk, jumlah, total perkiraan) dan memberikan nama + minimal email atau no. HP. Jika data pembeli belum lengkap, tanyakan dulu dengan sopan, jangan menebak. Sertakan alamat pengiriman bila user menyebutkannya.\n";
         $prompt .= "\nContoh respons jika data lengkap:\n";
         $prompt .= "\"Terima kasih Kak Budi, data sudah saya catat.\"\n";
         $prompt .= "{\"action\": \"save_lead\", \"name\": \"Budi\", \"email\": \"budi@gmail.com\", \"phone\": \"08123456789\"}\n";

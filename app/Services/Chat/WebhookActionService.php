@@ -111,6 +111,98 @@ class WebhookActionService
     }
 
     /**
+     * Synchronous order creation (Fase C): forward a create_order action
+     * to the store webhook and turn the result into the visitor-facing
+     * reply, in the widget owner's locale.
+     *
+     * Two safeguards before anything reaches the store:
+     * - Buyer gate: without a name and at least one contact (email or
+     *   phone) there is nobody to attach the order to - ask instead of
+     *   calling. Contact values merge like check_status (action payload,
+     *   pre-chat form, session lead data - resolved by the caller).
+     * - Duplicate guard: $dedupeKey claims the creation for a short
+     *   window; a repeated identical submission inside it replays the
+     *   first composed reply instead of creating a second order.
+     *
+     * Returns null on transport failure so the caller falls back to the
+     * generic fire-and-forget flow.
+     */
+    public function dispatchCreateOrder(Widget $widget, array $action, ?string $buyerName, ?string $buyerEmail, ?string $buyerPhone, ?string $dedupeKey = null): ?string
+    {
+        $webhookUrl = $widget->settings['webhook_url'] ?? null;
+        $items = $action['items'] ?? null;
+
+        if (! $webhookUrl || ! is_array($items) || $items === []) {
+            return null;
+        }
+
+        $locale = $widget->user?->locale ?: config('app.locale');
+
+        $name = trim((string) ($buyerName ?: ($action['name'] ?? '')));
+        $email = trim((string) ($buyerEmail ?: ($action['email'] ?? '')));
+        $phone = trim((string) ($buyerPhone ?: ($action['phone'] ?? '')));
+
+        if ($name === '' || ($email === '' && $phone === '')) {
+            return __('chat.order_create_need_contact', [], $locale);
+        }
+
+        if ($dedupeKey && $cached = \Illuminate\Support\Facades\Cache::get($dedupeKey)) {
+            return $cached;
+        }
+
+        $payload = [
+            'action' => 'create_order',
+            'items' => $items,
+            'customer' => [
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone,
+                'address' => trim((string) ($action['address'] ?? '')),
+            ],
+            'notes' => trim((string) ($action['notes'] ?? '')),
+            'widget_id' => $widget->slug,
+            'customer_id' => $widget->user_id,
+        ];
+
+        $result = $this->webhookService->send($webhookUrl, $payload, $widget->settings['webhook_secret'] ?? '');
+
+        if (! ($result['success'] ?? false) || ! is_array($result['body'] ?? null)) {
+            return null;
+        }
+
+        $body = $result['body'];
+
+        if (($body['success'] ?? false) && is_array($body['order'] ?? null)) {
+            $order = $body['order'];
+            $lines = [
+                __('chat.order_created_title', ['id' => $order['number'] ?? $order['id'] ?? '-'], $locale),
+            ];
+
+            if (! empty($order['total'])) {
+                $lines[] = __('chat.order_total_line', ['total' => $order['total']], $locale);
+            }
+
+            if (! empty($order['payment_url'])) {
+                $lines[] = __('chat.order_created_pay', ['url' => $order['payment_url']], $locale);
+            }
+
+            $reply = implode("\n", $lines);
+
+            if ($dedupeKey) {
+                \Illuminate\Support\Facades\Cache::put($dedupeKey, $reply, now()->addMinutes(10));
+            }
+
+            return $reply;
+        }
+
+        return match ($body['error'] ?? null) {
+            'product_unavailable' => __('chat.order_create_unavailable', ['detail' => $body['detail'] ?? ''], $locale),
+            'product_needs_variant' => __('chat.order_create_needs_variant', ['detail' => $body['detail'] ?? ''], $locale),
+            default => null,
+        };
+    }
+
+    /**
      * Render the store's order payload as plain chat text. All money
      * values arrive pre-formatted from the store; status labels are
      * localized here (unknown slugs pass through untouched).
