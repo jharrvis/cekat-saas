@@ -3,7 +3,7 @@ Contributors: cekatbizid
 Tags: chatbot, ai, customer service, live chat, support
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -66,6 +66,9 @@ Ya, Anda dapat mengubah warna, posisi, greeting message, dan lainnya melalui das
 3. Dashboard Cekat.biz.id
 
 == Changelog ==
+
+= 1.2.0 =
+* Aksi webhook check_status: chatbot dapat mengecek status pesanan WooCommerce secara real-time dari percakapan, dengan verifikasi kepemilikan (email/no. HP checkout) dan dukungan nomor resi
 
 = 1.1.0 =
 * Integrasi WooCommerce: sinkronisasi katalog produk (nama, harga, stok, kategori, deskripsi, tautan) ke knowledge base chatbot secara otomatis saat produk berubah, plus sinkronisasi penuh manual dari halaman pengaturan

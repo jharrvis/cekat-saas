@@ -224,8 +224,9 @@ class PromptBuilder
         $prompt .= "Jika user memberikan data lengkap untuk tindakan berikut, kamu WAJIB mengeluarkan output JSON (dan hanya JSON) pada blok terpisah atau di akhir pesan:\n";
         $prompt .= "1. **Simpan Data Lead** (Nama, Email, HP).\n";
         $prompt .= "   Format: {\"action\": \"save_lead\", \"name\": \"...\", \"email\": \"...\", \"phone\": \"...\"}\n";
-        $prompt .= "2. **Cek Status Pesanan** (Nomor Invoice/Ref).\n";
-        $prompt .= "   Format: {\"action\": \"check_status\", \"reference_id\": \"...\"}\n";
+        $prompt .= "2. **Cek Status Pesanan** (Nomor Invoice/Ref + kontak pembeli).\n";
+        $prompt .= "   Format: {\"action\": \"check_status\", \"reference_id\": \"...\", \"email\": \"...\", \"phone\": \"...\"}\n";
+        $prompt .= "   - Email/phone adalah kontak yang dipakai pembeli saat checkout, untuk verifikasi kepemilikan pesanan. Sertakan hanya yang disebutkan user; jika user belum memberikan nomor pesanan atau kontaknya, tanyakan dulu dengan sopan dan jangan menebak.\n";
         $prompt .= "3. **Buat Pesanan** (Nama Produk, Jumlah, Catatan).\n";
         $prompt .= "   Format: {\"action\": \"create_order\", \"items\": [{\"product\": \"...\", \"qty\": 1}], \"notes\": \"...\"}\n";
         $prompt .= "\nContoh respons jika data lengkap:\n";

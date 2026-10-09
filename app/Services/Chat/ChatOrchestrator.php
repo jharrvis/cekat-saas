@@ -165,7 +165,28 @@ class ChatOrchestrator
                 // Handle Webhook Trigger (Function Calling)
                 if ($widget) {
                     $replyAction = $this->webhooks->extractAction($responseText);
-                    $webhookResult = $this->webhooks->dispatchIfAction($widget, $responseText);
+                    $checkStatusReply = null;
+
+                    // check_status runs synchronously: the store's answer
+                    // becomes part of the reply. The visitor's contact for
+                    // order-ownership verification comes from the action
+                    // payload first, then the pre-chat form, then the
+                    // session's captured lead data.
+                    if ($replyAction && ($replyAction['action'] ?? null) === 'check_status') {
+                        $sessionRow = $sessionId
+                            ? ChatSession::where('widget_id', $widget->id)->where('visitor_uuid', $sessionId)->first()
+                            : null;
+
+                        $checkStatusReply = $this->webhooks->dispatchCheckStatus(
+                            $widget,
+                            $replyAction,
+                            $replyAction['email'] ?? ($leadForm['email'] ?? $sessionRow?->visitor_email),
+                            $replyAction['phone'] ?? ($leadForm['phone'] ?? $sessionRow?->visitor_phone),
+                        );
+                    }
+
+                    $webhookResult = $checkStatusReply
+                        ?? $this->webhooks->dispatchIfAction($widget, $responseText);
 
                     if ($webhookResult && $replyAction) {
                         WebhookActionTriggered::dispatch($widget->slug, $replyAction['action']);
@@ -180,6 +201,11 @@ class ChatOrchestrator
                         $cleaned = trim($this->webhooks->stripActionJson($responseText));
                         if ($cleaned !== '') {
                             $responseText = $cleaned;
+                        }
+                        // A mixed reply ("sebentar, saya cek dulu" + JSON)
+                        // still owes the visitor the actual lookup result.
+                        if ($checkStatusReply) {
+                            $responseText = trim($responseText . "\n\n" . $checkStatusReply);
                         }
                     }
 
