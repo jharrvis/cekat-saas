@@ -1,9 +1,9 @@
 {
-    "version": "1.5.0",
+    "version": "1.6.0",
     "download_url": "https://raw.githubusercontent.com/jharrvis/cekat-saas/integration/cek-remediation-20261007/public/downloads/cekat-ai-chatbot.zip",
     "requires": "5.0",
     "tested": "6.4",
     "requires_php": "7.4",
-    "last_updated": "2026-10-09",
-    "changelog": "* Auto-update: plugin kini memeriksa versi terbaru langsung dari GitHub dan dapat diperbarui dari wp-admin seperti plugin wordpress.org - tanpa unduh/unggah ZIP manual lagi"
+    "last_updated": "2026-10-10",
+    "changelog": "* Sinkronisasi konten situs: Halaman, Artikel, dan info situs (nama, deskripsi, alamat toko WooCommerce) kini bisa disinkronkan ke knowledge base chatbot, sehingga chatbot dapat menjawab pertanyaan umum tentang website (tentang kami, FAQ, kebijakan), bukan hanya produk"
 }

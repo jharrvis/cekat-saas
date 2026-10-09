@@ -107,6 +107,42 @@ class KnowledgeSyncTest extends TestCase
         $this->assertStringContainsString('Kopi Arabika', $doc->content);
     }
 
+    public function test_wordpress_content_documents_upsert_through_the_same_endpoint(): void
+    {
+        // Fase D: website content (pages/posts/site info) arrives with
+        // source 'wordpress' and lands in the same KB as products.
+        $page = $this->postJson('/api/v1/knowledge/documents', $this->payload([
+            'source' => 'wordpress',
+            'external_ref' => 'wp-page-7',
+            'name' => 'Kebijakan Pengiriman',
+            'content' => "Judul: Kebijakan Pengiriman\nJenis: Halaman\nKonten: Pengiriman ke seluruh Indonesia dalam 2-4 hari kerja.",
+            'url' => 'https://toko.test/kebijakan-pengiriman',
+        ]), $this->auth());
+        $page->assertCreated()->assertJsonPath('data.source', 'wordpress');
+
+        $info = $this->postJson('/api/v1/knowledge/documents', $this->payload([
+            'source' => 'wordpress',
+            'external_ref' => 'wp-site-info',
+            'name' => 'Toko Sync - Informasi Situs',
+            'content' => "Nama Situs: Toko Sync\nAlamat Toko: Jl. Merdeka 1, Bandung",
+            'url' => 'https://toko.test/',
+        ]), $this->auth());
+        $info->assertCreated();
+
+        $this->assertSame(2, KnowledgeDocument::where('knowledge_base_id', $this->kb->id)
+            ->where('source', 'wordpress')->count());
+
+        // Deleting by the same key the plugin uses removes the document.
+        $this->deleteJson('/api/v1/knowledge/documents', [
+            'widget_slug' => $this->widget->slug,
+            'source' => 'wordpress',
+            'external_ref' => 'wp-page-7',
+        ], $this->auth())->assertOk()->assertJsonPath('data.deleted', true);
+
+        $this->assertSame(1, KnowledgeDocument::where('knowledge_base_id', $this->kb->id)
+            ->where('source', 'wordpress')->count());
+    }
+
     public function test_upsert_twice_updates_instead_of_duplicating(): void
     {
         $this->postJson('/api/v1/knowledge/documents', $this->payload(), $this->auth())->assertCreated();

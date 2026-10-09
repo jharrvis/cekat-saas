@@ -3,7 +3,7 @@ Contributors: cekatbizid
 Tags: chatbot, ai, customer service, live chat, support
 Requires at least: 5.0
 Tested up to: 6.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -66,6 +66,9 @@ Ya, Anda dapat mengubah warna, posisi, greeting message, dan lainnya melalui das
 3. Dashboard Cekat.biz.id
 
 == Changelog ==
+
+= 1.6.0 =
+* Sinkronisasi konten situs: Halaman, Artikel, dan info situs (nama, deskripsi, alamat toko WooCommerce) kini bisa disinkronkan ke knowledge base chatbot, sehingga chatbot dapat menjawab pertanyaan umum tentang website (tentang kami, FAQ, kebijakan), bukan hanya produk
 
 = 1.5.0 =
 * Auto-update: plugin kini memeriksa versi terbaru langsung dari GitHub dan dapat diperbarui dari wp-admin seperti plugin wordpress.org - tanpa unduh/unggah ZIP manual lagi
