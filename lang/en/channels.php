@@ -37,6 +37,7 @@ return [
         'aktifkan_channel_anda' => 'Activate Your Channel',
         'all_time' => 'All time',
         'allowed_domains' => 'Allowed Domains',
+        'domain_belum_dibatasi' => 'Domains not restricted',
         'analitik' => 'Analytics',
         'analytics_will_appear_here_once_users_start_chat' => 'Analytics will appear here once users start chatting',
         'anda_dapat_menyesuaikan_tampilan_di' => 'You can customize the appearance in',
