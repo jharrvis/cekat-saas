@@ -259,6 +259,43 @@
             </div>
         </div>
 
+        {{-- Subscription summary: remaining quota + plan end date --}}
+        <div class="bg-card text-card-foreground p-6 rounded-xl border shadow-sm mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.paket_dan_langganan') }}</p>
+                    <p class="text-xl font-bold mt-2">{{ $planName }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.sisa_kuota_bulan_ini') }}</p>
+                    @if($quotaLimit > 0)
+                        <p class="text-xl font-bold mt-2">{{ number_format($quotaRemaining) }}</p>
+                        <p class="text-xs text-muted-foreground mt-1">
+                            {{ __('general.s.terpakai_dari_limit', ['used' => number_format($usedMessages), 'limit' => number_format($quotaLimit)]) }}
+                        </p>
+                    @else
+                        <p class="text-xl font-bold mt-2">{{ __('general.s.tanpa_batas') }}</p>
+                        <p class="text-xs text-muted-foreground mt-1">
+                            {{ __('general.s.pesan_terpakai_bulan_ini', ['used' => number_format($usedMessages)]) }}
+                        </p>
+                    @endif
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-muted-foreground">{{ __('general.s.berakhir_pada') }}</p>
+                    @if($planExpiresAt)
+                        <p class="text-xl font-bold mt-2">{{ $planExpiresAt->translatedFormat('d F Y') }}</p>
+                        @php $daysLeft = (int) now()->startOfDay()->diffInDays($planExpiresAt->copy()->startOfDay(), false); @endphp
+                        @if($daysLeft >= 0 && $daysLeft <= 30)
+                            <p class="text-xs text-amber-600 font-semibold mt-1">{{ $daysLeft }} {{ __('general.s.hari_lagi') }}</p>
+                        @endif
+                    @else
+                        <p class="text-xl font-bold mt-2">-</p>
+                        <p class="text-xs text-muted-foreground mt-1">{{ __('general.s.tidak_ada_tanggal_berakhir') }}</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         {{-- Row 2: Chart + Topics + Response Time --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {{-- Chart Area --}}
