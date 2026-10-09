@@ -41,6 +41,13 @@ class WhatsAppSettings extends Component
     // Devices list (for monitor tab)
     public $devices = [];
 
+    // Platform device connect (QR) panel state
+    public ?int $connectDeviceId = null;
+    public string $connectDeviceLabel = '';
+    public string $connectQrImage = '';
+    public string $connectState = '';
+    public string $connectError = '';
+
     public function mount()
     {
         $this->loadSettings();
@@ -224,6 +231,82 @@ class WhatsAppSettings extends Component
         } catch (\Exception $e) {
             session()->flash('error', __('admin.s.sync_failed', ['error' => $e->getMessage()]));
         }
+    }
+
+    /**
+     * Open the QR connect panel for a platform device. Tenant devices
+     * are reconnected by their owners from the tenant dashboard; the
+     * platform device has no owner, so the admin reconnects it here
+     * (the monitoring tab is where it is watched).
+     */
+    public function connectDevice(int $deviceId)
+    {
+        $device = WhatsAppDevice::find($deviceId);
+
+        if (! $device || ! $device->is_platform) {
+            session()->flash('error', __('admin.s.platform_device_only'));
+
+            return;
+        }
+
+        $this->connectDeviceId = $device->id;
+        $this->connectDeviceLabel = trim(($device->device_name ?: 'Device') . ' · ' . $device->formatted_phone);
+        $this->connectQrImage = '';
+        $this->connectError = '';
+        $this->connectState = 'waiting';
+
+        try {
+            $result = (new WhatsAppManager())->getDeviceQR($device);
+
+            if (($result['status'] ?? null) === 'connected') {
+                $this->connectState = 'connected';
+                $this->loadDevices();
+                $this->loadStatistics();
+            } elseif (! empty($result['url'])) {
+                // Fonnte returns the QR as a base64 PNG in 'url'.
+                $this->connectQrImage = $result['url'];
+            } else {
+                $this->connectState = 'error';
+                $this->connectError = __('admin.s.qr_unavailable');
+            }
+        } catch (\Exception $e) {
+            $this->connectState = 'error';
+            $this->connectError = $e->getMessage();
+        }
+    }
+
+    /**
+     * Polled by the connect panel while waiting for the scan.
+     */
+    public function refreshConnectStatus()
+    {
+        if (! $this->connectDeviceId || $this->connectState !== 'waiting') {
+            return;
+        }
+
+        $device = WhatsAppDevice::find($this->connectDeviceId);
+
+        if (! $device) {
+            return;
+        }
+
+        try {
+            (new WhatsAppManager())->refreshDeviceStatus($device);
+        } catch (\Exception $e) {
+            return;
+        }
+
+        if ($device->fresh()->status === 'connected') {
+            $this->connectState = 'connected';
+            $this->loadDevices();
+            $this->loadStatistics();
+        }
+    }
+
+    public function closeConnect()
+    {
+        $this->reset(['connectDeviceId', 'connectDeviceLabel', 'connectQrImage', 'connectState', 'connectError']);
+        $this->loadDevices();
     }
 
     /**

@@ -258,6 +258,13 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 <div class="flex gap-1">
+                                                    @if($device->is_platform && $device->status !== 'connected')
+                                                        <button wire:click="connectDevice({{ $device->id }})"
+                                                            title="{{ __('admin.s.connect_platform_device') }}"
+                                                            class="px-2 py-1 bg-green-100 text-green-600 hover:bg-green-200 rounded text-xs">
+                                                            <i class="fa-solid fa-qrcode"></i>
+                                                        </button>
+                                                    @endif
                                                     @if($device->status === 'connected')
                                                         <button wire:click="disconnectDevice({{ $device->id }})"
                                                             onclick="return confirm('Disconnect this device?')"
@@ -282,6 +289,36 @@
                             <i class="fa-solid fa-mobile-screen text-4xl mb-4 opacity-50"></i>
                             <p>{{ __('admin.s.no_whatsapp_devices_found') }}</p>
                             <p class="text-sm mt-1">{{ __('admin.s.devices_will_appear_here_when_users_connect_thei') }}</p>
+                        </div>
+                    @endif
+
+                    @if($connectDeviceId)
+                        <div class="mt-4 bg-card border rounded-xl p-6" @if($connectState === 'waiting') wire:poll.5s="refreshConnectStatus" @endif>
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <h4 class="font-semibold">{{ __('admin.s.connect_platform_device') }}</h4>
+                                    <p class="text-sm text-muted-foreground">{{ $connectDeviceLabel }}</p>
+                                </div>
+                                <button wire:click="closeConnect" class="text-muted-foreground hover:text-foreground text-xl leading-none">&times;</button>
+                            </div>
+
+                            @if($connectState === 'waiting')
+                                <div class="flex flex-col items-center py-4">
+                                    @if($connectQrImage)
+                                        <img src="data:image/png;base64,{{ $connectQrImage }}" alt="QR Code" class="w-56 h-56">
+                                    @endif
+                                    <p class="text-sm mt-3 text-center">{{ __('admin.s.scan_qr_to_connect') }}</p>
+                                    <p class="text-xs text-muted-foreground mt-1">{{ __('admin.s.waiting_for_scan') }}</p>
+                                </div>
+                            @elseif($connectState === 'connected')
+                                <div class="mt-4 bg-green-50 border border-green-200 rounded-xl p-4 text-green-700 text-sm">
+                                    <i class="fa-solid fa-circle-check mr-1"></i> {{ __('admin.s.device_connected_success') }}
+                                </div>
+                            @elseif($connectState === 'error')
+                                <div class="mt-4 bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm">
+                                    {{ $connectError }}
+                                </div>
+                            @endif
                         </div>
                     @endif
                 </div>
