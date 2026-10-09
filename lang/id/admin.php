@@ -100,6 +100,8 @@ return [
         'device_connected_success' => 'Device terhubung.',
         'qr_unavailable' => 'Kode QR tidak tersedia dari Fonnte.',
         'platform_device_only' => 'Aksi ini khusus device platform.',
+        'fonnte_quota' => 'Kuota Fonnte',
+        'until_short' => 's/d',
         'link_device' => 'Kaitkan ke widget',
         'unlink_device' => 'Lepas kaitan widget',
         'link_device_to_widget' => 'Kaitkan Device ke Widget',

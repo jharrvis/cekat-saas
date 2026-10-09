@@ -100,6 +100,8 @@ return [
         'device_connected_success' => 'Device connected.',
         'qr_unavailable' => 'QR code unavailable from Fonnte.',
         'platform_device_only' => 'This action is for platform devices only.',
+        'fonnte_quota' => 'Fonnte quota',
+        'until_short' => 'until',
         'link_device' => 'Link to widget',
         'unlink_device' => 'Unlink widget',
         'link_device_to_widget' => 'Link Device to Widget',
