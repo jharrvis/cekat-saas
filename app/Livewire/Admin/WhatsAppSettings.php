@@ -184,15 +184,30 @@ class WhatsAppSettings extends Component
 
                 $seenTokens[] = $token;
                 $status = ($fDevice['status'] ?? null) === 'connect' ? 'connected' : 'disconnected';
+                $quotaRemaining = isset($fDevice['quota']) && is_numeric($fDevice['quota'])
+                    ? (int) $fDevice['quota']
+                    : null;
+                $planExpiresAt = isset($fDevice['expired']) && is_numeric($fDevice['expired'])
+                    ? now()->createFromTimestamp((int) $fDevice['expired'])
+                    : null;
                 $localDevice = WhatsAppDevice::where('fonnte_device_token', $token)->first();
 
                 if ($localDevice) {
                     // Known device (tenant-owned or platform): refresh
                     // live state only, ownership is never reassigned.
-                    $localDevice->update([
+                    // Quota + plan expiry are Fonnte-owned facts, safe
+                    // to refresh alongside status.
+                    $updates = [
                         'status' => $status,
                         'phone_number' => $fDevice['device'] ?? $localDevice->phone_number,
-                    ]);
+                    ];
+                    if ($quotaRemaining !== null) {
+                        $updates['quota_remaining'] = $quotaRemaining;
+                    }
+                    if ($planExpiresAt !== null) {
+                        $updates['plan_expires_at'] = $planExpiresAt;
+                    }
+                    $localDevice->update($updates);
                     $synced++;
                 } else {
                     // Account-level device the app has never seen: import
@@ -207,9 +222,8 @@ class WhatsAppSettings extends Component
                         'device_name' => $fDevice['name'] ?? null,
                         'status' => $status,
                         'plan' => $this->mapFonntePlan($fDevice['package'] ?? null),
-                        'plan_expires_at' => isset($fDevice['expired']) && is_numeric($fDevice['expired'])
-                            ? now()->createFromTimestamp((int) $fDevice['expired'])
-                            : null,
+                        'plan_expires_at' => $planExpiresAt,
+                        'quota_remaining' => $quotaRemaining,
                         'is_active' => true,
                         'connected_at' => $status === 'connected' ? now() : null,
                     ]);

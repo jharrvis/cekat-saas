@@ -255,6 +255,17 @@
                                             </td>
                                             <td class="px-4 py-3">
                                                 <span class="text-sm capitalize">{{ str_replace('_', ' ', $device->plan) }}</span>
+                                                @if($device->quota_remaining !== null)
+                                                    <div class="text-xs text-muted-foreground">
+                                                        {{ __('admin.s.fonnte_quota') }}: {{ number_format($device->quota_remaining) }}
+                                                    </div>
+                                                @endif
+                                                @if($device->plan_expires_at)
+                                                    @php $expiryClass = $device->plan_expires_at->isPast() ? 'text-red-600 font-semibold' : ($device->plan_expires_at->lte(now()->addDays(7)) ? 'text-amber-600 font-semibold' : 'text-muted-foreground'); @endphp
+                                                    <div class="text-xs {{ $expiryClass }}">
+                                                        {{ __('admin.s.until_short') }} {{ $device->plan_expires_at->translatedFormat('d M Y') }}
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td class="px-4 py-3">
                                                 <div class="flex gap-1">
