@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use Livewire\Component;
 use App\Models\Setting;
 use App\Models\WhatsAppDevice;
+use App\Models\Widget;
 use App\Services\WhatsApp\FonnteService;
 use App\Services\WhatsApp\WhatsAppManager;
 
@@ -40,6 +41,12 @@ class WhatsAppSettings extends Component
 
     // Devices list (for monitor tab)
     public $devices = [];
+
+    // Platform device widget-link panel state
+    public ?int $linkDeviceId = null;
+    public string $linkDeviceLabel = '';
+    public ?int $linkWidgetId = null;
+    public array $linkWidgetOptions = [];
 
     // Platform device connect (QR) panel state
     public ?int $connectDeviceId = null;
@@ -231,6 +238,69 @@ class WhatsAppSettings extends Component
         } catch (\Exception $e) {
             session()->flash('error', __('admin.s.sync_failed', ['error' => $e->getMessage()]));
         }
+    }
+
+    /**
+     * Open the widget-link panel for a platform device. Linking gives
+     * the device the widget's agent + knowledge base for AI replies;
+     * saving also installs the device's Fonnte webhook to Cekat (the
+     * device was born in Fonnte, so nothing pointed here yet).
+     */
+    public function openLink(int $deviceId)
+    {
+        $device = WhatsAppDevice::find($deviceId);
+
+        if (! $device || ! $device->is_platform) {
+            session()->flash('error', __('admin.s.platform_device_only'));
+
+            return;
+        }
+
+        $this->linkDeviceId = $device->id;
+        $this->linkDeviceLabel = trim(($device->device_name ?: 'Device') . ' · ' . $device->formatted_phone);
+        $this->linkWidgetId = $device->widget_id;
+        $this->linkWidgetOptions = Widget::with('user')->orderBy('name')->take(200)->get()
+            ->map(fn ($w) => ['id' => $w->id, 'label' => $w->name . ' — ' . ($w->user?->name ?? '-')])
+            ->all();
+    }
+
+    public function saveLink()
+    {
+        $device = WhatsAppDevice::find($this->linkDeviceId);
+
+        if (! $device || ! $device->is_platform || ! $this->linkWidgetId) {
+            session()->flash('error', __('admin.s.platform_device_only'));
+
+            return;
+        }
+
+        $device->update(['widget_id' => $this->linkWidgetId]);
+
+        (new WhatsAppManager())->configureDeviceWebhooks($device);
+
+        session()->flash('message', __('admin.s.device_linked'));
+        $this->closeLink();
+        $this->loadDevices();
+    }
+
+    public function unlinkDevice(int $deviceId)
+    {
+        $device = WhatsAppDevice::find($deviceId);
+
+        if (! $device || ! $device->is_platform) {
+            session()->flash('error', __('admin.s.platform_device_only'));
+
+            return;
+        }
+
+        $device->update(['widget_id' => null]);
+        session()->flash('message', __('admin.s.device_unlinked'));
+        $this->loadDevices();
+    }
+
+    public function closeLink()
+    {
+        $this->reset(['linkDeviceId', 'linkDeviceLabel', 'linkWidgetId', 'linkWidgetOptions']);
     }
 
     /**

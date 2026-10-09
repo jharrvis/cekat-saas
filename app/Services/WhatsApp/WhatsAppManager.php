@@ -70,6 +70,51 @@ class WhatsAppManager
      * @param string $phoneNumber User's WhatsApp phone number (with country code, e.g. 628123456789)
      * @return WhatsAppDevice
      */
+    /**
+     * Point every Fonnte webhook for this device at our unified
+     * endpoint and apply the chatbot-mode device settings. Runs at
+     * device creation, and again when an admin links an existing
+     * (platform) device to a widget.
+     */
+    public function configureDeviceWebhooks(WhatsAppDevice $device): void
+    {
+        $webhookUrl = url('/api/whatsapp/webhook/' . $device->id);
+
+        try {
+            $this->fonnte->updateDevice($device->fonnte_device_token, [
+                // All webhook URLs point to our unified endpoint
+                'webhook' => $webhookUrl,           // Incoming messages
+                'webhookconnect' => $webhookUrl,    // Connection status
+                'webhookstatus' => $webhookUrl,     // Message delivery status
+                // Autoread settings for chatbot mode
+                'autoread' => true,                 // Enable autoread (chatbot mode)
+                'personal' => true,                 // Reply to personal chats
+                'group' => false,                   // Don't reply to groups by default
+                'quick' => false,                   // Don't reply to self messages
+            ]);
+
+            Log::info('Fonnte device configured via API', [
+                'device_id' => $device->id,
+                'webhook_url' => $webhookUrl,
+            ]);
+        } catch (\Exception $e) {
+            Log::warning('Failed to configure device settings via Fonnte API', [
+                'device_id' => $device->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Fallback: try the old setWebhook method
+            try {
+                $this->fonnte->setWebhook($device->fonnte_device_token, $webhookUrl);
+            } catch (\Exception $e2) {
+                Log::warning('Fallback setWebhook also failed', [
+                    'device_id' => $device->id,
+                    'error' => $e2->getMessage(),
+                ]);
+            }
+        }
+    }
+
     public function createDevice(int $userId, ?int $widgetId = null, string $deviceName = '', string $phoneNumber = ''): WhatsAppDevice
     {
         if (!self::isReady()) {
@@ -108,40 +153,7 @@ class WhatsAppManager
         ]);
 
         // Configure device settings via Fonnte API (webhooks, autoread, etc.)
-        $webhookUrl = url('/api/whatsapp/webhook/' . $device->id);
-        try {
-            $this->fonnte->updateDevice($fonnteResult['token'], [
-                // All webhook URLs point to our unified endpoint
-                'webhook' => $webhookUrl,           // Incoming messages
-                'webhookconnect' => $webhookUrl,    // Connection status
-                'webhookstatus' => $webhookUrl,     // Message delivery status
-                // Autoread settings for chatbot mode
-                'autoread' => true,                 // Enable autoread (chatbot mode)
-                'personal' => true,                 // Reply to personal chats
-                'group' => false,                   // Don't reply to groups by default
-                'quick' => false,                   // Don't reply to self messages
-            ]);
-
-            Log::info('Fonnte device configured via API', [
-                'device_id' => $device->id,
-                'webhook_url' => $webhookUrl,
-            ]);
-        } catch (\Exception $e) {
-            Log::warning('Failed to configure device settings via Fonnte API', [
-                'device_id' => $device->id,
-                'error' => $e->getMessage(),
-            ]);
-
-            // Fallback: try the old setWebhook method
-            try {
-                $this->fonnte->setWebhook($fonnteResult['token'], $webhookUrl);
-            } catch (\Exception $e2) {
-                Log::warning('Fallback setWebhook also failed', [
-                    'device_id' => $device->id,
-                    'error' => $e2->getMessage(),
-                ]);
-            }
-        }
+        $this->configureDeviceWebhooks($device);
 
         Log::info('WhatsApp device created', [
             'device_id' => $device->id,
@@ -334,6 +346,15 @@ class WhatsAppManager
         // Check if device has linked widget for AI processing
         if (!$device->widget_id) {
             Log::info('No widget linked to device, skipping AI response', [
+                'device_id' => $device->id,
+            ]);
+            return $inboundMessage;
+        }
+
+        // The admin "Enable Auto Reply with AI" switch is the global
+        // gate for AI replies (it was previously saved but never read).
+        if (! Setting::get('whatsapp_auto_reply_enabled', true)) {
+            Log::info('Auto reply disabled by admin, skipping AI response', [
                 'device_id' => $device->id,
             ]);
             return $inboundMessage;
