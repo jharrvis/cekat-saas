@@ -1,0 +1,8 @@
+# GitGuardian scan configuration.
+#
+# Test fixtures intentionally contain dummy passwords (for example
+# mismatched-confirmation scenarios in AuthInlineValidationTest).
+# They are throwaway values for a disposable test database, never
+# real credentials - do not flag the tests tree for them.
+paths-ignore:
+  - "tests/**"
