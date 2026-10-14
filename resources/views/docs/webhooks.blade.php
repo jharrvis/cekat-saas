@@ -332,6 +332,45 @@ if (hash_equals($expected, $signature)) {
                     </div>
                 </div>
 
+                <!-- API Lookup -->
+                <div class="mt-12">
+                    <h3 class="text-xl font-bold text-slate-900 mb-6">API Lookup — Chatbot Mencari Data dari API Eksternal</h3>
+                    <div class="prose prose-slate max-w-none text-sm text-slate-600">
+                        <p>
+                            Selain mengirim data <em>keluar</em> via webhook, chatbot juga bisa <em>mengambil</em> data
+                            dari API eksternal mana pun saat percakapan berlangsung — misalnya mencari nomor perkara
+                            ke API pengadilan, mengecek resi ekspedisi, atau menanyakan stok produk.
+                        </p>
+                        <p>
+                            Caranya: buka <strong>pengaturan channel → tab Webhook → bagian API Lookup</strong>,
+                            lalu daftarkan satu lookup per API:
+                        </p>
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li><strong>Key &amp; nama</strong> — mis. <code>cari_perkara</code> / "Cari Perkara PA Salatiga".</li>
+                            <li><strong>Deskripsi</strong> — kapan AI boleh memakai lookup ini (mis. "Dipakai saat user menanyakan informasi perkara berdasarkan nomor perkara").</li>
+                            <li><strong>URL template</strong> — dengan placeholder <code>{nama_param}</code>, mis.
+                                <code>https://api.pa-salatiga.go.id/list_perkara.php?search={nomor_perkara}</code>.</li>
+                            <li><strong>Parameter</strong> — nama, label, wajib/opsional, contoh nilai. AI mengisi dari percakapan.</li>
+                            <li><strong>Autentikasi</strong> — tanpa auth, Bearer token, atau API key (via header/query). Secret tersimpan terenkripsi.</li>
+                            <li><strong>Pemetaan respons</strong> — petakan field JSON ke nama field, mis. <code>status → data.0.status_perkara</code>.</li>
+                            <li><strong>Template balasan</strong> — kalimat chat dengan <code>{field}</code>, mis.
+                                <code>Perkara {nomor_perkara} berstatus {status}.</code></li>
+                        </ol>
+                        <p>
+                            Saat user memberikan parameter yang dibutuhkan, AI otomatis memanggil lookup tersebut dan
+                            menjawab berdasarkan hasil API. Bila API tidak mengembalikan hasil atau sedang error,
+                            chatbot memakai pesan yang Anda tentukan. Tombol <strong>Uji</strong> di setiap lookup
+                            menjalankan pemanggilan percobaan dan menampilkan URL, status HTTP, hasil mapping,
+                            serta balasan akhirnya.
+                        </p>
+                        <p class="text-xs text-slate-500">
+                            Catatan keamanan: hanya URL http/https publik yang diizinkan (IP privat, localhost, dan
+                            layanan metadata cloud ditolak otomatis), respons dibatasi 256 KB, dan setiap channel
+                            dibatasi 30 pemanggilan lookup per menit.
+                        </p>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

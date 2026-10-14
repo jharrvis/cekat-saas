@@ -18,6 +18,14 @@ class PromptBuilder
         // Check if widget is linked to an AI Agent
         $aiAgent = $widget->aiAgent;
 
+        // Katalog API Lookup aktif milik channel ini (untuk dibaca AI).
+        $apiLookups = $widget->apiLookups()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($lookup) => $lookup->toPromptArray())
+            ->all();
+
         if ($aiAgent && $aiAgent->knowledgeBase) {
             // Use AI Agent's knowledge base
             $kb = $aiAgent->knowledgeBase;
@@ -45,6 +53,7 @@ class PromptBuilder
                 ])->toArray(),
                 'custom_instructions' => $kb->custom_instructions ?? $aiAgent->system_prompt,
                 'settings' => $widget->settings ?? [],
+                'api_lookups' => $apiLookups,
             ];
         }
 
@@ -59,6 +68,7 @@ class PromptBuilder
                 'faqs' => [],
                 'custom_instructions' => '',
                 'settings' => $widget->settings ?? [],
+                'api_lookups' => $apiLookups,
             ];
         }
 
@@ -79,6 +89,7 @@ class PromptBuilder
             ])->toArray(),
             'custom_instructions' => $kb->custom_instructions,
             'settings' => $widget->settings ?? [],
+            'api_lookups' => $apiLookups,
         ];
     }
 
@@ -233,6 +244,33 @@ class PromptBuilder
         $prompt .= "\nContoh respons jika data lengkap:\n";
         $prompt .= "\"Terima kasih Kak Budi, data sudah saya catat.\"\n";
         $prompt .= "{\"action\": \"save_lead\", \"name\": \"Budi\", \"email\": \"budi@gmail.com\", \"phone\": \"08123456789\"}\n";
+
+        // API Lookup — katalog sumber data eksternal milik channel ini
+        $apiLookups = $kb['api_lookups'] ?? [];
+        if ($apiLookups !== []) {
+            $prompt .= "\n## API LOOKUP (Pencarian Data Eksternal)\n";
+            $prompt .= "Kamu memiliki akses ke sumber data berikut. Jika user menanyakan hal yang sesuai deskripsi DAN user sudah memberikan semua parameter wajib, kamu WAJIB mengeluarkan output JSON (dan hanya JSON) pada blok terpisah atau di akhir pesan:\n";
+            $n = 0;
+            foreach ($apiLookups as $lookup) {
+                $n++;
+                $prompt .= "{$n}. **" . ($lookup['name'] ?? $lookup['key']) . "** — " . ($lookup['description'] ?? '') . "\n";
+                foreach ($lookup['params'] ?? [] as $p) {
+                    $req = ! empty($p['required']) ? ' (wajib)' : ' (opsional)';
+                    $prompt .= "   - Parameter " . $p['name'] . $req . ": " . ($p['description'] ?? '');
+                    if (! empty($p['example'])) {
+                        $prompt .= " Contoh: " . $p['example'] . ".";
+                    }
+                    $prompt .= "\n";
+                }
+                $pairs = [];
+                foreach ($lookup['params'] ?? [] as $p) {
+                    $pairs[] = '"' . $p['name'] . '": "..."';
+                }
+                $prompt .= '   Format: {"action": "api_lookup", "lookup": "' . $lookup['key'] . '", "params": {' . implode(', ', $pairs) . "}}.\n";
+            }
+            $prompt .= "- Jangan menebak nilai parameter; bila parameter wajib belum diberikan user, tanyakan dulu dengan sopan.\n";
+            $prompt .= "- Jangan memanggil lookup yang sama dua kali dalam satu balasan.\n";
+        }
 
         $prompt .= $this->identityGuard();
         $prompt .= $this->securityRules();

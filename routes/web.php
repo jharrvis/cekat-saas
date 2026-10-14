@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\ApiLookupController;
 use App\Http\Controllers\ChannelController;
 
 // Landing Page — harga dirender dari tabel plans (sumber kebenaran)
@@ -262,6 +263,12 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     Route::delete('/channels/{channel}', [ChannelController::class, 'destroy'])->name('channels.destroy');
     Route::post('/channels/{channel}/unlink-agent', [ChannelController::class, 'unlinkAgent'])->name('channels.unlink-agent');
     Route::post('/channels/{channel}/activate', [ChannelController::class, 'activate'])->name('channels.activate');
+
+    // API Lookup per channel (chatbot mencari data dari API eksternal)
+    Route::post('/channels/{channel}/api-lookups', [ApiLookupController::class, 'store'])->name('channels.api-lookups.store');
+    Route::put('/channels/{channel}/api-lookups/{lookup}', [ApiLookupController::class, 'update'])->name('channels.api-lookups.update');
+    Route::delete('/channels/{channel}/api-lookups/{lookup}', [ApiLookupController::class, 'destroy'])->name('channels.api-lookups.destroy');
+    Route::post('/channels/{channel}/api-lookups/{lookup}/test', [ApiLookupController::class, 'test'])->name('channels.api-lookups.test');
 
     // Legacy redirects (bookmarks / old embed docs)
     Route::redirect('/chatbots/create', '/channels/create', 301);
