@@ -44,7 +44,9 @@ class WidgetApiLookup extends Model
 
     protected $casts = [
         'params' => 'array',
-        'headers' => 'encrypted:array',
+        // NB: headers disimpan plain JSON (kolom json + CHECK json_valid).
+        // Secret jangan taruh di headers — pakai auth_secret (terenkripsi).
+        'headers' => 'array',
         'auth_config' => 'array',
         'auth_secret' => 'encrypted',
         'response_mapping' => 'array',
