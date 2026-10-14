@@ -4,6 +4,6 @@
     "requires": "5.0",
     "tested": "6.4",
     "requires_php": "7.4",
-    "last_updated": "2026-10-10",
+    "last_updated": "2026-10-14",
     "changelog": "* Sinkronisasi konten situs: Halaman, Artikel, dan info situs (nama, deskripsi, alamat toko WooCommerce) kini bisa disinkronkan ke knowledge base chatbot, sehingga chatbot dapat menjawab pertanyaan umum tentang website (tentang kami, FAQ, kebijakan), bukan hanya produk"
 }

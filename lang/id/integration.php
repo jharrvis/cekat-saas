@@ -23,7 +23,6 @@ return [
         'squarespace' => 'Squarespace',
         'tempel_kode_di_atas_sebelum_tag_pada_halaman_web' => 'Tempel kode di atas sebelum tag pada halaman website Anda.',
         'upload_folder_ke' => 'Upload folder ke',
-        'v1_0_1' => 'v1.0.1',
         'view_source' => 'Lihat Kode Sumber',
     ],
 ];
