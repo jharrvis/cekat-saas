@@ -87,7 +87,7 @@ class AgentKnowledgeEditor extends Component
             'company_description' => 'nullable|max:1000',
             'persona_name' => 'required|max:100',
             'customer_greeting' => 'nullable|max:50',
-            'custom_instructions' => 'nullable|max:2000',
+            'custom_instructions' => 'nullable|max:10000',
         ]);
 
         $this->knowledgeBase->update([

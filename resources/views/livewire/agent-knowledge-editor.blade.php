@@ -84,7 +84,8 @@
                     <textarea wire:model="custom_instructions" rows="3"
                         class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
                         placeholder="{{ __('livewire.s.instruksi_khusus_untuk_ai') }}"></textarea>
-                    <p class="text-xs text-muted-foreground mt-1">{{ __('livewire.s.contoh_selalu_tawarkan_produk_promo_atau_arahkan') }}</p>
+                    @error('custom_instructions') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    <p class="text-xs text-muted-foreground mt-1">{{ __('livewire.s.contoh_selalu_tawarkan_produk_promo_atau_arahkan') }} (Maks. 10.000 karakter.)</p>
                 </div>
 
                 <button type="submit"
