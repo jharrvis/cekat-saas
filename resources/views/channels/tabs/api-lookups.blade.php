@@ -247,3 +247,4 @@ function lookupTestResult(data) {
 
     return wrap;
 }
+</script>
