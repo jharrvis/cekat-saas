@@ -106,7 +106,7 @@ class KnowledgeBaseEditor extends Component
             'persona_name' => 'required|max:100',
             'persona_tone' => 'required',
             'customer_greeting' => 'nullable|max:50',
-            'custom_instructions' => 'nullable|max:2000',
+            'custom_instructions' => 'nullable|max:10000',
         ]);
 
         $this->knowledgeBase->update([

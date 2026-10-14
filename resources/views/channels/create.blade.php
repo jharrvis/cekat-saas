@@ -70,9 +70,6 @@
                                             {{ $agent->widgets()->count() }} widget terhubung
                                         </p>
                                     </div>
-                                    <span class="px-2 py-1 text-xs bg-primary/10 text-primary rounded">
-                                        {{ Str::afterLast($agent->ai_model, '/') }}
-                                    </span>
                                 </label>
                             @endforeach
                         </div>

@@ -100,3 +100,6 @@
         icon.classList.add('fa-eye-slash');
     }
 </script>
+
+{{-- API Lookup: chatbot mencari data dari API eksternal saat percakapan --}}
+@include('channels.tabs.api-lookups', ['chatbot' => $chatbot])

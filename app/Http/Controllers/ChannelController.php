@@ -84,7 +84,7 @@ class ChannelController extends Controller
 
     public function edit($chatbotId, $tab = 'general')
     {
-        $chatbot = auth()->user()->widgets()->with('knowledgeBase')->findOrFail($chatbotId);
+        $chatbot = auth()->user()->widgets()->with(['knowledgeBase', 'apiLookups'])->findOrFail($chatbotId);
         Gate::authorize('view', $chatbot);
         // The 'knowledge' tab stays available for widgets with their own
         // (agent-less) knowledge base; linked widgets show the agent banner.

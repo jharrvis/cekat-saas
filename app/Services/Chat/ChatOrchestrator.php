@@ -42,6 +42,7 @@ class ChatOrchestrator
         protected ModelResolver $models,
         protected LeadCaptureService $leads,
         protected WebhookActionService $webhooks,
+        protected ApiLookupService $apiLookups,
         protected SessionIdService $sessions,
     ) {}
 
@@ -166,13 +167,20 @@ class ChatOrchestrator
                 if ($widget) {
                     $replyAction = $this->webhooks->extractAction($responseText);
                     $syncReply = null;
+                    $isApiLookup = ($replyAction['action'] ?? null) === 'api_lookup';
+
+                    // api_lookup runs synchronously through ApiLookupService:
+                    // the external API answer becomes the visitor-facing reply.
+                    if ($isApiLookup) {
+                        $syncReply = $this->apiLookups->dispatch($widget, $replyAction);
+                    }
 
                     // check_status and create_order run synchronously: the
                     // store's answer becomes part of the reply. The
                     // visitor's identity (verification contact / buyer
                     // data) comes from the action payload first, then the
                     // pre-chat form, then the session's captured lead data.
-                    if ($replyAction && in_array($replyAction['action'] ?? null, ['check_status', 'create_order'], true)) {
+                    if (! $isApiLookup && $replyAction && in_array($replyAction['action'] ?? null, ['check_status', 'create_order'], true)) {
                         $sessionRow = $sessionId
                             ? ChatSession::where('widget_id', $widget->id)->where('visitor_uuid', $sessionId)->first()
                             : null;
@@ -203,8 +211,10 @@ class ChatOrchestrator
                         }
                     }
 
+                    // api_lookup must never fall through to the generic
+                    // fire-and-forget store webhook.
                     $webhookResult = $syncReply
-                        ?? $this->webhooks->dispatchIfAction($widget, $responseText);
+                        ?? ($isApiLookup ? null : $this->webhooks->dispatchIfAction($widget, $responseText));
 
                     if ($webhookResult && $replyAction) {
                         WebhookActionTriggered::dispatch($widget->slug, $replyAction['action']);

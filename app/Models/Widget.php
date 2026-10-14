@@ -94,6 +94,15 @@ class Widget extends Model
     }
 
     /**
+     * Get the API Lookup definitions for this widget (chatbot dapat
+     * mencari data dari API eksternal saat percakapan).
+     */
+    public function apiLookups(): HasMany
+    {
+        return $this->hasMany(WidgetApiLookup::class);
+    }
+
+    /**
      * Check if widget has an active AI agent.
      */
     public function hasActiveAgent(): bool
