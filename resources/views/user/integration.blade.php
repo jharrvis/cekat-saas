@@ -67,8 +67,10 @@
                     <div class="flex-1">
                         <div class="flex items-center gap-2">
                             <h3 class="font-semibold text-lg">{{ __('integration.s.cekat_ai_chatbot_for_wordpress') }}</h3>
-                            <span
-                                class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">v1.0.1</span>
+                            @if (!empty($pluginVersion))
+                                <span
+                                    class="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">v{{ $pluginVersion }}</span>
+                            @endif
                         </div>
                         <p class="text-sm text-muted-foreground mt-1">{{ __('integration.s.plugin_wordpress_resmi_untuk_integrasi_chatbot_d') }}</p>
 

@@ -23,7 +23,6 @@ return [
         'squarespace' => 'Squarespace',
         'tempel_kode_di_atas_sebelum_tag_pada_halaman_web' => 'Paste the code above before the tag on your website page.',
         'upload_folder_ke' => 'Upload the folder to',
-        'v1_0_1' => 'v1.0.1',
         'view_source' => 'View Source',
     ],
 ];

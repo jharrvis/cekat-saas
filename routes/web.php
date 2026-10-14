@@ -320,7 +320,16 @@ Route::middleware(['auth', 'user.status'])->group(function () {
     // User Integration (view embed code)
     Route::get('/integration', function () {
         $widgets = auth()->user()->widgets()->get();
-        return view('user.integration', compact('widgets'));
+        // The version badge must always match the plugin build that the
+        // download button serves - read it from the generated update
+        // manifest instead of hardcoding a version string in the view.
+        $pluginVersion = null;
+        $manifest = public_path('downloads/cekat-ai-chatbot-update.json');
+        if (is_file($manifest)) {
+            $decoded = json_decode((string) file_get_contents($manifest), true);
+            $pluginVersion = $decoded['version'] ?? null;
+        }
+        return view('user.integration', compact('widgets', 'pluginVersion'));
     })->name('integration');
 
     // API Keys - manage personal keys for the public read API (/api/v1)
