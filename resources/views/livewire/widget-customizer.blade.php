@@ -309,7 +309,7 @@
 
                 // Load widget script
                 const script = document.createElement('script');
-                script.src = '{{ asset("widget/widget.min.js") }}?v=20260930-p1';
+                script.src = '{{ asset("widget/widget.min.js") }}?v=20261015-behavior1';
                 document.body.appendChild(script);
 
                 widgetLoaded = true;

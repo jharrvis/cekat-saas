@@ -162,7 +162,7 @@
                                                         widgetId: '${slug}'
                                                     };
                                                 <\/script>
-                                                <script src="${baseUrl}/widget/widget.min.js?v=20260930-p6" async><\/script>`;
+                                                <script src="${baseUrl}/widget/widget.min.js?v=20261015-behavior1" async><\/script>`;
 
                 document.getElementById('embed-code').textContent = currentCode;
             }
