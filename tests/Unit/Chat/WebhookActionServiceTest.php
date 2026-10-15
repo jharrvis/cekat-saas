@@ -35,6 +35,68 @@ class WebhookActionServiceTest extends TestCase
         $this->assertStringContainsString('Terima kasih kak', $cleaned);
     }
 
+    public function test_extract_action_parses_tool_call_block(): void
+    {
+        $service = new WebhookActionService(new WebhookService);
+
+        // Format mentah yang dikeluarkan Gemini saat mengabaikan instruksi JSON
+        // (insiden widget PA Salatiga 2026-10-15).
+        $text = "<tool_call_start>\n[api_lookup(action='api_lookup', lookup='jadwal_sidang_perkara', params={'nomor': '51/Pdt.P/2026/PA.Sal'})]\n<tool_call_end>";
+
+        $data = $service->extractAction($text);
+
+        $this->assertSame('api_lookup', $data['action'] ?? null);
+        $this->assertSame('jadwal_sidang_perkara', $data['lookup'] ?? null);
+        $this->assertSame('51/Pdt.P/2026/PA.Sal', $data['params']['nomor'] ?? null);
+    }
+
+    public function test_extract_action_parses_tool_call_mixed_reply(): void
+    {
+        $service = new WebhookActionService(new WebhookService);
+
+        $text = "Sebentar ya kak, saya cek dulu.\n<tool_call_start>[save_lead(action='save_lead', name='Budi', phone='08123456789')]<tool_call_end>";
+
+        $data = $service->extractAction($text);
+
+        $this->assertSame('save_lead', $data['action'] ?? null);
+        $this->assertSame('Budi', $data['name'] ?? null);
+        $this->assertSame('08123456789', $data['phone'] ?? null);
+        $this->assertFalse($service->isStrictJson($text));
+
+        $cleaned = $service->stripActionJson($text);
+        $this->assertStringContainsString('Sebentar ya kak', $cleaned);
+        $this->assertStringNotContainsString('tool_call_start', $cleaned);
+    }
+
+    public function test_extract_action_parses_tool_call_nested_items(): void
+    {
+        $service = new WebhookActionService(new WebhookService);
+
+        $text = "<tool_call_start>[create_order(action='create_order', items=[{'product': 'Kopi Susu', 'qty': 2}], name='Ani', phone='08111')]<tool_call_end>";
+
+        $data = $service->extractAction($text);
+
+        $this->assertSame('create_order', $data['action'] ?? null);
+        $this->assertSame('Kopi Susu', $data['items'][0]['product'] ?? null);
+        $this->assertSame(2, $data['items'][0]['qty'] ?? null);
+    }
+
+    public function test_is_strict_json_true_for_pure_tool_call_block(): void
+    {
+        $service = new WebhookActionService(new WebhookService);
+
+        $this->assertTrue($service->isStrictJson(
+            "<tool_call_start>[api_lookup(action='api_lookup', lookup='x', params={})]<tool_call_end>"
+        ));
+    }
+
+    public function test_extract_action_returns_null_for_malformed_tool_call(): void
+    {
+        $service = new WebhookActionService(new WebhookService);
+
+        $this->assertNull($service->extractAction('<tool_call_start>[api_lookup(broken]<tool_call_end>'));
+    }
+
     public function test_dispatch_sends_webhook_and_returns_friendly_message(): void
     {
         Http::fake(['https://hook.test/*' => Http::response(['ok' => true], 200)]);
