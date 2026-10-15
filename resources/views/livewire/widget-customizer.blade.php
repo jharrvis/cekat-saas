@@ -125,6 +125,63 @@
                         </select>
                     </div>
 
+                    {{-- Widget open behavior --}}
+                    <div>
+                        <label class="block text-sm font-medium mb-2">{{ __('livewire.s.widget_behavior') }}</label>
+                        <div class="flex gap-4 mb-3">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model.live="openBehavior" value="auto"
+                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="text-sm">{{ __('livewire.s.behavior_auto') }}</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model.live="openBehavior" value="manual"
+                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="text-sm">{{ __('livewire.s.behavior_manual') }}</span>
+                            </label>
+                        </div>
+                        @if ($openBehavior === 'auto')
+                            <div>
+                                <label class="block text-sm font-medium mb-2">{{ __('livewire.s.auto_open_delay') }}</label>
+                                <div class="flex gap-3 items-center">
+                                    <input type="number" wire:model.live="autoOpenDelay" min="0" max="120"
+                                        class="w-28 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                    <span class="text-sm text-muted-foreground">{{ __('livewire.s.seconds') }}</span>
+                                </div>
+                                <p class="text-xs text-muted-foreground mt-1">{{ __('livewire.s.auto_open_delay_hint') }}</p>
+                                @error('autoOpenDelay') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                        @endif
+                        @error('openBehavior') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+
+                    {{-- Launcher style --}}
+                    <div>
+                        <label class="block text-sm font-medium mb-2">{{ __('livewire.s.launcher_style') }}</label>
+                        <div class="flex gap-4 mb-3">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model.live="launcherStyle" value="icon"
+                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="text-sm">{{ __('livewire.s.launcher_icon_only') }}</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" wire:model.live="launcherStyle" value="icon_text"
+                                    class="w-4 h-4 text-primary focus:ring-primary border-gray-300">
+                                <span class="text-sm">{{ __('livewire.s.launcher_icon_text') }}</span>
+                            </label>
+                        </div>
+                        @if ($launcherStyle === 'icon_text')
+                            <div>
+                                <label class="block text-sm font-medium mb-2">{{ __('livewire.s.launcher_text') }}</label>
+                                <input type="text" wire:model.live="launcherText" maxlength="60"
+                                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                    placeholder="Chat dengan kami">
+                                @error('launcherText') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            </div>
+                        @endif
+                        @error('launcherStyle') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+
 
 
                     <button type="submit"
@@ -168,9 +225,12 @@
                             {{ $position === 'top-left' ? 'top-4 left-4' : '' }}">
 
                     {{-- Widget Button --}}
-                    <button class="w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white"
+                    <button class="rounded-full shadow-lg flex items-center justify-center text-white gap-2 {{ $launcherStyle === 'icon_text' ? 'h-14 px-5' : 'w-14 h-14' }}"
                         style="background: {{ $primaryColor }}">
                         <i class="fa-solid fa-comment text-xl"></i>
+                        @if ($launcherStyle === 'icon_text')
+                            <span class="text-sm font-semibold whitespace-nowrap">{{ $launcherText ?: 'Chat dengan kami' }}</span>
+                        @endif
                     </button>
 
                     {{-- Widget Window (Mini Preview) --}}
@@ -240,6 +300,10 @@
                     avatarType: '{{ $avatarType }}',
                     avatarIcon: '{{ $avatarIcon }}',
                     avatarUrl: '{{ $avatarUrl }}',
+                    openBehavior: '{{ $openBehavior }}',
+                    autoOpenDelay: {{ (int) $autoOpenDelay }},
+                    launcherStyle: '{{ $launcherStyle }}',
+                    launcherText: '{{ addslashes($launcherText ?: 'Chat dengan kami') }}',
                     showBranding: true
                 };
 

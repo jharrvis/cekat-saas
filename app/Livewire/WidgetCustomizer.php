@@ -23,6 +23,12 @@ class WidgetCustomizer extends Component
     public $avatarUrl = '';
     public $avatarUpload;
 
+    // Launcher & open behavior settings
+    public $openBehavior = 'auto'; // 'auto' (muncul otomatis) atau 'manual' (hanya saat diklik)
+    public $autoOpenDelay = 3; // detik, dipakai saat openBehavior = auto
+    public $launcherStyle = 'icon'; // 'icon' atau 'icon_text'
+    public $launcherText = 'Chat dengan kami';
+
     // Embed Code
     public $embedCode = '';
 
@@ -65,6 +71,11 @@ class WidgetCustomizer extends Component
         $this->avatarType = $settings['avatar_type'] ?? 'icon';
         $this->avatarIcon = $settings['avatar_icon'] ?? 'robot';
         $this->avatarUrl = $settings['avatar_url'] ?? '';
+
+        $this->openBehavior = $settings['open_behavior'] ?? 'auto';
+        $this->autoOpenDelay = (int) ($settings['auto_open_delay'] ?? 3);
+        $this->launcherStyle = $settings['launcher_style'] ?? 'icon';
+        $this->launcherText = $settings['launcher_text'] ?? 'Chat dengan kami';
     }
 
     public function saveSettings()
@@ -75,6 +86,10 @@ class WidgetCustomizer extends Component
             'greeting' => 'required|max:500',
             'position' => 'required|in:bottom-right,bottom-left,top-right,top-left',
             'avatarUpload' => 'nullable|image|max:1024', // 1MB Max
+            'openBehavior' => 'required|in:auto,manual',
+            'autoOpenDelay' => 'required|integer|min:0|max:120',
+            'launcherStyle' => 'required|in:icon,icon_text',
+            'launcherText' => 'nullable|string|max:60',
         ]);
 
         // Handle Avatar Upload
@@ -97,6 +112,10 @@ class WidgetCustomizer extends Component
         $settings['avatar_type'] = $this->avatarType;
         $settings['avatar_icon'] = $this->avatarIcon;
         $settings['avatar_url'] = $this->avatarUrl;
+        $settings['open_behavior'] = $this->openBehavior;
+        $settings['auto_open_delay'] = (int) $this->autoOpenDelay;
+        $settings['launcher_style'] = $this->launcherStyle;
+        $settings['launcher_text'] = trim((string) $this->launcherText) !== '' ? trim((string) $this->launcherText) : 'Chat dengan kami';
         $settings['model'] = $settings['model'] ?? config('services.openrouter.default_model');
 
         $this->widget->update([

@@ -73,7 +73,12 @@
     // AI model (server config override when available)
     model: null,
     // Pre-chat form (Strategy 3) - server config overrides when enabled
-    leadForm: null
+    leadForm: null,
+    // Launcher & open behavior (server config overrides when set)
+    openBehavior: 'auto', // 'auto' = buka otomatis, 'manual' = hanya saat diklik
+    autoOpenDelay: 3, // detik, dipakai saat openBehavior = 'auto'
+    launcherStyle: 'icon', // 'icon' atau 'icon_text'
+    launcherText: 'Chat dengan kami'
   };
 
   // Merge with user config (initial)
@@ -485,6 +490,27 @@
       .csai-button.open svg.chat-icon { display: none; }
       .csai-button.open svg.close-icon { display: block; }
       .csai-button svg.close-icon { display: none; }
+
+      /* Launcher with icon + text (pill) */
+      .csai-button.has-text {
+        width: auto;
+        padding: 0 20px 0 18px;
+        border-radius: 30px;
+        gap: 10px;
+      }
+      .csai-button-text {
+        color: ${config.textColor};
+        font-size: 15px;
+        font-weight: 600;
+        white-space: nowrap;
+        font-family: inherit;
+      }
+      .csai-button.open .csai-button-text { display: none; }
+      .csai-button.open.has-text {
+        width: 60px;
+        padding: 0;
+        border-radius: 50%;
+      }
 
       .csai-button.hidden {
         display: none !important;
@@ -1213,7 +1239,7 @@
 
     widget.innerHTML = `
       <!-- Floating Button -->
-      <button class="csai-button" id="csai-toggle">
+      <button class="csai-button${config.launcherStyle === 'icon_text' ? ' has-text' : ''}" id="csai-toggle">
         <svg class="chat-icon" viewBox="0 0 24 24">
           <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
           <path d="M7 9h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
@@ -1221,6 +1247,7 @@
         <svg class="close-icon" viewBox="0 0 24 24">
           <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
         </svg>
+        ${config.launcherStyle === 'icon_text' ? `<span class="csai-button-text">${escapeHtml(config.launcherText || 'Chat dengan kami')}</span>` : ''}
         <span class="csai-badge" id="csai-badge">0</span>
       </button>
 
@@ -1920,14 +1947,17 @@
 
     console.log('CSAI Widget initialized');
 
-    // Auto-open after 3 seconds
-    setTimeout(() => {
-      if (!isOpen && !localStorage.getItem('csai_closed_once')) {
-        // Only auto-open if never explicitly closed (optional improvement)
-        // For now keep existing behavior
-        toggleChat();
-      }
-    }, 3000);
+    // Auto-open (configurable via dashboard: openBehavior 'auto'/'manual').
+    // 'auto' opens the chat after autoOpenDelay seconds; 'manual' only
+    // opens when the visitor clicks the launcher.
+    if (config.openBehavior === 'auto') {
+      const delayMs = Math.max(0, Number(config.autoOpenDelay) || 0) * 1000;
+      setTimeout(() => {
+        if (!isOpen && !localStorage.getItem('csai_closed_once')) {
+          toggleChat();
+        }
+      }, delayMs);
+    }
   }
 
   // Run when DOM is ready

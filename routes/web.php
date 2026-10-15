@@ -94,6 +94,14 @@ Route::prefix('api')->middleware(App\Http\Middleware\WidgetApiCors::class)->grou
             'avatarIcon' => $settings['avatar_icon'] ?? 'robot',
             'avatarUrl' => $settings['avatar_url'] ?? '',
             'showBranding' => true,
+            // Launcher & open behavior (dashboard "Tampilan" tab).
+            'openBehavior' => in_array($settings['open_behavior'] ?? 'auto', ['auto', 'manual'], true)
+                ? ($settings['open_behavior'] ?? 'auto') : 'auto',
+            'autoOpenDelay' => max(0, min(120, (int) ($settings['auto_open_delay'] ?? 3))),
+            'launcherStyle' => in_array($settings['launcher_style'] ?? 'icon', ['icon', 'icon_text'], true)
+                ? ($settings['launcher_style'] ?? 'icon') : 'icon',
+            'launcherText' => trim((string) ($settings['launcher_text'] ?? '')) !== ''
+                ? trim((string) ($settings['launcher_text'] ?? '')) : 'Chat dengan kami',
             'allowedDomain' => $settings['allowed_domains'] ?? '',
             // T-21 masking: the model identity is NEVER exposed in this
             // public payload — the widget client does not use it and the
