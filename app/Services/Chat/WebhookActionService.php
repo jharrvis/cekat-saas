@@ -59,8 +59,11 @@ class WebhookActionService
      */
     private function parseToolCallBlock(string $text): ?array
     {
-        if (! preg_match('/<tool_call_start>\s*\[([A-Za-z_][A-Za-z0-9_]*)\(/s', $text, $m, PREG_OFFSET_CAPTURE)) {
-            return null;
+        if (! preg_match('/<\|?tool_call_start\|?>\s*\[([A-Za-z_][A-Za-z0-9_]*)\(/s', $text, $m, PREG_OFFSET_CAPTURE)) {
+            // Fallback: blok tanpa tag pembungkus, mis. [api_lookup(...)] mentah.
+            if (! preg_match('/\[((?:api_lookup|check_status|create_order))\s*\(/s', $text, $m, PREG_OFFSET_CAPTURE)) {
+                return null;
+            }
         }
 
         $func = $m[1][0];
@@ -259,6 +262,19 @@ class WebhookActionService
             return $out;
         }
 
+        // Parenthesized group: model kadang menulis dict pakai (...) bukan {...}.
+        // Jika isi mengandung ':' top-level -> dict, selain itu -> list.
+        if ($first === '(' && $last === ')') {
+            $inner = substr($v, 1, -1);
+            $hasColon = false;
+            foreach ($this->splitTopLevel($inner, ',') as $chk) {
+                if (count($this->splitTopLevel(trim($chk), ':')) === 2) { $hasColon = true; break; }
+            }
+            if ($hasColon) {
+                return $this->parsePyValue('{'.$inner.'}');
+            }
+            return $this->parsePyValue('['.$inner.']');
+        }
         $lower = strtolower($v);
         if ($lower === 'true') {
             return true;
@@ -525,9 +541,13 @@ class WebhookActionService
      */
     public function stripActionJson(string $responseText): string
     {
-        $text = preg_replace('/<tool_call_start>[\s\S]*?<tool_call_end>/', '', $responseText);
+        $text = preg_replace('/<\|?tool_call_start\|?>[\s\S]*?<\|?tool_call_end\|?>/', '', $responseText);
+        $text = $text ?? $responseText;
+        // Fail-safe: jangan pernah tampilkan sintaks tool-call mentah ke pengunjung,
+        // termasuk varian tanpa tag pembungkus.
+        $text = preg_replace('/\[(?:api_lookup|check_status|create_order)\s*\([\s\S]*?\)\]/', '', $text);
 
-        return preg_replace('/\{[\s\S]*\}/', '', $text ?? $responseText);
+        return preg_replace('/\{[\s\S]*\}/', '', $text);
     }
 
     public function isStrictJson(string $responseText): bool
@@ -543,6 +563,6 @@ class WebhookActionService
         }
 
         // A reply consisting solely of a tool-call block counts as strict too.
-        return (bool) preg_match('/^<tool_call_start>[\s\S]*<tool_call_end>$/', $trimmed);
+        return (bool) preg_match('/^<\|?tool_call_start\|?>[\s\S]*<\|?tool_call_end\|?>$/', $trimmed);
     }
 }
