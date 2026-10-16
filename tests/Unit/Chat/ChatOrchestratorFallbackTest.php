@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Chat;
 
+use App\Services\Chat\ApiLookupService;
 use App\Services\Chat\ChatOrchestrator;
 use App\Services\Chat\DomainAccessService;
 use App\Services\Chat\LeadCaptureService;
@@ -27,6 +28,7 @@ class ChatOrchestratorFallbackTest extends TestCase
             app(ModelResolver::class),
             app(LeadCaptureService::class),
             app(WebhookActionService::class),
+            app(ApiLookupService::class),
             app(SessionIdService::class),
         ) extends ChatOrchestrator {
             public function callPublic(string $prompt, array $messages, string $model): array
