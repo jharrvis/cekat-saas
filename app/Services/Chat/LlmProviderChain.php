@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\Http;
 /**
  * Ordered list of LLM provider attempts for one chat request.
  *
- * Providers are configured by the admin (Admin > AI Models & Tiers):
- *  - SumoPod (OpenAI-compatible gateway, https://ai.sumopod.com) - used
- *    first when enabled and fully configured (key + model).
- *  - OpenRouter with the tier-mapped model - when enabled.
- *  - OpenRouter's Free Models Router (openrouter/free) - ALWAYS the
- *    final attempt, even when every provider toggle is off, so the
- *    chatbot never loses its last-resort route.
+ * The tier mapping decides the primary provider: a mapping value of
+ * "sumopod:<model-id>" (chosen in Admin > AI Models & Tiers) targets
+ * SumoPod; any other value is an OpenRouter model id. When the primary
+ * attempt's provider is unavailable or fails, the chain crosses over
+ * to the other provider's configured model, and OpenRouter's Free
+ * Models Router (openrouter/free) is ALWAYS the final attempt - even
+ * when every provider toggle is off, so the chatbot never loses its
+ * last-resort route.
  *
  * Provider names and keys live only in admin surfaces and logs; nothing
  * here is ever exposed to visitors (model masking policy).
@@ -29,26 +30,54 @@ class LlmProviderChain
     public const DEFAULT_SUMOPOD_BASE_URL = 'https://ai.sumopod.com';
 
     /**
-     * Build the ordered attempt list for a tier-resolved model.
+     * Split a tier-resolved target into provider + model. A "sumopod:"
+     * prefix marks a SumoPod model; anything else is an OpenRouter id.
+     *
+     * @return array{0: string, 1: string}
+     */
+    public function parseTarget(string $tierTarget): array
+    {
+        if (str_starts_with($tierTarget, self::PROVIDER_SUMOPOD.':')) {
+            return [self::PROVIDER_SUMOPOD, substr($tierTarget, strlen(self::PROVIDER_SUMOPOD) + 1)];
+        }
+
+        return [self::PROVIDER_OPENROUTER, $tierTarget];
+    }
+
+    /**
+     * Build the ordered attempt list for a tier-resolved target.
      *
      * @return array<int, array{provider: string, model: string}>
      */
-    public function attemptsFor(string $tierModel): array
+    public function attemptsFor(string $tierTarget): array
     {
+        [$provider, $model] = $this->parseTarget($tierTarget);
         $attempts = [];
 
-        if ($this->sumopodUsable()) {
-            $attempts[] = [
-                'provider' => self::PROVIDER_SUMOPOD,
-                'model' => (string) Setting::get('ai_sumopod_model'),
-            ];
-        }
+        if ($provider === self::PROVIDER_SUMOPOD) {
+            if ($this->sumopodReady()) {
+                $attempts[] = ['provider' => self::PROVIDER_SUMOPOD, 'model' => $model];
 
-        if ($this->openrouterEnabled()) {
-            $attempts[] = [
-                'provider' => self::PROVIDER_OPENROUTER,
-                'model' => $tierModel,
-            ];
+                // Within-provider fallback: the globally configured
+                // SumoPod model, when it differs from the tier's pick.
+                $global = (string) Setting::get('ai_sumopod_model');
+                if (filled($global) && $global !== $model) {
+                    $attempts[] = ['provider' => self::PROVIDER_SUMOPOD, 'model' => $global];
+                }
+            }
+        } else {
+            if ($this->openrouterEnabled()) {
+                $attempts[] = ['provider' => self::PROVIDER_OPENROUTER, 'model' => $model];
+            }
+
+            // Cross-provider fallback: SumoPod's globally configured
+            // model steps in when OpenRouter is off or fails.
+            if ($this->sumopodUsable()) {
+                $attempts[] = [
+                    'provider' => self::PROVIDER_SUMOPOD,
+                    'model' => (string) Setting::get('ai_sumopod_model'),
+                ];
+            }
         }
 
         // Last resort, unconditionally: the Free Models Router. Skipped
@@ -71,11 +100,17 @@ class LlmProviderChain
         return filter_var(Setting::get('ai_sumopod_enabled', false), FILTER_VALIDATE_BOOLEAN);
     }
 
-    /** SumoPod only counts when it can actually serve a request. */
-    public function sumopodUsable(): bool
+    /** SumoPod can serve a tier-picked model: enabled + key present. */
+    public function sumopodReady(): bool
     {
         return $this->sumopodEnabled()
-            && filled(Setting::get('ai_sumopod_api_key'))
+            && filled(Setting::get('ai_sumopod_api_key'));
+    }
+
+    /** SumoPod can also step in cross-provider: a global model is set. */
+    public function sumopodUsable(): bool
+    {
+        return $this->sumopodReady()
             && filled(Setting::get('ai_sumopod_model'));
     }
 

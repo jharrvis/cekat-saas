@@ -478,12 +478,20 @@ class WhatsAppManager
             ...$history
         ];
 
-        $data = OpenRouterClient::chatCompletion([
-            'model' => $model,
-            'messages' => $allMessages,
-            'temperature' => 0.7,
-            'max_tokens' => 1500,
-        ], 60, 'Cekat SaaS WhatsApp');
+        // Walk the same provider chain as the web chat (the tier target
+        // may point at SumoPod); first usable completion wins.
+        $chain = app(\App\Services\Chat\LlmProviderChain::class);
+        $data = [];
+        foreach ($chain->attemptsFor($model) as $attempt) {
+            $response = $chain->post($attempt, $allMessages, 0.7);
+            $json = $response->json() ?? [];
+            $data = $json;
+
+            if ($response->successful() && empty($json['error']) && ! empty($json['choices'][0]['message']['content'])) {
+                $data['model'] = $attempt['model'];
+                break;
+            }
+        }
 
         return [
             'response' => $data['choices'][0]['message']['content'] ?? 'Maaf, tidak dapat memproses pesan.',
