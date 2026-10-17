@@ -67,6 +67,38 @@ class ModelsManagerSumopodToolsTest extends TestCase
         $this->assertSame('OpenRouter', LlmModel::where('model_id', 'openrouter/free')->value('provider'));
     }
 
+    public function test_fetch_from_sumopod_fills_public_catalogue_prices(): void
+    {
+        Setting::set('ai_sumopod_api_key', 'sk-test', 'string', 'ai');
+        Http::fake([
+            'ai.sumopod.com/v1/models' => Http::response(['data' => [
+                ['id' => 'kimi-k2.6'],
+                ['id' => 'unknown-model-x'],
+            ]], 200),
+        ]);
+
+        Livewire::test(ModelsManager::class)->call('fetchFromSumopod');
+
+        $kimi = LlmModel::where('model_id', 'kimi-k2.6')->first();
+        $this->assertSame(0.08, (float) $kimi->input_price);
+        $this->assertSame(0.35, (float) $kimi->output_price);
+
+        $unknown = LlmModel::where('model_id', 'unknown-model-x')->first();
+        $this->assertSame(0.0, (float) $unknown->input_price);
+    }
+
+    public function test_seeded_sumopod_rows_are_backfilled_with_catalogue_prices(): void
+    {
+        $claude = LlmModel::where('model_id', 'claude-sonnet-4-6')->where('provider', 'sumopod')->first();
+        $this->assertSame(3.0, (float) $claude->input_price);
+        $this->assertSame(15.0, (float) $claude->output_price);
+
+        // Not present in the public snapshot: stays unknown (0), and the
+        // manager no longer renders it as "Free".
+        $kimi25 = LlmModel::where('model_id', 'kimi-k2-5-260127')->first();
+        $this->assertSame(0.0, (float) $kimi25->input_price);
+    }
+
     public function test_fetch_from_sumopod_without_key_does_not_call_the_api(): void
     {
         Http::fake();

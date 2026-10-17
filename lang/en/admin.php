@@ -420,6 +420,7 @@ return [
         'sumopod_imported_desc' => 'Imported automatically from the SumoPod catalogue.',
         'sumopod_key_not_configured' => 'The SumoPod API key is not configured yet — fill it in the AI Providers panel first.',
         'sumopod_models_imported' => ':imported new SumoPod models added, :updated updated, :skipped skipped.',
+        'sumopod_models_priced' => ':count models filled with SumoPod public catalogue prices.',
         'sumopod_api_key' => 'SumoPod API Key',
         'sumopod_base_url' => 'SumoPod Base URL',
         'sumopod_key_hint' => 'Leave empty to keep the stored key. The key is never shown again.',

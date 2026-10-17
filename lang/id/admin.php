@@ -420,6 +420,7 @@ return [
         'sumopod_imported_desc' => 'Diimpor otomatis dari katalog SumoPod.',
         'sumopod_key_not_configured' => 'API key SumoPod belum diatur — isi dulu di panel Provider AI.',
         'sumopod_models_imported' => ':imported model SumoPod baru ditambahkan, :updated diperbarui, :skipped dilewati.',
+        'sumopod_models_priced' => ':count model terisi harga katalog publik SumoPod.',
         'sumopod_api_key' => 'API Key SumoPod',
         'sumopod_base_url' => 'Base URL SumoPod',
         'sumopod_key_hint' => 'Kosongkan untuk mempertahankan key yang tersimpan. Key tidak pernah ditampilkan kembali.',
