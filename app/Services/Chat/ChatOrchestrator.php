@@ -410,49 +410,99 @@ class ChatOrchestrator
             ...$messages,
         ];
 
-        $response = $this->postOpenRouter($allMessages, $model, $temperature);
+        // Provider chain (admin-configured): SumoPod first when enabled,
+        // then OpenRouter with the tier model when enabled, and always
+        // openrouter/free as the final attempt - see LlmProviderChain.
+        $chain = app(LlmProviderChain::class);
+        $attempts = $chain->attemptsFor($model);
+        $last = ['model' => $model, 'body' => null];
 
-        // Self-healing: retired model ids (400/404), exhausted free credits
-        // (402), rate limits (429) and provider hiccups (5xx) fall back to the
-        // Free Models Router once. Auth errors (401/403) do not - a different
-        // model would fail the same way.
-        if (in_array($response->status(), [400, 402, 404, 429, 500, 502, 503, 504], true) && $model !== ModelResolver::FALLBACK_MODEL) {
-            Log::warning('OpenRouter model unavailable, retrying with fallback', [
-                'model' => $model,
-                'status' => $response->status(),
-            ]);
+        foreach ($attempts as $index => $attempt) {
+            $isLast = $index === count($attempts) - 1;
 
-            $model = ModelResolver::FALLBACK_MODEL;
-            $response = $this->postOpenRouter($allMessages, $model, $temperature);
+            // Up to two posts per attempt: the second one only retries an
+            // empty completion (reasoning-heavy models can spend max_tokens
+            // on thinking and return no content).
+            for ($try = 0; $try < 2; $try++) {
+                try {
+                    $response = $chain->post($attempt, $allMessages, $temperature);
+                } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                    Log::warning('AI provider connection failed, trying next', [
+                        'provider' => $attempt['provider'],
+                        'model' => $attempt['model'],
+                        'error' => $e->getMessage(),
+                    ]);
+
+                    if ($isLast) {
+                        throw $e;
+                    }
+
+                    continue 2;
+                }
+
+                $body = $response->json();
+                $last = ['model' => $attempt['model'], 'body' => $body];
+                $status = $response->status();
+
+                // Auth errors end the chain on OpenRouter (a different
+                // model would fail the same way), but a SumoPod auth
+                // failure says nothing about OpenRouter's key - fail over.
+                if (in_array($status, [401, 403], true)) {
+                    if ($attempt['provider'] === LlmProviderChain::PROVIDER_SUMOPOD && ! $isLast) {
+                        Log::warning('SumoPod auth rejected, falling back to next provider', [
+                            'model' => $attempt['model'],
+                            'status' => $status,
+                        ]);
+
+                        continue 2;
+                    }
+
+                    return $last;
+                }
+
+                // Self-healing: retired model ids (400/404), exhausted free
+                // credits (402), rate limits (429) and provider hiccups
+                // (5xx) move on to the next attempt.
+                if (in_array($status, [400, 402, 404, 429, 500, 502, 503, 504], true)) {
+                    Log::warning('OpenRouter model unavailable, retrying with fallback', [
+                        'model' => $attempt['model'],
+                        'provider' => $attempt['provider'],
+                        'status' => $status,
+                    ]);
+
+                    continue 2;
+                }
+
+                $content = is_array($body) ? ($body['choices'][0]['message']['content'] ?? null) : 'invalid';
+                $empty = is_array($body) && ! isset($body['error']) && ($content === '' || $content === null);
+
+                if ($empty && $try === 0) {
+                    Log::warning('OpenRouter returned empty content, retrying', [
+                        'model' => $attempt['model'],
+                        'provider' => $attempt['provider'],
+                    ]);
+
+                    continue;
+                }
+
+                if ($empty && ! $isLast) {
+                    continue 2;
+                }
+
+                return $last;
+            }
         }
 
-        $body = $response->json();
-        $content = is_array($body) ? ($body['choices'][0]['message']['content'] ?? null) : 'invalid';
-
-        // Reasoning-heavy free models can spend max_tokens on thinking and
-        // return no content - retry once before giving up.
-        if (is_array($body) && ! isset($body['error']) && ($content === '' || $content === null)) {
-            Log::warning('OpenRouter returned empty content, retrying', ['model' => $model]);
-
-            $response = $this->postOpenRouter($allMessages, $model, $temperature);
-            $body = $response->json();
-        }
-
-        return ['model' => $model, 'body' => $body];
+        return $last;
     }
 
     protected function postOpenRouter(array $messages, string $model, float $temperature): \Illuminate\Http\Client\Response
     {
-        return Http::withHeaders([
-            'Authorization' => 'Bearer '.config('services.openrouter.api_key'),
-            'HTTP-Referer' => config('app.url'),
-            'X-Title' => 'Cekat SaaS',
-        ])->timeout(60)->post('https://openrouter.ai/api/v1/chat/completions', [
-            'model' => $model,
-            'messages' => $messages,
-            'temperature' => $temperature,
-            'max_tokens' => 1500,
-        ]);
+        return app(LlmProviderChain::class)->post(
+            ['provider' => LlmProviderChain::PROVIDER_OPENROUTER, 'model' => $model],
+            $messages,
+            $temperature,
+        );
     }
 
     protected function persistConversation(Widget $widget, string $sessionId, string $userMessage, string $aiResponse, string $model, array $usage, string $pageUrl = '', string $referrerUrl = '', ?\DateTimeInterface $receivedAt = null, bool $preview = false): void
