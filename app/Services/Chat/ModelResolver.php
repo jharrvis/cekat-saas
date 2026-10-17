@@ -2,6 +2,7 @@
 
 namespace App\Services\Chat;
 
+use App\Models\LlmModel;
 use App\Models\Setting;
 use App\Models\Widget;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\Log;
  *
  * The AI Agent does NOT determine the model; the plan's AI tier does
  * (LLM abstraction). Extracted verbatim from Api\ChatController.
+ *
+ * The returned string is a provider target: a "sumopod:<model-id>"
+ * value targets the SumoPod gateway, anything else is an OpenRouter
+ * model id. LlmProviderChain interprets the prefix.
  */
 class ModelResolver
 {
@@ -33,6 +38,16 @@ class ModelResolver
         if ($widget->slug === QuotaService::LANDING_SLUG) {
             $settings = $widget->settings ?? [];
             $model = $settings['model'] ?? $defaultModel;
+
+            // The landing selector stores bare catalogue ids; a pick
+            // from the SumoPod catalogue must become a sumopod: target.
+            if (is_string($model) && ! str_starts_with($model, LlmProviderChain::PROVIDER_SUMOPOD.':')) {
+                $catalogue = LlmModel::where('model_id', $model)->first();
+                if ($catalogue && $catalogue->provider === LlmProviderChain::PROVIDER_SUMOPOD) {
+                    $model = LlmProviderChain::PROVIDER_SUMOPOD.':'.$model;
+                }
+            }
+
             Log::info('Landing Page Model Selection', ['model' => $model]);
 
             return $model;

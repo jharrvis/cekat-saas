@@ -39,17 +39,60 @@ class LlmProviderChainTest extends TestCase
         ], $attempts);
     }
 
-    public function test_sumopod_goes_first_when_enabled_and_configured(): void
+    public function test_sumopod_is_cross_fallback_for_openrouter_targets(): void
     {
         $this->enableSumopod();
 
         $attempts = app(LlmProviderChain::class)->attemptsFor('some/model');
 
         $this->assertSame([
-            ['provider' => 'sumopod', 'model' => 'sumo-model-1'],
             ['provider' => 'openrouter', 'model' => 'some/model'],
+            ['provider' => 'sumopod', 'model' => 'sumo-model-1'],
             ['provider' => 'openrouter', 'model' => 'openrouter/free'],
         ], $attempts);
+    }
+
+    public function test_sumopod_tier_target_goes_first(): void
+    {
+        Setting::set('ai_sumopod_enabled', true, 'boolean', 'ai');
+        Setting::set('ai_sumopod_api_key', 'sk-test-key', 'string', 'ai');
+
+        $attempts = app(LlmProviderChain::class)->attemptsFor('sumopod:sumo-model-9');
+
+        $this->assertSame([
+            ['provider' => 'sumopod', 'model' => 'sumo-model-9'],
+            ['provider' => 'openrouter', 'model' => 'openrouter/free'],
+        ], $attempts);
+    }
+
+    public function test_sumopod_tier_target_uses_global_model_as_within_provider_fallback(): void
+    {
+        $this->enableSumopod();
+
+        $attempts = app(LlmProviderChain::class)->attemptsFor('sumopod:sumo-model-9');
+
+        $this->assertSame([
+            ['provider' => 'sumopod', 'model' => 'sumo-model-9'],
+            ['provider' => 'sumopod', 'model' => 'sumo-model-1'],
+            ['provider' => 'openrouter', 'model' => 'openrouter/free'],
+        ], $attempts);
+    }
+
+    public function test_sumopod_tier_target_without_ready_provider_goes_straight_to_free_router(): void
+    {
+        $attempts = app(LlmProviderChain::class)->attemptsFor('sumopod:sumo-model-9');
+
+        $this->assertSame([
+            ['provider' => 'openrouter', 'model' => 'openrouter/free'],
+        ], $attempts);
+    }
+
+    public function test_parse_target_distinguishes_providers(): void
+    {
+        $chain = app(LlmProviderChain::class);
+
+        $this->assertSame(['sumopod', 'kimi-k2-5-260127'], $chain->parseTarget('sumopod:kimi-k2-5-260127'));
+        $this->assertSame(['openrouter', 'google/gemma-3-4b-it:free'], $chain->parseTarget('google/gemma-3-4b-it:free'));
     }
 
     public function test_sumopod_without_key_or_model_is_skipped(): void

@@ -63,12 +63,9 @@ class AiProviderSettings extends Component
             return;
         }
 
-        if ($this->sumopodEnabled && ! filled($this->sumopodModel)) {
-            $this->addError('sumopodModel', __('admin.s.sumopod_model_required'));
-
-            return;
-        }
-
+        // The SumoPod model field is optional since per-tier SumoPod
+        // model selection exists: it only configures the cross-provider
+        // fallback model. The API key stays mandatory when enabled.
         Setting::set('ai_openrouter_enabled', $this->openrouterEnabled, 'boolean', 'ai');
         Setting::set('ai_sumopod_enabled', $this->sumopodEnabled, 'boolean', 'ai');
         Setting::set('ai_sumopod_base_url', rtrim($this->sumopodBaseUrl, '/'), 'string', 'ai');

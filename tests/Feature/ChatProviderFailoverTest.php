@@ -56,7 +56,7 @@ class ChatProviderFailoverTest extends TestCase
         Setting::set('ai_sumopod_model', 'sumo-model-1', 'string', 'ai');
     }
 
-    public function test_sumopod_answers_first_and_openrouter_is_never_called(): void
+    public function test_sumopod_tier_target_answers_first_and_openrouter_is_never_called(): void
     {
         $this->enableSumopod();
         Http::fake([
@@ -64,38 +64,52 @@ class ChatProviderFailoverTest extends TestCase
             'openrouter.ai/*' => Http::response(self::completion('Dari OpenRouter'), 200),
         ]);
 
-        $result = $this->orchestrator()->callPublic('system', [['role' => 'user', 'content' => 'hi']], 'tier/model');
+        $result = $this->orchestrator()->callPublic('system', [['role' => 'user', 'content' => 'hi']], 'sumopod:sumo-model-1');
 
         $this->assertSame('sumo-model-1', $result['model']);
         $this->assertSame('Dari SumoPod', $result['body']['choices'][0]['message']['content']);
         Http::assertNotSent(fn (Request $request) => str_contains($request->url(), 'openrouter.ai'));
     }
 
-    public function test_sumopod_server_error_fails_over_to_openrouter_tier_model(): void
+    public function test_sumopod_server_error_fails_over_to_free_router(): void
     {
         $this->enableSumopod();
         Http::fake([
             'ai.sumopod.com/*' => Http::response(['error' => ['message' => 'boom']], 500),
-            'openrouter.ai/*' => Http::response(self::completion('Dari OpenRouter'), 200),
+            'openrouter.ai/*' => Http::response(self::completion('Dari Free Router'), 200),
+        ]);
+
+        $result = $this->orchestrator()->callPublic('system', [['role' => 'user', 'content' => 'hi']], 'sumopod:sumo-model-1');
+
+        $this->assertSame(ModelResolver::FALLBACK_MODEL, $result['model']);
+        $this->assertSame('Dari Free Router', $result['body']['choices'][0]['message']['content']);
+    }
+
+    public function test_openrouter_failure_crosses_over_to_sumopod_global_model(): void
+    {
+        $this->enableSumopod();
+        Http::fake([
+            'ai.sumopod.com/*' => Http::response(self::completion('Dari SumoPod'), 200),
+            'openrouter.ai/*' => Http::response(['error' => ['message' => 'boom']], 500),
         ]);
 
         $result = $this->orchestrator()->callPublic('system', [['role' => 'user', 'content' => 'hi']], 'tier/model');
 
-        $this->assertSame('tier/model', $result['model']);
-        $this->assertSame('Dari OpenRouter', $result['body']['choices'][0]['message']['content']);
+        $this->assertSame('sumo-model-1', $result['model']);
+        $this->assertSame('Dari SumoPod', $result['body']['choices'][0]['message']['content']);
     }
 
-    public function test_sumopod_auth_error_fails_over_to_openrouter(): void
+    public function test_sumopod_auth_error_fails_over_to_free_router(): void
     {
         $this->enableSumopod();
         Http::fake([
             'ai.sumopod.com/*' => Http::response(['error' => ['message' => 'invalid key']], 401),
-            'openrouter.ai/*' => Http::response(self::completion('Dari OpenRouter'), 200),
+            'openrouter.ai/*' => Http::response(self::completion('Dari Free Router'), 200),
         ]);
 
-        $result = $this->orchestrator()->callPublic('system', [['role' => 'user', 'content' => 'hi']], 'tier/model');
+        $result = $this->orchestrator()->callPublic('system', [['role' => 'user', 'content' => 'hi']], 'sumopod:sumo-model-1');
 
-        $this->assertSame('tier/model', $result['model']);
+        $this->assertSame(ModelResolver::FALLBACK_MODEL, $result['model']);
     }
 
     public function test_all_providers_off_goes_straight_to_free_router(): void

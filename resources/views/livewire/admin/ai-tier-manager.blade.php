@@ -47,9 +47,11 @@
                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white">
                     <option value="">{{ __('admin.s.select_model') }}</option>
                     @foreach($models as $model)
-                        <option value="{{ $model->model_id }}">
+                        <option value="{{ $model->provider === 'sumopod' ? 'sumopod:'.$model->model_id : $model->model_id }}">
                             {{ $model->name }} ({{ $model->provider }})
-                            @if($model->input_price == 0) - Free @else - ${{ number_format($model->input_price, 2) }}/1M @endif
+                            @if($model->provider !== 'sumopod')
+                                @if($model->input_price == 0) - Free @else - ${{ number_format($model->input_price, 2) }}/1M @endif
+                            @endif
                         </option>
                     @endforeach
                 </select>
@@ -57,7 +59,7 @@
                 @if($tierMapping[$tierSlug])
                     <p class="text-xs text-muted-foreground mt-2">
                         <i class="fa-solid fa-check text-green-500 mr-1"></i>
-                        Current: {{ $tierMapping[$tierSlug] }}
+                        Current: {{ str_starts_with($tierMapping[$tierSlug], 'sumopod:') ? substr($tierMapping[$tierSlug], 8).' (SumoPod)' : $tierMapping[$tierSlug] }}
                     </p>
                 @endif
             </div>
