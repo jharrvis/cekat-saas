@@ -7,6 +7,7 @@
     <div class="space-y-6">
         @livewire('admin.ai-provider-settings')
         @livewire('admin.ai-tier-manager')
+        @livewire('admin.ai-usage-stats')
         @livewire('admin.models-manager')
     </div>
 @endsection
