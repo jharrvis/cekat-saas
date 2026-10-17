@@ -179,7 +179,10 @@
                         </td>
                         <td class="px-4 py-3 text-sm">{{ $model->provider }}</td>
                         <td class="px-4 py-3 text-sm">
-                            @if($model->input_price == 0)
+                            @if($model->input_price == 0 && $model->provider === 'sumopod')
+                                {{-- SumoPod rows price from the catalogue snapshot; 0 means unknown, never "free". --}}
+                                <span class="text-muted-foreground">—</span>
+                            @elseif($model->input_price == 0)
                                 <span class="text-green-600 font-medium">{{ __('admin.s.free_2') }}</span>
                             @else
                                 ${{ number_format($model->input_price, 2) }}

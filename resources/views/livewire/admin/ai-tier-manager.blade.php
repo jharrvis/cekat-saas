@@ -49,9 +49,8 @@
                     @foreach($models as $model)
                         <option value="{{ $model->provider === 'sumopod' ? 'sumopod:'.$model->model_id : $model->model_id }}">
                             {{ $model->name }} ({{ $model->provider }})
-                            @if($model->provider !== 'sumopod')
-                                @if($model->input_price == 0) - Free @else - ${{ number_format($model->input_price, 2) }}/1M @endif
-                            @endif
+                            @if($model->input_price > 0) - ${{ number_format($model->input_price, 2) }}/1M
+                            @elseif($model->provider !== 'sumopod') - Free @endif
                         </option>
                     @endforeach
                 </select>

@@ -234,6 +234,10 @@ class ModelsManager extends Component
             $imported = 0;
             $updated = 0;
             $skipped = 0;
+            $priced = 0;
+            // The account API carries no pricing; fill from the public
+            // list-price snapshot (config/sumopod_prices.php).
+            $priceMap = config('sumopod_prices', []);
 
             foreach (array_slice($response->json('data') ?? [], 0, 500) as $entry) {
                 $id = $entry['id'] ?? null;
@@ -256,6 +260,12 @@ class ModelsManager extends Component
                     'is_active' => true,
                 ];
 
+                if (isset($priceMap[$id])) {
+                    $values['input_price'] = $priceMap[$id]['input'];
+                    $values['output_price'] = $priceMap[$id]['output'];
+                    $priced++;
+                }
+
                 if ($existing) {
                     if (isset($entry['name'])) {
                         $values['name'] = $entry['name'];
@@ -266,19 +276,23 @@ class ModelsManager extends Component
                     LlmModel::create(array_merge($values, [
                         'model_id' => $id,
                         'name' => $entry['name'] ?? ucwords(str_replace(['-', '_'], ' ', $id)),
-                        'input_price' => 0,
-                        'output_price' => 0,
+                        'input_price' => $values['input_price'] ?? 0,
+                        'output_price' => $values['output_price'] ?? 0,
                         'popularity' => 50,
                     ]));
                     $imported++;
                 }
             }
 
-            session()->flash('message', __('admin.s.sumopod_models_imported', [
+            $message = __('admin.s.sumopod_models_imported', [
                 'imported' => $imported,
                 'updated' => $updated,
                 'skipped' => $skipped,
-            ]));
+            ]);
+            if ($priced > 0) {
+                $message .= ' '.__('admin.s.sumopod_models_priced', ['count' => $priced]);
+            }
+            session()->flash('message', $message);
             $this->loadModels();
         } catch (\Exception $e) {
             session()->flash('error', __('admin.s.error_with_message', ['error' => $e->getMessage()]));
