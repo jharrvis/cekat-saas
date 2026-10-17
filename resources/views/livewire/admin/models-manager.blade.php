@@ -41,9 +41,28 @@
             <button wire:click="fetchFromOpenRouter"
                 class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition text-sm">
                 <i class="fa-solid fa-cloud-download-alt mr-2"></i>{{ __('admin.s.fetch_from_openrouter') }}</button>
+            <button wire:click="fetchFromSumopod"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition text-sm">
+                <i class="fa-solid fa-cloud-download-alt mr-2"></i>{{ __('admin.s.fetch_from_sumopod') }}</button>
             <button wire:click="create"
                 class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition text-sm">
                 <i class="fa-solid fa-plus mr-2"></i>{{ __('admin.s.add_model') }}</button>
+        </div>
+    </div>
+
+    {{-- Search + provider filter --}}
+    <div class="flex flex-col md:flex-row gap-3 mb-6">
+        <div class="flex-1">
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="{{ __('admin.s.search_models') }}"
+                class="w-full rounded-lg border border-gray-300 dark:bg-slate-800 text-sm px-4 py-2">
+        </div>
+        <div>
+            <select wire:model.live="providerFilter" class="rounded-lg border border-gray-300 dark:bg-slate-800 text-sm px-4 py-2">
+                <option value="">{{ __('admin.s.all_providers') }}</option>
+                @foreach($providerOptions as $providerOption)
+                    <option value="{{ $providerOption }}">{{ $providerOption }}</option>
+                @endforeach
+            </select>
         </div>
     </div>
 

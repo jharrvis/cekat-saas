@@ -4,6 +4,8 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use App\Models\LlmModel;
+use App\Models\Setting;
+use App\Services\Chat\LlmProviderChain;
 use Illuminate\Support\Facades\Http;
 
 class ModelsManager extends Component
@@ -11,6 +13,8 @@ class ModelsManager extends Component
     public $models = [];
     public $editingModel = null;
     public $showForm = false;
+    public $search = '';
+    public $providerFilter = '';
 
     // Form fields
     public $model_id = '';
@@ -44,7 +48,28 @@ class ModelsManager extends Component
 
     public function loadModels()
     {
-        $this->models = LlmModel::orderBy('popularity', 'desc')->get();
+        $query = LlmModel::orderBy('popularity', 'desc');
+
+        if (filled($this->search)) {
+            $term = '%'.$this->search.'%';
+            $query->where(fn ($q) => $q->where('name', 'like', $term)->orWhere('model_id', 'like', $term));
+        }
+
+        if (filled($this->providerFilter)) {
+            $query->where('provider', $this->providerFilter);
+        }
+
+        $this->models = $query->get();
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->loadModels();
+    }
+
+    public function updatedProviderFilter(): void
+    {
+        $this->loadModels();
     }
 
     public function create()
@@ -184,6 +209,83 @@ class ModelsManager extends Component
     }
 
     /**
+     * Import the full model catalogue of the connected SumoPod account
+     * (GET /v1/models with the stored key) as provider=sumopod rows.
+     * Ids that already belong to another provider are never reassigned.
+     */
+    public function fetchFromSumopod()
+    {
+        if (! filled(Setting::get('ai_sumopod_api_key'))) {
+            session()->flash('error', __('admin.s.sumopod_key_not_configured'));
+            return;
+        }
+
+        try {
+            $chain = app(LlmProviderChain::class);
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer '.(string) Setting::get('ai_sumopod_api_key'),
+            ])->timeout(30)->get($chain->sumopodBaseUrl().'/v1/models');
+
+            if (! $response->successful()) {
+                session()->flash('error', __('admin.s.failed_fetch_sumopod', ['status' => $response->status()]));
+                return;
+            }
+
+            $imported = 0;
+            $updated = 0;
+            $skipped = 0;
+
+            foreach (array_slice($response->json('data') ?? [], 0, 500) as $entry) {
+                $id = $entry['id'] ?? null;
+                if (! filled($id)) {
+                    $skipped++;
+                    continue;
+                }
+
+                $existing = LlmModel::where('model_id', $id)->first();
+                if ($existing && strtolower(trim($existing->provider)) !== LlmProviderChain::PROVIDER_SUMOPOD) {
+                    $skipped++; // the id already belongs to another provider
+                    continue;
+                }
+
+                $values = [
+                    'provider' => LlmProviderChain::PROVIDER_SUMOPOD,
+                    'description' => $entry['description'] ?? __('admin.s.sumopod_imported_desc'),
+                    'context_length' => max(0, (int) ($entry['context_length'] ?? 0)),
+                    'allowed_tiers' => ['basic', 'standard', 'advanced', 'premium'],
+                    'is_active' => true,
+                ];
+
+                if ($existing) {
+                    if (isset($entry['name'])) {
+                        $values['name'] = $entry['name'];
+                    }
+                    $existing->update($values);
+                    $updated++;
+                } else {
+                    LlmModel::create(array_merge($values, [
+                        'model_id' => $id,
+                        'name' => $entry['name'] ?? ucwords(str_replace(['-', '_'], ' ', $id)),
+                        'input_price' => 0,
+                        'output_price' => 0,
+                        'popularity' => 50,
+                    ]));
+                    $imported++;
+                }
+            }
+
+            session()->flash('message', __('admin.s.sumopod_models_imported', [
+                'imported' => $imported,
+                'updated' => $updated,
+                'skipped' => $skipped,
+            ]));
+            $this->loadModels();
+        } catch (\Exception $e) {
+            session()->flash('error', __('admin.s.error_with_message', ['error' => $e->getMessage()]));
+        }
+    }
+
+    /**
      * Fetch single model info from OpenRouter API based on model_id
      */
     public function fetchModelInfo()
@@ -239,24 +341,44 @@ class ModelsManager extends Component
             return;
         }
 
-        try {
-            $apiKey = config('services.openrouter.api_key');
-            if (empty($apiKey)) {
-                session()->flash('error', __('admin.s.openrouter_key_not_configured'));
-                return;
-            }
+        // Provider-aware: catalogue rows marked sumopod are tested
+        // against the SumoPod gateway, everything else via OpenRouter.
+        $provider = $modelId === null
+            ? $this->provider
+            : (LlmModel::where('model_id', $testModelId)->value('provider') ?? '');
+        $isSumopod = strtolower(trim((string) $provider)) === LlmProviderChain::PROVIDER_SUMOPOD;
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-                'HTTP-Referer' => config('app.url'),
-                'X-Title' => 'Cekat.biz.id Model Test',
-            ])->timeout(30)->post('https://openrouter.ai/api/v1/chat/completions', [
-                        'model' => $testModelId,
-                        'messages' => [
-                            ['role' => 'user', 'content' => 'Say "Hello, I am working!" in one sentence.']
-                        ],
-                        'max_tokens' => 50,
-                    ]);
+        try {
+            if ($isSumopod) {
+                if (! filled(Setting::get('ai_sumopod_api_key'))) {
+                    session()->flash('error', __('admin.s.sumopod_key_not_configured'));
+                    return;
+                }
+
+                $response = app(LlmProviderChain::class)->post(
+                    ['provider' => LlmProviderChain::PROVIDER_SUMOPOD, 'model' => $testModelId],
+                    [['role' => 'user', 'content' => 'Say "Hello, I am working!" in one sentence.']],
+                    0.7,
+                );
+            } else {
+                $apiKey = config('services.openrouter.api_key');
+                if (empty($apiKey)) {
+                    session()->flash('error', __('admin.s.openrouter_key_not_configured'));
+                    return;
+                }
+
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'HTTP-Referer' => config('app.url'),
+                    'X-Title' => 'Cekat.biz.id Model Test',
+                ])->timeout(30)->post('https://openrouter.ai/api/v1/chat/completions', [
+                            'model' => $testModelId,
+                            'messages' => [
+                                ['role' => 'user', 'content' => 'Say "Hello, I am working!" in one sentence.']
+                            ],
+                            'max_tokens' => 50,
+                        ]);
+            }
 
             if ($response->successful()) {
                 $result = $response->json();
@@ -285,6 +407,8 @@ class ModelsManager extends Component
 
     public function render()
     {
-        return view('livewire.admin.models-manager');
+        return view('livewire.admin.models-manager', [
+            'providerOptions' => LlmModel::query()->distinct()->orderBy('provider')->pluck('provider'),
+        ]);
     }
 }

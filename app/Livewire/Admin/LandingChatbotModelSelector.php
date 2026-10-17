@@ -3,7 +3,9 @@
 namespace App\Livewire\Admin;
 
 use App\Models\LlmModel;
+use App\Models\Setting;
 use App\Models\Widget;
+use App\Services\Chat\LlmProviderChain;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
 
@@ -46,26 +48,47 @@ class LandingChatbotModelSelector extends Component
         }
 
         try {
-            $apiKey = config('services.openrouter.api_key');
-            if (empty($apiKey)) {
-                $this->testResult = [
-                    'success' => false,
-                    'error' => __('admin.s.openrouter_key_not_configured'),
-                ];
-                return;
-            }
+            // Provider-aware: a SumoPod catalogue pick is tested against
+            // the SumoPod gateway, everything else via OpenRouter.
+            $provider = LlmModel::where('model_id', $this->selectedModel)->value('provider') ?? '';
+            $isSumopod = strtolower(trim((string) $provider)) === LlmProviderChain::PROVIDER_SUMOPOD;
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $apiKey,
-                'HTTP-Referer' => config('app.url'),
-                'X-Title' => 'Cekat.biz.id Model Test',
-            ])->timeout(30)->post('https://openrouter.ai/api/v1/chat/completions', [
-                        'model' => $this->selectedModel,
-                        'messages' => [
-                            ['role' => 'user', 'content' => 'Say "Hello, I am working!" in one short sentence.']
-                        ],
-                        'max_tokens' => 50,
-                    ]);
+            if ($isSumopod) {
+                if (! filled(Setting::get('ai_sumopod_api_key'))) {
+                    $this->testResult = [
+                        'success' => false,
+                        'error' => __('admin.s.sumopod_key_not_configured'),
+                    ];
+                    return;
+                }
+
+                $response = app(LlmProviderChain::class)->post(
+                    ['provider' => LlmProviderChain::PROVIDER_SUMOPOD, 'model' => $this->selectedModel],
+                    [['role' => 'user', 'content' => 'Say "Hello, I am working!" in one short sentence.']],
+                    0.7,
+                );
+            } else {
+                $apiKey = config('services.openrouter.api_key');
+                if (empty($apiKey)) {
+                    $this->testResult = [
+                        'success' => false,
+                        'error' => __('admin.s.openrouter_key_not_configured'),
+                    ];
+                    return;
+                }
+
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'HTTP-Referer' => config('app.url'),
+                    'X-Title' => 'Cekat.biz.id Model Test',
+                ])->timeout(30)->post('https://openrouter.ai/api/v1/chat/completions', [
+                            'model' => $this->selectedModel,
+                            'messages' => [
+                                ['role' => 'user', 'content' => 'Say "Hello, I am working!" in one short sentence.']
+                            ],
+                            'max_tokens' => 50,
+                        ]);
+            }
 
             if ($response->successful()) {
                 $result = $response->json();
