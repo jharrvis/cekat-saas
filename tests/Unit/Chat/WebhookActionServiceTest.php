@@ -115,6 +115,42 @@ class WebhookActionServiceTest extends TestCase
             && $request->hasHeader('X-Cekat-Signature'));
     }
 
+    public function test_extract_action_parses_pipe_variant_tool_call(): void
+    {
+        $service = new WebhookActionService(new WebhookService);
+
+        $txt = "<|tool_call_start|>\n[api_lookup(lookup=\"jadwal_sidang_perkara\", params=(\"nomor\": \"229/Pdt.G/2026/PA.Sal\"))]\n<|tool_call_end|>";
+        $data = $service->extractAction($txt);
+
+        $this->assertSame('api_lookup', $data['action'] ?? null);
+        $this->assertSame('jadwal_sidang_perkara', $data['lookup'] ?? null);
+        $this->assertSame('229/Pdt.G/2026/PA.Sal', $data['params']['nomor'] ?? null);
+    }
+
+    public function test_strip_never_leaks_pipe_variant_to_visitor(): void
+    {
+        $service = new WebhookActionService(new WebhookService);
+
+        $txt = "<|tool_call_start|>[api_lookup(lookup=\"x\", params=(\"a\": \"b\"))]<|tool_call_end|>";
+        $cleaned = $service->stripActionJson('Halo! '.$txt.' terima kasih');
+
+        $this->assertStringNotContainsString('api_lookup', $cleaned);
+        $this->assertStringNotContainsString('tool_call', $cleaned);
+        $this->assertStringContainsString('Halo!', $cleaned);
+    }
+
+    public function test_extract_action_parses_bare_tool_call_without_tags(): void
+    {
+        $service = new WebhookActionService(new WebhookService);
+
+        $data = $service->extractAction('[api_lookup(lookup="jadwal_sidang", params={"tanggal": "20/10/2026"})]');
+
+        $this->assertSame('api_lookup', $data['action'] ?? null);
+        $this->assertSame('20/10/2026', $data['params']['tanggal'] ?? null);
+
+        $cleaned = $service->stripActionJson('Halo [api_lookup(lookup="x")] ya');
+        $this->assertStringNotContainsString('api_lookup', $cleaned);
+    }
     public function test_dispatch_returns_null_without_webhook_url(): void
     {
         $service = new WebhookActionService(new WebhookService);
