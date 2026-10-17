@@ -5,6 +5,7 @@
 
 @section('content')
     <div class="space-y-6">
+        @livewire('admin.ai-provider-settings')
         @livewire('admin.ai-tier-manager')
         @livewire('admin.models-manager')
     </div>
